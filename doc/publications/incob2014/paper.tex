@@ -251,15 +251,19 @@
 \section*{Background}
 Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases suceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing instruments have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or TCGA~\cite{TCGA2013}. At the same time, whole genome sequencing will enable the inclusion of rare or even somatic mutations in the analysis. This drastic increase in both sample numbers and feature per sample requires a massively parallele approach to data processing. 
 
-As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Almeida2013,Zou2013, Qiu2010,Taylor2010}). Specifically, for sequence analysis tools for read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} were released over recent years. 
+As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Almeida2013,Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} or Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
+
+At the same time, sophisticated machine learning methodologies are increasingly adapted to utilise MapReduce paradigms overcoming callings that arise due to their iterative nature~\cite{Chu2009}. Specifically, the Mahout project\url{https://mahout.apache.org/} has been developed extensively~\cite{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\cite{Dong2013}.
+
+We therefore link the two areas by providing an interface between Mahout and the standard variant data format, VCF~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks.   
+To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure as well as ancestry using different algorithms available in Mahout. In the first two sections we benchmark the performance and accuracy of Mahout's implementations against standard R based implementations on a reduced version of the data and in the last section we investigate the performance on the full dataset, demonstrating how seamless Mahout can transit to population-scale tasks.   
 
 %SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
 
 
-GWAS\cite{Huang2013, Guo2014}
 
 
-\url{https://mahout.apache.org/}
+
 
 
 \section*{Results and discussion}
@@ -279,6 +283,9 @@ ADAM~\cite{Massie2013}
 
 \section*{Methods}
 \subsection*{Datasets}
+Trio data from the 1000 genomes project -> determine in the clustering can identify ancestry 
+Sequence data from hapmap samples -> determine ethnic groups
+Scaled down version of the hap map data (Chr1) for R to run on
 Overview see Table~\ref{datasets}
 
 \subsection*{K-means clustering}
