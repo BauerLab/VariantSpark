@@ -381,12 +381,44 @@ Using a custom Java program, we transpose the
       \begin{tabular}{lcc}
         \hline
            & individuals  & variants  \\ \hline
-        Chr1 subset & & \\
-        1000genomes trios & & \\
-        hapmap & ... & ..  \\ \hline
+        Chr1 subset & 1024 & 3,007,196 \\
+        1000genomes trios & 1024 & ...\\
+        hapmap & ... & ...  \\ \hline
       \end{tabular}
       \label{datasets}
 \end{table}
+
+\begin{table}[h!]
+\caption{Adjusted Rand index (accuracy).}
+      \begin{tabular}{lccc}
+        \hline
+           & Chr1 subset & 1000genomes trios  & hapmap \\ \hline
+        Mahout, k=4 & 0.664 & ..&..\\
+        Mahout, k=10 & 0.714 & ..&..\\
+        Mahout, k=20 & 0.769 & .. & ..\\ 
+        Mahout, k=30 & 0.728 & .. & ..\\ 
+        R, k=4 & .. & - & -\\
+        R, k=10 & .. & - & -\\
+        R, k=20 & .. & - & -\\ 
+        R, k=30 & .. & - & -\\ \hline
+      \end{tabular}
+      \label{datasets}
+\end{table}
+
+\begin{table}[h!]
+\caption{Time taken to cluster samples (k=20).}
+      \begin{tabular}{lccc}
+        \hline
+           & Chr1 subset & 1000genomes trios  & hapmap \\ \hline
+        Mahout, 1 node & .. & ..&..\\
+        Mahout, 2 nodes & .. & ..&..\\
+        Mahout, 3 nodes & .. & .. & ..\\ 
+        Mahout, 4 nodes & .. & .. & ..\\ 
+        R & .. & - & -\\ \hline
+      \end{tabular}
+      \label{datasets}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
