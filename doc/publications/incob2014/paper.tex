@@ -43,8 +43,8 @@
 
 %%% loading packages, author definitions
 
-%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
-\documentclass{bmcart}
+\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+%\documentclass{bmcart}
 
 %%% Load packages
 %\usepackage{amsthm,amsmath}
@@ -88,7 +88,7 @@
 \begin{frontmatter}
 
 \begin{fmbox}
-\dochead{Research}
+\dochead{Methodology}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -96,7 +96,7 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{A sample article title}
+\title{Scalable Clustering of Genotype Information using MapReduce}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -113,15 +113,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \author[
-   addressref={aff1},                   % id's of addresses, e.g. {aff1,aff2}
-   corref={aff1},                       % id of corresponding address, if any
-   noteref={n1},                        % id's of article notes, if any
-   email={jane.e.doe@cambridge.co.uk}   % email address
-]{\inits{JE}\fnm{Jane E} \snm{Doe}}
+   addressref={aff1,aff2},                   % id's of addresses, e.g. {aff1,aff2}
+%   noteref={n1},                        % id's of article notes, if any
+   email={Aidan.O'Brien@csiro.au}   % email address
+]{\inits{AR}\fnm{Aidan R} \snm{O'Brien}}
 \author[
-   addressref={aff1,aff2},
-   email={john.RS.Smith@cambridge.co.uk}
-]{\inits{JRS}\fnm{John RS} \snm{Smith}}
+   addressref={aff2},
+   email={f.buske@garvan.org.au}
+]{\inits{FA}\fnm{Fabian A} \snm{Buske}}
+\author[
+   addressref={aff1},
+   corref={aff1},                       % id of corresponding address, if any
+   email={Denis.Bauer@CSIRO.au}
+]{\inits{DC}\fnm{Denis C} \snm{Bauer}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -133,18 +137,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \address[id=aff1]{%                           % unique id
-  \orgname{Department of Zoology, Cambridge}, % university, etc
-  \street{Waterloo Road},                     %
-  %\postcode{}                                % post or zip code
-  \city{London},                              % city
-  \cny{UK}                                    % country
+  \orgname{Division of Computational Informatics, CSIRO}, % university, etc
+  \street{11 Julius Av},                     %
+  \postcode{2113}                                % post or zip code
+  \city{Sydney},                              % city
+  \cny{Australia}                                    % country
 }
 \address[id=aff2]{%
-  \orgname{Marine Ecology Department, Institute of Marine Sciences Kiel},
-  \street{D\"{u}sternbrooker Weg 20},
-  \postcode{24105}
-  \city{Kiel},
-  \cny{Germany}
+  \orgname{School of Biomedical Sciences and Pharmacy, Faculty of Health},
+%  \street{},
+  \postcode{2308}
+  \city{Newcastle},
+  \cny{Australia}
+}
+\address[id=aff3]{%
+  \orgname{Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Centre, Garvan Institute of Medical Research},
+  \street{384 Victoria St},
+  \postcode{2010}
+  \city{Sydney},
+  \cny{Australia}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -156,12 +167,12 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{artnotes}
+%\begin{artnotes}
 %\note{Sample of title note}     % note to the article
-\note[id=n1]{Equal contributor} % note, connected to author
-\end{artnotes}
+%\note[id=n1]{Equal contributor} % note, connected to author
+%\end{artnotes}
 
-\end{fmbox}% comment this for two column layout
+%\end{fmbox}% comment this for two column layout
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -177,11 +188,9 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{First part title} %if any
-Text for this section.
-
-\parttitle{Second part title} %if any
-Text for this section.
+\parttitle{Background}
+\parttitle{Results}
+\parttitle{Conclusions}
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -193,9 +202,11 @@ Text for this section.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{keyword}
-\kwd{sample}
-\kwd{article}
-\kwd{author}
+\kwd{Hadoop}
+\kwd{Mahout}
+\kwd{Genotype}
+\kwd{Clustering}
+\kwd{MapReduce}
 \end{keyword}
 
 % MSC classifications codes, if any
@@ -207,7 +218,7 @@ Text for this section.
 
 \end{abstractbox}
 %
-%\end{fmbox}% uncomment this for twcolumn layout
+\end{fmbox}% uncomment this for twcolumn layout
 
 \end{frontmatter}
 
@@ -237,54 +248,28 @@ Text for this section.
 %%%%%%%%%%%%%%%%
 %% Background %%
 %%
-\section*{Content}
-Text and results for this section, as per the individual journal's instructions for authors. %\cite{koon,oreg,khar,zvai,xjon,schn,pond,smith,marg,hunn,advi,koha,mouse}
-
 \section*{Background}
 Text for this section.
 
-\section*{Runtime}
+\section*{Results and discussion}
+\subsection*{Runtime}
 Text for this section.
 
-\section*{Accuracy}
+\subsection*{Accuracy}
 Text for this section.
 
-\section*{Real World Example}
+\subsection*{Real World Example}
 Text for this section.
 
+\section*{Conclusion}
 
-K-means clustering 
+\section*{Methods}
+\subsection*{K-means clustering}
 We Cluster samples from a VCF file containing the variants from chromosome one. The content of the VCF file represents
 Mahout provides libraries for clustering data, 'sequences', although the data must first be converted from the VCF format to
 sequence files. The sequence files should consist of key-value pairs, where
 Using a custom Java program, we transpose the
 
-
-
-
-\subsection*{Sub-heading for section}
-Text for this sub-heading \ldots
-\subsubsection*{Sub-sub heading for section}
-Text for this sub-sub-heading \ldots
-\paragraph*{Sub-sub-sub heading for section}
-Text for this sub-sub-sub-headi	ng \ldots
-In this section we examine the growth rate of the mean of $Z_0$, $Z_1$ and $Z_2$. In
-addition, we examine a common modeling assumption and note the
-importance of considering the tails of the extinction time $T_x$ in
-studies of escape dynamics.
-We will first consider the expected resistant population at $vT_x$ for
-some $v>0$, (and temporarily assume $\alpha=0$)
-%
-
-%
-If we assume that sensitive cells follow a deterministic decay
-$Z_0(t)=xe^{\lambda_0 t}$ and approximate their extinction time as
-$T_x\approx-\frac{1}{\lambda_0}\log x$, then we can heuristically
-estimate the expected value as
-%
-
-%
-Thus we observe that this expected value is finite for all $v>0$ (also see \cite{koon,khar,zvai,xjon,marg}).
 
 
 
@@ -295,6 +280,10 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{backmatter}
+
+\section*{Availability of supporting data}
+\section*{List of abbreviations}
+
 
 \section*{Competing interests}
   The authors declare that they have no competing interests.
@@ -321,7 +310,7 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
 
 % if your bibliography is in bibtex format, use those commands:
 \bibliographystyle{bmc-mathphys} % Style BST file
-\bibliography{bmc_article}      % Bibliography file (usually '*.bib' )
+\bibliography{genotypeClustering}      % Bibliography file (usually '*.bib' )
 
 % or include bibliography directly:
 % \begin{thebibliography}
