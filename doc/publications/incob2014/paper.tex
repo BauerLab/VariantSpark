@@ -49,7 +49,7 @@
 %%% Load packages
 %\usepackage{amsthm,amsmath}
 %\RequirePackage{natbib}
-%\RequirePackage{hyperref}
+\RequirePackage{hyperref}
 \usepackage[utf8]{inputenc} %unicode support
 %\usepackage[applemac]{inputenc} %applemac support if unicode package fails
 %\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
@@ -249,7 +249,18 @@
 %% Background %%
 %%
 \section*{Background}
-Text for this section.
+Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases suceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing instruments have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or TCGA~\cite{TCGA2013}. At the same time, whole genome sequencing will enable the inclusion of rare or even somatic mutations in the analysis. This drastic increase in both sample numbers and feature per sample requires a massively parallele approach to data processing. 
+
+As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Almeida2013,Zou2013, Qiu2010,Taylor2010}). Specifically, for sequence analysis tools for read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} were released over recent years. 
+
+%SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
+
+
+GWAS\cite{Huang2013, Guo2014}
+
+
+\url{https://mahout.apache.org/}
+
 
 \section*{Results and discussion}
 \subsection*{Runtime}
@@ -262,8 +273,14 @@ Text for this section.
 Text for this section.
 
 \section*{Conclusion}
+Note,  Domain-specific language for linear algebraic operations on top of Apache Spark \url{http://spark.apache.org/}
+ADAM~\cite{Massie2013}
+
 
 \section*{Methods}
+\subsection*{Datasets}
+Overview see Table~\ref{datasets}
+
 \subsection*{K-means clustering}
 We Cluster samples from a VCF file containing the variants from chromosome one. The content of the VCF file represents
 Mahout provides libraries for clustering data, 'sequences', although the data must first be converted from the VCF format to
@@ -353,14 +370,15 @@ Using a custom Java program, we transpose the
 %%
 \section*{Tables}
 \begin{table}[h!]
-\caption{Sample table title. This is where the description of the table should go.}
-      \begin{tabular}{cccc}
+\caption{Datasets used in this study.}
+      \begin{tabular}{lcc}
         \hline
-           & B1  &B2   & B3\\ \hline
-        A1 & 0.1 & 0.2 & 0.3\\
-        A2 & ... & ..  & .\\
-        A3 & ..  & .   & .\\ \hline
+           & individuals  & variants  \\ \hline
+        Chr1 subset & & \\
+        1000genomes trios & & \\
+        hapmap & ... & ..  \\ \hline
       \end{tabular}
+      \label{datasets}
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
