@@ -118,7 +118,7 @@
    email={Aidan.O'Brien@csiro.au}   % email address
 ]{\inits{AR}\fnm{Aidan R} \snm{O'Brien}}
 \author[
-   addressref={aff2},
+   addressref={aff3, aff4},
    email={f.buske@garvan.org.au}
 ]{\inits{FA}\fnm{Fabian A} \snm{Buske}}
 \author[
@@ -157,6 +157,14 @@
   \city{Sydney},
   \cny{Australia}
 }
+\address[id=aff4]{%
+  \orgname{UNSW Medicine, University of New South Wales},
+%  \street{},
+  \postcode{2052}
+  \city{Sydney},
+  \cny{Australia}
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -188,9 +196,9 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{Background}
-\parttitle{Results}
-\parttitle{Conclusions}
+\parttitle{Background} Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume generated, which render transitional approaches insufficient. However, by utilising advancements in modern hardware accelerators and data processing we can provide the means for scalable solutions. We therefore aim to provide the interface between standard genomic data formats and advanced and scalable analysis libraries like Mahout. 
+\parttitle{Results} We achieve an XX-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R and YY-fold speedup for PCA, respectively, by comparable accuracy. Due to memory in the R-Implementation the comparison had to be limited to variant data from chromosome 1 only, however we ran the full dataset (aa GB, bb individuals {\`a} cc variants ) through Mahout demonstrating the scalability. 
+\parttitle{Conclusions} Using modern compute paradigms is essential to scale to modern genomic research in an efficient sustainable way. 
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -249,9 +257,9 @@
 %% Background %%
 %%
 \section*{Background}
-Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases suceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing instruments have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or TCGA~\cite{TCGA2013}. At the same time, whole genome sequencing will enable the inclusion of rare or even somatic mutations in the analysis. This drastic increase in both sample numbers and feature per sample requires a massively parallele approach to data processing. 
+Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or TCGA~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallele approach to data processing. 
 
-As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Almeida2013,Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} or Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
+As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} or Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
 
 At the same time, sophisticated machine learning methodologies are increasingly adapted to utilise MapReduce paradigms overcoming callings that arise due to their iterative nature~\cite{Chu2009}. Specifically, the Mahout project\url{https://mahout.apache.org/} has been developed extensively~\cite{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\cite{Dong2013}.
 
