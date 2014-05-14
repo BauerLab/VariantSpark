@@ -291,17 +291,44 @@ ADAM~\cite{Massie2013}
 
 \section*{Methods}
 \subsection*{Datasets}
-Trio data from the 1000 genomes project -> determine in the clustering can identify ancestry 
+For k-means clustering of individuals, we used variant call format (VCF) files from the 1000 Genomes Project.
+These VCF files contain information about the genetic variants between each of the 1092 individuals and a reference genome
+derived from GRCh37. Each of the VCF files are partitioned by chromosome.
+We used the VCF file containing chromosome 1 variants (3,007,196 variants) as a subset of the entire human variant dataset.
+For the entire dataset, we used each of the chromosomal VCF files. Metadata available from the 1000 Genomes Consortium
+specifies additional attributes for each individual, including population and familial data.
+Table~\ref{datasets} contains an overview of the datasets.
+
+
+> determine in the clustering can identify ancestry 
 Sequence data from hapmap samples -> determine ethnic groups
-Scaled down version of the hap map data (Chr1) for R to run on
 Overview see Table~\ref{datasets}
 
-\subsection*{K-means clustering}
+\subsection*{Converting to arrays}
+Mahout requires sequence files as input to its clustering algorithms and provides libraries for writing vectors to these files.
+These libraries require a feature vector and optionally a sample name. The vectors must contain an integer for each element.
+Therefore, we need to preprocess the data from the VCF files into a suitable format. The variant data values, which are tab separated,
+must be converted to an integer. For this, we simply determine the Hamming distance between each tab separated value, and the reference genome.
+Therefore, a value identical to the reference will therefore be 0, a heterozygous variant will be 1 and a homozygous variant will be 2.
+
+
+\subsection*{Mahout K-means clustering}
 We Cluster samples from a VCF file containing the variants from chromosome one. The content of the VCF file represents
+
 Mahout provides libraries for clustering data, 'sequences', although the data must first be converted from the VCF format to
 sequence files. The sequence files should consist of key-value pairs, where
 Using a custom Java program, we transpose the
 
+
+
+\subsection*{Clustering quality}
+We scored the clusters with the Adjusted Rand index. This index compares two different clusterings and assigns a value based
+on their similarity. The value is zero for independent clusterings and one for identical clusterings. We compared the mahout k-means
+clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project. For the known clusters,
+individuals were partitioned by their super population code (ASN, EUR, AFR, AMR). We also compared the mahout clusters to the
+R clusters for the Chr1 subset data.
+
+\subsection*{Speed}
 
 
 
