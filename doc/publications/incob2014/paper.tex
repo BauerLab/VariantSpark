@@ -304,12 +304,22 @@ Table~\ref{datasets} contains an overview of the datasets.
 Sequence data from hapmap samples -> determine ethnic groups
 Overview see Table~\ref{datasets}
 
-\subsection*{Converting to arrays}
-Mahout requires sequence files as input to its clustering algorithms and provides libraries for writing vectors to these files.
-These libraries require a feature vector and optionally a sample name. The vectors must contain an integer for each element.
-Therefore, we need to preprocess the data from the VCF files into a suitable format. The variant data values, which are tab separated,
-must be converted to an integer. For this, we simply determine the Hamming distance between each tab separated value, and the reference genome.
-Therefore, a value identical to the reference will therefore be 0, a heterozygous variant will be 1 and a homozygous variant will be 2.
+\subsection*{Pre-processing}
+Mahout requires sequence files as input to its clustering algorithms, and it provides libraries for writing vectors to this file format.
+Separate vectors for each sample, in this case individual, contain an entry for each of the sample's features, where each entry is
+a double. Although samples can subsequently be appended to sequence files, the entire feature-set for each sample must be
+appended in a single write call. Because the features for each sample are present in columns as tab-separated elements in VCF
+files, we recursively transpose the data into CSV files, where each comma-separated row contains the feature-set for a sample
+as well as the sample identity. Concurrently, we convert the values from the VCF file to doubles, as required for Mahout's sequence
+file format and the many algorithms it can serve as input for. For this process, we simply determine the Hamming distance between
+a variant and the reference genome. Therefore, a value identical to the reference will be 0, a heterozygous variant on either strand
+will be 1 and a homozygous variant will be 2.
+At this stage, the CSV files from more than one VCF file are concatenated into the one file. This resulting CSV file, or potential multiple
+CSV files for additional individuals, serve as the input for a custom Java function. This performs line by line, extracting the sample name
+and feature-set from the CSV file and calls a Mahout function to store this data as a named \texttt{DenseVector} object. The vectors are
+populated primarily by zeroes,  we convert this object to a \texttt{SequentialAccessSparseVector} which stores only non-zero doubles
+in one array, and maps their position in a second array. This object is serialized, and the resulting file, or files, serve as input
+to the majority of Mahout's algorithms. 
 
 
 \subsection*{Mahout K-means clustering}
