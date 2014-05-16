@@ -71,14 +71,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\def\includegraphic{}
-\def\includegraphics{}
-
+%\def\includegraphic{}
+%\def\includegraphics{}
+\usepackage{graphicx}
 
 
 %%% Put your definitions there:
 \startlocaldefs
 \endlocaldefs
+
+% Our variable names
+\newcommand{\chrOnePop}{Chr1\_Population}
+\newcommand{\FullPop}{Full\_Population}
+\newcommand{\FullFam}{Chr1\_Family}
 
 
 %%% Begin ...
@@ -291,18 +296,14 @@ ADAM~\cite{Massie2013}
 
 \section*{Methods}
 \subsection*{Datasets}
-For k-means clustering of individuals, we used variant call format (VCF) files from the 1000 Genomes Project.
-These VCF files contain information about the genetic variants between each of the 1092 individuals and a reference genome
-derived from GRCh37. Each of the VCF files are partitioned by chromosome.
-We used the VCF file containing chromosome 1 variants (3,007,196 variants) as a subset of the entire human variant dataset.
-For the entire dataset, we used each of the chromosomal VCF files. Metadata available from the 1000 Genomes Consortium
-specifies additional attributes for each individual, including population and familial data.
+We used variant call format (VCF) files from the 1000 Genomes Project.
+These VCF files contain information about the genetic variants between each of the 1092 individuals and a reference genome derived from GRCh37. 
+Each of the VCF files are partitioned by chromosome.
+Metadata available from the 1000 Genomes Consortium specifies additional attributes for each individual, including population and familial data.
+To be able to compare with R, we created a subset of the entire human variant dataset by using only variants from chromosome 1 (\chrOnePop) where we investigate the correct grouping of the population structure. 
+The population structure is also investigated using the full dataset, i.e. all chromosomes, using Mahout libraries (\FullPop). 
+In addition, we also investigate whether the full dataset allows the accurate prediction of the more detailed family association (\FullFam).
 Table~\ref{datasets} contains an overview of the datasets.
-
-
-> determine in the clustering can identify ancestry 
-Sequence data from hapmap samples -> determine ethnic groups
-Overview see Table~\ref{datasets}
 
 \subsection*{Pre-processing}
 Mahout requires sequence files as input to its clustering algorithms, and it provides libraries for writing vectors to this file format.
@@ -332,10 +333,13 @@ a k-means clustering job on the Hadoop service.
 
 
 \subsection*{Clustering quality}
-We scored the clusters with the Adjusted Rand index. This index compares two different clusterings and assigns a value based
-on their similarity. The value is zero for independent clusterings and one for identical clusterings. We compared the mahout k-means
+We scored the clusters with the Adjusted Rand index. 
+%TODO: can you provide the formular
+This index compares two different clusterings and assigns a value based on their similarity. The value is zero for independent clusterings and one for identical clusterings. We compared the Mahout k-means
 clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project. For the known clusters,
-individuals were partitioned by their super population code (ASN, EUR, AFR, AMR). We also compared the mahout clusters to the
+individuals were partitioned by their super population code (ASN, EUR, AFR, AMR). 
+%TODO: "also on \chrOnePop" on what dataset did you compare the R performance otherwise ?
+We also compared the Mahout clusters to the
 R clusters for the Chr1 subset data.
 
 \subsection*{Speed}
@@ -402,6 +406,7 @@ We measured the speed for various stages of the processing and clustering. We us
 
 \section*{Figures}
   \begin{figure}[h!]
+  \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{images/signature}
   \caption{\csentence{Illustration of Mahout-based clustering of genotypes.}
       The image shows how the here introduced interface converts the vcf file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
       \end{figure}
@@ -425,9 +430,9 @@ We measured the speed for various stages of the processing and clustering. We us
       \begin{tabular}{lcc}
         \hline
            & individuals  & variants  \\ \hline
-        Chr1 subset & 1024 & 3,007,196 \\
-        1000genomes trios & 1024 & ...\\
-        hapmap & ... & ...  \\ \hline
+        \chrOnePop & 1024 & 3,007,196 \\
+        \FullPop\ &  & \\
+        \FullFam\ & 1024 & ...\\
       \end{tabular}
       \label{datasets}
 \end{table}
@@ -446,7 +451,7 @@ We measured the speed for various stages of the processing and clustering. We us
         R, k=20 & .. & - & -\\ 
         R, k=30 & .. & - & -\\ \hline
       \end{tabular}
-      \label{datasets}
+      \label{datasetsAcc}
 \end{table}
 
 \begin{table}[h!]
@@ -460,7 +465,7 @@ We measured the speed for various stages of the processing and clustering. We us
         Mahout, 4 nodes & .. & .. & ..\\ 
         R & .. & - & -\\ \hline
       \end{tabular}
-      \label{datasets}
+      \label{datasetsTime}
 \end{table}
 
 

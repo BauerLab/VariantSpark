@@ -24,3 +24,5 @@ doc/publications/incob2014/readme.html
 *.out
 
 doc/publications/incob2014/images/mahout-logo.svg
+
+*.orig
