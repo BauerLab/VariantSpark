@@ -282,6 +282,8 @@ To demonstrate the capability we cluster variant datasets from the 1000 genomes 
 \section*{Results and discussion}
 \subsection*{Runtime}
 We measured the runtime seperately for pre-processing stage as well as the k-means clustering stage. 
+Pre-processing the data to Mahout's sequence files took approximately 21 minutes (1255s) and used approximately 1.8GB (1831160kb) physical memory (pmem) and 7.6GB (7646232kb) virtual memory (vmem). Conversly,  pre-processing
+the data to R's in memory matrix took approximately 56 minutes (3341s) and used approximately 17.7GB (17696940kb) pmem and 18GB (18000196kb) vmem.	
 
 \subsection*{Accuracy}
 Text for this section.
@@ -304,6 +306,11 @@ To be able to compare with R, we created a subset of the entire human variant da
 The population structure is also investigated using the full dataset, i.e. all chromosomes, using Mahout libraries (\FullPop). 
 In addition, we also investigate whether the full dataset allows the accurate prediction of the more detailed family association (\FullFam).
 Table~\ref{datasets} contains an overview of the datasets.
+
+\subsection*{Hardware}
+We processed the data using a Portable Batch System (PBS) cluster. We allocated one node and 64GB memory for the comparison between Mahout and R.
+Each node has eight CPU cores, however both applications run a single thread for pre-processing the data.
+For the (\FullPop) dataset, we ran the job on a PBS cluster of x nodes, with twelve CPU cores and 48GB of memory per node.
 
 \subsection*{Pre-processing}
 Mahout requires sequence files as input to its clustering algorithms, and it provides libraries for writing vectors to this file format.
@@ -330,6 +337,14 @@ YARN containers. For the first step, we specify \texttt{k}, the number of cluste
 creates a new sequence file containing \texttt{k} random centroids from the samples sequence file. The sequence file
 of samples and the sequence file of centroids serve as the input to \texttt{KMeansDriver.run}, a static Mahout API function that launches
 a k-means clustering job on the Hadoop service. 
+
+
+\subsection*{R K-means clustering}
+We use 'readVcf' from the R library, 'VariantAnnotation', to iteratively read in the VCF file. For each iteration, we convert the data to a matrix and
+change the values for each variant to the Hamming distance, as mentioned previously. We then transpose the matrix, so individuals are represented
+by rows, and append the matrix to that from the previous iteration. Once the matrix contains all of the variants from the VCF file, we cluster the data
+using the 'kmeans' algorithm from the 'stats' library.
+
 
 
 \subsection*{Clustering quality}
