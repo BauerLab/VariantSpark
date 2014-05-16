@@ -298,38 +298,43 @@ ADAM~\cite{Massie2013}
 \subsection*{Datasets}
 We used variant call format (VCF) files from the 1000 Genomes Project.
 These VCF files contain information about the genetic variants between each of the 1092 individuals and a reference genome derived from GRCh37. 
-Each of the VCF files are partitioned by chromosome.
-Metadata available from the 1000 Genomes Consortium specifies additional attributes for each individual, including population and familial data.
+Each of the VCF files are partitioned by chromosome.\\
+Metadata available from the 1000 Genomes Consortium specifies additional attributes for each individual, including population and familial data.\\
 To be able to compare with R, we created a subset of the entire human variant dataset by using only variants from chromosome 1 (\chrOnePop) where we investigate the correct grouping of the population structure. 
 The population structure is also investigated using the full dataset, i.e. all chromosomes, using Mahout libraries (\FullPop). 
 In addition, we also investigate whether the full dataset allows the accurate prediction of the more detailed family association (\FullFam).
 Table~\ref{datasets} contains an overview of the datasets.
 
+
+
 \subsection*{Pre-processing}
 Mahout requires sequence files as input to its clustering algorithms, and it provides libraries for writing vectors to this file format.
-Separate vectors for each sample, in this case individual, contain an entry for each of the sample's features, where each entry is
-a double. Although samples can subsequently be appended to sequence files, the entire feature-set for each sample must be
-appended in a single write call. Because the features for each sample are present in columns as tab-separated elements in VCF
-files, we recursively transpose the data into CSV files, where each comma-separated row contains the feature-set for a sample
+Separate vectors for each sample, in this case, an individual, contain entries for each of the sample's features, where each entry is
+a \texttt{double}. Although additional samples can subsequently be appended to sequence files, the entire feature-set for each sample must be
+appended in a single write operation. Because the features for each sample are present in columns, as tab-separated elements in VCF
+files, we recursively transpose the data into CSV files. Each comma-separated row contains the feature-set for a sample,
 as well as the sample identity. Concurrently, we convert the values from the VCF file to doubles, as required for Mahout's sequence
-file format and the many algorithms it can serve as input for. For this process, we simply determine the Hamming distance between
-a variant and the reference genome. Therefore, a value identical to the reference will be 0, a heterozygous variant on either strand
+file format and the many algorithms this format can serve as input for. We set the value of the double to the Hamming distance between
+each variant and the reference genome. Therefore, a value identical to the reference will be 0, a heterozygous variant on either strand
 will be 1 and a homozygous variant will be 2.
-At this stage, the CSV files from more than one VCF file are concatenated into the one file. This resulting CSV file, or potential multiple
-CSV files for additional individuals, serve as the input for a custom Java function. This performs line by line, extracting the sample name
-and feature-set from the CSV file and calls a Mahout function to store this data as a named \texttt{DenseVector} object. The vectors are
-populated primarily by zeroes,  we convert this object to a \texttt{SequentialAccessSparseVector} which stores only non-zero doubles
-in one array, and maps their position in a second array. This object is serialized, and the resulting file, or files, serve as input
-to the majority of Mahout's algorithms. 
+At this stage, the CSV files from more than one VCF file are concatenated into the one file. This resulting CSV file serves as the input for
+a custom Java function. This iterates over the CSV file, extracting the sample name and feature-set from each line, and calls a Mahout
+function to store this data as a named \texttt{DenseVector} object. The vectors are populated primarily by zeroes, so we convert this object to 
+the more efficient \texttt{SequentialAccessSparseVector} object, which stores only non-zero doubles in an array, and maps their position in a second array.
+
+This object is serialized, and the resulting file can serve as input to the majority of Mahout's algorithms. 
+
 
 
 \subsection*{Mahout K-means clustering}
 To cluster the samples from the sequence files, we use Mahout 0.9 in conjunction with Hadoop 2.2.0. 
-The clustering steps are the same for each sample, however, due to the increased feature size we designate more memory to the
-YARN containers. For the first step, we specify \texttt{k}, the number of clusters. The function \texttt{RandomSeedGenerator.buildRandom}
-creates a new sequence file containing \texttt{k} random centroids from the samples sequence file. The sequence file
+The clustering steps are the same for each dataset, however, due to the increased feature size we designate more memory to the
+YARN containers (a container being the resources allocated to each map or reduce iteration). For the first step, we specify \texttt{k},
+the number of clusters. The function \texttt{RandomSeedGenerator.buildRandom} creates a new sequence file containing \texttt{k}
+random centroids from the samples sequence file. The sequence file
 of samples and the sequence file of centroids serve as the input to \texttt{KMeansDriver.run}, a static Mahout API function that launches
 a k-means clustering job on the Hadoop service. 
+
 
 
 \subsection*{Clustering quality}
@@ -341,6 +346,8 @@ individuals were partitioned by their super population code (ASN, EUR, AFR, AMR)
 %TODO: "also on \chrOnePop" on what dataset did you compare the R performance otherwise ?
 We also compared the Mahout clusters to the
 R clusters for the Chr1 subset data.
+
+
 
 \subsection*{Speed}
 We measured the speed for various stages of the processing and clustering. We used 
@@ -431,7 +438,7 @@ We measured the speed for various stages of the processing and clustering. We us
         \hline
            & individuals  & variants  \\ \hline
         \chrOnePop & 1024 & 3,007,196 \\
-        \FullPop\ &  & \\
+        \FullPop\ & 1024 & 38,219,238 \\
         \FullFam\ & 1024 & ...\\
       \end{tabular}
       \label{datasets}
