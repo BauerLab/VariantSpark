@@ -99,7 +99,8 @@ public class kmeansClusterer extends Configured implements Tool {
 		
 		//Create k centroids at random from the Mahout sequence file
 		Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
-			
+		end = System.currentTimeMillis();
+		System.out.println("Time taken: " + (end - start) + " ms");
 		//Submit the k-means clustering job to the cluster
 		System.out.println("Launching KMeansDriver");
 		KMeansDriver.run(conf, new Path(OUTPUT_DIRECTORY + "/points"),
