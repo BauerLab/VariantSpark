@@ -79,38 +79,17 @@ public class kmeansClusterer extends Configured implements Tool {
 		conf.addResource(new Path(HADOOP_CONF_DIR, "mapred-site.xml"));
 		conf.addResource(new Path(HADOOP_CONF_DIR, "yarn-default.xml"));		
 		conf.addResource(new Path(HADOOP_CONF_DIR, "yarn-site.xml"));
-			
-		
-		/*
-		 * Set the required parameters for Hadoop.
-		 * "yarn" is essential for a non-sequential job
-		 * Need to set number of reduces, but not mappers.
-		 * Number of mappers seems to be sequenceFileSize/blocksize
-		 * blocksize is 128mb by default, set by hpchadoop.
-		 * Some other memory settings are in the vcf-clusterer.sh  
-		 */
-		conf.set("mapreduce.framework.name", "yarn");
-		conf.set("mapreduce.job.reduces", "4");
 		//conf.set("dfs.blocksize","134217728");
-		
-		conf.set("mapreduce.map.memory.mb", "3072");
-		conf.set("mapreduce.map.java.opts", "-Xmx2458m");	
-		
-		conf.set("mapreduce.reduce.memory.mb", "4096");
-		conf.set("mapreduce.reduce.java.opts", "-Xmx3277m");
-				
-		conf.set("yarn.app.mapreduce.am.resource.mb", "3072");
-		conf.set("yarn.app.mapreduce.am.command-opts", "-Xmx2458m");
-
-		conf.set("mapreduce.task.io.sort.mb","819");		
-
+		conf.set("io.compression.codecs",
+				"org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec");
+			
 		
 		FileSystem fs = FileSystem.get(conf);
 		
 		
 		//Transpose a VCF file to CSV file(s)
-		//transposeVCF();
-		//mergeCSV();
+		transposeVCF();
+		mergeCSV();
 		
 		//Submits a job to Hadoop to read in the CSV file(s) and convert them to a Mahout sequence file
 		csvToSequences(conf, fs);
@@ -119,14 +98,18 @@ public class kmeansClusterer extends Configured implements Tool {
 		//chooseInitialCentroids(conf, fs);
 		
 		//Create k centroids at random from the Mahout sequence file
-		//Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new ManhattanDistanceMeasure());
+		Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
 			
 		//Submit the k-means clustering job to the cluster
-		//System.out.println("Launching KMeansDriver");
-		//KMeansDriver.run(conf, new Path(OUTPUT_DIRECTORY + "/points"),
-		//		//new Path(OUTPUT_DIRECTORY + "/clusters"),
-		//		centroids,
-		//		new Path(OUTPUT_DIRECTORY + "/output"), 0.001, 1000, true, 0.001, SINGLE_MACHINE);
+		System.out.println("Launching KMeansDriver");
+		KMeansDriver.run(conf, new Path(OUTPUT_DIRECTORY + "/points"),
+				//new Path(OUTPUT_DIRECTORY + "/clusters"),
+				centroids,
+				new Path(OUTPUT_DIRECTORY + "/output"), 0.001, 20, true, 0.001, SINGLE_MACHINE);
+
+		
+		//String[] args1 = new String[] {"-i", OUTPUT_DIRECTORY + "/points/", "-o", OUTPUT_DIRECTORY + "/output/" , "--estimatedNumMapClusters", "30", "--searchSize","2","-k","10", "--numBallKMeansRuns","3",  "--distanceMeasure","org.apache.mahout.common.distance.EuclideanDistanceMeasure"};
+		//StreamingKMeansDriver.main(args1);
 
 
 		
@@ -135,8 +118,8 @@ public class kmeansClusterer extends Configured implements Tool {
 		 */
 		
 		//Writes clusters with their associated samples to "resultFileCluster.txt"
-		//outputFormatter ob = new outputFormatter();
-		//ob.fileRead(conf);
+		outputFormatter ob = new outputFormatter();
+		ob.fileRead(conf);
 		
 		//Matches samples to their pedigree and returns two arrays to find adjusted Rand index in Python scikit
 		//pedigreeMatcher p = new pedigreeMatcher("20130606_g1k.ped");
@@ -180,7 +163,12 @@ public class kmeansClusterer extends Configured implements Tool {
 		
 		//Readers
 		File folder = new File("vcf/");
-		File[] listOfFiles = folder.listFiles();
+		File[] listOfFiles = folder.listFiles(
+				new FilenameFilter() {
+				    public boolean accept(File dir, String name) {
+				        return name.contains("chr");
+				    }
+			});
 		
 		for (File s: listOfFiles) {
 			InputStream fileStream = null;
@@ -199,32 +187,29 @@ public class kmeansClusterer extends Configured implements Tool {
 			String chromosome= s.getName().split("[.]")[1];
 			System.out.print(chromosome + ", ");
 			String sCurrentLine;
-			int flag = 0;
 			String[] splitted;
 			String[] values;
 			String[] samples = null;
 		    BufferedWriter[] writers = null;
 		    
+			int flag = 0;
 			while ((sCurrentLine = br.readLine()) != null) {
 				if (flag == 1){		
 					splitted = sCurrentLine.split("	");
 					values = Arrays.copyOfRange(splitted,9,splitted.length);
-					ArrayList<String> items = new ArrayList<String>();
+					//ArrayList<String> items = new ArrayList<String>();
 					for (int i = 0; i < values.length; i++) {
 						if (values[i].split(":")[0].equals("0|0")) {
-							items.add(",0");
-							//writers[i].append(",0");
+							//items.add(",0");
+							writers[i].append(",0");
 						} else if (values[i].split(":")[0].equals("0|1") || values[i].split(":")[0].equals("1|0")) {
-							items.add(",1");
-							//writers[i].append(",1");
+							//items.add(",1");
+							writers[i].append(",1");
 						} else if (values[i].split(":")[0].equals("1|1")) {
-							items.add(",2");
-							//writers[i].append(",2");
+							//items.add(",2");
+							writers[i].append(",2");
 						}	
-					}				
-				
-
-				
+					}
 				} else if (sCurrentLine.contains("#CHROM")) {
 					splitted = sCurrentLine.split("	");
 					samples = Arrays.copyOfRange(splitted,9,splitted.length);
@@ -277,7 +262,7 @@ public class kmeansClusterer extends Configured implements Tool {
 			bw.write(s.getName());
 			for (File t: listOfChrDirs) {
 				BufferedReader br = new BufferedReader(new FileReader("csv/" + t.getName() + "/" + s.getName()));
-				bw.write(br.readLine().substring(8));
+				bw.write(br.readLine().substring(7));
 				br.close();
 			}			
 			System.out.print("\rDone: " + s.getName());
@@ -308,41 +293,40 @@ public class kmeansClusterer extends Configured implements Tool {
 				
 		int count = 0;
 		for (File s: listOfFiles) {
-
-			count++;
 			BufferedReader br = new BufferedReader(new FileReader(s));
 			sCurrentLine = br.readLine();
 
 			//List<String> items = Arrays.asList(sCurrentLine.split("\\s*,\\s*"));
-			
-			System.out.println(count);
-			System.out.println(s.getName());
+			double[] test = new double[38219238];
 
-			ArrayList<Double> arrLis = new ArrayList<Double>();
+			//ArrayList<Double> arrLis = new ArrayList<Double>();
 			
+			int curVal = 0;
 	        for (int i = 7; i < sCurrentLine.length(); i++) {
 	        	String current = sCurrentLine.charAt(i)+ "";
 	        	if (current.equals(",")){
 	        		continue;
 	        	}
-	        	arrLis.add(Double.parseDouble(current));
+	        	test[curVal] = Double.parseDouble(current);
+	        	//arrLis.add(Double.parseDouble(current));
+	        	curVal++;
 	        }
 	        
 			String itemName = sCurrentLine.substring(0,7);
 			dasLog.write( count + "\n" );
 
-			int featuresSize = arrLis.size();
-			System.out.println(featuresSize);	
-			double[] features = new double[featuresSize];
+			//int featuresSize = arrLis.size();
+			//double[] features = new double[featuresSize];
 						
-			for(int indx = 0; indx < featuresSize ; indx++){
-				features[indx] = arrLis.get(indx);
-			}
-			individual = new NamedVector(new SequentialAccessSparseVector(new DenseVector(features)), itemName );
+			//for(int indx = 0; indx < featuresSize ; indx++){
+			//	features[indx] = arrLis.get(indx);
+			//}
+			individual = new NamedVector(new SequentialAccessSparseVector(new DenseVector(test)), itemName );
 			vec.set(individual);
 			writer.append(new Text(individual.getName()), vec);
 			br.close();
 			dasLog.flush();
+			count++;
 		}
 		writer.close();
 		dasLog.close();
