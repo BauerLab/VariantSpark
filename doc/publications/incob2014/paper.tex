@@ -276,7 +276,7 @@ To demonstrate the capability we cluster variant datasets from the 1000 genomes 
 
 \section*{Results and discussion}
 \subsection*{Runtime}
-Text for this section.
+We measured the runtime seperately for pre-processing stage as well as the k-means clustering stage. 
 
 \subsection*{Accuracy}
 Text for this section.
@@ -323,12 +323,12 @@ to the majority of Mahout's algorithms.
 
 
 \subsection*{Mahout K-means clustering}
-We Cluster samples from a VCF file containing the variants from chromosome one. The content of the VCF file represents
-
-Mahout provides libraries for clustering data, 'sequences', although the data must first be converted from the VCF format to
-sequence files. The sequence files should consist of key-value pairs, where
-Using a custom Java program, we transpose the
-
+To cluster the samples from the sequence files, we use Mahout 0.9 in conjunction with Hadoop 2.2.0. 
+The clustering steps are the same for each sample, however, due to the increased feature size we designate more memory to the
+YARN containers. For the first step, we specify \texttt{k}, the number of clusters. The function \texttt{RandomSeedGenerator.buildRandom}
+creates a new sequence file containing \texttt{k} random centroids from the samples sequence file. The sequence file
+of samples and the sequence file of centroids serve as the input to \texttt{KMeansDriver.run}, a static Mahout API function that launches
+a k-means clustering job on the Hadoop service. 
 
 
 \subsection*{Clustering quality}
@@ -339,7 +339,7 @@ individuals were partitioned by their super population code (ASN, EUR, AFR, AMR)
 R clusters for the Chr1 subset data.
 
 \subsection*{Speed}
-
+We measured the speed for various stages of the processing and clustering. We used 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
