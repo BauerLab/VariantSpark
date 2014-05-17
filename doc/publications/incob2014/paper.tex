@@ -282,14 +282,27 @@ To demonstrate the capability we cluster variant datasets from the 1000 genomes 
 \section*{Results and discussion}
 \subsection*{Runtime}
 We measured the runtime seperately for pre-processing stage as well as the k-means clustering stage. 
-Pre-processing the data to Mahout's sequence files took approximately 21 minutes (1255s) and used approximately 1.8GB (1831160kb) physical memory (pmem) and 7.6GB (7646232kb) virtual memory (vmem). Conversly,  pre-processing
-the data to R's in memory matrix took approximately 56 minutes (3341s) and used approximately 17.7GB (17696940kb) pmem and 18GB (18000196kb) vmem.	
+Following are the results from the (\chrOnePop) dataset. Pre-processing the data to Mahout's sequence files took approximately 21 minutes (1255s) and used
+approximately 1.8GB (1831160kb) physical memory (pmem) and 7.6GB (7646232kb) virtual memory (vmem).
+Conversly,  pre-processing the data to R's in memory matrix took approximately 56 minutes (3341s) and used
+approximately 17.7GB (17696940kb) pmem and 18GB (18000196kb) vmem. The size of the Mahout sequence file,
+which is saved to disk, is 835MB. K-means clustering the data, however, was faster with R, possibly due to the data already being present in memory.
+R took 7s, whereas Mahout took 10 minutes.\\
+Although the Mahout pipeline was about 25 minutes faster than R's. the clustering step with R was much faster than with Mahout. This is likely due to the additional overhead involved in setting up the Hadoop nodes, spawning the map and reduce instances, and distributing the data between the instances. R on the other hand, already had the data in memory, and only had to process that data. In the case of this comparison, the data set is likely too small to truly reap the benefit of Hadoop's
+MapReduce algorithm. The main benefit of mahout in this scenario is the memory consumption. There is nearly a 10-fold increase for Mahout
+compared to R. 
+
+
 
 \subsection*{Accuracy}
 Text for this section.
 
+
+
 \subsection*{Real World Example}
 Text for this section.
+
+
 
 \section*{Conclusion}
 Note,  Domain-specific language for linear algebraic operations on top of Apache Spark \url{http://spark.apache.org/}
