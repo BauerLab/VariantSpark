@@ -333,7 +333,7 @@ Scaling effortless to massively more samples is the strength of Hadoop, hence co
 
 \section*{Conclusion}
 In this paper we have applied Mahout's k-means clustering to the task of genotype based population and family association. 
-We provide an interface from VCF format to Mahout and a toolset to interpret Mahout's clustering output. 
+We provide an interface from VCF format to Mahout and a toolset to interpret Mahout's clustering output (see Figure~\ref{fig:sign})
 We find that on small datasets the actual clustering stage is two orders of magnitudes slower in Mahout compared to R (10 minutes vs 7 seconds), likely due to the overhead of setting up and co-ordinating the communication between the Hadoop nodes. 
 However, increasing either the number of samples or the number of features per sample quickly exceeds the ability of R.
 Mahout on the other hand scales effortlessly to five times more samples (5,460) and copes well with 15 Million features per samples.
@@ -496,6 +496,7 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 
 \section*{Figures}
   \begin{figure}[h!]
+  \label{fig:sign}
   \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{images/signature}
   \caption{\csentence{Illustration of Mahout-based clustering of genotypes.}
       The image shows how the here introduced interface converts the VCF file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
