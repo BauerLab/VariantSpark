@@ -88,8 +88,8 @@
 \newcommand{\OneReal}{OneChr\_1K}
 \newcommand{\SixReal}{SixChr\_1K}
 \newcommand{\FullReal}{Full\_1K}
-\newcommand{\SixArtiExact}{SixChr\_10K\_0}
-\newcommand{\SixArtiNoise}{SixChr\_100K\_10}
+\newcommand{\SixArtiExact}{Chr19\_5K\_0}
+\newcommand{\SixArtiNoise}{Chr19\_5K\_10}
 
 
 %%% Begin ...
@@ -517,8 +517,8 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
         \OneReal & 1,092 & 816,115  & 4 & 855 & NA\\
         \SixReal & 1,092 & 15,161,339 & 4 & 855 & NA\\
         \FullReal\ & 1,092 & 38,219,238 & 4 & 855 & NA\\
-	\SixArtiExact\ & 10,920 & 15,161,339 & 4 & 855 & 0 \\ 
-	\SixArtiNoise\ & 10,920 & 15,161,339 & 4 & 855 & 10 \\ 
+	\SixArtiExact\ & 5,460 & 816,115 & 4 & 855 & 0 \\ 
+	\SixArtiNoise\ & 5,460 & 816,115 & 4 & 855 & 10 \\ 
       \end{tabular}
       \label{datasets}
 \end{table}
@@ -526,17 +526,17 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 
 \begin{table}[h!]
 \caption{Adjusted Rand index (accuracy).}
-      \begin{tabular}{lcccc}
+      \begin{tabular}{lcc}
         \hline
-           & \chrOnePop & \FullPop  & hapmap \\ \hline
-        Mahout, k=4 & 0.664 & ..&..\\
-        Mahout, k=10 & 0.714 & ..&..\\
-        Mahout, k=20 & 0.769 & .. & ..\\ 
-        Mahout, k=30 & 0.728 & .. & ..\\ 
-        R, k=4 & .. & - & -\\
-        R, k=10 & .. & - & -\\
-        R, k=20 & .. & - & -\\ 
-        R, k=30 & .. & - & -\\ \hline
+           & \chrOnePop & \FullPop   \\ \hline
+        Mahout, k=4 & 0.664\\
+        Mahout, k=10 & 0.714 \\
+        Mahout, k=20 & 0.769 \\ 
+        Mahout, k=30 & 0.728  \\ 
+        R, k=4 & .. & - \\
+        R, k=10 & .. & - \\
+        R, k=20 & .. & - \\ 
+        R, k=30 & .. & - \\ \hline
       \end{tabular}
       \label{datasetsAcc}
 \end{table}
@@ -548,10 +548,10 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
       &&\multicolumn{2}{ c }{Memory (kb)}&\multicolumn{2}{ c }{Time (s)} \\
         \hline
            & Nodes & pmem & vmem  & pre-processing & clustering \\ \hline
-        R, \chrOnePop & 1 & 17696940 & 18000196 &3341 & 7\\
-        Mahout,\chrOnePop & 1 & 1831160 & 7646232 & 1255 & 594\\
-        Mahout, \FullPop & .. &.. & .. & ..&..\\ 
-        Mahout, 4 nodes & .. & .. & .. & ..&..\\ 
+        R, \chrOnePop & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
+        Mahout,\chrOnePop & 1 & 1,831,160 & 7646232 & 1,255 & 594\\
+        Mahout, \SixReal & 1 & 13,036,836 & 36,542,380 & 19,500 &..\\ 
+        Mahout, \SixArtiExact & 1 & 5,804,660 & 39,075,548 & 2,024 & ..\\ 
         \hline
       \end{tabular}
       \label{datasetsTime}
