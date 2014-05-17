@@ -81,7 +81,7 @@
 \endlocaldefs
 
 % Our variable names
-\newcommand{\chrOnePop}{Chr1\_Population}
+\newcommand{\chrOnePop}{Chr19\_Population}
 \newcommand{\FullPop}{Full\_Population}
 \newcommand{\FullFam}{Chr1\_Family}
 
@@ -295,7 +295,8 @@ compared to R.
 
 
 \subsection*{Accuracy}
-Text for this section.
+For this example, we knew the correct clusters from 1000 Genomes metadata. This metadata assigns a population and family value to each of the 1092 individuals.
+With the foreknowledge of the correct clusters, the Adjusted Rand Index enables us to assign a score to cluster accuracy~\cite{Hubert1985}. 
 
 
 
@@ -355,17 +356,17 @@ a k-means clustering job on the Hadoop service.
 
 
 \subsection*{R K-means clustering}
-We use 'readVcf' from the R library, 'VariantAnnotation', to iteratively read in the VCF file. For each iteration, we convert the data to a matrix and
+We use `readVcf' from the R library, `VariantAnnotation', to iteratively read in the VCF file. For each iteration, we convert the data to a matrix and
 change the values for each variant to the Hamming distance, as mentioned previously. We then transpose the matrix, so individuals are represented
 by rows, and append the matrix to that from the previous iteration. Once the matrix contains all of the variants from the VCF file, we cluster the data
-using the 'kmeans' algorithm from the 'stats' library.
+using the `kmeans' algorithm from the `stats' library.
 
 
 
 \subsection*{Clustering quality}
 We scored the clusters with the Adjusted Rand index. 
 %TODO: can you provide the formular
-This index compares two different clusterings and assigns a value based on their similarity. The value is zero for independent clusterings and one for identical clusterings. We compared the Mahout k-means
+This index compares two different cluster sets and assigns a value based on their similarity. The value is zero for independent clusterings and one for identical clusterings. We compared the Mahout k-means
 clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project. For the known clusters,
 individuals were partitioned by their super population code (ASN, EUR, AFR, AMR). 
 %TODO: "also on \chrOnePop" on what dataset did you compare the R performance otherwise ?
@@ -374,8 +375,11 @@ R clusters for the Chr1 subset data.
 
 
 
-\subsection*{Speed}
-We measured the speed for various stages of the processing and clustering. We used 
+\subsection*{Performance}
+We recorded the memory usage and run-time from the PBS logs. For the Mahout jobs, we queued separate jobs
+for pre-processing and k-means clustering to get an accurate representation of the time and memory requirements for each stage.
+For the R job, where we could not easily separate the pre-processing and clustering components, we printed the time between
+stages using the function, \texttt{proc.time()}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,18 +466,18 @@ We measured the speed for various stages of the processing and clustering. We us
       \begin{tabular}{lcc}
         \hline
            & individuals  & variants  \\ \hline
-        \chrOnePop & 1024 & 3,007,196 \\
-        \FullPop\ & 1024 & 38,219,238 \\
-        \FullFam\ & 1024 & ...\\
+        \chrOnePop & 1092 & 816,115 \\
+        \FullPop\ & 1092 & 38,219,238 \\
+        \FullFam\ & 1092 & ...\\
       \end{tabular}
       \label{datasets}
 \end{table}
 
 \begin{table}[h!]
 \caption{Adjusted Rand index (accuracy).}
-      \begin{tabular}{lccc}
+      \begin{tabular}{lcccc}
         \hline
-           & Chr1 subset & 1000genomes trios  & hapmap \\ \hline
+           & \chrOnePop & \FullPop  & hapmap \\ \hline
         Mahout, k=4 & 0.664 & ..&..\\
         Mahout, k=10 & 0.714 & ..&..\\
         Mahout, k=20 & 0.769 & .. & ..\\ 
@@ -487,15 +491,17 @@ We measured the speed for various stages of the processing and clustering. We us
 \end{table}
 
 \begin{table}[h!]
-\caption{Time taken to cluster samples (k=20).}
-      \begin{tabular}{lccc}
+\caption{Resources consumed.}
+      \begin{tabular}{lccccc}
+      \hline
+      &&\multicolumn{2}{ c }{Memory (kb)}&\multicolumn{2}{ c }{Time (s)} \\
         \hline
-           & Chr1 subset & 1000genomes trios  & hapmap \\ \hline
-        Mahout, 1 node & .. & ..&..\\
-        Mahout, 2 nodes & .. & ..&..\\
-        Mahout, 3 nodes & .. & .. & ..\\ 
-        Mahout, 4 nodes & .. & .. & ..\\ 
-        R & .. & - & -\\ \hline
+           & Nodes & pmem & vmem  & pre-processing & clustering \\ \hline
+        R, \chrOnePop & 1 & 17696940 & 18000196 &3341 & 7\\
+        Mahout,\chrOnePop & 1 & 1831160 & 7646232 & 1255 & 594\\
+        Mahout, \FullPop & .. &.. & .. & ..&..\\ 
+        Mahout, 4 nodes & .. & .. & .. & ..&..\\ 
+        \hline
       \end{tabular}
       \label{datasetsTime}
 \end{table}
