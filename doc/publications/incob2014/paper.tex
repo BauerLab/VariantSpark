@@ -208,7 +208,7 @@
 
 \begin{abstract} % abstract
 \parttitle{Background} Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume generated, which render transitional approaches insufficient. However, by utilising advancements in modern hardware accelerators and data processing we can provide the means for scalable solutions. We therefore aim to provide the interface between standard genomic data formats and advanced and scalable analysis libraries like Mahout. 
-\parttitle{Results} We achieve an XX-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R and YY-fold speedup for PCA, respectively, by comparable accuracy. Due to memory in the R-Implementation the comparison had to be limited to variant data from chromosome 1 only, however we ran the full dataset (aa GB, bb individuals {\`a} cc variants ) through Mahout demonstrating the scalability. 
+\parttitle{Results} We achieve an 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real benefit lies in scaling beyond R's capability to a population-size analysis. We successfully clustered more than 5000 individuals each having more than 15 Million variants. 
 \parttitle{Conclusions} Using modern compute paradigms is essential to scale to modern genomic research in an efficient sustainable way. 
 \end{abstract}
 
@@ -362,8 +362,8 @@ Table~\ref{datasets} contains an overview of the datasets.
 \subsection*{Hardware}
 We processed the data using a Portable Batch System (PBS) cluster. We allocated one node and 64GB memory for the comparison between Mahout and R.
 Each node has eight CPU cores, however both applications run a single thread for pre-processing the data.
-%TODO update these numbers
-For the \SixReal\ and \FullReal\ dataset, we ran the job on a PBS cluster of x nodes, with twelve CPU cores and 48GB of memory per node.
+%TODO check numbers are correct ?
+For the \SixReal\ and \FullReal\ dataset, we ran the job on a PBS cluster of 5 nodes, with twelve CPU cores and 48GB of memory per node.
 
 \subsection*{Pre-processing}
 \label{Sec:preprocessing}
@@ -407,20 +407,20 @@ using the `kmeans' algorithm from the `stats' library.
 We scored the clusters with the Adjusted Rand index~\cite{Hubert1985}. 
 This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
 The Adjusted Rand index is then 
-\begin{eqnarray}\label{eqexpmuts}
-ARI=\frac{\sum_{ij}{{n_{ij}\choose 2}} - \left[ \sum_{i}{{a_i\choose2}} \right]}{bla} 
-\end{eqnarray}
-
-%
-
+{\tiny
+\begin{eqnarray*}
+ARI=\frac{\sum_{ij}{{n_{ij}\choose 2}} - \left[ \sum_{i}{{a_i\choose2}} \sum_{j}{{b_i\choose2}} \right] / {n\choose2}}{\frac{1}{2} \left[ \sum_{i}{{a_{i}\choose 2} + \sum_{j}{{b_{j}\choose 2}}} \right] - \left[ \sum_{i}{{a_{i}\choose 2} + \sum_{j}{{b_{j}\choose 2}}} \right] / {n\choose2}} 
+\end{eqnarray*}
+}
+where $a$ and $b$ are the sums over the rows and columns of the contingency table.
 
 The value is zero for independent clusterings and one for identical clusterings. 
 We compared the Mahout k-means
 clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project. For the known clusters,
-individuals were partitioned by their super population code (ASN, EUR, AFR, AMR). 
+individuals were partitioned by their super population code (ASN, EUR, AFR, AMR) as well as the 855 families.
 %TODO: "also on \chrOnePop" on what dataset did you compare the R performance otherwise ?
-We also compared the Mahout clusters to the
-R clusters for the Chr1 subset data.
+%We also compared the Mahout clusters to the
+%R clusters for the Chr1 subset data.
 
 
 
