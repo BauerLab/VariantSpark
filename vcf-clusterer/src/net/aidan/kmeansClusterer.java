@@ -88,24 +88,24 @@ public class kmeansClusterer extends Configured implements Tool {
 		
 		
 		//Transpose a VCF file to CSV file(s)
-		transposeVCF();
-		mergeCSV();
+		//transposeVCF();
+		//mergeCSV();
 		
 		//Submits a job to Hadoop to read in the CSV file(s) and convert them to a Mahout sequence file
-		csvToSequences(conf, fs);
+		//csvToSequences(conf, fs);
 		
 		//Probably redundant because of next line (Or could be used for non-random centroids)
-		//chooseInitialCentroids(conf, fs);
+		chooseInitialCentroids(conf, fs);
 		
 		//Create k centroids at random from the Mahout sequence file
-		Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
-		end = System.currentTimeMillis();
-		System.out.println("Time taken: " + (end - start) + " ms");
+		//Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
+		//end = System.currentTimeMillis();
+		//System.out.println("Time taken: " + (end - start) + " ms");
 		//Submit the k-means clustering job to the cluster
-		System.out.println("Launching KMeansDriver");
+		//System.out.println("Launching KMeansDriver");
 		KMeansDriver.run(conf, new Path(OUTPUT_DIRECTORY + "/points"),
-				//new Path(OUTPUT_DIRECTORY + "/clusters"),
-				centroids,
+				new Path(OUTPUT_DIRECTORY + "/clusters"),
+		//		centroids,
 				new Path(OUTPUT_DIRECTORY + "/output"), 0.001, 20, true, 0.001, SINGLE_MACHINE);
 
 		
