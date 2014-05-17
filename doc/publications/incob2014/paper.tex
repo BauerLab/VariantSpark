@@ -81,9 +81,9 @@
 \endlocaldefs
 
 % Our variable names
-\newcommand{\chrOnePop}{Chr19\_Population}
-\newcommand{\FullPop}{Full\_Population}
-\newcommand{\FullFam}{Chr1\_Family}
+%\newcommand{\chrOnePop}{Chr19\_Population}
+%\newcommand{\FullPop}{Full\_Population}
+%\newcommand{\FullFam}{Chr1\_Family}
 
 \newcommand{\OneReal}{OneChr\_1K}
 \newcommand{\SixReal}{SixChr\_1K}
@@ -270,12 +270,13 @@
 \section*{Background}
 Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or the cancer genome atlas (TCGA)~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallele approach to data processing. 
 
-As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} or Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
+As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
 
-At the same time, sophisticated machine learning methodologies are increasingly adapted to utilise MapReduce paradigms overcoming callings that arise due to their iterative nature~\cite{Chu2009}. Specifically, the Mahout project\url{https://mahout.apache.org/} has been developed extensively~\cite{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\cite{Dong2013}.
+At the same time, theoretical computer scientists adapt MapReduce paradigms to cope with the iterative nature of machine learning tasks~\cite{Chu2009}. Specifically, the Mahout project \url{https://mahout.apache.org/} has been developed extensively~\cite{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\cite{Dong2013}.
 
-We therefore link the two areas by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks.   
-To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure as well as ancestry using the k-means clustering algorithm available in Mahout. In the first two sections we benchmark the performance and accuracy of Mahout's implementations against standard R based implementations on a reduced version of the data and in the last section we investigate the performance on the full dataset, demonstrating how seamless Mahout can transit to population-scale tasks.   
+In this paper we link the two areas of parallel machine learning and bioinformatics by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks. 
+
+To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure as well as ancestry using the k-means clustering algorithm available in Mahout. In the first section we benchmark the performance and accuracy of Mahout's implementations against a standard R based implementation on a reduced version of the data and in the last two sections we investigate how Mahout scales to either more samples or more features per samples.   
 
 %SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
 
@@ -289,20 +290,19 @@ To demonstrate the capability we cluster variant datasets from the 1000 genomes 
 
 % COMPARISON TO R
 \subsection*{Clustering in Mahout uses less memory than in R}
-%TODO: I would drop the numbers in seconds and kb -- just have that in the table...
 In this section, we compare the runtime between the k-means implementation in R and Mahout for the small \OneReal\ dataset. 
-To do this we measured the runtime separately for pre-processing stage as well as the k-means clustering stage itself (see Methods~\ref{Sec:preprocessing}). 
-Pre-processing the data to Mahout's sequence files took 21 minutes (1255s), used 1.8GB (1831160kb) physical memory (pmem) and 7.6GB (7646232kb) virtual memory (vmem).
-Conversely,  pre-processing the data to R's in memory matrix took  56 minutes (3341s), used 17.7GB (17696940kb) pmem and 18GB (18000196kb) vmem. 
+To do this we measured the runtime separately for pre-processing stage as well as the k-means clustering stage itself (see Methods). 
+Pre-processing the data to Mahout's sequence files takes 21 minutes, uses 1.8GB physical memory (pmem) and 7.6GB virtual memory (vmem).
+Conversely,  pre-processing the data to R's in memory matrix takes 56 minutes, uses 17.7GB pmem and 18GB vmem. 
 The size of the Mahout sequence file, which is saved to disk, is 835MB. 
-K-means clustering the data, however, was faster with R, using 7s, whereas Mahout took 10 minutes. See Table~\ref{datasetsTime}. \\
+K-means clustering the data, however, is faster with R, using 7s, whereas Mahout takes 10 minutes. See Table~\ref{datasetsTime}. \\
 Due to the small number of classifying variants, cluster performance is very poor for both methods, with the best Adjusted Rand Index score for clustering individuals in one of 4 populations (see Methods) being 0.769 for 20 clusters in Mahout and XX with YY clusters in R (see Table~\ref{datasetsAcc}).
 
-Although the Mahout pipeline was about 25 minutes faster than R's, the actual clustering step took two orders of magnitude longer. 
+Although the Mahout pipeline is about 25 minutes faster than R's, the actual clustering step takes two orders of magnitude longer. 
 This is likely due to the additional overhead involved in setting up the Hadoop nodes, spawning the map and reduce instances, and distributing the data between the instances. 
 R on the other hand, already had the data in memory, and only had to process that data. 
 In the case of this comparison, the data set is likely too small to truly reap the benefit of Hadoop's MapReduce algorithm. 
-The main benefit of mahout in this scenario is the memory consumption with nearly 10-fold reduction for Mahout compared to R. 
+The main benefit of Mahout in this scenario is the memory consumption with nearly 10-fold reduction for Mahout compared to R. 
 
 
 % SCALING UP FEATURES IN MAHOUT
@@ -310,12 +310,12 @@ The main benefit of mahout in this scenario is the memory consumption with nearl
 In this section we demonstrate Mahout's scaling ability by increasing the numbers of features, here variants per sample. 
 Including more regions for the similarity calculation will increase the cluster performance, however also increases the memory consumption. 
 R therefore was not able to perform the clustering on even the medium sized dataset (\SixReal , 15 Million variants), we hence only report resource consumption and accuracy for Mahout.
-On this dataset Mahout's prepossessing took XX minutes, with XXGB of physical and XXGB of virtual memory, and the clustering took XX minutes, with XXGB of physical and XXGB of virtual memory. 
+On this dataset Mahout's prepossessing takes XX minutes, with XXGB of physical and XXGB of virtual memory, and the clustering takes XX minutes, with XXGB of physical and XXGB of virtual memory. 
 The clustering accuracy has increased by XX-fold to YY with XX clusters compared to the performance on \OneReal\ for the 4-group-based population task (see Table~\ref{datasetsAcc}).
 Using additional variants now also allows the more detailed association to the 855 families.
 The best Adjusted Rand Index score here is XX for XX clusters (see Table~\ref{datasetsAcc}).
 
-Utilizing the whole dataset hence would have likely increased the performance further. However, on \FullReal\ (38 Million variants) Hadoop returns an 'out-of-memory' error on the name-node before the jobs can even be distributed to the mappers. 
+Utilizing the whole dataset hence would likely increased the performance further. However, on \FullReal\ (38 Million variants) Hadoop returns an 'out-of-memory' error on the name-node before the jobs can even be distributed to the mappers. 
 %TODO: is this a correct statement?
 It is not possible to use Mahout's standard implementation for this dataset, as the supported Hadoop-setup only allows the communication between nodes with up to 8GB of memory and a scaling beyond that would have been required.
 
@@ -325,7 +325,7 @@ While R does not scale to either of the two orders of magnitude incased datasets
 % SCALING UP SAMPLES IN MAHOUT
 \subsection*{Mahout scales effortless to an order of magnitude more samples}
 In this section we investigate Mahout's ability to scale with more samples.
-The resource consumption remained virtually identical between \SixReal\ and the order of magnitude larger dataset \SixArtiExact, which took XX minutes, with XXGB of physical and XXGB of virtual memory, and the clustering took XX minutes, with XXGB of physical and XXGB of virtual memory. 
+The resource consumption remains virtually identical between \SixReal\ and the order of magnitude larger dataset \SixArtiExact, which takes XX minutes, with XXGB of physical and XXGB of virtual memory, and the clustering takes XX minutes, with XXGB of physical and XXGB of virtual memory. 
 The clustering accuracy is YY with XX clusters.
 
 %TODO: can you think of a less general statement as conclusion
@@ -335,11 +335,11 @@ Scaling effortless to massively more samples is the strength of Hadoop, hence co
 
 \section*{Conclusion}
 In this paper we have applied Mahout's k-means clustering to the task of genotype based population and family association. 
-We provide an interface from VCF format to Mahout and a toolset to visualise and interpret Mahout's clustering output. 
-We find that on small datasets actual clustering stage is two orders of magnitudes slower in Mahout compared to R (10m vs 7s), likely due to the overhead of setting up and co-ordinating the communication between the Hadoop nodes. 
+We provide an interface from VCF format to Mahout and a toolset to interpret Mahout's clustering output. 
+We find that on small datasets the actual clustering stage is two orders of magnitudes slower in Mahout compared to R (10 minutes vs 7 seconds), likely due to the overhead of setting up and co-ordinating the communication between the Hadoop nodes. 
 However, increasing either the number of samples or the number of features per sample quickly exceeds the ability of R.
-Mahout on the other hand scales effortless to an order of magnitude more samples (10,000) and copes well with 15 Million features per samples.
-As memory consumption directly scales with the number of features per sample we observed that Mahout's standard set-up of Hadoop does not scale to a whole exome dataset (38 Million features per sample).
+Mahout on the other hand scales effortlessly to five times more samples (5,460) and copes well with 15 Million features per samples.
+As memory consumption directly scales with the number of features per sample, we observe that Mahout's standard set-up of Hadoop does not scale to a whole exome dataset (38 Million features per sample).
 However, this might be resolved once Mahout moves from MapReduce to a domain-specific language for linear algebraic operations on top of Apache Spark \url{http://spark.apache.org/}.
 
 In conclusion, Mahout offers a scalable out-of-the box solution that is directly applicable to genotype-based clustering for population or family association. 
@@ -356,13 +356,14 @@ Metadata available from the 1000 Genomes Consortium specifies additional attribu
 To be able to compare with R, we created a subset of the entire human variant dataset by using only variants from chromosome 19 (\OneReal ) where we investigate the correct grouping of the population structure. 
 Scaling up using Mahout, we investigate how the accuracy improves when using more variants from the genome with \SixReal\ and \FullReal, which uses chromosome 1-5 in addition to 19 and the full genome, respectively. 
 We also investigate whether we can accurately predict the more detailed family association using these datasets. 
-In addition, we demonstrate Mahout's scalability by increasing the number of samples in the study to 10,920 by duplicating the original 1092 samples 10 times with zero and 10\% noise levels, i.e. randomly changing 10\% of the genotypes. 
+In addition, we demonstrate Mahout's scalability by increasing the number of samples in the study to 5,460 by duplicating the original 1092 samples 5 times with zero and 10\% noise levels, i.e. randomly changing 10\% of the genotypes. 
 Table~\ref{datasets} contains an overview of the datasets.
 
 \subsection*{Hardware}
 We processed the data using a Portable Batch System (PBS) cluster. We allocated one node and 64GB memory for the comparison between Mahout and R.
 Each node has eight CPU cores, however both applications run a single thread for pre-processing the data.
-For the (\FullPop) dataset, we ran the job on a PBS cluster of x nodes, with twelve CPU cores and 48GB of memory per node.
+%TODO update these numbers
+For the \SixReal\ and \FullReal\ dataset, we ran the job on a PBS cluster of x nodes, with twelve CPU cores and 48GB of memory per node.
 
 \subsection*{Pre-processing}
 \label{Sec:preprocessing}
@@ -403,15 +404,23 @@ using the `kmeans' algorithm from the `stats' library.
 
 
 \subsection*{Clustering quality}
-We scored the clusters with the Adjusted Rand index. 
-%TODO: can you provide the formular
-This index compares two different cluster sets and assigns a value based on their similarity. The value is zero for independent clusterings and one for identical clusterings. We compared the Mahout k-means
+We scored the clusters with the Adjusted Rand index~\cite{Hubert1985}. 
+This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
+The Adjusted Rand index is then 
+\begin{eqnarray}\label{eqexpmuts}
+ARI=\frac{\sum_{ij}{{n_{ij}\choose 2}} - \left[ \sum_{i}{{a_i\choose2}} \right]}{bla} 
+\end{eqnarray}
+
+%
+
+
+The value is zero for independent clusterings and one for identical clusterings. 
+We compared the Mahout k-means
 clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project. For the known clusters,
 individuals were partitioned by their super population code (ASN, EUR, AFR, AMR). 
 %TODO: "also on \chrOnePop" on what dataset did you compare the R performance otherwise ?
 We also compared the Mahout clusters to the
 R clusters for the Chr1 subset data.
-With the foreknowledge of the correct clusters, the Adjusted Rand Index enables us to assign a score to cluster accuracy~\cite{Hubert1985}. 
 
 
 
@@ -528,7 +537,7 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 \caption{Adjusted Rand index (accuracy).}
       \begin{tabular}{lcc}
         \hline
-           & \chrOnePop & \FullPop   \\ \hline
+%           & \chrOnePop & \FullPop   \\ \hline
         Mahout, k=4 & 0.664\\
         Mahout, k=10 & 0.714 \\
         Mahout, k=20 & 0.769 \\ 
@@ -548,8 +557,8 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
       &&\multicolumn{2}{ c }{Memory (kb)}&\multicolumn{2}{ c }{Time (s)} \\
         \hline
            & Nodes & pmem & vmem  & pre-processing & clustering \\ \hline
-        R, \chrOnePop & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
-        Mahout,\chrOnePop & 1 & 1,831,160 & 7646232 & 1,255 & 594\\
+        R, \OneReal & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
+        Mahout,\OneReal & 1 & 1,831,160 & 7646232 & 1,255 & 594\\
         Mahout, \SixReal & 1 & 13,036,836 & 36,542,380 & 19,500 &..\\ 
         Mahout, \SixArtiExact & 1 & 5,804,660 & 39,075,548 & 2,024 & ..\\ 
         \hline
