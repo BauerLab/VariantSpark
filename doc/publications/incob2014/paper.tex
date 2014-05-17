@@ -268,13 +268,13 @@
 %% Background %%
 %%
 \section*{Background}
-Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or TCGA~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallele approach to data processing. 
+Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or the cancer genome atlas (TCGA)~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallele approach to data processing. 
 
 As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} or Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
 
 At the same time, sophisticated machine learning methodologies are increasingly adapted to utilise MapReduce paradigms overcoming callings that arise due to their iterative nature~\cite{Chu2009}. Specifically, the Mahout project\url{https://mahout.apache.org/} has been developed extensively~\cite{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\cite{Dong2013}.
 
-We therefore link the two areas by providing an interface between Mahout and the standard variant data format, VCF~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks.   
+We therefore link the two areas by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks.   
 To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure as well as ancestry using different algorithms available in Mahout. In the first two sections we benchmark the performance and accuracy of Mahout's implementations against standard R based implementations on a reduced version of the data and in the last section we investigate the performance on the full dataset, demonstrating how seamless Mahout can transit to population-scale tasks.   
 
 %SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
@@ -432,7 +432,9 @@ stages using the function, \texttt{proc.time()}.
 
 \section*{Availability of supporting data}
 \section*{List of abbreviations}
-
+TCGA -- the cancer genome atlas
+VCF -- variant call format
+PBS -- Portable Batch System
 
 \section*{Competing interests}
   The authors declare that they have no competing interests.
@@ -489,7 +491,7 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
   \begin{figure}[h!]
   \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{images/signature}
   \caption{\csentence{Illustration of Mahout-based clustering of genotypes.}
-      The image shows how the here introduced interface converts the vcf file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
+      The image shows how the here introduced interface converts the VCF file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
       \end{figure}
 
 %\begin{figure}[h!]
