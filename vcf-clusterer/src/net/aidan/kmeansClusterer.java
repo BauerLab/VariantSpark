@@ -50,7 +50,6 @@ import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
 import org.apache.mahout.common.distance.ManhattanDistanceMeasure;
 import org.apache.mahout.math.hadoop.stochasticsvd.SSVDHelper;
 
-import au.com.bytecode.opencsv.CSVReader;
 public class kmeansClusterer extends Configured implements Tool {
 	public kmeansClusterer() {}
 	
@@ -98,7 +97,7 @@ public class kmeansClusterer extends Configured implements Tool {
 		chooseInitialCentroids(conf, fs);
 		
 		//Create k centroids at random from the Mahout sequence file
-		//Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
+		Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
 		//end = System.currentTimeMillis();
 		//System.out.println("Time taken: " + (end - start) + " ms");
 		//Submit the k-means clustering job to the cluster
@@ -108,7 +107,8 @@ public class kmeansClusterer extends Configured implements Tool {
 		//		centroids,
 				new Path(OUTPUT_DIRECTORY + "/output"), 0.001, 20, true, 0.001, SINGLE_MACHINE);
 
-		
+		end = System.currentTimeMillis();
+		System.out.println("Time taken: " + (end - start) + " ms");
 		//String[] args1 = new String[] {"-i", OUTPUT_DIRECTORY + "/points/", "-o", OUTPUT_DIRECTORY + "/output/" , "--estimatedNumMapClusters", "30", "--searchSize","2","-k","10", "--numBallKMeansRuns","3",  "--distanceMeasure","org.apache.mahout.common.distance.EuclideanDistanceMeasure"};
 		//StreamingKMeansDriver.main(args1);
 
@@ -296,9 +296,11 @@ public class kmeansClusterer extends Configured implements Tool {
 		for (File s: listOfFiles) {
 			BufferedReader br = new BufferedReader(new FileReader(s));
 			sCurrentLine = br.readLine();
-
+			br.close();
+			
 			//List<String> items = Arrays.asList(sCurrentLine.split("\\s*,\\s*"));
-			double[] test = new double[38219238];
+			//double[] test = new double[38219238];
+			double[] test = new double[816115];
 
 			//ArrayList<Double> arrLis = new ArrayList<Double>();
 			
@@ -312,7 +314,6 @@ public class kmeansClusterer extends Configured implements Tool {
 	        	//arrLis.add(Double.parseDouble(current));
 	        	curVal++;
 	        }
-	        
 			String itemName = sCurrentLine.substring(0,7);
 			dasLog.write( count + "\n" );
 
@@ -325,7 +326,6 @@ public class kmeansClusterer extends Configured implements Tool {
 			individual = new NamedVector(new SequentialAccessSparseVector(new DenseVector(test)), itemName );
 			vec.set(individual);
 			writer.append(new Text(individual.getName()), vec);
-			br.close();
 			dasLog.flush();
 			count++;
 		}
@@ -337,9 +337,9 @@ public class kmeansClusterer extends Configured implements Tool {
 	//Choose and write initial clusters	
 	static void chooseInitialCentroids(Configuration conf,FileSystem fs) throws IOException {
 		System.out.println("Creating initial centroids...");
-		VectorWritable vec = new VectorWritable();
+		//VectorWritable vec = new VectorWritable();
 		//Input CSVs
-		File folder = new File("csv/");
+		File folder = new File("csv/final/");
 		File[] listOfFiles = folder.listFiles();
 		File[] centers = Arrays.copyOfRange(listOfFiles, 4, k+4);
 		
@@ -347,31 +347,51 @@ public class kmeansClusterer extends Configured implements Tool {
 		Path clusterPath = new Path(OUTPUT_DIRECTORY + "/clusters/part-00000");
 		SequenceFile.Writer clusterWriter = new SequenceFile.Writer(fs, conf, clusterPath, Text.class, Kluster.class);
 		
+		//log
+		BufferedWriter dasLog = new BufferedWriter(new FileWriter("deets"));
+		
 		String sCurrentLine = null;
-		int i = 0;
+		int centerID = 0;
 		NamedVector centroid ;
-		for (File s: centers) {
-			
+		for (File s: centers) {	
 			BufferedReader br = new BufferedReader(new FileReader(s));
 			sCurrentLine = br.readLine();
 			br.close();
 			
-			String[] splitted = sCurrentLine.split(",");
-			String item_name = splitted[0];
-			int featuresSize = splitted.length-1;
-			double[] features = new double[featuresSize];
-			for(int indx = 1; indx <= featuresSize ; indx++){
-				features[indx-1] = Float.parseFloat(splitted[indx]);
-			}
-			System.out.println(item_name);
-			System.out.println(features[0]);
-			centroid = new NamedVector(new SequentialAccessSparseVector(new DenseVector(features)), item_name );
-			Kluster cluster = new Kluster(centroid, i, new ManhattanDistanceMeasure());
-			clusterWriter.append(new Text(item_name), cluster);
-			i++;
-			System.out.println(i);
+			//String[] splitted = sCurrentLine.split(",");
+			//double[] test = new double[38219238];
+			double[] test = new double[3007196];
+			
+			int curVal = 0;
+	        for (int i = 7; i < sCurrentLine.length(); i++) {
+	        	String current = sCurrentLine.charAt(i)+ "";
+	        	if (current.equals(",")){
+	        		continue;
+	        	}
+	        	test[curVal] = Double.parseDouble(current);
+	        	//arrLis.add(Double.parseDouble(current));
+	        	curVal++;
+	        }
+			String itemName = sCurrentLine.substring(0,7);
+			
+			
+			//String item_name = splitted[0];
+			//int featuresSize = splitted.length-1;
+			//double[] features = new double[featuresSize];
+			//for(int indx = 1; indx <= featuresSize ; indx++){
+			//	features[indx-1] = Float.parseFloat(splitted[indx]);
+			//}
+			
+			System.out.println(itemName);
+			centroid = new NamedVector(new SequentialAccessSparseVector(new DenseVector(test)), itemName );
+			Kluster cluster = new Kluster(centroid, centerID, new ManhattanDistanceMeasure());
+			clusterWriter.append(new Text(itemName), cluster);
+			dasLog.write( centerID + "\n" );
+			dasLog.flush();
+			centerID++;
 		}
 		clusterWriter.close();
+		dasLog.close();
 	}
 	
 	
