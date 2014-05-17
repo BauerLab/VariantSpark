@@ -296,7 +296,7 @@ Pre-processing the data to Mahout's sequence files takes 21 minutes, uses 1.8GB 
 Conversely,  pre-processing the data to R's in memory matrix takes 56 minutes, uses 17.7GB pmem and 18GB vmem. 
 The size of the Mahout sequence file, which is saved to disk, is 835MB. 
 K-means clustering the data, however, is faster with R, using 7s, whereas Mahout takes 10 minutes. See Table~\ref{datasetsTime}. \\
-Due to the small number of classifying variants, cluster performance is very poor for both methods, with the best Adjusted Rand Index score for clustering individuals in one of 4 populations (see Methods) being 0.769 for 20 clusters in Mahout and XX with YY clusters in R (see Table~\ref{datasetsAcc}).
+Due to the small number of classifying variants, cluster performance is very poor for both methods, with the best Adjusted Rand Index score for clustering individuals in one of 4 populations (see Methods) being 0.769 for 20 clusters in Mahout and 0.614 with 10 clusters in R (see Table~\ref{datasetsAcc}).
 
 Although the Mahout pipeline is about 25 minutes faster than R's, the actual clustering step takes two orders of magnitude longer. 
 This is likely due to the additional overhead involved in setting up the Hadoop nodes, spawning the map and reduce instances, and distributing the data between the instances. 
@@ -310,10 +310,8 @@ The main benefit of Mahout in this scenario is the memory consumption with nearl
 In this section we demonstrate Mahout's scaling ability by increasing the numbers of features, here variants per sample. 
 Including more regions for the similarity calculation will increase the cluster performance, however also increases the memory consumption. 
 R therefore was not able to perform the clustering on even the medium sized dataset (\SixReal , 15 Million variants), we hence only report resource consumption and accuracy for Mahout.
-On this dataset Mahout's prepossessing takes XX minutes, with XXGB of physical and XXGB of virtual memory, and the clustering takes XX minutes, with XXGB of physical and XXGB of virtual memory. 
-The clustering accuracy has increased by XX-fold to YY with XX clusters compared to the performance on \OneReal\ for the 4-group-based population task (see Table~\ref{datasetsAcc}).
-Using additional variants now also allows the more detailed association to the 855 families.
-The best Adjusted Rand Index score here is XX for XX clusters (see Table~\ref{datasetsAcc}).
+On this dataset Mahout's pre-processing takes 325 minutes, with 13GB of physical and 37GB of virtual memory, and the clustering takes 80 minutes, with XXGB of physical and XXGB of virtual memory. 
+The clustering accuracy has increased by 35\% to 0.812 with 10 clusters compared to the performance on \OneReal\ for the 4-group-based population task (see Table~\ref{datasetsAcc}).
 
 Utilizing the whole dataset hence would likely increased the performance further. However, on \FullReal\ (38 Million variants) Hadoop returns an 'out-of-memory' error on the name-node before the jobs can even be distributed to the mappers. 
 %TODO: is this a correct statement?
@@ -538,14 +536,11 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
       \begin{tabular}{lcc}
         \hline
 %           & \chrOnePop & \FullPop   \\ \hline
-        Mahout, k=4 & 0.664\\
-        Mahout, k=10 & 0.714 \\
-        Mahout, k=20 & 0.769 \\ 
-        Mahout, k=30 & 0.728  \\ 
-        R, k=4 & .. & - \\
-        R, k=10 & .. & - \\
-        R, k=20 & .. & - \\ 
-        R, k=30 & .. & - \\ \hline
+        R, \OneReal & 0.614 & - \\ 
+        Mahout, \OneReal & 0.605\\
+        Mahout, \SixReal & 0.812 \\
+        Mahout, \SixArtiExact & 0.600  \\
+        Mahout, \SixArtiNoise & 0.140 \\ \hline
       \end{tabular}
       \label{datasetsAcc}
 \end{table}
@@ -559,8 +554,8 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
            & Nodes & pmem & vmem  & pre-processing & clustering \\ \hline
         R, \OneReal & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
         Mahout,\OneReal & 1 & 1,831,160 & 7646232 & 1,255 & 594\\
-        Mahout, \SixReal & 1 & 13,036,836 & 36,542,380 & 19,500 &..\\ 
-        Mahout, \SixArtiExact & 1 & 5,804,660 & 39,075,548 & 2,024 & ..\\ 
+        Mahout, \SixReal & 5 & 13,036,836 & 36,542,380 & 19,500 & 4820 \\ 
+        Mahout, \SixArtiExact & 3 & 5,804,660 & 39,075,548 & 2,024 & 1395\\ 
         \hline
       \end{tabular}
       \label{datasetsTime}
