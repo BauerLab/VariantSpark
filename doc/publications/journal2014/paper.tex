@@ -1,89 +1,11 @@
-%% BioMed_Central_Tex_Template_v1.06
-%%                                      %
-%  bmc_article.tex            ver: 1.06 %
-%                                       %
+\documentclass{bioinfo}
+\copyrightyear{2005}
+\pubyear{2005}
 
-%%IMPORTANT: do not delete the first line of this template
-%%It must be present to enable the BMC Submission system to
-%%recognise this template!!
+\usepackage[hyphens]{url}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                     %%
-%%  LaTeX template for BioMed Central  %%
-%%     journal article submissions     %%
-%%                                     %%
-%%          <8 June 2012>              %%
-%%                                     %%
-%%                                     %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                 %%
-%% For instructions on how to fill out this Tex template           %%
-%% document please refer to Readme.html and the instructions for   %%
-%% authors page on the biomed central website                      %%
-%% http://www.biomedcentral.com/info/authors/                      %%
-%%                                                                 %%
-%% Please do not use \input{...} to include other tex files.       %%
-%% Submit your LaTeX manuscript as one .tex document.              %%
-%%                                                                 %%
-%% All additional figures and files should be attached             %%
-%% separately and not embedded in the \TeX\ document itself.       %%
-%%                                                                 %%
-%% BioMed Central currently use the MikTex distribution of         %%
-%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
-%% http://www.miktex.org                                           %%
-%%                                                                 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%% additional documentclass options:
-%  [doublespacing]
-%  [linenumbers]   - put the line numbers on margins
-
-%%% loading packages, author definitions
-
-\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
-%\documentclass{bmcart}
-
-%%% Load packages
-%\usepackage{amsthm,amsmath}
-%\RequirePackage{natbib}
-\RequirePackage{hyperref}
-\usepackage[utf8]{inputenc} %unicode support
-%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
-%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                             %%
-%%  If you wish to display your graphics for   %%
-%%  your own use using includegraphic or       %%
-%%  includegraphics, then comment out the      %%
-%%  following two lines of code.               %%
-%%  NB: These line *must* be included when     %%
-%%  submitting to BMC.                         %%
-%%  All figure files must be submitted as      %%
-%%  separate graphics through the BMC          %%
-%%  submission process, not included in the    %%
-%%  submitted article.                         %%
-%%                                             %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%\def\includegraphic{}
-%\def\includegraphics{}
-\usepackage{graphicx}
-
-
-%%% Put your definitions there:
-\startlocaldefs
-\endlocaldefs
-
-% Our variable names
-%\newcommand{\chrOnePop}{Chr19\_Population}
-%\newcommand{\FullPop}{Full\_Population}
-%\newcommand{\FullFam}{Chr1\_Family}
+\begin{document}
+\firstpage{1}
 
 \newcommand{\OneReal}{OneChr\_1K}
 \newcommand{\SixReal}{SixChr\_1K}
@@ -92,182 +14,32 @@
 \newcommand{\SixArtiNoise}{Chr19\_5K\_10}
 
 
-%%% Begin ...
-\begin{document}
+\title[MapReduce Clustering]{Scalable Clustering of Genotype Information using MapReduce}
+\author[O'Brien \textit{et~al}]{Aidan R O'Brien\,$^{1}$, Fabian A Buske\,$^{2}$ and Denis C. Bauer\,$^1$\footnote{to whom correspondence should be addressed}}
+\address{$^{1}$CSIRO, Digital Productivity Flagship, 11 Julius Av, 2113, Sydney, Australia\\
+$^{2}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Centre, Garvan Institute of Medical Research, 384 Victoria St, 2010, Sydney, Australia}
 
-%%% Start of article front matter
-\begin{frontmatter}
+\history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
 
-\begin{fmbox}
-\dochead{Methodology}
+\editor{Associate Editor: XXXXXXX}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% Enter the title of your article here     %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\maketitle
 
-\title{Scalable Clustering of Genotype Information using MapReduce}
+\begin{abstract}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% Enter the authors here                   %%
-%%                                          %%
-%% Specify information, if available,       %%
-%% in the form:                             %%
-%%   <key>={<id1>,<id2>}                    %%
-%%   <key>=                                 %%
-%% Comment or delete the keys which are     %%
-%% not used. Repeat \author command as much %%
-%% as required.                             %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation:}
+Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume generated, which render transitional approaches insufficient. However, by utilising advancements in modern hardware accelerators and data processing we can provide the means for scalable solutions. We therefore aim to provide the interface between standard genomic data formats and advanced and scalable analysis libraries like Mahout. 
+\section{Results:}
+We achieve an 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real benefit lies in scaling beyond R's capability to a population-size analysis. We successfully clustered more than 5000 individuals each having more than 15 Million variants. 
 
-\author[
-   addressref={aff1,aff2},                   % id's of addresses, e.g. {aff1,aff2}
-%   noteref={n1},                        % id's of article notes, if any
-   email={Aidan.O'Brien@csiro.au}   % email address
-]{\inits{AR}\fnm{Aidan R} \snm{O'Brien}}
-\author[
-   addressref={aff3, aff4},
-   email={f.buske@garvan.org.au}
-]{\inits{FA}\fnm{Fabian A} \snm{Buske}}
-\author[
-   addressref={aff1},
-   corref={aff1},                       % id of corresponding address, if any
-   email={Denis.Bauer@CSIRO.au}
-]{\inits{DC}\fnm{Denis C} \snm{Bauer}}
+\section{Availability:}
+Using modern compute paradigms is essential to scale to modern genomic research in an efficient sustainable way. 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% Enter the authors' addresses here        %%
-%%                                          %%
-%% Repeat \address commands as much as      %%
-%% required.                                %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\address[id=aff1]{%                           % unique id
-  \orgname{Division of Computational Informatics, CSIRO}, % university, etc
-  \street{11 Julius Av},                     %
-  \postcode{2113}                                % post or zip code
-  \city{Sydney},                              % city
-  \cny{Australia}                                    % country
-}
-\address[id=aff2]{%
-  \orgname{School of Biomedical Sciences and Pharmacy, Faculty of Health},
-%  \street{},
-  \postcode{2308}
-  \city{Newcastle},
-  \cny{Australia}
-}
-\address[id=aff3]{%
-  \orgname{Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Centre, Garvan Institute of Medical Research},
-  \street{384 Victoria St},
-  \postcode{2010}
-  \city{Sydney},
-  \cny{Australia}
-}
-\address[id=aff4]{%
-  \orgname{UNSW Medicine, University of New South Wales},
-%  \street{},
-  \postcode{2052}
-  \city{Sydney},
-  \cny{Australia}
-}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% Enter short notes here                   %%
-%%                                          %%
-%% Short notes will be after addresses      %%
-%% on first page.                           %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%\begin{artnotes}
-%\note{Sample of title note}     % note to the article
-%\note[id=n1]{Equal contributor} % note, connected to author
-%\end{artnotes}
-
-%\end{fmbox}% comment this for two column layout
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% The Abstract begins here                 %%
-%%                                          %%
-%% Please refer to the Instructions for     %%
-%% authors on http://www.biomedcentral.com  %%
-%% and include the section headings         %%
-%% accordingly for your article type.       %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{abstractbox}
-
-\begin{abstract} % abstract
-\parttitle{Background} Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume generated, which render transitional approaches insufficient. However, by utilising advancements in modern hardware accelerators and data processing we can provide the means for scalable solutions. We therefore aim to provide the interface between standard genomic data formats and advanced and scalable analysis libraries like Mahout. 
-\parttitle{Results} We achieve an 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real benefit lies in scaling beyond R's capability to a population-size analysis. We successfully clustered more than 5000 individuals each having more than 15 Million variants. 
-\parttitle{Conclusions} Using modern compute paradigms is essential to scale to modern genomic research in an efficient sustainable way. 
+\section{Contact:} \href{Denis.Bauer@CSIRO.au}{Denis.Bauer@CSIRO.au}
 \end{abstract}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% The keywords begin here                  %%
-%%                                          %%
-%% Put each keyword in separate \kwd{}.     %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
 
-\begin{keyword}
-\kwd{Hadoop}
-\kwd{Mahout}
-\kwd{Genotype}
-\kwd{Clustering}
-\kwd{MapReduce}
-\end{keyword}
-
-% MSC classifications codes, if any
-%\begin{keyword}[class=AMS]
-%\kwd[Primary ]{}
-%\kwd{}
-%\kwd[; secondary ]{}
-%\end{keyword}
-
-\end{abstractbox}
-%
-\end{fmbox}% uncomment this for twcolumn layout
-
-\end{frontmatter}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% The Main Body begins here                %%
-%%                                          %%
-%% Please refer to the instructions for     %%
-%% authors on:                              %%
-%% http://www.biomedcentral.com/info/authors%%
-%% and include the section headings         %%
-%% accordingly for your article type.       %%
-%%                                          %%
-%% See the Results and Discussion section   %%
-%% for details on how to create sub-sections%%
-%%                                          %%
-%% use \cite{...} to cite references        %%
-%%  \cite{koon} and                         %%
-%%  \cite{oreg,khar,zvai,xjon,schn,pond}    %%
-%%  \nocite{smith,marg,hunn,advi,koha,mouse}%%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
-% <put your article body there>
-
-%%%%%%%%%%%%%%%%
-%% Background %%
-%%
-\section*{Background}
 Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or the cancer genome atlas (TCGA)~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallele approach to data processing. 
 
 As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
@@ -281,11 +53,6 @@ In this paper we link the two areas of parallel machine learning and bioinformat
 To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure as well as ancestry using the k-means clustering algorithm available in Mahout. In the first section we benchmark the performance and accuracy of Mahout's implementations against a standard R based implementation on a reduced version of the data and in the last two sections we investigate how Mahout scales to either more samples or more features per samples.   
 
 %SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
-
-
-
-
-
 
 
 \section*{Results and discussion}
@@ -347,7 +114,8 @@ In conclusion, Mahout offers a scalable out-of-the box solution that is directly
 %This efficient a high performance in-memory map-reduce system has already demonstrated to deliver a  50x speed-up on a whole-genome dataset compared to usual multithreaded approaches, see ADAM~\cite{Massie2013}
 
 
-\section*{Methods}
+\begin{methods}
+\section{Methods}
 \subsection*{Datasets}
 We used variant call format (VCF) files from the 1000 Genomes Project.
 These VCF files contain information about the genetic variants between each of the 1092 individuals and a reference genome derived from GRCh37. 
@@ -430,156 +198,67 @@ for pre-processing and k-means clustering to get an accurate representation of t
 For the R job, where we could not easily separate the pre-processing and clustering components, we printed the time between
 stages using the function, \texttt{proc.time()}.
 
+\end{methods}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% Backmatter begins here                   %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{backmatter}
-
-\section*{Availability of supporting data}
-\section*{List of abbreviations}
-TCGA -- the cancer genome atlas
-VCF -- variant call format
-PBS -- Portable Batch System
-
-\section*{Competing interests}
-  The authors declare that they have no competing interests.
-
-\section*{Author's contributions}
-A.R.O implemented the method and performed the results under the supervision of D.C.B. and F.A.B.
-All authors wrote the paper.  
-
-
-\section*{Acknowledgements}
-A.R.O was funded by the NSW Cancer Institute Big Data Big Impact schema, F.A.B by the National Health and Medical Research Council [1051757] and D.C.B by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services.
-The authors would like to thank Piotr Szul and Gareth Williams for their help with setting up Hadoop on the HPC system.  
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                  The Bibliography                       %%
-%%                                                         %%
-%%  Bmc_mathpys.bst  will be used to                       %%
-%%  create a .BBL file for submission.                     %%
-%%  After submission of the .TEX file,                     %%
-%%  you will be prompted to submit your .BBL file.         %%
-%%                                                         %%
-%%                                                         %%
-%%  Note that the displayed Bibliography will not          %%
-%%  necessarily be rendered by Latex exactly as specified  %%
-%%  in the online Instructions for Authors.                %%
-%%                                                         %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% if your bibliography is in bibtex format, use those commands:
-\bibliographystyle{bmc-mathphys} % Style BST file
-\bibliography{genotypeClustering}      % Bibliography file (usually '*.bib' )
-
-% or include bibliography directly:
-% \begin{thebibliography}
-% \bibitem{b1}
-% \end{thebibliography}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                               %%
-%% Figures                       %%
-%%                               %%
-%% NB: this is for captions and  %%
-%% Titles. All graphics must be  %%
-%% submitted separately and NOT  %%
-%% included in the Tex document  %%
-%%                               %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%
-%% Do not use \listoffigures as most will included as separate files
-
-\section*{Figures}
-  \begin{figure}[h!]
-  \label{fig:sign}
-  \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{images/signature}
-  \caption{\csentence{Illustration of Mahout-based clustering of genotypes.}
-      The image shows how the here introduced interface converts the VCF file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
-      \end{figure}
-
-%\begin{figure}[h!]
-%  \caption{\csentence{Sample figure title.}
- %     Figure legend text.}
- %     \end{figure}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                               %%
-%% Tables                        %%
-%%                               %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Use of \listoftables is discouraged.
-%%
-\section*{Tables}
-\begin{table}[h!]
-\caption{Datasets used in this study.}
-      \begin{tabular}{lrrrrr}
-        \hline
-           & individuals  & variants  & population & families & noise\\ 
-           & & &groups&& \\ \hline
+\begin{table}[!t]
+\processtable{Datasets used in this study.\label{Tab:01}}
+{\begin{tabular}{lrrrrr}\toprule
+& individuals  & variants  & population & families & noise\\
+& & &groups&& \\\midrule
         \OneReal & 1,092 & 816,115  & 4 & 855 & NA\\
         \SixReal & 1,092 & 15,161,339 & 4 & 855 & NA\\
         \FullReal\ & 1,092 & 38,219,238 & 4 & 855 & NA\\
 	\SixArtiExact\ & 5,460 & 816,115 & 4 & 855 & 0 \\ 
-	\SixArtiNoise\ & 5,460 & 816,115 & 4 & 855 & 10 \\ 
-      \end{tabular}
-      \label{datasets}
+	\SixArtiNoise\ & 5,460 & 816,115 & 4 & 855 & 10 \\\botrule
+\end{tabular}}{Datasets used in this study}
 \end{table}
 
 
-\begin{table}[h!]
-\caption{Adjusted Rand index (accuracy).}
-      \begin{tabular}{lcc}
-        \hline
-         Tool, Dataset & accuracy  \\ \hline
-        R, \OneReal & 0.614  \\ 
+\begin{table}[!t]
+\processtable{Adjusted Rand index (accuracy).\label{Tab:01}}
+{\begin{tabular}{lcc}\toprule
+Tool, Dataset & accuracy \\\midrule
+      R, \OneReal & 0.614  \\ 
         Mahout, \OneReal & 0.605\\
         Mahout, \SixReal & 0.812 \\
         Mahout, \SixArtiExact & 0.600  \\
-        Mahout, \SixArtiNoise & 0.140 \\ \hline
-      \end{tabular}
-      \label{datasetsAcc}
+        Mahout, \SixArtiNoise & 0.140 \\\botrule
+\end{tabular}}{Datasets used in this study}
 \end{table}
 
-\begin{table}[h!]
-\caption{Resources consumed.}
-      \begin{tabular}{lccccc}
-      \hline
-      &&\multicolumn{2}{ c }{Memory (kb)}&\multicolumn{2}{ c }{Time (s)} \\
-        \hline
-           & Nodes & pmem & vmem  & pre-processing & clustering \\ \hline
-        R, \OneReal & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
+\begin{table*}[!t]
+\processtable{Resources consumed.\label{Tab:01}}
+{\begin{tabular}{lccccc}\toprule
+&&\multicolumn{2}{ c }{Memory (kb)}&\multicolumn{2}{ c }{Time (s)} \\
+& Nodes & pmem & vmem  & pre-processing & clustering\\\midrule
+         R, \OneReal & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
         Mahout,\OneReal & 1 & 1,831,160 & 7646232 & 1,255 & 594\\
         Mahout, \SixReal & 5 & 13,036,836 & 36,542,380 & 19,500 & 4820 \\ 
-        Mahout, \SixArtiExact & 3 & 5,804,660 & 39,075,548 & 2,024 & 1395\\ 
-        \hline
-      \end{tabular}
-      \label{datasetsTime}
-\end{table}
+        Mahout, \SixArtiExact & 3 & 5,804,660 & 39,075,548 & 2,024 & 1395 \\\botrule
+\end{tabular}}{Datasets used in this study}
+\end{table*}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                               %%
-%% Additional Files              %%
-%%                               %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!tpb]%figure1
+\centerline{\includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{signature}}
+        \label{fig:sign}
+        \caption{{\bf Illustration of Mahout-based clustering of genotypes.}
+      The image shows how the here introduced interface converts the VCF file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
 
-%\section*{Additional Files}
-%  \subsection*{Additional file 1 --- Sample additional file title}
-%    Additional file descriptions text (including details of how to
-%    view the file, if it is in a non-standard format or the file extension).  This might
- %   refer to a multi-page table or a figure.
-
-%  \subsection*{Additional file 2 --- Sample additional file title}
- %   Additional file descriptions text.
+\end{figure}
 
 
-\end{backmatter}
+
+
+
+\section*{Acknowledgement}
+A.R.O was funded by the NSW Cancer Institute Big Data Big Impact schema, F.A.B by the National Health and Medical Research Council [1051757] and D.C.B by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services.
+The authors would like to thank Piotr Szul and Gareth Williams for their help with setting up Hadoop on the HPC system.  
+
+\bibliographystyle{natbib}
+%\bibliographystyle{achemnat}
+%\bibliographystyle{plainnat}
+%\bibliographystyle{abbrv}
+%\bibliographystyle{bioinformatics}
+\bibliography{genotypeClustering}  
 \end{document}
