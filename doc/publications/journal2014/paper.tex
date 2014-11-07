@@ -128,9 +128,12 @@ In addition, we demonstrate Mahout's scalability by increasing the number of sam
 Table~\ref{datasets} contains an overview of the datasets.
 
 \subsection*{Hardware}
-We processed the data using a Portable Batch System (PBS) cluster. We allocated one node and 64GB memory for the comparison between Mahout and R.
-Each node has eight CPU cores, however both applications run a single thread for pre-processing the data.
-%TODO check numbers are correct ?
+We processed the data using a cluster of VMs on the Microsoft Azure cloud service. Each of the VMs has 7GB memory and and 4 CPU cores.
+Six of the VMs have the YARN NodeManager installed, and therefore these 6 machines process the data. The seventh machine dedicates the majority of its memory to
+the HDFS NameNode, ResourceManager and monitoring services. An eighth, single core machine, hosts the Cloudera manager service.
+With the 6 quad-core machines, we can run a total of 24 YARN containers simultaneously.
+
+We used a single VM for the comparison between Mahout and R.
 For the \SixReal\ and \FullReal\ dataset, we ran the job on a PBS cluster of 5 nodes, with twelve CPU cores and 48GB of memory per node.
 
 \subsection*{Pre-processing}
