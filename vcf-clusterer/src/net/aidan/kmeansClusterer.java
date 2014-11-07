@@ -57,6 +57,7 @@ public class kmeansClusterer extends Configured implements Tool {
 	public static final String OUTPUT_DIRECTORY = "clustering";
 	public static final boolean SINGLE_MACHINE = false;
 	public static final int k = 10;
+	public static final int FEATURE_SIZE = 15161339;
 	public static long end = 0;
 	public static long start = System.currentTimeMillis();
 	public int run(String[] args) throws Exception {
@@ -71,14 +72,21 @@ public class kmeansClusterer extends Configured implements Tool {
 		 * It may work whithout these lines now, with other changes I made,
 		 * but I haven't tested it yet. 
 		 */
-		final String HADOOP_CONF_DIR = System.getenv("HADOOP_CONF_DIR");
+		/*final String HADOOP_CONF_DIR = System.getenv("HADOOP_CONF_DIR");
 		conf.addResource(new Path(HADOOP_CONF_DIR, "core-site.xml"));
 		conf.addResource(new Path(HADOOP_CONF_DIR, "hdfs-site.xml"));
 		conf.addResource(new Path(HADOOP_CONF_DIR, "mapred-default.xml"));
 		conf.addResource(new Path(HADOOP_CONF_DIR, "mapred-site.xml"));
 		conf.addResource(new Path(HADOOP_CONF_DIR, "yarn-default.xml"));		
-		conf.addResource(new Path(HADOOP_CONF_DIR, "yarn-site.xml"));
+		conf.addResource(new Path(HADOOP_CONF_DIR, "yarn-site.xml"));*/
 		//conf.set("dfs.blocksize","134217728");
+		conf.set("mapreduce.job.reduces", "40");
+		
+		conf.set("mapreduce.map.memory.mb","6144");
+		conf.set("mapreduce.map.java.opts","-Xmx4915m");
+
+		
+		
 		conf.set("io.compression.codecs",
 				"org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec");
 			
@@ -94,18 +102,18 @@ public class kmeansClusterer extends Configured implements Tool {
 		//csvToSequences(conf, fs);
 		
 		//Probably redundant because of next line (Or could be used for non-random centroids)
-		chooseInitialCentroids(conf, fs);
+		//chooseInitialCentroids(conf, fs);
 		
 		//Create k centroids at random from the Mahout sequence file
-		Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
+		//Path centroids = RandomSeedGenerator.buildRandom(conf,new Path(OUTPUT_DIRECTORY + "/points/file1"),new Path(OUTPUT_DIRECTORY + "/clusters"),k,new EuclideanDistanceMeasure());
 		//end = System.currentTimeMillis();
 		//System.out.println("Time taken: " + (end - start) + " ms");
 		//Submit the k-means clustering job to the cluster
 		//System.out.println("Launching KMeansDriver");
-		KMeansDriver.run(conf, new Path(OUTPUT_DIRECTORY + "/points"),
-				new Path(OUTPUT_DIRECTORY + "/clusters"),
+		//KMeansDriver.run(conf, new Path(OUTPUT_DIRECTORY + "/points"),
+        //		new Path(OUTPUT_DIRECTORY + "/clusters"),
 		//		centroids,
-				new Path(OUTPUT_DIRECTORY + "/output"), 0.001, 20, true, 0.001, SINGLE_MACHINE);
+		//		new Path(OUTPUT_DIRECTORY + "/output"), 0.001, 20, true, 0.001, SINGLE_MACHINE);
 
 		end = System.currentTimeMillis();
 		System.out.println("Time taken: " + (end - start) + " ms");
@@ -123,9 +131,9 @@ public class kmeansClusterer extends Configured implements Tool {
 		ob.fileRead(conf);
 		
 		//Matches samples to their pedigree and returns two arrays to find adjusted Rand index in Python scikit
-		//pedigreeMatcher p = new pedigreeMatcher("20130606_g1k.ped");
-		//p.findMatches("resultFileCluster.txt");
-		//p.adjRandIndex("resultFileCluster.txt");
+		pedigreeMatcher p = new pedigreeMatcher("20130606_g1k.ped");
+		p.findMatches("resultFileCluster.txt");
+		p.adjRandIndex("resultFileCluster.txt");
 
 		
 		//Other unrelated stuff
@@ -225,7 +233,9 @@ public class kmeansClusterer extends Configured implements Tool {
 					flag = 1;
 				}
 			}
+			
 			for (int i = 0; i < writers.length ; i++) {
+				writers[i].append("/n");
 				writers[i].close();
 			}
 			
@@ -299,8 +309,7 @@ public class kmeansClusterer extends Configured implements Tool {
 			br.close();
 			
 			//List<String> items = Arrays.asList(sCurrentLine.split("\\s*,\\s*"));
-			//double[] test = new double[38219238];
-			double[] test = new double[816115];
+			double[] test = new double[FEATURE_SIZE];
 
 			//ArrayList<Double> arrLis = new ArrayList<Double>();
 			
@@ -359,8 +368,7 @@ public class kmeansClusterer extends Configured implements Tool {
 			br.close();
 			
 			//String[] splitted = sCurrentLine.split(",");
-			//double[] test = new double[38219238];
-			double[] test = new double[3007196];
+			double[] test = new double[FEATURE_SIZE];
 			
 			int curVal = 0;
 	        for (int i = 7; i < sCurrentLine.length(); i++) {
