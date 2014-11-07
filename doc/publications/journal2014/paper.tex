@@ -135,22 +135,22 @@ For the \SixReal\ and \FullReal\ dataset, we ran the job on a PBS cluster of 5 n
 
 \subsection*{Pre-processing}
 \label{Sec:preprocessing}
-Mahout requires sequence files as input to its clustering algorithms, and it provides libraries for writing vectors to this file format.
-Separate vectors for each sample, in this case, an individual, contain entries for each of the sample's features, where each entry is
-a \texttt{double}. Although additional samples can subsequently be appended to sequence files, the entire feature-set for each sample must be
-appended in a single write operation. Because the features for each sample are present in columns, as tab-separated elements in VCF
-files, we recursively transpose the data into CSV files. Each comma-separated row contains the feature-set for a sample,
-as well as the sample identity. Concurrently, we convert the values from the VCF file to doubles, as required for Mahout's sequence
-file format and the many algorithms this format can serve as input for. We set the value of the double to the Hamming distance between
-each variant and the reference genome. Therefore, a value identical to the reference will be 0, a heterozygous variant on either strand
-will be 1 and a homozygous variant will be 2.
-At this stage, the CSV files from more than one VCF file are concatenated into the one file. This resulting CSV file serves as the input for
-a custom Java function. This iterates over the CSV file, extracting the sample name and feature-set from each line, and calls a Mahout
-function to store this data as a named \texttt{DenseVector} object. The vectors are populated primarily by zeroes, so we convert this object to 
-the more efficient \texttt{SequentialAccessSparseVector} object, which stores only non-zero doubles in an array, and maps their position in a second array.
+Mahout requires Hadoop's `SequenceFiles' as input to its machine learning algorithms. SequenceFiles are binary flat files consisting of key/value pairs. In this case, each of the keys is a
+label for an individual. The associated value for each key is a `sparse vector' representing the individual's genomic variants. We use sparse vectors, rather than
+dense vectors, to significantly reduce processing time and required disk space. Each sparse vector consists of two separate vectors. An item in the first vector is
+effectively a key for an item at the same position in the send vector. The key represents a genomic location, where its value represents the variant. Zero values (positions where there is no variant)
+are omitted. Therefore, the fewer variants in an individual's genome, the smaller the sparse vector size. In comparison, `dense vectors' are single arrays that
+include every value. Therefore, the size of a dense vector isn't reduced with a large number of non-variants.
 
-This object is serialized, and the resulting file can serve as input to the majority of Mahout's algorithms. 
+The values of the sparse vectors, which, as previously mentioned, represent an individuals genomic variants, are a \texttt{double} java type.
+We set the value of each double to the Hamming distance between each variant and the reference genome. Therefore, a value identical to the reference will be 0 (and omitted from the sparse vector),
+a heterozygous variant will be 1 and a homozygous variant will be 2.
 
+We wrote a custom `MapReduce' class to convert VCF files to the aforementioned sequence files. This should work on any number of files,
+of any file size; limited only by disk space and time. The `map' step creates key value pairs where the primary key is an individual, the secondary key is a variant location, and the value is the variant.
+We used a secondary key as this allowed us to implement custom functions to collect and sort the output of each mapper, based on this secondary key. This significantly reduced
+the overall processing time. The `reduce' step collects these sorted key/value pairs by primary key (individual ID) and adds the secondary key (location) and value (variant) to a sparse array. The algorithm
+saves these sparse arrays and keys to disk in the aforementioned SequenceFile format.   
 
 
 \subsection*{Mahout K-means clustering}
