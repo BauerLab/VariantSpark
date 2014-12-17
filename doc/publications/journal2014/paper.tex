@@ -7,12 +7,13 @@
 \begin{document}
 \firstpage{1}
 
-\newcommand{\OneReal}{OneChr\_1K}
-\newcommand{\SixReal}{SixChr\_1K}
-\newcommand{\FullReal}{Full\_1K}
-\newcommand{\SixArtiExact}{Chr19\_5K\_0}
-\newcommand{\SixArtiNoise}{Chr19\_5K\_10}
 
+\newcommand{\OnePhaseone}{Phase1\_Chr1}
+\newcommand{\NinteenPhaseone}{Phase1\_Chr19}
+\newcommand{\SevenPhaseone}{Phase1\_Chr1-7}
+\newcommand{\OnePhasethree}{Phase3\_Chr1}
+\newcommand{\ThreePhasethree}{Phase3\_Chr1-3}
+\newcommand{\FullPhasethree}{Phase3\_Chr1-22}
 
 \title[MapReduce Clustering]{Scalable Clustering of Genotype Information using MapReduce}
 \author[O'Brien \textit{et~al}]{Aidan R O'Brien\,$^{1}$, Fabian A Buske\,$^{2}$ and Denis C. Bauer\,$^1$\footnote{to whom correspondence should be addressed}}
@@ -59,7 +60,7 @@ To demonstrate the capability we cluster variant datasets from the 1000 genomes 
 
 % COMPARISON TO R
 \subsection*{Clustering in Mahout uses less memory than in R}
-In this section, we compare the runtime between the k-means implementation in R and Mahout for the small \OneReal\ dataset. 
+In this section, we compare the runtime between the k-means implementation in R and Mahout for the small \NinteenPhaseone\ dataset. 
 To do this we measured the runtime separately for pre-processing stage as well as the k-means clustering stage itself (see Methods). 
 Pre-processing the data to Mahout's sequence files takes 21 minutes, uses 1.8GB physical memory (pmem) and 7.6GB virtual memory (vmem).
 Conversely,  pre-processing the data to R's in memory matrix takes 56 minutes, uses 17.7GB pmem and 18GB vmem. 
@@ -78,11 +79,11 @@ The main benefit of Mahout in this scenario is the memory consumption with nearl
 \subsection*{Mahout scales to 15 Million genomic variants}
 In this section we demonstrate Mahout's scaling ability by increasing the numbers of features, here variants per sample. 
 Including more regions for the similarity calculation will increase the cluster performance, however also increases the memory consumption. 
-R therefore was not able to perform the clustering on even the medium sized dataset (\SixReal , 15 Million variants), we hence only report resource consumption and accuracy for Mahout.
+R therefore was not able to perform the clustering on even the medium sized dataset (\SevenPhaseone , 15 Million variants), we hence only report resource consumption and accuracy for Mahout.
 On this dataset Mahout's pre-processing takes 325 minutes, with 13GB of physical and 37GB of virtual memory, and the clustering takes 80 minutes.
-The clustering accuracy has increased by 35\% to 0.812 with 10 clusters compared to the performance on \OneReal\ for the 4-group-based population task (see Table~\ref{datasetsAcc}).
+The clustering accuracy has increased by 35\% to 0.812 with 10 clusters compared to the performance on \NinteenPhaseone\ for the 4-group-based population task (see Table~\ref{datasetsAcc}).
 
-Utilizing the whole dataset hence would likely increased the performance further. However, on \FullReal\ (38 Million variants) Hadoop returns an 'out-of-memory' error on the name-node before the jobs can even be distributed to the mappers. 
+Utilizing the whole dataset hence would likely increased the performance further. However, on \FullPhasethree\ (38 Million variants) Hadoop returns an 'out-of-memory' error on the name-node before the jobs can even be distributed to the mappers. 
 %TODO: is this a correct statement?
 It is not possible to use Mahout's standard implementation for this dataset, as the supported Hadoop-setup only allows the communication between nodes with up to 8GB of memory and a scaling beyond that would have been required.
 
@@ -92,7 +93,7 @@ While R does not scale to either of the two orders of magnitude incased datasets
 % SCALING UP SAMPLES IN MAHOUT
 \subsection*{Mahout scales effortless to an order of magnitude more samples}
 In this section we investigate Mahout's ability to scale with more samples.
-The resource consumption remains virtually identical between \SixReal\ and the order of magnitude larger dataset \SixArtiExact, which takes 33 minutes, with 6GB of physical and 39GB of virtual memory, and the clustering takes 23 minutes 
+The resource consumption remains virtually identical between \SevenPhaseone\ and the order of magnitude larger dataset \OnePhasethree, which takes 33 minutes, with 6GB of physical and 39GB of virtual memory, and the clustering takes 23 minutes 
 The clustering accuracy is 0.812 with 10 clusters.
 
 %TODO: can you think of a less general statement as conclusion
@@ -121,20 +122,20 @@ We used variant call format (VCF) files from the 1000 Genomes Project.
 These VCF files contain information about the genetic variants between each of the 1092 individuals and a reference genome derived from GRCh37. 
 Each of the VCF files are partitioned by chromosome.
 Metadata available from the 1000 Genomes Consortium specifies additional attributes for each individual, including population and familial data.\\
-To be able to compare with R, we created a subset of the entire human variant dataset by using only variants from chromosome 19 (\OneReal ) where we investigate the correct grouping of the population structure. 
-Scaling up using Mahout, we investigate how the accuracy improves when using more variants from the genome with \SixReal\ and \FullReal, which uses chromosome 1-5 in addition to 19 and the full genome, respectively. 
+To be able to compare with R, we created a subset of the entire human variant dataset by using only variants from chromosome 19 (\NinteenPhaseone ) where we investigate the correct grouping of the population structure. 
+Scaling up using Mahout, we investigate how the accuracy improves when using more variants from the genome with \SevenPhaseone\ and \FullPhasethree, which uses chromosome 1-5 in addition to 19 and the full genome, respectively. 
 We also investigate whether we can accurately predict the more detailed family association using these datasets. 
 In addition, we demonstrate Mahout's scalability by increasing the number of samples in the study to 5,460 by duplicating the original 1092 samples 5 times with zero and 10\% noise levels, i.e. randomly changing 10\% of the genotypes. 
 Table~\ref{datasets} contains an overview of the datasets.
 
-\subsection*{Hardware}
-We processed the data using a cluster of VMs on the Microsoft Azure cloud service. Each of the VMs has 7GB memory and and 4 CPU cores.
-Six of the VMs have the YARN NodeManager installed, and therefore these 6 machines process the data. The seventh machine dedicates the majority of its memory to
-the HDFS NameNode, ResourceManager and monitoring services. An eighth, single core machine, hosts the Cloudera manager service.
-With the 6 quad-core machines, we can run a total of 24 YARN containers simultaneously.
+\subsection*{Hardware and Software}
+We processed the data using a cluster of five VMs on the Microsoft Azure cloud service. Three of the VMs, the 'worker nodes', each have 14GB memory and and 8 CPU cores. These three VMs run the Hadoop2 NodeManager. The NodeManager manages the Yet Another Resource Negotiator (YARN) 'containers', where YARN allows the user
+to specify the resources allocated to each container.
+The fourth VM runs the HDFS NameNode, ResourceManager and monitoring services, and the fifth VM, a small, single core machine, runs the Cloudera manager service.
+With this hardware setup, we can run 24 YARN containers with 1.5GB memory per container, or 12 YARN containers with 3GB memory per container.
+Storage consists of a 3TB Hadoop Distributed File System (HDFS) partition distributed across the three worker nodes. Each of these nodes runs a DataNode with a 1TB disk.
 
 We used a single VM for the comparison between Mahout and R.
-For the \SixReal\ and \FullReal\ dataset, we ran the job on a PBS cluster of 5 nodes, with twelve CPU cores and 48GB of memory per node.
 
 \subsection*{Pre-processing}
 \label{Sec:preprocessing}
@@ -157,9 +158,9 @@ saves these sparse arrays and keys to disk in the aforementioned SequenceFile fo
 
 
 \subsection*{Mahout K-means clustering}
-To cluster the samples from the sequence files, we use Mahout 0.9 in conjunction with Hadoop 2.2.0. 
+To cluster the samples from the sequence files, we use Mahout 0.9 in conjunction with Hadoop 2.5.0. 
 The clustering steps are the same for each dataset, however, due to the increased feature size we designate more memory to the
-YARN containers (a container being the resources allocated to each map or reduce iteration). For the first step, we specify \texttt{k},
+YARN containers. For the first step, we specify \texttt{k},
 the number of clusters. The function \texttt{RandomSeedGenerator.buildRandom} creates a new sequence file containing \texttt{k}
 random centroids from the samples sequence file. The sequence file
 of samples and the sequence file of centroids serve as the input to \texttt{KMeansDriver.run}, a static Mahout API function that launches
@@ -206,13 +207,14 @@ stages using the function, \texttt{proc.time()}.
 \begin{table}[!t]
 \processtable{Datasets used in this study.\label{Tab:01}}
 {\begin{tabular}{lrrrrr}\toprule
-& individuals  & variants  & population & families & noise\\
+& individuals  & variants  & population & families\\
 & & &groups&& \\\midrule
-        \OneReal & 1,092 & 816,115  & 4 & 855 & NA\\
-        \SixReal & 1,092 & 15,161,339 & 4 & 855 & NA\\
-        \FullReal\ & 1,092 & 38,219,238 & 4 & 855 & NA\\
-	\SixArtiExact\ & 5,460 & 816,115 & 4 & 855 & 0 \\ 
-	\SixArtiNoise\ & 5,460 & 816,115 & 4 & 855 & 10 \\\botrule
+        \NinteenPhaseone & 1,092 & 816,115  & 4 & 855\\
+        \OnePhaseone & 1,092 & 3,007,196  & 4 & 855\\
+        \SevenPhaseone & 1,092 & 18,984,880 & 4 & 855\\
+	\OnePhasethree\ & 2,535 & 6,468,094 & 5 & 855\\
+	\ThreePhasethree\ & 2,535 & 19,381,970 & 5 & 855\\
+	\FullPhasethree\ & 2,535 & 79,000,000 & 5 & 855\\\botrule
 \end{tabular}}{Datasets used in this study}
 \end{table}
 
@@ -221,29 +223,33 @@ stages using the function, \texttt{proc.time()}.
 \processtable{Adjusted Rand index (accuracy).\label{Tab:01}}
 {\begin{tabular}{lcc}\toprule
 Tool, Dataset & accuracy \\\midrule
-      R, \OneReal & 0.614  \\ 
-        Mahout, \OneReal & 0.605\\
-        Mahout, \SixReal & 0.812 \\
-        Mahout, \SixArtiExact & 0.600  \\
-        Mahout, \SixArtiNoise & 0.140 \\\botrule
+      R, \NinteenPhaseone & 0.614  \\ 
+        Mahout, \NinteenPhaseone & 0.730\\
+        Mahout, \OnePhaseone & 0.891\\
+        Mahout, \SevenPhaseone & 0.812 \\
+        Mahout, \OnePhasethree & 0.877  \\\botrule
 \end{tabular}}{Datasets used in this study}
 \end{table}
 
 \begin{table*}[!t]
 \processtable{Resources consumed.\label{Tab:01}}
 {\begin{tabular}{lccccc}\toprule
-&&\multicolumn{2}{ c }{Memory (kb)}&\multicolumn{2}{ c }{Time (s)} \\
-& Nodes & pmem & vmem  & pre-processing & clustering\\\midrule
-         R, \OneReal & 1 & 17,696,940 & 18,000,196 &3,341 & 7\\
-        Mahout,\OneReal & 1 & 1,831,160 & 7646232 & 1,255 & 594\\
-        Mahout, \SixReal & 5 & 13,036,836 & 36,542,380 & 19,500 & 4820 \\ 
-        Mahout, \SixArtiExact & 3 & 5,804,660 & 39,075,548 & 2,024 & 1395 \\\botrule
+&&\multicolumn{2}{ c }{Memory (GB)}&\multicolumn{2}{ c }{Time} \\
+& - & map & reduce  & pre-processing & clustering\\\midrule
+         R, \NinteenPhaseone & - & 1.5 & 2 &3,341 & 7\\
+        Mahout,\NinteenPhaseone & - & 1.5 & 2 & 2m 59s & 9m 12s\\
+        Mahout,\OnePhaseone & - & 1.5 & 2 & 7m 24s & 23m 9s\\
+        Mahout, \SevenPhaseone & - & 1.5 & 2 & 47m 43s & - \\ 
+        Mahout, \SevenPhaseone & - & 2 & 4 & - & 4820 \\ 
+        Mahout, \OnePhasethree & - & 1.5 & 2 & 27m 48s & 89m 42s \\
+        Mahout, \ThreePhasethree & - & 1.5 & 2 & 82m 14s & - \\
+        Mahout, \FullPhasethree & - & 1.5 & 2 & 336m 8s & - \\\botrule
 \end{tabular}}{Datasets used in this study}
 \end{table*}
 
 
 \begin{figure}[!tpb]%figure1
-\centerline{\includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{signature}}
+\centerline{\includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{images/signature}}
         \label{fig:sign}
         \caption{{\bf Illustration of Mahout-based clustering of genotypes.}
       The image shows how the here introduced interface converts the VCF file to a mahout usable vector-based data type. Based on k-means it illustrates how the Map-step procedure groups of vectors by their nearest cluster center and the Reduce-step averages the vectors in each group to find the new value of the updated cluster center. The mahout-produced output is then converted into a visualisation.}
