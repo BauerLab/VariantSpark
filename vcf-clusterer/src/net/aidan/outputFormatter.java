@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -16,32 +17,44 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.mahout.clustering.Cluster;
 import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable;
+import org.apache.mahout.clustering.classify.WeightedVectorWritable;
 import org.apache.mahout.math.NamedVector;
 
 public class outputFormatter {
 	String outputFile = "resultFileCluster.txt";
 	LinkedHashMap<String,String> mpIdData = new LinkedHashMap<String, String>();
 	
-	public void fileRead(Configuration conf) {
-		System.out.println("Writing summary to "+ outputFile);
+	public void fileRead(Configuration conf, String path, String namesFile) {
+		System.out.println("Writing summary to "+ outputFile + "...");
 		try {
 			FileSystem fs = FileSystem.get(conf);
-			Path outPath = new Path("clustering/output/" + Cluster.CLUSTERED_POINTS_DIR + "/");
-			FileStatus[] status = fs.listStatus(outPath);
+			Path inPath = new Path(path);
+			FileStatus[] status = fs.listStatus(inPath);
 			
 			IntWritable key = new IntWritable();
 			WeightedPropertyVectorWritable value = new WeightedPropertyVectorWritable();
 			
+			String content = new Scanner(new File(namesFile)).useDelimiter("\\Z").next();
+			String[] sampleNames = content.split(",");
+			
+			System.out.println("Number of individuals: " + sampleNames.length);
+			
+			
+			
 			for (FileStatus s: status) {
 				Path newPath = s.getPath();
 				if (!newPath.toString().contains("part-m-")){
-					System.out.println(newPath);
 					continue;
 				}
+				System.out.println(newPath);
 				SequenceFile.Reader reader = new SequenceFile.Reader(fs, newPath, conf);
 				while (reader.next(key, value)) {
 					NamedVector vect = (NamedVector) value.getVector();
-					String vecName = vect.getName();
+					
+
+					//String vecName = vect.getName();
+					String vecName= sampleNames[Integer.parseInt(vect.getName())];
+
 					String clusterName = key.toString();
 
 					//Create a new element or add to existing element.

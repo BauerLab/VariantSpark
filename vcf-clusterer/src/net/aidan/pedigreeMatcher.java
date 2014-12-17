@@ -13,6 +13,7 @@ import java.util.Set;
 
 public class pedigreeMatcher {
 	HashMap<String, String[]> hm = new HashMap<String, String[]>();
+	
 	public pedigreeMatcher(String pedFile) throws IOException {
 		BufferedReader ins =
 				new BufferedReader(new FileReader(pedFile));
@@ -23,6 +24,13 @@ public class pedigreeMatcher {
 		}
 		ins.close();
 	}
+	
+	
+	
+	
+	
+	
+	
 	
 	//Why??
 	public void printPedigree() {
@@ -71,21 +79,28 @@ public class pedigreeMatcher {
 			String[] sampleArray = samples[1].split(",");
 			
 			for (String s:sampleArray){
-				truth+=clusterId+",";
-				if (s.contains("CHB")|s.contains("JPT")|s.contains("CHS")|s.contains("ASN")) {
-					clust += 0+",";
+				if (s.contains("CHB")|s.contains("JPT")|s.contains("CHS")|s.contains("CDX")|s.contains("KHV")|s.contains("EAS")) {
+					truth += 0+",";
+					clust += clusterId+",";
 					
 				} else if (s.contains("CEU")|s.contains("TSI")|s.contains("FIN")|s.contains("GBR")|s.contains("IBS")|s.contains("EUR")) {
-					clust += 1+",";
+					truth += 1+",";
+					clust += clusterId+",";
 					
-				} else if (s.contains("YRI")|s.contains("LWK")|s.contains("ASW")|s.contains("ACB")|s.contains("AFR")) {
-					clust += 2+",";
+				} else if (s.contains("YRI")|s.contains("LWK")|s.contains("GWD")|s.contains("MSL")|s.contains("ESN")|s.contains("ASW")|s.contains("ACB")|s.contains("AFR")) {
+					truth += 2+",";
+					clust += clusterId+",";
 					
-				} else if (s.contains("MXL")|s.contains("PUR")|s.contains("CLM")|s.contains("AMR")) {
-					clust += 3+",";
+				} else if (s.contains("MXL")|s.contains("PUR")|s.contains("CLM")|s.contains("PEL")|s.contains("AMR")) {
+					truth += 3+",";
+					clust += clusterId+",";
 					
-				}else {
-					System.out.println(s);
+				} else if (s.contains("GIH")|s.contains("PJL")|s.contains("BEB")|s.contains("STU")|s.contains("ITU")|s.contains("SAS")) {
+					truth += 4+",";
+					clust += clusterId+",";
+					
+				} else {
+					System.out.println("Unknown population: " + s);
 				}
 				
 				
