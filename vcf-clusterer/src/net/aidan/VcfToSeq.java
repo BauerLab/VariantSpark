@@ -33,19 +33,19 @@ import org.apache.mahout.math.VectorWritable;
 
 
 
-public class csvClusterer extends Configured implements Tool {
+public class VcfToSeq extends Configured implements Tool {
 	//public csvClusterer() {}
 	
 	// Some variables
 	public static String[] idArray;
-	public static final String SEQUENCE_OUT_DIRECTORY = "clustering";
+	public static String SEQUENCE_OUT_DIRECTORY = "clustering";
 	public static String INPUT_DIRECTORY;
 	public static final boolean SINGLE_MACHINE = false;
 	public static final int k = 50;
 	public static final int FEATURE_SIZE = 15161339;
 	public static long end = 0;
 	public static long start = System.currentTimeMillis();
-	private static final Log log = LogFactory.getLog(csvClusterer.class);
+	private static final Log log = LogFactory.getLog(VcfToSeq.class);
 
 		
 	public static class TokenizerMapper extends Mapper<LongWritable, Text, Text, VectorWritable>{
@@ -81,19 +81,25 @@ public class csvClusterer extends Configured implements Tool {
 		public int individualId;
 
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-			
+			String variantString;
+			String[] alleles;
+			double variantDouble;
 			String line = value.toString();
 			if (String.valueOf(line.charAt(0)).equals("#")){
 				return;
 			}
 
 			String[] itr = line.split("\\s+");
-			//System.out.println((int) (key.get()/8000) + " " + itr[1]);
-			location = Integer.parseInt(itr[0]+"0000000")+(int) key.get()/8000;
+			
+			int chrId = Integer.parseInt(itr[0]+"0000000")-10000000;
+			location = chrId+ (int) (key.get()/10000);
+		
 			int l = itr.length;
 			for (int i = 9  ; i < l; i++) {
-				String variantString = itr[i];
-				double variantDouble = Double.parseDouble(variantString.split("\\|")[0]);
+				variantString = itr[i];
+				alleles = variantString.split("\\|");
+				variantDouble = Math.sqrt(Double.parseDouble(alleles[0])+Double.parseDouble(alleles[1]));
+				
 				if (variantDouble != 0) {
 					variant.set(variantDouble);
 					individualId = i-9;
@@ -105,13 +111,14 @@ public class csvClusterer extends Configured implements Tool {
 	}
 	
 	public static class vcfReducer extends Reducer<CompositeKey, DoubleWritable, Text, VectorWritable>{
-
+		
 		private Text newKey = new Text();
 		private VectorWritable genotype = new VectorWritable();
 				
 		public void reduce(CompositeKey key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
 			newKey.set(  key.getIndividualId().toString()  );
-			SequentialAccessSparseVector sparseGeno = new SequentialAccessSparseVector(1500000000);
+			SequentialAccessSparseVector sparseGeno = new SequentialAccessSparseVector(220000000);
+
 			for (DoubleWritable val : values) {
 				sparseGeno.set(key.getVariantLocation().get(), val.get());
 			}
@@ -127,19 +134,23 @@ public class csvClusterer extends Configured implements Tool {
 		GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
 		String[] remainingArgs = optionParser.getRemainingArgs();
 		FileSystem fs = FileSystem.get(conf);
-						
+
+		// For testing locally..
 		if(remainingArgs.length > 0){
-			INPUT_DIRECTORY = remainingArgs[1];
+			INPUT_DIRECTORY = remainingArgs[0];
+			SEQUENCE_OUT_DIRECTORY = remainingArgs[1];
 		} else {
-			INPUT_DIRECTORY = "vcf/file.chr1.vcf";
+			INPUT_DIRECTORY = "vcf/sample.vcf";
 		}
 		
+		// Remove the output dir if it already exists
 		if(fs.exists(new Path(SEQUENCE_OUT_DIRECTORY))){
 			fs.delete(new Path(SEQUENCE_OUT_DIRECTORY),true);
 		}	
-   
+		
+		// Set up Hadoop job parameters and start it
 	    Job job = Job.getInstance(conf, "VCF to sequence converter");
-	    job.setJarByClass(csvClusterer.class);
+	    job.setJarByClass(VcfToSeq.class);
 	    job.setMapperClass(vcfMapper.class);
 	    job.setPartitionerClass(IndividualKeyPartitioner.class);
 	    job.setGroupingComparatorClass(IndividualKeyGroupingComparator.class);
@@ -157,14 +168,9 @@ public class csvClusterer extends Configured implements Tool {
 	 		
 	}
 	
-	
-	
-	
-	
 	public static void main(String[] args) throws Exception {
-	    int res = ToolRunner.run(new Configuration(), new csvClusterer(), args);
+	    int res = ToolRunner.run(new Configuration(), new VcfToSeq(), args);
 	    System.exit(res);
 	  }
+	
 }
-
-
