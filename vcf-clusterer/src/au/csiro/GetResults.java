@@ -1,4 +1,4 @@
-package net.aidan;
+package au.csiro;
 
 import java.io.IOException;
 

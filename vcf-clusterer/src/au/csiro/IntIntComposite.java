@@ -1,4 +1,4 @@
-package net.aidan;
+package au.csiro;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -11,17 +11,17 @@ import org.apache.hadoop.io.WritableComparable;
 * This key is a composite key. The "actual"
 * key is the UDID. The secondary sort will be performed against the datetime.
 */
-public class CompositeKey implements WritableComparable<CompositeKey> {
+public class IntIntComposite implements WritableComparable<IntIntComposite> {
 
 	private IntWritable individualid;
 	private IntWritable variantlocation;
 	
 	
-	public CompositeKey() {
+	public IntIntComposite() {
     	set(new IntWritable(), new IntWritable());
 	}
 
-	public CompositeKey(IntWritable individualid, IntWritable variantlocation) {
+	public IntIntComposite(IntWritable individualid, IntWritable variantlocation) {
 		this.individualid = individualid;
 		this.variantlocation = variantlocation;
 	}
@@ -33,6 +33,11 @@ public class CompositeKey implements WritableComparable<CompositeKey> {
     public void set(int individualid, int variantlocation) {
         this.individualid.set(individualid);
         this.variantlocation.set(variantlocation);
+    }
+    
+    public void set(int individualid, IntWritable variantlocation) {
+        this.individualid.set(individualid);
+        this.variantlocation = variantlocation;
     }
 	
 	@Override
@@ -53,7 +58,7 @@ public class CompositeKey implements WritableComparable<CompositeKey> {
 	}
 	
 	@Override
-	public int compareTo(CompositeKey o) {
+	public int compareTo(IntIntComposite o) {
 	
 		int result = individualid.compareTo(o.individualid);
 		if (0 == result) {
