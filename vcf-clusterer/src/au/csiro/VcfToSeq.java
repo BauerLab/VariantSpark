@@ -5,7 +5,7 @@
  * @author obr17q
  *
  */
-package net.aidan;
+package au.csiro;
 
 import java.io.IOException;
 
@@ -73,9 +73,9 @@ public class VcfToSeq extends Configured implements Tool {
 		}
 	}
 	
-	
-	public static class vcfMapper extends Mapper<LongWritable, Text, CompositeKey, DoubleWritable>{
-		private CompositeKey individualId_location = new CompositeKey();
+
+	public static class vcfMapper extends Mapper<LongWritable, Text, IntIntComposite, DoubleWritable>{
+		private IntIntComposite individualId_location = new IntIntComposite();
 		private DoubleWritable variant = new DoubleWritable();
 		private int location;
 		public int individualId;
@@ -92,8 +92,9 @@ public class VcfToSeq extends Configured implements Tool {
 			String[] itr = line.split("\\s+");
 			
 			int chrId = Integer.parseInt(itr[0]+"0000000")-10000000;
-			location = chrId+ (int) (key.get()/10000);
-		
+			//location = chrId+ (int) (key.get()/10000);
+			location = (int) (key.get()/10000);
+
 			int l = itr.length;
 			for (int i = 9  ; i < l; i++) {
 				variantString = itr[i];
@@ -110,14 +111,14 @@ public class VcfToSeq extends Configured implements Tool {
 		}
 	}
 	
-	public static class vcfReducer extends Reducer<CompositeKey, DoubleWritable, Text, VectorWritable>{
+	public static class vcfReducer extends Reducer<IntIntComposite, DoubleWritable, Text, VectorWritable>{
 		
 		private Text newKey = new Text();
 		private VectorWritable genotype = new VectorWritable();
 				
-		public void reduce(CompositeKey key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(IntIntComposite key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
 			newKey.set(  key.getIndividualId().toString()  );
-			SequentialAccessSparseVector sparseGeno = new SequentialAccessSparseVector(220000000);
+			SequentialAccessSparseVector sparseGeno = new SequentialAccessSparseVector(3200000);
 
 			for (DoubleWritable val : values) {
 				sparseGeno.set(key.getVariantLocation().get(), val.get());
@@ -158,7 +159,7 @@ public class VcfToSeq extends Configured implements Tool {
 	    job.setReducerClass(vcfReducer.class);
 	    job.setInputFormatClass(TextInputFormat.class);
 	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
-	    job.setMapOutputKeyClass(CompositeKey.class);
+	    job.setMapOutputKeyClass(IntIntComposite.class);
 	    job.setMapOutputValueClass(DoubleWritable.class);
 	    job.setOutputKeyClass(Text.class);
 	    job.setOutputValueClass(VectorWritable.class);
