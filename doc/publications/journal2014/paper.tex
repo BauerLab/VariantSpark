@@ -150,9 +150,12 @@ To demonstrate the importance of specifying these parameters correctly, we ran t
 Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table \ref{Tab:03}).
 However, this larger container size is still too small for the \FullPhasethree{} dataset, which requires at least 6GB allocated to each map container. Running a job using this dataset and 4GB memory per container results in the job failing.
 
-To demonstrate the scaling ability of jobs to a larger cluster, we ran the same clustering job on a development cluster we had access to. As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\%.
+One of the main selling points of Hadoop, is that it will run on commodity hardware. For this reason we used a relatively small cluster for our benchmarks. Although our cluster uses VMs on Microsoft Azure, it would be relatively simple for a lab to
+create a similar Hadoop setup in-house. However, to demonstrate the scaling ability of Hadoop and our MapReduce algorithms, we also ran the clustering jobs on a much larger development Hadoop cluster. As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\%.
 The \FullPhasethree{} example, on the other hand, was 78\% faster.
-A limitation in both these examples is that the number of reduces in k-means clustering is limited to the number of k-means clusters. A task with five clusters, for example, will only be able to spawn five reduce containers, no matter how many resources are available.
+Although both jobs were more than twice as fast on the larger cluster, the speed doesn't scale relative to the size of the cluster. This is due to a limitation in these examples, where the number of reduces in k-means clustering is limited to the number of k-means clusters (k).
+A task where k is five, for example, will only be able to spawn five reduce containers, no matter how many resources are available. Although sometimes inevitable, depending on the task, this bottleneck of maximum simultaneous reduce tasks is an important consideration to take into account when designing MapReduce jobs. 
+
 
 
 
@@ -165,7 +168,7 @@ We provide an interface from VCF format to Hadoop and Mahout, and a toolset to i
 We find that on small datasets the clustering stage is two orders of magnitudes slower in Mahout compared to R (9 minutes vs 7 seconds), due to the overhead of setting up and co-ordinating the communication between the Hadoop nodes. 
 However, increasing either the number of samples or the number of features per sample quickly exceeds the capability of R on this machine due to memory limitations.
 %DB ok effortlessly might be overstated ?
-Hadoop on the other hand scales effortlessly to more than twice the number samples (2,504) and can process VCF files that contain over 79 Million variants per samples.
+Hadoop on the other hand scales effortlessly to more than twice the number samples (2,504). It can also process VCF files that contain over 79 Million variants per samples, albeit with higher memory allocation.
 The MapReduce functions can scale from a relatively small and accessible cluster with 16 cores, to a much larger cluster with close to 500 CPU cores. 
 In conclusion, Mahout offers a scalable out-of-the box solution that is directly applicable to genotype-based clustering for population or family association. 
 
@@ -185,11 +188,13 @@ Table~\ref{datasets} contains an overview of the datasets.
 
 \subsection*{Hardware and Software}
 %DB what about Piotr's cluster I thought you used that one for the full genome data of phase 1 and phase 3 ?
-We processed the data using a cluster of five VMs on the Microsoft Azure cloud service. Three of these VMs, the 'worker nodes', each have 14GB memory and and 8 CPU cores. These three VMs run the Hadoop2 NodeManager, which manages the Yet Another Resource Negotiator (YARN) 'containers'.
+We processed the data using a cluster of five VMs on the Microsoft Azure cloud service. Three of these VMs, the 'worker nodes', each have 14GB memory and and 8 CPU cores. These three VMs run the Hadoop2 NodeManager, which manages the Yet Another Resource Negotiator (YARN) 'containers' (see discussion).
 The user is able to specify the resources allocated to each container, where map containers can have a different allocation to reduce containers.
 The fourth VM runs the HDFS NameNode, ResourceManager and monitoring services, and the fifth VM, a small, single core machine, runs the Cloudera manager service.
 With a total of 42GB memory and 24 CPU cores available between the node managers, we can simultaneously run up to 24 YARN containers with 1.5GB memory per container, or 12 YARN containers with 3GB memory per container.
 Storage consists of a 3TB Hadoop Distributed File System (HDFS) partition distributed across the three worker nodes. Each of these nodes runs a DataNode with a 1TB disk.
+
+The larger cluster mainly differs in regards to hardware. It has a total of 448 CPU cores and 1.31TB memory available. 
 
 We used a single VM for the comparison between Mahout and R.
 
