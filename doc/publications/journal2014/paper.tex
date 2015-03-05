@@ -89,61 +89,75 @@ $\frac{n \times m \times 8\text{bytes}}{1\text{GB}}$, where $n \times m$ are the
 %This benefit allows Hadoop jobs to not only scale vertically, i.e. to a larger single machine as R can, but also horizontally, to a cluster of many machines.
 
 
-%DB: lets switch section 
-% 1) increase samples \SevenPhaseone{} and \ThreePhasethree{} -> Hadoop scales: does not increase memory requirement, and runtime would have stayed the same with more resource
-% 2) increase features \OnePhasethree, \ThreePhasethree, \FullPhasethree -> 
-% that way we get around explaining why FullPhaseOne is worse than \SevenPhaseone
 
 
 
-
-% SCALING UP FEATURES IN MAHOUT
+% (1) SCALING UP FEATURES IN MAHOUT
 \subsection*{Hadoop scales to genome-wide clustering}
-In this section we demonstrate Mahout's scaling ability by increasing the number of features (variants per sample) to include the 38 million variants from the phase1 dataset (\FullPhaseone{}) and the 79 Million variants from the phase3 dataset (\FullPhasethree{}). 
+In this section we demonstrate Mahout's scaling ability by increasing the number of features (variants per sample) to include the entire phase3 autosome dataset (\FullPhasethree{}).
+We focus on the \FullPhasethree{} dataset in this section because it has 79 million variants compared to \FullPhaseone{}'s 38 million.
 
-% This section feels like a listing numbers rather than a "story". Maybe having a plot we can make a more general statement. So can you make a plot #features vs memory and in a separate on vs time with different colours showing pre-post processing. Or one plot memory vs time with colours as features and shape as pre-post ? 
-We also ran jobs using intermediately sized phase1 datasets (see Table~\ref{Tab:02}) to demonstrate the different container sizes required by pre-processing and k-means clustering, and time required.
-On the \OnePhaseone{} dataset, pre-processing takes just under 10 minutes and clustering takes approximately 12 minutes with the same container size as with the \NinteenPhaseone{} dataset.
-We then increased the input to include the first seven chromosomes (\SevenPhaseone{}). In this case, pre-processing time increased to approximately 45 minutes, and clustering to 3 hours and 28 minutes.
-Our pre-processing algorithm was successful with the same container size as the previous examples. However, we increased both the map and reduce container size for the clustering step to 4GB to accommodate the increased vector size.
+We start by clustering one chromosome. Our algorithm completes successfully, however, it only achieves an adjusted Rand index of 0.622.
+Increasing the dataset to include the first three chromosomes (\ThreePhasethree{}) results in an adjusted Rand index on 0.825
+Finally we include all 22 autosomes as input to our algorithm (\FullPhasethree{}). Although the adjusted rand index isn't much higher than the previous example, at 0.84, the pre-processing and k-means complete successfully.
 
-Finally we used the entire phase one dataset as input. Although pre-processing now takes 85 minutes, it was again successful with the same sized containers as previously.
-Clustering, however, not only required larger containers, but also took over 7 hours to complete.
+% This section feels like a listing numbers rather than a "story". Maybe having a plot we can make a more general statement. So can you make a plot #features vs memory and in a separate on vs time with different colours showing pre-post processing. Or one plot memory vs time with colours as features and shape as pre-post ?
 
-This substantial time increase is in part due to the larger container size. With each container allocated 6GB of memory, our cluster can only run up to six containers simultaneously, as opposed to 24 1.5GB containers (from the smaller examples).
-This restriction in simultaneous containers is due to the limited memory available on our cluster.
-
-% mentioning phase 3 here makes it difficult to understand.
-Although we compare phase3 datasets in the next section because they have a larger number of samples, the \FullPhasethree{} dataset also has the largest feature size, so we mention that in this section to demonstrate Hadoops ability to scale with feature-size.
-The most notable difference is the time required to complete clustering, at just over 21 hours. Although this is a substantial increase in time, the job still completes successfully. As we mention in a later section, this time can be reduced dramatically on a larger cluster.
-
-%DB how else would you expect memory to grow 
-This section demonstrates Hadoop's ability to cope with genome wide information, which predominantly results in a runtime increase. The memory requirements are also increased, however the memory required increases in proportion to vector length,
-rather than the entire size of the dataset. This means we can successfully run a job on the variants from an entire genome on our cluster, or potentially an even smaller cluster, as long as 6GB is available for containers.
+%% OLD
+%%We also ran jobs using intermediately sized phase1 datasets (see Table~\ref{Tab:02}) to demonstrate the different container sizes required by pre-processing and k-means clustering, and time required.
+%On the \OnePhaseone{} dataset, pre-processing takes just under 10 minutes and clustering takes approximately 12 minutes with the same container size as with the \NinteenPhaseone{} dataset.
+%We then increased the input to include the first seven chromosomes (\SevenPhaseone{}). In this case, pre-processing time increased to approximately 45 minutes, and clustering to 3 hours and 28 minutes.
+%Our pre-processing algorithm was successful with the same container size as the previous examples. However, we increased both the map and reduce container size for the clustering step to 4GB to accommodate the increased vector size.
+%
+%Finally we used the entire phase one dataset as input. Although pre-processing now takes 85 minutes, it was again successful with the same sized containers as previously.
+%Clustering, however, not only required larger containers, but also took over 7 hours to complete.
+%
+%This substantial time increase is in part due to the larger container size. With each container allocated 6GB of memory, our cluster can only run up to six containers simultaneously, as opposed to 24 1.5GB containers (from the smaller examples).
+%This restriction in simultaneous containers is due to the limited memory available on our cluster.
+%
+%% mentioning phase 3 here makes it difficult to understand.
+%Although we compare phase3 datasets in the next section because they have a larger number of samples, the \FullPhasethree{} dataset also has the largest feature size, so we mention that in this section to demonstrate Hadoops ability to scale with feature-size.
+%The most notable difference is the time required to complete clustering, at just over 21 hours. Although this is a substantial increase in time, the job still completes successfully. As we mention in a later section, this time can be reduced dramatically on a larger cluster.
+%
+%%DB how else would you expect memory to grow 
+%This section demonstrates Hadoop's ability to cope with genome wide information, which predominantly results in a runtime increase. The memory requirements are also increased, however the memory required increases in proportion to vector length,
+%rather than the entire size of the dataset. This means we can successfully run a job on the variants from an entire genome on our cluster, or potentially an even smaller cluster, as long as 6GB is available for containers.
 %rather than memory increase which quickly become the limiting factor as demonstrated by R's inability to process the data. 
+% /OLD
 
-% SCALING UP SAMPLES IN MAHOUT
+
+
+
+% (2) SCALING UP SAMPLES IN MAHOUT
 \subsection*{Hadoop scales effortlessly to more than twice the number of samples}
-In this section we investigate Mahout's ability to scale with more samples, i.e. the 2504 individuals from the phase3 dataset compared to the 1092 individuals in the phase1 dataset. We focus on the \SevenPhaseone{} and \ThreePhasethree{} datasets due to their similar feature size.
 
-The container size required for pre-processing the data is identical for both datasets, however the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset.
-The clustering accuracy is 0.813 for the phase1 dataset and 0.825 for the phase3 dataset.
-%In this case, due to the number of Feature Vectors increasing, rather than the feature size, we expect the memory requirements for k-means clustering should remain similar, as the cluster centres loaded into the containers' memory are approximately the same size.
-%We expect the memory requirement for the k-means clustering to stay the same as the number of cluster centres loaded into the containers' memory remain constant despite the increase of feature vectors oppose to feature size.
-We expect the memory requirement for the k-means clustering algorithm to be the similar for both datasets, because the larger size of \SevenPhaseone{} is a result of more feature vectors (more individuals), rather than larger feature vectors (more variants).
-Mahout's iterative k-means algorithm loads a set number of these vectors into memory, based on the number of k-means clusters. And therefore, if the feature size doesn't increase, this memory requirement also won't increase.
-This proved to be the case, as 4GB allocated per container was the minimum for both datasets.
+In this section we investigate Mahout's ability to scale with more samples. Mahout's k-means algorithm performs by splitting the clustering job up into separate tasks, where each task calculates the distance between a subset of samples and the k-means centroids.
+Mahout performs each of these calculations iteratively until they are complete for every sample.
+In the previous section we increased the sample size. Larger samples have and increased dimensionality, and hence require more memory and also more time to calculate the distances.
+In this case however, we increase the number of samples. By simply increasing the number of samples, the k-means algorithm will perform more iterations, however the resource cost of each iteration should remain the same.
+To demonstrate this, we compare pre-processing and clustering of the 2504 individuals from the phase3 dataset compared to the 1092 individuals in the phase1 dataset.
+We specifically use the \SevenPhaseone{} and \ThreePhasethree{} datasets because of their similar feature size.
+Even with twice the number of samples in the larger dataset, the algorithm completed successfully for both datasets with the same container size.
+However the \ThreePhasethree{} dataset did require about twenty minutes more time than the smaller \SevenPhaseone{} dataset.
+This demonstrates Hadoop's strength of scaling with sample size. Rather than the larger comparison requiring more resources, it simple required more time. The container size however, cannot be an arbitrary value, as we discuss in the next section.
 
-%DB: do you agree with this concluding statement?
-%Scaling effortless to massively more samples is the strength of Hadoop, hence compute problems need to be carefully designed to harness this ability.  
-%Hadoop's strength is billed to be its ability to scale to massively more samples, however on a finite-resource cluster we observe a limitation to this scalability, which results in a dramatic increase in runtime. 
-Hadoop's strength is billed to be its ability to scale to massively more samples. We observe this to be true, as increasing the samples by two and a half, which is the case from \SevenPhaseone{} to \ThreePhasethree{}, does not result in greater memory requirements,
-unlike increasing the number of variants per sample.
 
-\subsection*{Result visualisation}
-% DB: in the conclusion we discussed that we provide a "toolset to interpret Mahout's clustering output". We hence need to show the R-image for that, i.e. spit out distance matrix and read in with R to plot, e.g. doing Multidimensional Scaling to squash the matrix in 2D http://www.statmethods.net/advstats/mds.html 
+%% OLD
+%The container size required for pre-processing the data is identical for both datasets, however the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset.
+%The clustering accuracy is 0.813 for the phase1 dataset and 0.825 for the phase3 dataset.
+%%In this case, due to the number of Feature Vectors increasing, rather than the feature size, we expect the memory requirements for k-means clustering should remain similar, as the cluster centres loaded into the containers' memory are approximately the same size.
+%%We expect the memory requirement for the k-means clustering to stay the same as the number of cluster centres loaded into the containers' memory remain constant despite the increase of feature vectors oppose to feature size.
+%We expect the memory requirement for the k-means clustering algorithm to be the similar for both datasets, because the larger size of \SevenPhaseone{} is a result of more feature vectors (more individuals), rather than larger feature vectors (more variants).
+%Mahout's iterative k-means algorithm loads a set number of these vectors into memory, based on the number of k-means clusters. And therefore, if the feature size doesn't increase, this memory requirement also won't increase.
+%This proved to be the case, as 4GB allocated per container was the minimum for both datasets.
 
-% AO: new section
+%%DB: do you agree with this concluding statement?
+%%Scaling effortless to massively more samples is the strength of Hadoop, hence compute problems need to be carefully designed to harness this ability.  
+%%Hadoop's strength is billed to be its ability to scale to massively more samples, however on a finite-resource cluster we observe a limitation to this scalability, which results in a dramatic increase in runtime. 
+%Hadoop's strength is billed to be its ability to scale to massively more samples. We observe this to be true, as increasing the samples by two and a half, which is the case from \SevenPhaseone{} to \ThreePhasethree{}, does not result in greater memory requirements,
+%unlike increasing the number of variants per sample.
+
+% (3) CLUSTER AND CONTAINER SIZE
 \subsection*{Cluster size and containers}
 An important consideration when designing a MapReduce job is the container size. A container is essentially an abstraction of resources, i.e. memory and CPU cores. Tasks are run in parallel in these containers, and each container is independent of other containers.
 The resources Hadoop allocates to each container is a predefined value, specified in its configuration. According to the Cloudera documentation, the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. For example, on a node with 8 CPU cores and 32GB memory, each container should be allocated 1 CPU core and 4GB memory. Effectively allowing a maximum of eight 4GB containers to run in parallel on that node.
@@ -164,6 +178,9 @@ Although both jobs were more than twice as fast on the larger cluster, the speed
 A task where k is five, for example, will only be able to spawn five reduce containers, no matter how many resources are available. Although sometimes inevitable, depending on the task, this bottleneck of maximum simultaneous reduce tasks is an important consideration to take into account when designing MapReduce jobs. 
 
 
+
+\subsection*{Result visualisation}
+% DB: in the conclusion we discussed that we provide a "toolset to interpret Mahout's clustering output". We hence need to show the R-image for that, i.e. spit out distance matrix and read in with R to plot, e.g. doing Multidimensional Scaling to squash the matrix in 2D http://www.statmethods.net/advstats/mds.html 
 
 
 
@@ -298,7 +315,7 @@ Tool & Dataset & \multicolumn{2}{ c |}{Preprocesing (GB)} & \multicolumn{2}{ c |
         Mahout & \NinteenPhaseone{} & 1536 & 3072 & 1536 & 3072 & 6m 10s & 8m 32s & 0.705\\
         & \OnePhaseone{} & 1536 & 3072 & 1536 & 3072 & 9m 52s & 12m 49s & 0.798\\
         & \SevenPhaseone{} & 1536 & 3072 & 4096 & 4096  & 43m 56s & 3h 28m & 0.813\\
-        & \FullPhaseone{} & 1536 & 3072 & 6144 & 6144  & 85m 29s & 7h 43m & 0.723\\
+       % & \FullPhaseone{} & 1536 & 3072 & 6144 & 6144  & 85m 29s & 7h 43m & 0.723\\
         & \OnePhasethree{} & 1536 & 3072 & 1536 & 3072 & 23m 27s & 21m 14s & 0.622\\
         & \ThreePhasethree{} & 1536 & 3072 & 4096 & 4096 & 63m 49s & 4h 21m & 0.825\\
         & \FullPhasethree{} & 1536 & 3072 & 6144 & 6144 & 5h 36m & 21h 5m &0.840\\\botrule
