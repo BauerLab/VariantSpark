@@ -7,7 +7,7 @@
 \begin{document}
 \firstpage{1}
 
-
+	
 \newcommand{\OnePhaseone}{phase1\_chr1}
 \newcommand{\NinteenPhaseone}{phase1\_chr19}
 \newcommand{\SevenPhaseone}{phase1\_chr1-7}
@@ -94,12 +94,13 @@ $\frac{n \times m \times 8\text{bytes}}{1\text{GB}}$, where $n \times m$ are the
 
 % (1) SCALING UP FEATURES IN MAHOUT
 \subsection*{Hadoop scales to genome-wide clustering}
-In this section we demonstrate Mahout's scaling ability by increasing the number of features (variants per sample) to include the entire phase3 autosome dataset (\FullPhasethree{}).
-We focus on the \FullPhasethree{} dataset in this section because it has 79 million variants compared to \FullPhaseone{}'s 38 million.
+In this section we demonstrate Mahout's ability to pre-process and cluster genome-wide variants and its effect on clustering quality.
+We focus on the larger \FullPhasethree{} dataset in this section which has 79 million variants.
+However, we begin with a subset of this dataset, \OnePhasethree{}. Although our algorithm completes successfully, it achieves a relatively low adjusted Rand index of 0.622.
 
-We start by clustering one chromosome. Our algorithm completes successfully, however, it only achieves an adjusted Rand index of 0.622.
-Increasing the dataset to include the first three chromosomes (\ThreePhasethree{}) results in an adjusted Rand index on 0.825
-Finally we include all 22 autosomes as input to our algorithm (\FullPhasethree{}). Although the adjusted rand index isn't much higher than the previous example, at 0.84, the pre-processing and k-means complete successfully.
+Next we increase the input to include the first three chromosomes (\ThreePhasethree{}), which has just under 20 million variants. This completes successfully and results in an adjusted Rand index of 0.825.
+Finally we include all 22 autosomes (\FullPhasethree{}) as input to our algorithm. Although the adjusted rand index isn't much higher than the previous example, at 0.84, the pre-processing and k-means complete successfully.
+-Conclusionary statement- 
 
 % This section feels like a listing numbers rather than a "story". Maybe having a plot we can make a more general statement. So can you make a plot #features vs memory and in a separate on vs time with different colours showing pre-post processing. Or one plot memory vs time with colours as features and shape as pre-post ?
 
@@ -131,15 +132,17 @@ Finally we include all 22 autosomes as input to our algorithm (\FullPhasethree{}
 % (2) SCALING UP SAMPLES IN MAHOUT
 \subsection*{Hadoop scales effortlessly to more than twice the number of samples}
 
-In this section we investigate Mahout's ability to scale with more samples. Mahout's k-means algorithm performs by splitting the clustering job up into separate tasks, where each task calculates the distance between a subset of samples and the k-means centroids.
-Mahout performs each of these calculations iteratively until they are complete for every sample.
-In the previous section we increased the sample size. Larger samples have and increased dimensionality, and hence require more memory and also more time to calculate the distances.
-In this case however, we increase the number of samples. By simply increasing the number of samples, the k-means algorithm will perform more iterations, however the resource cost of each iteration should remain the same.
-To demonstrate this, we compare pre-processing and clustering of the 2504 individuals from the phase3 dataset compared to the 1092 individuals in the phase1 dataset.
+In this section we investigate Hadoop's ability to scale with more samples. Mahout's k-means algorithm performs by splitting clustering jobs up into separate, smaller tasks, where each task calculates the distance between a subset of samples and the k-means centroids.
+Hadoop creates a 'container' for each task, and processes them iteratively until every task is complete.
+We discuss containers in greater detail in the next section, however a container is essentially a pre-defined allocation of memory and CPU cores.
+In the previous section we increased the sample size. Larger samples have an increased dimensionality, and hence require more memory per container, and also more time to complete.
+In this case, however, we increase the number of samples. With more samples, the k-means algorithm will divide the job up into more tasks, however the memory requirement of each task, and hence, container, should remain the same because the dimensionality is the same.
+Instead the job will take more time because there are more tasks for Mahout to complete.
+To demonstrate this, we compare k-means clustering of the 2504 individuals from the phase3 dataset compared to the 1092 individuals in the phase1 dataset.
 We specifically use the \SevenPhaseone{} and \ThreePhasethree{} datasets because of their similar feature size.
-Even with twice the number of samples in the larger dataset, the algorithm completed successfully for both datasets with the same container size.
-However the \ThreePhasethree{} dataset did require about twenty minutes more time than the smaller \SevenPhaseone{} dataset.
-This demonstrates Hadoop's strength of scaling with sample size. Rather than the larger comparison requiring more resources, it simple required more time. The container size however, cannot be an arbitrary value, as we discuss in the next section.
+The algorithm completed successfully with the same sized containers for both datasets, even with more than twice the number of samples in the larger dataset.
+However, the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset.
+This demonstrates Hadoop's strength of scaling with sample size. Rather than the larger comparison requiring us to allocate more resources allocated to containers, it simply required more time. Therefore, increasing the sample size of a job should not require reconfiguration of Hadoop or a larger cluster.
 
 
 %% OLD
@@ -159,17 +162,19 @@ This demonstrates Hadoop's strength of scaling with sample size. Rather than the
 
 % (3) CLUSTER AND CONTAINER SIZE
 \subsection*{Cluster size and containers}
-An important consideration when designing a MapReduce job is the container size. A container is essentially an abstraction of resources, i.e. memory and CPU cores. Tasks are run in parallel in these containers, and each container is independent of other containers.
+When designing a MapReduce job, it is important that the user specify container size correctly. Overallocation of resources can result in wasted resources, whereas under allocation can result in failed jobs.
+To elaborate, a container is essentially an abstraction of resources, i.e. memory and CPU cores. After Hadoop divides a job up into tasks, each task runs in parallel in a container. In addition, each container is independent of other containers.
 The resources Hadoop allocates to each container is a predefined value, specified in its configuration. According to the Cloudera documentation, the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. For example, on a node with 8 CPU cores and 32GB memory, each container should be allocated 1 CPU core and 4GB memory. Effectively allowing a maximum of eight 4GB containers to run in parallel on that node.
 
 When a MapReduce job is launched, Hadoop spawns a number of map tasks and reduce tasks. These tasks are placed in a queue until a node has enough resources available to run a container, and generally, the more containers that can run simultaneously, the faster the job will complete.
-The number of containers for smaller jobs are generally limited by the available CPU cores, as each container requires an entire CPU core. However for jobs that deal with large datasets, the memory allocated per container (following Cloudera's guidelines) may not be enough.
-We could modify the above example to allocate each container 1 CPU core and 8GB memory, however now only four containers can fit within the node's 32GB memory, resulting in the other 4 CPU cores being disused. It is therefore optimal to
+For smaller jobs, the maximum number of containers are generally limited by the available CPU cores because each container requires an entire CPU core. The tasks running in each container may not be able to utilise all of the memory allocated to that container.
+However, for jobs that deal with large datasets, the memory allocated per container (following Cloudera's guidelines) may not be enough.
+We could modify the above example to allocate each container 1 CPU core and 8GB memory, however now only four containers can fit within the node's 32GB memory, resulting in the other 4 CPU cores being disused (because only four containers can run simultaneously). It is therefore optimal to
 allocate the appropriate resources to containers, and only increase container memory when necessary, as overallocation of memory will simply limit the number of simultaneous containers each node can run.
 
 To demonstrate the importance of specifying these parameters correctly, we ran the identical jobs, using different Hadoop configurations. The \OnePhaseone{} dataset only requires 1.5GB memory per container, as we demonstrated previously.
 Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table \ref{Tab:03}).
-However, this larger container size is still too small for the \FullPhasethree{} dataset, which requires at least 6GB allocated to each map container. Running a job using this dataset and 4GB memory per container results in the job failing.
+This larger container size is still too small for the \FullPhasethree{} dataset, which we demonstrated to require 6GB memory per container. Running a job on this dataset with 4GB memory per container results in the job failing.
 
 One of the main selling points of Hadoop, is that it will run on commodity hardware. For this reason we used a relatively small cluster for our benchmarks. Although our cluster uses VMs on Microsoft Azure, it would be relatively simple for a lab to
 create a similar Hadoop setup in-house. However, to demonstrate the scaling ability of Hadoop and our MapReduce algorithms, we also ran the clustering jobs on a much larger development Hadoop cluster. As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\%.
@@ -300,7 +305,7 @@ name& individuals & variants & in-memory  & population\\
         \FullPhaseone{} & 1,092 & 38,219,238 & 333.88 & 4\\
 	\OnePhasethree{} & 2,504 & 6,468,094 & 131.17 & 5\\
 	\ThreePhasethree{} & 2,504 & 19,381,970 & 393.06 & 5\\
-	\FullPhasethree{} & 2,504 & 79,000,000 & 1602.00 & 5\\\botrule
+	\FullPhasethree{} & 2,504 & 81,271,745 & 1602.00 & 5\\\botrule
 \end{tabular}}{Datasets used in this study; based on portions of the phase1 and phase3 data from the 1000 genomes project.
 In-memory size is the approximate memory required to store the data as a double-precision matrix of size n,m using the formula: n*m*8bytes/10\textsuperscript{9}bytes.
 }
