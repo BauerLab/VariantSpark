@@ -104,7 +104,7 @@ Note, phase3 data has one more population group, which explains the decrease in 
 Increasing the input to include the first three chromosomes (\ThreePhasethree{}) improves the accuracy with an \ARI{} of 0.825 (Table~\ref{Tab:02}).
 We are reaching a saturation point for k-means clustering here, as including all 22 autosomes (\FullPhasethree{}) improves the \ARI{} only marginally to 0.84 (Table~\ref{Tab:02}).
 %DB is that really GB or should that be 6.1GB?
-However, this demonstrates that performing clustering using whole-genome variants on research infrastructure is feasible using Mahout as the resource consumption lies within realistic boundaries. The time consumption increases to 25 hours and memory to 6144 GB (Table~\ref{Tab:02}). 
+However, this demonstrates that performing clustering using whole-genome variants on research infrastructure is feasible using Mahout as the resource consumption lies within realistic boundaries. The time consumption increases to 25 hours and memory to 6 GB (Table~\ref{Tab:02}). 
 
 
 % (2) SCALING UP SAMPLES IN MAHOUT
@@ -202,8 +202,8 @@ A task where k is five, for example, will only be able to spawn five reduce cont
 
 
 \subsection*{Result visualisation}
-% DB: in the conclusion we discussed that we provide a "toolset to interpret Mahout's clustering output". We hence need to show the R-image for that, i.e. spit out distance matrix and read in with R to plot, e.g. doing Multidimensional Scaling to squash the matrix in 2D http://www.statmethods.net/advstats/mds.html 
-
+% DB: in the conclusion we discussed that we provide a "toolset to interpret Mahout's clustering output". 
+% DB: can we discuss here how we get a visual representation from the clustering (ClusterDumper+Gephi) and what the image tells us..
 
 
 
