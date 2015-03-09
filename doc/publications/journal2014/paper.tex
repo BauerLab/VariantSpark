@@ -168,7 +168,7 @@ To elaborate, a container is essentially an abstraction of resources, i.e. memor
 After Hadoop divides a job up into tasks, each task runs in parallel in a container. In addition, each container is independent of other containers.
 The resources Hadoop allocates to each container is a predefined value, specified in its configuration. 
 % DB reference or version
-According to the Cloudera documentation, the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. 
+According to the Hortonworks documentation \cite{Horton2013}, the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. 
 For example, on a node with 8 CPU cores and 32GB memory, each container should be allocated 1 CPU core and 4GB memory. Effectively allowing a maximum of eight 4GB containers to run in parallel on that node.
 
 When a MapReduce job is launched, Hadoop spawns a number of map tasks and reduce tasks. 
@@ -181,7 +181,7 @@ allocate the appropriate resources to containers, and only increase container me
 To demonstrate the importance of specifying these parameters correctly, we ran the identical jobs, using different Hadoop configurations. 
 The \OnePhaseone{} dataset only requires 1.5GB memory per container, as we demonstrated previously.
 %Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table \ref{Tab:03}).
-Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table \ref{Tab:03}), because fewer jobs can run in parallel. 
+Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table~\ref{Tab:03}), because fewer jobs can run in parallel. 
 %This larger container size is still too small for the \FullPhasethree{} dataset, which we demonstrated to require 6GB memory per container. 
 %Running a job on this dataset with 4GB memory per container results in the job failing.
 Attempting to run the larger data set (\FullPhasethree{}) with either 1.5GB or 4GB will result in the job failing, because the feature vector cannot be loaded completely, this requires at least 6GB memory per container and 21h runtime. 
@@ -193,7 +193,7 @@ To mimic the available resource in a standard resource setting we used only a sm
 However, to demonstrate the scaling ability of Hadoop and our MapReduce algorithms, we also ran the clustering jobs on a much larger development Hadoop cluster. 
 %As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\%.
 %The \FullPhasethree{} example, on the other hand, was 78\% faster.
-As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\% when providing 448 cores of 13GB. 
+As presented in Table~\ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\% when providing 448 cores of 13GB. 
 With these resource, the \FullPhasethree{} example, was 78\% faster.
 
 Although both jobs were more than twice as fast on the larger cluster, the speed doesn't scale relative to the size of the cluster. This is due to a limitation in these examples, where the number of reduces in k-means clustering is limited to the number of k-means clusters (k).
@@ -230,7 +230,7 @@ The phase1 and phase3 datasets contain 1,092 and 2,504 individuals, respectively
 Metadata available from the 1000 Genomes Consortium specifies additional attributes for each individual, including population and familial data.\\
 We used different subsets of the data for different comparisons. For example, to be able to compare Hadoop with R, we used the VCF file containing chromosome 19 variants (\NinteenPhaseone{}).
 To demonstrate scaling with Hadoop, we use subsets that contain more variants, i.e. \SevenPhaseone{} and \FullPhaseone{}, which include chromosome 1-7 and the full genome, respectively.
-Table~\ref{datasets} contains an overview of the datasets.
+Table~\ref{Tab:01} contains an overview of the datasets.
 
 \subsection*{Hardware and Software}
 %DB what about Piotr's cluster I thought you used that one for the full genome data of phase 1 and phase 3 ?
@@ -331,7 +331,7 @@ In-memory size is the approximate memory required to store the data as a double-
 \begin{table*}[!t]
 \processtable{Resources allocated and time taken.\label{Tab:02}}
 {\begin{tabular}{ll|cc|cc|rr|c}\toprule
-Tool & Dataset & \multicolumn{2}{ c |}{Preprocesing (GB)} & \multicolumn{2}{ c |}{Clustering (GB)} & \multicolumn{2}{ c |}{Time} & Accuracy\\
+Tool & Dataset & \multicolumn{2}{ c |}{Preprocesing (MB)} & \multicolumn{2}{ c |}{Clustering (MB)} & \multicolumn{2}{ c |}{Time} & Accuracy\\
 & & map & reduce  & map & reduce  & pre-processing & clustering & \\\midrule
         R &\NinteenPhaseone{} & - & - & - & - & 55m 41s & 7s &0.614\\
         Mahout & \NinteenPhaseone{} & 1536 & 3072 & 1536 & 3072 & 6m 10s & 8m 32s & 0.705\\
@@ -347,8 +347,8 @@ Tool & Dataset & \multicolumn{2}{ c |}{Preprocesing (GB)} & \multicolumn{2}{ c |
 
 \begin{table*}[!t]
 \processtable{Resources allocated and time taken.\label{Tab:03}}
-{\begin{tabular}{cl|cc|cc|r}\toprule
-Dataset & \multicolumn{2}{ c |}{Available Resources} & \multicolumn{2}{ c |}{Container Size (GB)} & Time\\
+{\begin{tabular}{c|cc|cc|c}\toprule
+Dataset & \multicolumn{2}{ c |}{Available Resources} & \multicolumn{2}{ c |}{Container Size (MB)} & Time\\
 & CPU cores & Memory (GB)  & map & reduce & \\\midrule
         \OnePhaseone{} & 24 & 36 & 1536 & 3072 & 12m 49s\\
         \OnePhaseone{} & 24 & 36 & 4096 & 4096  & 17m 47s\\
