@@ -77,7 +77,7 @@ R, on the other hand, already has the entire matrix in-memory, on a single machi
 Due to the relatively small number of variants, cluster accuracy is relatively poor for both methods, with the best \ARI{}~\citep{Hubert1985} score for clustering individuals in one of 4 populations (see Methods) being 0.705 in Mahout and 0.614 in R (see Table~\ref{Tab:02}, an \ARI{} of 1 means perfect clustering).
 
 While the overall processing time is 40 minutes faster in Mahout compared to R, the real bottleneck for large datasets is the amount of memory available on a single machine. 
-As an example, the entire set of 1000 Genome Project phase3 variants could require approximately 1.6TB to be completely loaded into memory as a double-precision matrix (see Table~\ref{Tab:01}). This is based on the equation:
+As an example, the entire set of 1000 Genomes Project phase3 variants could require approximately 1.6TB to be completely loaded into memory as a double-precision matrix (see Table~\ref{Tab:01}). This is based on the equation:
 $\frac{n \times m \times 8\text{bytes}}{1\text{GB}}$, where $n \times m$ are the matrix dimensions, 8bytes is the memory a \texttt{double} occupies (i.e. each matrix element), and  1GB is $10^9$ bytes.
 
 Therefore, the data processed in the subsequent sections are too large to be processed with standard R, hence we focus on evaluating different settings of the Mahout implementation only.  
@@ -240,7 +240,7 @@ using the `kmeans' algorithm from the `stats' library.
 
 \subsection*{Clustering quality}
 We scored the clusters with the \ARI{}~\citep{Hubert1985}. 
-This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
+This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based on the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
 The \ARI{} is then 
 {\tiny
 \begin{eqnarray*}
@@ -250,7 +250,7 @@ ARI=\frac{\sum_{ij}{{n_{ij}\choose 2}} - \left[ \sum_{i}{{a_i\choose2}} \sum_{j}
 where $a$ and $b$ are the sums over the rows and columns of the contingency table.
 
 The value is zero for independent clusterings and one for identical clusterings. 
-We compared the Mahout k-means clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project.
+We compared the Mahout k-means clusters and the R k-means clusters to the known clusters based on meta data from the 1000 Genomes Project.
 For the known clusters, individuals from the both phase1 and phase3 datasets were partitioned by their super population code, ASN, EUR, AFR, and AMR, where phase3 included EAS and SAS instead of ASN.
 
 
@@ -263,7 +263,8 @@ stages using the function, \texttt{proc.time()}.
 
 
 \subsection*{Graph visualisation}
-GraphML files generated using Mahout Cluster Dumper were visualised using Gephi. Layouts were applied in the following order: Random, ForceAtlas 2, Yifan Hu Proportional. For ForceAtlas 2 behaviour alternatives ``dissuade hubs'', ``linlog mode'' and ``prevent overlap'' were set to true, ``approximate repulsion'' was set to false.
+GraphML files generated using Mahout Cluster Dumper were visualised using Gephi. Layouts were applied in the following order: Random, ForceAtlas 2, Yifan Hu Proportional.
+For ForceAtlas 2 behaviour alternatives ``dissuade hubs'', ``linlog mode'' and ``prevent overlap'' were set to true, ``approximate repulsion'' was set to false.
 
 
 \end{methods}
@@ -280,7 +281,7 @@ name& individuals & variants & in-memory  & population\\
 	\OnePhasethree{} & 2,504 & 6,468,094 & 131.17 & 5\\
 	\ThreePhasethree{} & 2,504 & 19,381,970 & 393.06 & 5\\
 	\FullPhasethree{} & 2,504 & 81,271,745 & 1602.00 & 5\\\botrule
-\end{tabular}}{Datasets used in this study; based on portions of the phase1 and phase3 data from the 1000 genomes project.
+\end{tabular}}{Datasets used in this study; based on portions of the phase1 and phase3 data from the 1000 Genomes Project.
 In-memory size is the approximate memory required to store the data as a double-precision matrix of size n,m using the formula: n*m*8bytes/10\textsuperscript{9}bytes.
 }
 \end{table}
