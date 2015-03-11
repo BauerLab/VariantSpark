@@ -18,7 +18,7 @@
 \newcommand{\ARI}{Adjusted Rand Index}
 
 \title[MapReduce Clustering]{Scalable Clustering of Genotype Information using MapReduce}
-\author[O'Brien \textit{et~al}]{Aidan R O'Brien\,$^{1}$, Neil Saunders\,$^1$,Fabian A Buske\,$^{2}$ and Denis C. Bauer\,$^1$\footnote{to whom correspondence should be addressed}}
+\author[O'Brien \textit{et~al}]{Aidan R. O'Brien\,$^{1}$, Neil Saunders\,$^1$,Fabian A. Buske\,$^{2}$ and Denis C. Bauer\,$^1$\footnote{to whom correspondence should be addressed}}
 \address{$^{1}$CSIRO, Digital Productivity Flagship, 11 Julius Av, 2113, Sydney, Australia\\
 $^{2}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Centre, Garvan Institute of Medical Research, 384 Victoria St, 2010, Sydney, Australia}
 
@@ -31,170 +31,115 @@ $^{2}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Cent
 \begin{abstract}
 
 \section{Motivation:}
-Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
+Processing genomic information from whole genome sequence studies poses computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
 However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations. 
-Here we introduce the interface we developed between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efferent machine learning algorithms to genomic data. 
-\section{Results:}
-We achieve an 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real benefit lies in scaling beyond R's capability to a population-size analysis. We successfully clustered more than 2,500 individuals each having more than 19 Million variants. 
+%Here we introduce the interface we developed between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efferent machine learning algorithms to genomic data. 
+Here we introduce an interface between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efficient machine learning algorithms to genomic data. 
 
+\section{Results:}
+We achieve more than 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real advantage lies in the scalability of MapReduce beyond R's capability to a genome-wide analysis. We successfully clustered more than 2,500 individuals each having more than 81 Million variants. 
 \section{Availability:}
-Using modern compute paradigms is essential to scale to modern genomic research in an efficient sustainable way. 
+%DB this probably is not the final URL...
+The package is written in Java and available at \url{https://stash.csiro.au/users/bau04c/repos/bioinfbiglearning/browse}.
 
 \section{Contact:} \href{Denis.Bauer@CSIRO.au}{Denis.Bauer@CSIRO.au}
 \end{abstract}
 
 \section{Introduction}
 
-Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or the cancer genome atlas (TCGA)~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing. 
+Grouping individuals based on their genomic profile is a commonly performed tasks to identify population structure~\citep{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\citep{Laitman2013}.  
+Traditionally both, the number of individuals and included genotypes (typically from SNP arrays), were relatively small and libraries in Bioconductor, which commonly perform all calculations in memory, sufficient. 
+However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. 
+It is hence economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 genomes project~\citep{1KG2012} or The Cancer Genome Atlas, TCGA~\citep{TCGA2013}. 
+At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing. 
 
-As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
+As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\citep{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\citep{Schatz2009}, duplicate removal~\citep{Jourdren2012}, and variant calling~\citep{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\citep{Huang2013, Guo2014}.
 
 %Mention Goolge's population clustering in the intro
+At the same time, computer scientists extent MapReduce paradigms to cope with the iterative nature of machine learning tasks~\citep{Chu2009}. Specifically, the Mahout project \url{https://mahout.apache.org/} has been developed extensively~\citep{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\citep{Dong2013}.
 
-At the same time, theoretical computer scientists adapt MapReduce paradigms to cope with the iterative nature of machine learning tasks~\cite{Chu2009}. Specifically, the Mahout project \url{https://mahout.apache.org/} has been developed extensively~\cite{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\cite{Dong2013}.
-
-In this paper we link the two areas of parallel machine learning and bioinformatics by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks. 
-
-To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure using the k-means clustering algorithm available in Mahout. In the first section we benchmark the performance and accuracy of Mahout's implementations against a standard R based implementation on a reduced version of the data and in the last two sections we investigate how Mahout scales to either more samples or more features per samples.   
-
-%SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
-
+In this paper, we link the two areas of parallel machine learning and bioinformatics by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\citep{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks. 
+To demonstrate the capability, we cluster variant datasets from the 1000 genomes project to determine population structure using the k-means clustering algorithm available in Mahout. In the first section we benchmark the performance and accuracy of Mahout's implementations against a standard R based implementation on a subset of the data and in following two sections we investigate Mahout's scaleability with respect to sample size and features per sample. We then discuss design considerations for the resource allocation and give a visualisation example in the last two sections.  
 
 \section*{Results and discussion}
 
 % COMPARISON TO R
 \subsection*{Clustering in Mahout requires less memory than in R}
-In this section, we compare the runtime and resource requirements between the k-means clustering implementation in R and Mahout for the small \NinteenPhaseone{} dataset (see Methods). 
+In this section, we compare the runtime and resource requirements between the k-means clustering implementation in R and Mahout for the small \NinteenPhaseone{} dataset (see Methods, Table~\ref{Tab:01}). 
 We measured the runtime separately for pre-processing stage as well as the clustering stage. 
 
-%With Hadoop, pre-processing the data takes approximately 6 minutes, with an allocation of up to 3GB memory per 'container'. The resulting data is stored as a Hadoop 'SequenceFile' of about 835MB in size.
 With Hadoop, pre-processing the data takes approximately 6 minutes, with an allocation of up to 3GB memory. 
 The resulting data is stored as a Hadoop 'SequenceFile' of about 835MB in size.
 Conversely,  pre-processing the data to R's in-memory matrix takes 56 minutes and required 17.7GB memory. 
 K-means clustering the data, however, is faster with R, using 7s, whereas Mahout takes just under 9 minutes (see Table~\ref{Tab:02}). 
 This is due to the additional overhead involved in spawning the map and reduce processes, and distributing the data between nodes.
 R, on the other hand, already has the entire matrix in-memory, on a single machine and since no disk-access or networking is required the clustering can be performed faster. 
-Due to the relatively small number of variants, cluster accuracy is relatively poor for both methods, with the best \ARI{} score for clustering individuals in one of 4 populations (see Methods) being 0.705 in Mahout and 0.614 in R (see Table~\ref{Tab:02}).
+Due to the relatively small number of variants, cluster accuracy is relatively poor for both methods, with the best \ARI{}~\citep{Hubert1985} score for clustering individuals in one of 4 populations (see Methods) being 0.705 in Mahout and 0.614 in R (see Table~\ref{Tab:02}, an \ARI{} of 1 means perfect clustering).
 
-%Although the overall Mahout pipeline is about 40 minutes faster than R's, the actual k-means clustering takes two orders of magnitude longer in Mahout. 
-%This is due to the additional overhead involved in spawning the map and reduce processes, and distributing the data between nodes.
-%R, on the other hand, already has the entire matrix in-memory, on a single machine. 
-%Since no disk-access or networking is required the clustering can be performed faster. 
-
-While the overall processing time is already 40 minutes faster in Mahout than R, the real bottleneck for larger dataset will be the amount of memory available on a single machine. 
+While the overall processing time is 40 minutes faster in Mahout compared to R, the real bottleneck for large datasets is the amount of memory available on a single machine. 
 As an example, the entire set of 1000 Genome Project phase3 variants could require approximately 1.6TB to be completely loaded into memory as a double-precision matrix (see Table~\ref{Tab:01}). This is based on the equation:
-$\frac{n \times m \times 8\text{bytes}}{1\text{GB}}$, where $n \times m$ are the matrix dimensions, 8bytes is the memory a double occupies (i.e. each matrix element), and  1GB is $10^9$bytes.
+$\frac{n \times m \times 8\text{bytes}}{1\text{GB}}$, where $n \times m$ are the matrix dimensions, 8bytes is the memory a \texttt{double} occupies (i.e. each matrix element), and  1GB is $10^9$ bytes.
 
-Therefore, the data processed in the subsequent sections are too large to be processed with standard R, we hence we focus on evaluating different settings of the Mahout implementation only.  
+Therefore, the data processed in the subsequent sections are too large to be processed with standard R, hence we focus on evaluating different settings of the Mahout implementation only.  
 
 
 
 % (1) SCALING UP FEATURES IN MAHOUT
 \subsection*{Hadoop scales to genome-wide clustering}
-%In this section we demonstrate Mahout's ability to pre-process and cluster genome-wide variants and its effect on clustering quality.
-%We focus on the larger \FullPhasethree{} dataset in this section which has 79 million variants.
-%However, we begin with a subset of this dataset, \OnePhasethree{}. Although our algorithm completes successfully, it achieves a relatively low adjusted Rand index of 0.622.
-%Next we increase the input to include the first three chromosomes (\ThreePhasethree{}), which has just under 20 million variants. This completes successfully and results in an adjusted Rand index of 0.825.
-%Finally we include all 22 autosomes (\FullPhasethree{}) as input to our algorithm. Although the adjusted rand index isn't much higher than the previous example, at 0.84, the pre-processing and k-means complete successfully.
-%-Conclusionary statement- 
-
 In this section we demonstrate Mahout's ability to cluster genome-wide variants. 
-To demonstrate accuracy-gain and resource-consumption we evaluate whole-genome data (\FullPhasethree{}), which contains 79 million variants, as well as two subsets with 19 (\ThreePhasethree{}) and 6 million (\OnePhasethree{}) variants, respectively.  
-As expected, providing variants from only chromosome one (\OnePhasethree{}) achieves a relatively low \ARI{} of 0.622 (see Table~\ref{Tab:02})
+To demonstrate accuracy-gain and resource-consumption we evaluate whole-genome data (\FullPhasethree{}), which contains 79 million variants, as well as two subsets with 19 (\ThreePhasethree{}) and 6 million (\OnePhasethree{}) variants, respectively  (see Table~\ref{Tab:01}).  
+As expected, providing variants from only chromosome one (\OnePhasethree{}) holds to little information and hence achieves a relatively low \ARI{} of 0.622 (see Table~\ref{Tab:02}).
 Note, phase3 data has one more population group, which explains the decrease in accuracy compared to the previous section.  
 
 Increasing the input to include the first three chromosomes (\ThreePhasethree{}) improves the accuracy with an \ARI{} of 0.825 (Table~\ref{Tab:02}).
 We are reaching a saturation point for k-means clustering here, as including all 22 autosomes (\FullPhasethree{}) improves the \ARI{} only marginally to 0.84 (Table~\ref{Tab:02}).
-%DB is that really GB or should that be 6.1GB?
-However, this demonstrates that performing clustering using whole-genome variants on research infrastructure is feasible using Mahout as the resource consumption lies within realistic boundaries. The time consumption increases to 25 hours and memory to 6 GB (Table~\ref{Tab:02}). 
+However, this demonstrates that performing clustering using whole-genome variants on research infrastructure using Mahout is feasible as the resource consumption lies within realistic boundaries. 
+The time consumption increases to 25 hours and memory to 6 GB (Table~\ref{Tab:02}). 
 
 
 % (2) SCALING UP SAMPLES IN MAHOUT
 \subsection*{Hadoop scales effortlessly to more than twice the number of samples}
-%In this section we investigate Hadoop's ability to scale with more samples. 
-%Mahout's k-means algorithm performs by splitting clustering jobs up into separate, smaller tasks, where each task calculates the distance between a subset of samples and the k-means centroids.
-%Hadoop creates a 'container' for each task, and processes them iteratively until every task is complete.
-%In the previous section we increased the sample size. 
-%Larger samples have an increased dimensionality, and hence require more memory per container, and also more time to complete.
-%In this case, however, we increase the number of samples. 
-%With more samples, the k-means algorithm will divide the job up into more tasks, however the memory requirement of each task, and hence, container, should remain the same because the dimensionality is the same.
-%Instead the job will take more time because there are more tasks for Mahout to complete.
-%In the previous section we increased the sample size. 
-%Larger samples have an increased dimensionality, and hence require more memory per container, and also more time to complete.
-%In this case, however, we increase the number of samples. 
-%With more samples, the k-means algorithm will divide the job up into more tasks, however the memory requirement of each task, and hence, container, should remain the same because the dimensionality is the same.
-%Instead the job will take more time because there are more tasks for Mahout to complete.
-
 Hadoop's main advantage over other parallelisation techniques is its ability to scale to more samples without altering the code. 
-Mahout's k-means algorithm is hence structured such that it splits the clustering problem up into separate, smaller tasks, where each task calculates the distance between a subset of samples and the k-means centroids. 
-The automatic scaling is then achieved by Hadoop creating 'containers' for each task, and processes them iteratively until every task is complete.
+Mahout's k-means algorithm is structured such that it splits the clustering problem into separate, smaller tasks, where each task calculates the distance between a subset of samples and the k-means centroids. 
+The scalability is achieved by Hadoop creating 'containers' for each task and subsequent iterative processing until every task is completed.
 We discuss containers in greater detail in the next section, however, a container is essentially a pre-defined allocation of memory and CPU cores.
-By increasing the number of samples, the k-means algorithm will simply divide the job up into more tasks, which enables the memory requirement of each task to stay the same. 
+By increasing the number of samples, the k-means algorithm simply divides the job into more tasks, which enables the memory requirement of each task to stay the same.
 This is because the dimensionality is constant, compared to the previous section where we increased the number of variants and observe a subsequent increase in memory. 
 
 To demonstrate this, we compare k-means clustering of the 2504 individuals from the phase3 dataset compared to the 1092 individuals from the phase1 dataset.
 We specifically use the \SevenPhaseone{} and \ThreePhasethree{} datasets because of their similar feature size.
-%The algorithm completed successfully with the same sized containers for both datasets, even with more than twice the number of samples in the larger dataset.
-%However, the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset. 
 The algorithm completed successfully with the same sized containers for both datasets, however, the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset (Table~\ref{Tab:02}). 
 This demonstrates Hadoop's strength of scaling with sample size. 
 
 
-%Rather than the larger comparison requiring us to allocate more resources allocated to containers, it simply required more time. Therefore, increasing the sample size of a job should not require reconfiguration of Hadoop or a larger cluster.
-
-
-%% OLD
-%The container size required for pre-processing the data is identical for both datasets, however the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset.
-%The clustering accuracy is 0.813 for the phase1 dataset and 0.825 for the phase3 dataset.
-%%In this case, due to the number of Feature Vectors increasing, rather than the feature size, we expect the memory requirements for k-means clustering should remain similar, as the cluster centres loaded into the containers' memory are approximately the same size.
-%%We expect the memory requirement for the k-means clustering to stay the same as the number of cluster centres loaded into the containers' memory remain constant despite the increase of feature vectors oppose to feature size.
-%We expect the memory requirement for the k-means clustering algorithm to be the similar for both datasets, because the larger size of \SevenPhaseone{} is a result of more feature vectors (more individuals), rather than larger feature vectors (more variants).
-%Mahout's iterative k-means algorithm loads a set number of these vectors into memory, based on the number of k-means clusters. And therefore, if the feature size doesn't increase, this memory requirement also won't increase.
-%This proved to be the case, as 4GB allocated per container was the minimum for both datasets.
-
-%%DB: do you agree with this concluding statement?
-%%Scaling effortless to massively more samples is the strength of Hadoop, hence compute problems need to be carefully designed to harness this ability.  
-%%Hadoop's strength is billed to be its ability to scale to massively more samples, however on a finite-resource cluster we observe a limitation to this scalability, which results in a dramatic increase in runtime. 
-%Hadoop's strength is billed to be its ability to scale to massively more samples. We observe this to be true, as increasing the samples by two and a half, which is the case from \SevenPhaseone{} to \ThreePhasethree{}, does not result in greater memory requirements,
-%unlike increasing the number of variants per sample.
-
 % (3) CLUSTER AND CONTAINER SIZE
 \subsection*{Cluster size and containers}
-In the previous section we observed that while the memory remained constant the runtime increased for larger sample sizes. 
-On a larger cluster the runtime would also have remained constant. 
-%When designing a MapReduce job, it is important that the user specify container size correctly.
+In the previous section we observed that while the memory remained constant the runtime increases with sample size. 
+On a larger Hadoop cluster the runtime could also stay constant if the number of additional tasks can be accommodated by additional compute nodes. 
 However, as research is carried out on resource-finite infrastructure, we discuss in this section how to specify the optimal container size when designing MapReduce jobs to incur only a minimal increase in runtime. 
-%Overallocation of resources can result in wasted resources, whereas under allocation can result in failed jobs.
 
 To elaborate, a container is essentially an abstraction of resources, i.e. memory and CPU cores. 
-After Hadoop divides a job up into tasks, each task runs in parallel in a container. Also, each container is independent of other containers.
+After Hadoop divides a job into tasks, each task runs in parallel in a container. Also, each container is independent of other containers.
 The resources Hadoop allocates to each container is a predefined value, specified by the user in Hadoop's configuration. 
-% DB reference or version
-According to the Hortonworks documentation (\cite{Horton2013}), the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. 
+According to the Hortonworks documentation~\citep{Horton2013}, the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. 
 For example, on a node with 8 CPU cores and 32GB memory, each container should be allocated 1 CPU core and 4GB memory. Effectively allowing a maximum of eight 4GB containers to run in parallel on that node.
 
 When a MapReduce job is launched, Hadoop spawns a number of map tasks and reduce tasks. 
 These tasks are placed in a queue until a node has enough resources available to run a container, and generally, the more containers that can run simultaneously, the faster the job will complete.
 For smaller jobs, the maximum number of containers are generally limited by the available CPU cores because each container requires an entire CPU core. The tasks running in each container may not be able to utilise all of the memory allocated to that container.
 However, for jobs that deal with large datasets, the memory allocated per container (following Cloudera's guidelines) may not be enough.
-We could modify the above example to allocate each container 1 CPU core and 8GB memory, however now only four containers can fit within the node's 32GB memory, resulting in the other 4 CPU cores being disused (because only four containers can run simultaneously). It is therefore optimal to
-allocate the appropriate resources to containers, and only increase container memory when necessary, as overallocation of memory will simply limit the number of simultaneous containers each node can run.
+We could modify the above example to allocate each container 1 CPU core and 8GB memory, however now only four containers can fit within the node's 32GB memory, resulting in the other 4 CPU cores being idle (as only four containers can run simultaneously). 
+It is therefore optimal to allocate the appropriate resources to containers, and only increase container memory when necessary, as overallocation of memory will simply limit the number of simultaneous containers each node can run.
 
 To demonstrate the importance of specifying these parameters correctly, we ran identical jobs, using different Hadoop configurations. 
 The \OnePhaseone{} dataset only requires 1.5GB memory per container, as we demonstrated previously.
-%Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table \ref{Tab:03}).
 Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table~\ref{Tab:03}), because fewer tasks can run in parallel. 
-%This larger container size is still too small for the \FullPhasethree{} dataset, which we demonstrated to require 6GB memory per container. 
-%Running a job on this dataset with 4GB memory per container results in the job failing.
-Attempting to run the larger data set (\FullPhasethree{}) with either 1.5GB or 4GB will result in the job failing, because the feature vectors cannot be loaded completely, this requires at least 6GB memory per container and 21h runtime. 
+Attempting to run the larger data set (\FullPhasethree{}) with either 1.5GB or 4GB will result in the job failing, because the feature vectors do not fit into the available memory. 
+At least 6GB memory per container and 21h runtime are required to finish the job. 
 
 One of the main selling points of Hadoop, is that it will run on commodity hardware. 
-%For this reason we used a relatively small cluster for our benchmarks. Although our cluster uses VMs on Microsoft Azure, it would be relatively simple for a lab to
-%create a similar Hadoop setup in-house. 
-To mimic the available resource in a standard resource setting we used only a small VM cluster on Microsoft Azure for the benchmarking in this paper so far.
-However, to demonstrate the scaling ability of Hadoop and our MapReduce algorithms, we also ran the clustering jobs on a much larger development Hadoop cluster. 
-%As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\%.
-%The \FullPhasethree{} example, on the other hand, was 78\% faster.
+To mimic the available resource in a standard resource setting we used only a small Virtual Machine cluster on Microsoft Azure for the benchmarking in this paper so far.
+However, to demonstrate the scalability of Hadoop and our MapReduce algorithms, we also ran the clustering jobs on a much larger development Hadoop cluster. 
 As presented in Table~\ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\% when providing 448 cores of 13GB. 
 With these resources, the \FullPhasethree{} example, was 78\% faster.
 
@@ -210,26 +155,23 @@ A task where k is five, for example, will only be able to spawn five reduce task
 \end{figure}
 
 
-\subsection*{Result visualisation}
-% DB: in the conclusion we discussed that we provide a "toolset to interpret Mahout's clustering output". 
-% DB: can we discuss here how we get a visual representation from the clustering (ClusterDumper+Gephi) and what the image tells us..
-GraphML files generated using Mahout Cluster Dumper can be visualised using popular freely-available tools such as Gephi~\cite{ICWSM09154}. An example visualisation using the phase 3 dataset, with nodes coloured by super population, is shown in Figure 1.
+\subsection*{Cluster visualisation}
+GraphML files generated using Mahout Cluster Dumper can be visualised using popular freely-available tools such as Gephi~\citep{ICWSM09154}. An example visualisation using the \FullPhasethree{} dataset, with nodes coloured by super population, is shown in Figure 1.
 
-The clusters generated by k-means clustering and their population structure are readily apparent. Three clusters are homogeneous, containing only EAS (1 cluster) or SAS individuals (2 clusters, the second small and unconnected). Two clusters contain predominantly one super population plus a minor component of another: AMR + AFR or AFR + AMR. The sixth cluster is predominantly a mix of EUR + AMR, with 3 AFR individuals and 1 SAS.
-
+The clusters generated by k-means clustering and their population structure are readily apparent. 
+Three clusters are homogeneous, containing only East Asian (EAS, pink cluster) or South Asian (SAS) individuals (2 clusters, cyan cluster and the second small and unconnected).
+Two clusters contain predominantly one super population plus a minor component of another: Ad Mixed American (AMR) + African (AFR) or AFR + AMR. 
+The sixth cluster is predominantly a mix of European (EUR) + AMR, with 3 AFR individuals and 1 SAS.
 
 
 \section*{Conclusion}
 In this paper we have applied Mahout's k-means clustering to the task of clustering individuals, based on their genomic variants. 
-We provide an interface from VCF format to Hadoop and Mahout, and a toolset to interpret Mahout's clustering output (see Figure 2)
-We find that on small datasets the clustering stage is two orders of magnitudes slower in Mahout compared to R (9 minutes vs 7 seconds), due to the overhead of setting up and co-ordinating the communication between the Hadoop nodes. 
-However, increasing either the number of samples or the number of features per sample quickly exceeds the capability of R on this machine due to memory limitations.
-%DB ok effortlessly might be overstated ?
-Hadoop on the other hand scales effortlessly to more than twice the number samples (2,504). It can also process VCF files that contain over 79 Million variants per samples, albeit with higher memory allocation.
-The MapReduce functions can scale from a relatively small and accessible cluster with 16 cores, to a much larger cluster with close to 500 CPU cores. 
+We provide an interface from VCF format to Hadoop and Mahout, and a toolset to interpret Mahout's clustering output (see Figure 2).
+Disregarding the pre-processing time, we find that on small datasets the clustering stage is two orders of magnitudes slower in Mahout compared to R (9 minutes vs 7 seconds), due to the overhead of setting up and co-ordinating the communication between the Hadoop nodes. 
+However, increasing either the number of samples or the number of features per sample quickly exceeds the capability of R on the used machine due to memory limitations.
+Hadoop on the other hand scales effortlessly to more than twice the number samples (2,504). It can also process VCF files that contain over 81 Million variants per samples, albeit with higher but still reasonable memory allocation (6G).
+The MapReduce functions can scale from a relatively small and accessible cluster with 16 cores, to a much larger cluster with close to 500 CPU cores, although designing the container size for optimal resource and runtime consumption remains an expert task. 
 In conclusion, Mahout offers a scalable out-of-the box solution that is directly applicable to genotype-based clustering for population or family association. 
-
-%This efficient a high performance in-memory map-reduce system has already demonstrated to deliver a  50x speed-up on a whole-genome dataset compared to usual multithreaded approaches, see ADAM~\cite{Massie2013}
 
 
 \begin{methods}
@@ -244,7 +186,6 @@ To demonstrate scaling with Hadoop, we use subsets that contain more variants, i
 Table~\ref{Tab:01} contains an overview of the datasets.
 
 \subsection*{Hardware and Software}
-%DB what about Piotr's cluster I thought you used that one for the full genome data of phase 1 and phase 3 ?
 We processed the data using a cluster of five VMs on the Microsoft Azure cloud service. Three of these VMs, the 'worker nodes', each have 14GB memory and and 8 CPU cores. These three VMs run the Hadoop2 NodeManager, which manages the Yet Another Resource Negotiator (YARN) 'containers' (see discussion).
 The user is able to specify the resources allocated to each container, where map containers can have a different allocation to reduce containers.
 The fourth VM runs the HDFS NameNode, ResourceManager and monitoring services, and the fifth VM, a small, single core machine, runs the Cloudera manager service.
@@ -298,7 +239,7 @@ using the `kmeans' algorithm from the `stats' library.
 
 
 \subsection*{Clustering quality}
-We scored the clusters with the \ARI{}~\cite{Hubert1985}. 
+We scored the clusters with the \ARI{}~\citep{Hubert1985}. 
 This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
 The \ARI{} is then 
 {\tiny
@@ -345,7 +286,7 @@ In-memory size is the approximate memory required to store the data as a double-
 \end{table}
 
 \begin{table*}[!t]
-\processtable{Resources allocated and time taken.\label{Tab:02}}
+\processtable{Resource allocation and time consumption.\label{Tab:02}}
 {\begin{tabular}{ll|cc|cc|rr|c}\toprule
 Tool & Dataset & \multicolumn{2}{ c |}{Preprocesing (MB)} & \multicolumn{2}{ c |}{Clustering (MB)} & \multicolumn{2}{ c |}{Time} & Accuracy\\
 & & map & reduce  & map & reduce  & pre-processing & clustering & \\\midrule
@@ -362,7 +303,7 @@ Tool & Dataset & \multicolumn{2}{ c |}{Preprocesing (MB)} & \multicolumn{2}{ c |
 
 
 \begin{table*}[!t]
-\processtable{Resources allocated and time taken.\label{Tab:03}}
+\processtable{Resource allocation and time consumption.\label{Tab:03}}
 {\begin{tabular}{c|cc|cc|c}\toprule
 Dataset & \multicolumn{2}{ c |}{Available Resources} & \multicolumn{2}{ c |}{Container Size (MB)} & Time\\
 & CPU cores & Memory (GB)  & map & reduce & \\\midrule
@@ -388,8 +329,8 @@ Dataset & \multicolumn{2}{ c |}{Available Resources} & \multicolumn{2}{ c |}{Con
 
 
 \section*{Acknowledgement}
-A.R.O was funded by the NSW Cancer Institute Big Data Big Impact schema, F.A.B by the National Health and Medical Research Council [1051757] and D.C.B by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services.
-The authors would like to thank Piotr Szul and Gareth Williams for their help with setting up Hadoop on the HPC system.  
+A.R.O was funded by the NSW Cancer Institute Big Data Big Impact schema, F.A.B by the National Health and Medical Research Council [1051757] and both D.C.B and N.S by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services. The computation on Azure was funded by Microsoft Azure Research Award. 
+The authors would like to thank Piotr Szul and Gareth Williams for their help with setting up Hadoop on the HPC system.
 
 \bibliographystyle{natbib}
 %\bibliographystyle{achemnat}
