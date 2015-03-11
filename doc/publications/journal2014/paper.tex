@@ -130,7 +130,7 @@ We discuss containers in greater detail in the next section, however, a containe
 By increasing the number of samples, the k-means algorithm will simply divide the job up into more tasks, which enables the memory requirement of each task to stay the same. 
 This is because the dimensionality is constant, compared to the previous section where we increased the number of variants and observe a subsequent increase in memory. 
 
-To demonstrate this, we compare k-means clustering of the 2504 individuals from the phase3 dataset compared to the 1092 individuals in the phase1 dataset.
+To demonstrate this, we compare k-means clustering of the 2504 individuals from the phase3 dataset compared to the 1092 individuals from the phase1 dataset.
 We specifically use the \SevenPhaseone{} and \ThreePhasethree{} datasets because of their similar feature size.
 %The algorithm completed successfully with the same sized containers for both datasets, even with more than twice the number of samples in the larger dataset.
 %However, the \ThreePhasethree{} dataset required about twenty minutes more time than the smaller \SevenPhaseone{} dataset. 
@@ -165,10 +165,10 @@ However, as research is carried out on resource-finite infrastructure, we discus
 %Overallocation of resources can result in wasted resources, whereas under allocation can result in failed jobs.
 
 To elaborate, a container is essentially an abstraction of resources, i.e. memory and CPU cores. 
-After Hadoop divides a job up into tasks, each task runs in parallel in a container. In addition, each container is independent of other containers.
-The resources Hadoop allocates to each container is a predefined value, specified in its configuration. 
+After Hadoop divides a job up into tasks, each task runs in parallel in a container. Also, each container is independent of other containers.
+The resources Hadoop allocates to each container is a predefined value, specified by the user in Hadoop's configuration. 
 % DB reference or version
-According to the Hortonworks documentation \cite{Horton2013}, the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. 
+According to the Hortonworks documentation (\cite{Horton2013}), the general rule of thumb is that one CPU core is allocated to each container, and the available memory per node should be divided equally between each of those containers. 
 For example, on a node with 8 CPU cores and 32GB memory, each container should be allocated 1 CPU core and 4GB memory. Effectively allowing a maximum of eight 4GB containers to run in parallel on that node.
 
 When a MapReduce job is launched, Hadoop spawns a number of map tasks and reduce tasks. 
@@ -178,13 +178,13 @@ However, for jobs that deal with large datasets, the memory allocated per contai
 We could modify the above example to allocate each container 1 CPU core and 8GB memory, however now only four containers can fit within the node's 32GB memory, resulting in the other 4 CPU cores being disused (because only four containers can run simultaneously). It is therefore optimal to
 allocate the appropriate resources to containers, and only increase container memory when necessary, as overallocation of memory will simply limit the number of simultaneous containers each node can run.
 
-To demonstrate the importance of specifying these parameters correctly, we ran the identical jobs, using different Hadoop configurations. 
+To demonstrate the importance of specifying these parameters correctly, we ran identical jobs, using different Hadoop configurations. 
 The \OnePhaseone{} dataset only requires 1.5GB memory per container, as we demonstrated previously.
 %Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table \ref{Tab:03}).
-Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table~\ref{Tab:03}), because fewer jobs can run in parallel. 
+Increasing the map container size to 4GB results in the job taking an additional 5 minutes (see Table~\ref{Tab:03}), because fewer tasks can run in parallel. 
 %This larger container size is still too small for the \FullPhasethree{} dataset, which we demonstrated to require 6GB memory per container. 
 %Running a job on this dataset with 4GB memory per container results in the job failing.
-Attempting to run the larger data set (\FullPhasethree{}) with either 1.5GB or 4GB will result in the job failing, because the feature vector cannot be loaded completely, this requires at least 6GB memory per container and 21h runtime. 
+Attempting to run the larger data set (\FullPhasethree{}) with either 1.5GB or 4GB will result in the job failing, because the feature vectors cannot be loaded completely, this requires at least 6GB memory per container and 21h runtime. 
 
 One of the main selling points of Hadoop, is that it will run on commodity hardware. 
 %For this reason we used a relatively small cluster for our benchmarks. Although our cluster uses VMs on Microsoft Azure, it would be relatively simple for a lab to
@@ -194,10 +194,10 @@ However, to demonstrate the scaling ability of Hadoop and our MapReduce algorith
 %As presented in Table \ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\%.
 %The \FullPhasethree{} example, on the other hand, was 78\% faster.
 As presented in Table~\ref{Tab:03}, the \OnePhaseone{} job saw an improvement of approximately 70\% when providing 448 cores of 13GB. 
-With these resource, the \FullPhasethree{} example, was 78\% faster.
+With these resources, the \FullPhasethree{} example, was 78\% faster.
 
-Although both jobs were more than twice as fast on the larger cluster, the speed doesn't scale relative to the size of the cluster. This is due to a limitation in these examples, where the number of reduces in k-means clustering is limited to the number of k-means clusters (k).
-A task where k is five, for example, will only be able to spawn five reduce containers, no matter how many resources are available. Although sometimes inevitable, depending on the task, this bottleneck of maximum simultaneous reduce tasks is an important consideration to take into account when designing MapReduce jobs. 
+Although both jobs were more than twice as fast on the larger cluster, the speed doesn't scale relative to the size of the cluster. This is due to a limitation in these examples, where the number of reduce tasks in k-means clustering is limited to the number of k-means clusters (k).
+A task where k is five, for example, will only be able to spawn five reduce tasks, no matter how many resources are available. Although sometimes inevitable, this bottleneck of maximum simultaneous reduce tasks is an important consideration to take into account when designing MapReduce jobs. 
 
 \begin{figure}[!tpb]%figure1
 \centerline{\includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{gephi-p3}}
