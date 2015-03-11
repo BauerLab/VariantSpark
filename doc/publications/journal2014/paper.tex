@@ -43,7 +43,7 @@ Using modern compute paradigms is essential to scale to modern genomic research 
 
 \section{Introduction}
 
-Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or the cancer genome atlas (TCGA)~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing. 
+Grouping individuals based on the genomic profile is a commonly performed tasks to identify population structure~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  Traditionally both the number of individuals and included genotypes, typically from SNP arrays, were relatively small and libraries in Bioconductor sufficient. However, recent technological advances in whole genome sequencing have made population-scale sequencing feasible. It is hence economical to generate studies with sample sizes currently reserved for larger consortia such as the 1000 Genomes Project~\cite{1KG2012} or the cancer genome atlas (TCGA)~\cite{TCGA2013}. At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing. 
 
 As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}.
 
@@ -53,7 +53,7 @@ At the same time, theoretical computer scientists adapt MapReduce paradigms to c
 
 In this paper we link the two areas of parallel machine learning and bioinformatics by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\cite{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks. 
 
-To demonstrate the capability we cluster variant datasets from the 1000 genomes project to determine population structure using the k-means clustering algorithm available in Mahout. In the first section we benchmark the performance and accuracy of Mahout's implementations against a standard R based implementation on a reduced version of the data and in the last two sections we investigate how Mahout scales to either more samples or more features per samples.   
+To demonstrate the capability we cluster variant datasets from the 1000 Genomes Project to determine population structure using the k-means clustering algorithm available in Mahout. In the first section we benchmark the performance and accuracy of Mahout's implementations against a standard R based implementation on a reduced version of the data and in the last two sections we investigate how Mahout scales to either more samples or more features per samples.   
 
 %SeqWare~{OConnor2010} Libraries \cite{Doering2008,Schumacher2014,Nordberg2013}
 
@@ -80,7 +80,7 @@ Due to the relatively small number of variants, cluster accuracy is relatively p
 %Since no disk-access or networking is required the clustering can be performed faster. 
 
 While the overall processing time is already 40 minutes faster in Mahout than R, the real bottleneck for larger dataset will be the amount of memory available on a single machine. 
-As an example, the entire set of 1000 Genome Project phase3 variants could require approximately 1.6TB to be completely loaded into memory as a double-precision matrix (see Table~\ref{Tab:01}). This is based on the equation:
+As an example, the entire set of 1000 Genomes Project phase3 variants could require approximately 1.6TB to be completely loaded into memory as a double-precision matrix (see Table~\ref{Tab:01}). This is based on the equation:
 $\frac{n \times m \times 8\text{bytes}}{1\text{GB}}$, where $n \times m$ are the matrix dimensions, 8bytes is the memory a double occupies (i.e. each matrix element), and  1GB is $10^9$bytes.
 
 Therefore, the data processed in the subsequent sections are too large to be processed with standard R, we hence we focus on evaluating different settings of the Mahout implementation only.  
@@ -297,7 +297,7 @@ using the `kmeans' algorithm from the `stats' library.
 
 \subsection*{Clustering quality}
 We scored the clusters with the \ARI{}~\cite{Hubert1985}. 
-This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
+This index compares two different cluster sets, here the prediction $X = \{ X_1, X_2, \ldots , X_r \}$ and the annotated data $Y = \{ Y_1, Y_2, \ldots , Y_s \}$, and assigns a value based on the overlap between $X$ and $Y$ as captured in a contingency table $\left[n_{ij}\right]$ where each entry $n_{ij}$ denotes the number of objects in common between $X_i$ and $Y_j : n_{ij}=|X_i \cap Y_j|$. 
 The \ARI{} is then 
 {\tiny
 \begin{eqnarray*}
@@ -307,7 +307,7 @@ ARI=\frac{\sum_{ij}{{n_{ij}\choose 2}} - \left[ \sum_{i}{{a_i\choose2}} \sum_{j}
 where $a$ and $b$ are the sums over the rows and columns of the contingency table.
 
 The value is zero for independent clusterings and one for identical clusterings. 
-We compared the Mahout k-means clusters and the R k-means clusters to the known clusters based on meta data from the 1000 genome project.
+We compared the Mahout k-means clusters and the R k-means clusters to the known clusters based on meta data from the 1000 Genomes Project.
 For the known clusters, individuals from the both phase1 and phase3 datasets were partitioned by their super population code, ASN, EUR, AFR, and AMR, where phase3 included EAS and SAS instead of ASN.
 
 
@@ -320,7 +320,8 @@ stages using the function, \texttt{proc.time()}.
 
 
 \subsection*{Graph visualisation}
-GraphML files generated using Mahout Cluster Dumper were visualised using Gephi. Layouts were applied in the following order: Random, ForceAtlas 2, Yifan Hu Proportional. For ForceAtlas 2 behaviour alternatives ``dissuade hubs'', ``linlog mode'' and ``prevent overlap'' were set to true, ``approximate repulsion'' was set to false.
+GraphML files generated using Mahout Cluster Dumper were visualised using Gephi. Layouts were applied in the following order: Random, ForceAtlas 2, Yifan Hu Proportional.
+For ForceAtlas 2 behaviour alternatives ``dissuade hubs'', ``linlog mode'' and ``prevent overlap'' were set to true, ``approximate repulsion'' was set to false.
 
 
 \end{methods}
@@ -337,7 +338,7 @@ name& individuals & variants & in-memory  & population\\
 	\OnePhasethree{} & 2,504 & 6,468,094 & 131.17 & 5\\
 	\ThreePhasethree{} & 2,504 & 19,381,970 & 393.06 & 5\\
 	\FullPhasethree{} & 2,504 & 81,271,745 & 1602.00 & 5\\\botrule
-\end{tabular}}{Datasets used in this study; based on portions of the phase1 and phase3 data from the 1000 genomes project.
+\end{tabular}}{Datasets used in this study; based on portions of the phase1 and phase3 data from the 1000 Genomes Project.
 In-memory size is the approximate memory required to store the data as a double-precision matrix of size n,m using the formula: n*m*8bytes/10\textsuperscript{9}bytes.
 }
 \end{table}
