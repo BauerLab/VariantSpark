@@ -31,7 +31,9 @@ $^{2}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Cent
 \begin{abstract}
 
 \section{Motivation:}
-Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume generated, which render transitional approaches insufficient. However, by utilising advancements in modern hardware accelerators and data processing we can provide the means for scalable solutions. We therefore aim to provide the interface between standard genomic data formats and advanced and scalable analysis libraries like Mahout. 
+Processing genomic information from whole genome sequence studies pose computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
+However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations. 
+Here we introduce the interface we developed between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efferent machine learning algorithms to genomic data. 
 \section{Results:}
 We achieve an 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real benefit lies in scaling beyond R's capability to a population-size analysis. We successfully clustered more than 2,500 individuals each having more than 19 Million variants. 
 
