@@ -18,12 +18,15 @@ If you have trouble running it, you can build it yourself using Maven, either on
 4. `mvn jar:jar` to build.
 5. If you built it on your local machine, copy the file, `target/VCF-clusterer-0.0.1-SNAPSHOT.jar` to your cluster.
 
-##Submit a Job
+## Submit a Job
+
 Once installed, use the launcher script, `vcf-cluster.sh` to submit a job to your cluster.
 For example, `./vcf-clusterer.sh -pc -i input_vcf_files -o output_dir -l 0 -m 1000 -k 7`.
+
 You can run pre-processing and clustering as seperate jobs, however a clutering job requires a successful pre-processing job to have completed prior to submission.
 
-##Parameters
+## Parameters
+
 Run VCF-Clusterer with the following parameters:
 
 ```
@@ -36,13 +39,15 @@ Run VCF-Clusterer with the following parameters:
 -k {5}      # number of clusters for k-means clustering"
 ```
 
-##Input
+## Input
+
 This should point to a directory on HDFS. This directory should contain VCF files for clustering. Alternatively you can specify a single VCF file.
 
-##Output
+## Output
+
 VCF-Clusterer will create the output directory which will store files and directories created from pre-processing and clustering. The structure will be as follows:
 
-####directories:
+#### directories:
 
 ```
 sequence      Output of first pass of pre-processing.
@@ -51,7 +56,7 @@ clusters      k-means centers. Remove this directory if you wish to cluster with
 output        Output from clustering
 ```
 
-####files:
+#### files:
 
 ```
 feature-size           Total number of variants. Utility file for the second pass of pre-processing.
@@ -59,3 +64,8 @@ resultFileCluster.txt  Lists the clusters and individual IDs in each cluster.
 populations.txt        Lists the clusters and individual populations in each cluster.
 ```
 
+## Analysis and Visualization
+You can run `mahout clusterdump` on the output to view detailed information about the clustering, or ouput a graphML file to visualize the results.
+
+For a graphML file, run the following:
+`mahout clusterdump -i output_dir/output/clusters-20-final -of GRAPH_ML -o graphml_file.graphml -p output_dir/output/clusteredPoints`
