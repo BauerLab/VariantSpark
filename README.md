@@ -21,6 +21,7 @@ populations.txt        Lists the clusters and individual populations in each clu
 
 ##Parameters
 Run VCF-Clusterer with the following parameters:
+
 ```
 -p          # pre-process files in input directory
 -c          # run k-means clustering job on pre-processed files
