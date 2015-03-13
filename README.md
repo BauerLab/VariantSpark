@@ -5,6 +5,7 @@
 1. Download `vcf-cluster.sh` and `VCF-clusterer-*-SNAPSHOT.jar`
 2. If Mahout is not installed on your cluster, download it to your home directory
 3. Edit `vcf-cluster.sh` to point to the Mahout libraries
+4. Ensure `vcf-cluster.sh` is executable `chmod +x vcf-cluster.sh`
 
 ## Building From Source
 
@@ -16,6 +17,10 @@ If you have trouble running it, you can build it yourself using Maven, either on
 3. `vi pom.xml` and edit `<dependencies>` children to refer to the Mahout and Hadoop version present on your cluster. 
 4. `mvn jar:jar` to build.
 5. If you built it on your local machine, copy the file, `target/VCF-clusterer-0.0.1-SNAPSHOT.jar` to your cluster.
+
+##Submit a Job
+Once installed, use the launcher script, `vcf-cluster.sh` to submit a job to your cluster.
+For example, `./vcf-clusterer.sh -pc -i input_vcf_files -o output_dir -l 0 -m 1000 -k 7`.
 
 ##Parameters
 Run VCF-Clusterer with the following parameters:
@@ -53,5 +58,3 @@ resultFileCluster.txt  Lists the clusters and individual IDs in each cluster.
 populations.txt        Lists the clusters and individual populations in each cluster.
 ```
 
-##Example
-`./vcf-clusterer.sh -pc -i input_vcf_files -o output_dir -l 0 -m 1000 -k 7`
