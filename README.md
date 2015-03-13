@@ -8,7 +8,7 @@ This should point to a directory on HDFS. This directory should contain VCF file
 ##Output
 VCF-Clusterer will create the output directory which will store files and directories created from pre-processing and clustering. The structure will be as follows:
 
-###Directories:
+####directories:
 
 ```
 sequence      Output of first pass of pre-processing.
@@ -17,7 +17,7 @@ clusters      k-means centers. Remove this directory if you wish to cluster with
 output        Output from clustering
 ```
 
-###Files:
+####files:
 
 ```
 feature-size           Total number of variants. Utility file for the second pass of pre-processing.
