@@ -21,6 +21,7 @@ If you have trouble running it, you can build it yourself using Maven, either on
 ##Submit a Job
 Once installed, use the launcher script, `vcf-cluster.sh` to submit a job to your cluster.
 For example, `./vcf-clusterer.sh -pc -i input_vcf_files -o output_dir -l 0 -m 1000 -k 7`.
+You can run pre-processing and clustering as seperate jobs, however a clutering job requires a successful pre-processing job to have completed prior to submission.
 
 ##Parameters
 Run VCF-Clusterer with the following parameters:
