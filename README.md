@@ -17,6 +17,19 @@ If you have trouble running it, you can build it yourself using Maven, either on
 4. `mvn jar:jar` to build.
 5. If you built it on your local machine, copy the file, `target/VCF-clusterer-0.0.1-SNAPSHOT.jar` to your cluster.
 
+##Parameters
+Run VCF-Clusterer with the following parameters:
+
+```
+-p          # pre-process files in input directory
+-c          # run k-means clustering job on pre-processed files
+-i {input}  # directory containing VCF files, relative path on HDFS
+-o {output} # output directory, relative path on HDFS
+-l {0}      # when pre-processing, ignore variants occuring in less than this many people
+-m {1000}   # when pre-processing, ignore variants occuring in more than this many people
+-k {5}      # number of clusters for k-means clustering"
+```
+
 ##Input
 This should point to a directory on HDFS. This directory should contain VCF files for clustering. Alternatively you can specify a single VCF file.
 
@@ -38,19 +51,6 @@ output        Output from clustering
 feature-size           Total number of variants. Utility file for the second pass of pre-processing.
 resultFileCluster.txt  Lists the clusters and individual IDs in each cluster.
 populations.txt        Lists the clusters and individual populations in each cluster.
-```
-
-##Parameters
-Run VCF-Clusterer with the following parameters:
-
-```
--p          # pre-process files in input directory
--c          # run k-means clustering job on pre-processed files
--i {input}  # directory containing VCF files, relative path on HDFS
--o {output} # output directory, relative path on HDFS
--l {0}      # when pre-processing, ignore variants occuring in less than this many people
--m {1000}   # when pre-processing, ignore variants occuring in more than this many people
--k {5}      # number of clusters for k-means clustering" 
 ```
 
 ##Example
