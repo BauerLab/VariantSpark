@@ -9,15 +9,21 @@ This should point to a directory on HDFS. This directory should contain VCF file
 VCF-Clusterer will create the output directory which will store files and directories created from pre-processing and clustering. The structure will be as follows:
 
 ###Directories:
+
+```
 sequence      Output of first pass of pre-processing.
 transposed    Output of second pass of pre-processing. This is the input directory for Mahout k-means clustering.
 clusters      k-means centers. Remove this directory if you wish to cluster with a different k value.
-output        Output from clustring
+output        Output from clustering
+```
 
 ###Files:
+
+```
 feature-size           Total number of variants. Utility file for the second pass of pre-processing.
 resultFileCluster.txt  Lists the clusters and individual IDs in each cluster.
 populations.txt        Lists the clusters and individual populations in each cluster.
+```
 
 ##Parameters
 Run VCF-Clusterer with the following parameters:
