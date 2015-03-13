@@ -22,13 +22,13 @@ populations.txt        Lists the clusters and individual populations in each clu
 ##Parameters
 Run VCF-Clusterer with the following parameters:
 ```
-p            pre-process files in input directory
-c            run k-means clustering job on pre-processed files
-i {input}    directory containing VCF files, relative path on HDFS
-o {output}   output directory, relative path on HDFS
-l {0}        when pre-processing, ignore variants occuring in less than this many people
-m {1000}     when pre-processing, ignore variants occuring in more than this many people
-k {5}        number of clusters for k-means clustering" 
+-p          # pre-process files in input directory
+-c          # run k-means clustering job on pre-processed files
+-i {input}  # directory containing VCF files, relative path on HDFS
+-o {output} # output directory, relative path on HDFS
+-l {0}      # when pre-processing, ignore variants occuring in less than this many people
+-m {1000}   # when pre-processing, ignore variants occuring in more than this many people
+-k {5}      # number of clusters for k-means clustering" 
 ```
 
 
