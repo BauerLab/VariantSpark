@@ -18,9 +18,11 @@
 \newcommand{\ARI}{Adjusted Rand Index}
 
 \title[MapReduce Clustering]{Scalable Clustering of Genotype Information using MapReduce}
-\author[O'Brien \textit{et~al}]{Aidan R. O'Brien\,$^{1}$, Neil Saunders\,$^1$,Fabian A. Buske\,$^{2}$ and Denis C. Bauer\,$^1$\footnote{to whom correspondence should be addressed}}
+\author[O'Brien \textit{et~al}]{Aidan R. O'Brien\,$^{1,2}$, Neil Saunders\,$^1$,Fabian A. Buske\,$^{3,4}$ and Denis C. Bauer\,$^1$\footnote{to whom correspondence should be addressed}}
 \address{$^{1}$CSIRO, Digital Productivity Flagship, 11 Julius Av, 2113, Sydney, Australia\\
-$^{2}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Centre, Garvan Institute of Medical Research, 384 Victoria St, 2010, Sydney, Australia}
+$^{2}$School of Biomedical Sciences and Pharmacy, Faculty of Health, 2308 Newcastle, Australia\\
+$^{3}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Centre, Garvan Institute of Medical Research, 384 Victoria St, 2010, Sydney, Australia\\
+$^{4}$UNSW Medicine, University of New South Wales, 2052 Sydney, Australia.}
 
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
 
@@ -33,13 +35,11 @@ $^{2}$Cancer Epigenetics Program, Cancer Research Division, Kinghorn Cancer Cent
 \section{Motivation:}
 Processing genomic information from whole genome sequence studies poses computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
 However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations. 
-%Here we introduce the interface we developed between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efferent machine learning algorithms to genomic data. 
 Here we introduce an interface between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efficient machine learning algorithms to genomic data. 
 
 \section{Results:}
 We achieve more than 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real advantage lies in the scalability of MapReduce beyond R's capability to a genome-wide analysis. We successfully clustered more than 2,500 individuals each having more than 81 Million variants. 
 \section{Availability:}
-%DB this probably is not the final URL...
 The package is written in Java and available at \url{https://github.com/BauerLab/GeMaIn}.
 
 \section{Contact:} \href{Denis.Bauer@CSIRO.au}{Denis.Bauer@CSIRO.au}
@@ -55,7 +55,6 @@ At the same time, whole genome sequencing enables the inclusion of rare or even 
 
 As a result of these big data challenges, MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\citep{Zou2013, Qiu2010,Taylor2010}). This is especially the case for sequence analysis tasks, such as read mapping~\citep{Schatz2009}, duplicate removal~\citep{Jourdren2012}, and variant calling~\citep{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\citep{Huang2013, Guo2014}.
 
-%Mention Goolge's population clustering in the intro
 At the same time, computer scientists extent MapReduce paradigms to cope with the iterative nature of machine learning tasks~\citep{Chu2009}. Specifically, the Mahout project \url{https://mahout.apache.org/} has been developed extensively~\citep{Ranger2007, Owen2011} and was successfully applied in the clinical informatics space~\citep{Dong2013}.
 
 In this paper, we link the two areas of parallel machine learning and bioinformatics by providing an interface between Mahout and the standard variant data format, variant call format (VCF)~\citep{1KG2012}, which opens up the application of Mahout's different machine learning algorithms to be applied to genotype-based tasks. 
