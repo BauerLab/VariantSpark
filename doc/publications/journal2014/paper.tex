@@ -3,6 +3,7 @@
 \pubyear{2005}
 
 \usepackage[hyphens]{url}
+\usepackage[square,numbers]{natbib}
 
 \begin{document}
 \firstpage{1}
@@ -34,8 +35,8 @@ $^{4}$UNSW Medicine, University of New South Wales, 2052 Sydney, Australia.}
 
 \section{Motivation:}
 Processing genomic information from whole genome sequence studies poses computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
-However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations. 
-Here we introduce an interface between the standard variant format (VCF) and the scalable analysis library Mahout, which opens up the application of advanced, efficient machine learning algorithms to genomic data. 
+However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations, with MapReduce on Hadoop-hardware the most popular approach.  
+Here we compare implementation and resource consumption when clustering genome-wide variants using R as well as the MapReduce-based library, Mahout. To do this, we developed an interface between Mahout and the standard variant format (VCF), which opens up the use of advanced, efficient machine learning algorithms to genomic data. 
 
 \section{Results:}
 We achieve more than 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real advantage lies in the scalability of MapReduce beyond R's capability to a genome-wide analysis. We successfully clustered more than 2,500 individuals each having more than 81 Million variants. 
@@ -44,6 +45,16 @@ The package is written in Java and available at \url{https://github.com/BauerLab
 
 \section{Contact:} \href{Denis.Bauer@CSIRO.au}{Denis.Bauer@CSIRO.au}
 \end{abstract}
+
+\section{Author CV}
+\paragraph{Aidan R O'Brien, BSc(Hons), is a joined researcher at Newcastle University and CSIRO and interested in BigData approaches for pan-cancer research.}
+
+\paragraph{Neil Saunders, PhD, is a research scientist at CSIRO interested in systems biology approaches for human health.}
+
+\paragraph{Fabian A. Buske, PhD, is a computer science expert focusing on no-SQL database systems.}
+
+\paragraph{Denis C Bauer, PhD, is team leader of the transformational bioinformatics team at CSIRO active in the personalised genomics space.}
+
 
 \section{Introduction}
 
@@ -325,17 +336,23 @@ Dataset & \multicolumn{2}{ c |}{Available Resources} & \multicolumn{2}{ c |}{Con
 \end{figure}
 
 
-
+\section{Key Points}
+\begin{itemize}
+\item May bioinformatics tasks can be converted into a MapReduce-paradigm making Hadoop-based approaches attractive.
+\item Scaling seamlessly to larger data sets has been celebrated as Hadoop's superior functionality over conventional parallelisation methodologies, however this only applies on resource-uncapped machines. 
+\item On machines in resource settings, we demonstrate that achieving optimal performance still requires careful resource adjustment taking machine architecture and dataset features into account. 
+\item Unlike R, Hadoop-based approaches can handle clustering of genome wide sequencing variants of cohorts with 2500 individuals
+\end{itemize}
 
 
 \section*{Acknowledgement}
 A.R.O was funded by the NSW Cancer Institute Big Data Big Impact schema, F.A.B by the National Health and Medical Research Council [1051757] and both D.C.B and N.S by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services. The computation on Azure was funded by Microsoft Azure Research Award. 
 The authors would like to thank Piotr Szul and Gareth Williams for their help with setting up Hadoop on the HPC system.
 
-\bibliographystyle{natbib}
+%\bibliographystyle{natbib}
 %\bibliographystyle{achemnat}
 %\bibliographystyle{plainnat}
-%\bibliographystyle{abbrv}
+\bibliographystyle{abbrv}
 %\bibliographystyle{bioinformatics}
 \bibliography{genotypeClustering}  
 \end{document}

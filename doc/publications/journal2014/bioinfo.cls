@@ -823,7 +823,7 @@
       \setlength{\itemindent}{-4mm}}\small}
 {\end{list}\endgroup}
 
-\RequirePackage{natbib}
+%\RequirePackage{natbib}
 
 % **********
 % Appendix *
