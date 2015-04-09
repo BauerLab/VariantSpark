@@ -35,9 +35,8 @@ $^{4}$UNSW Medicine, University of New South Wales, 2052 Sydney, Australia.}
 
 \section{Motivation:}
 Processing genomic information from whole genome sequence studies poses computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
-However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations, with MapReduce on Hadoop-hardware the most popular approach.  
-Here we compare implementation and resource consumption when clustering genome-wide variants using R as well as the MapReduce-based library, Mahout. To do this, we developed an interface between Mahout and the standard variant format (VCF), which opens up the use of advanced, efficient machine learning algorithms to genomic data. 
-
+However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations, with Hadoop the most popular approach.  
+Here we compare implementation and resource consumption when clustering genome-wide variants using R as well as the Hadoop-based library, Mahout. To do this, we developed an interface between Mahout and the standard variant format (VCF), which opens up the use of advanced, efficient machine learning algorithms to genomic data. 
 \section{Results:}
 We achieve more than 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real advantage lies in the scalability of MapReduce beyond R's capability to a genome-wide analysis. We successfully clustered more than 2,500 individuals each having more than 81 Million variants. 
 \section{Availability:}
@@ -338,10 +337,10 @@ Dataset & \multicolumn{2}{ c |}{Available Resources} & \multicolumn{2}{ c |}{Con
 
 \section{Key Points}
 \begin{itemize}
-\item May bioinformatics tasks can be converted into a MapReduce-paradigm making Hadoop-based approaches attractive.
+\item Many bioinformatics tasks can be converted into the MapReduce-paradigm making Hadoop-based approaches attractive.
 \item Scaling seamlessly to larger data sets has been celebrated as Hadoop's superior functionality over conventional parallelisation methodologies, however this only applies on resource-uncapped machines. 
-\item On machines in resource settings, we demonstrate that achieving optimal performance still requires careful resource adjustment taking machine architecture and dataset features into account. 
-\item Unlike R, Hadoop-based approaches can handle clustering of genome wide sequencing variants of cohorts with 2500 individuals
+\item On machines available in research settings, we demonstrate that achieving optimal performance still requires careful resource adjustment taking machine architecture and dataset features into account. 
+\item Unlike R, Hadoop-based approaches make clustering of genome wide sequencing variants from cohorts with 2500 individuals feasible on machines available in research settings.
 \end{itemize}
 
 
