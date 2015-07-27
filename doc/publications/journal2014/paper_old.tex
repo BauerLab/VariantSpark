@@ -34,11 +34,14 @@ $^{4}$UNSW Medicine, University of New South Wales, 2052 Sydney, Australia.}
 \begin{abstract}
 
 \section{Motivation:}
-Processing genomic information from whole genome sequence studies poses computational challenges due to the unprecedented data volume, which render transitional approaches insufficient. 
-However, advancements in modern hardware accelerators and data processing provides the means for overcoming these limitations, with Hadoop the most popular approach.  
-Here we compare implementation and resource consumption when clustering genome-wide variants using R as well as the Hadoop-based library, Mahout. To do this, we developed an interface between Mahout and the standard variant format (VCF), which opens up the use of advanced, efficient machine learning algorithms to genomic data. 
+Genomic information is increasingly being used for medical research, giving rise to the need for efficient analysis methodology able to cope with thousands of individuals and millions of variants.  
+The widely used Hadoop MapReduce architecture and associated machine learning library, Mahout, provide the means for tackling computationally challenging tasks. 
+However, many genomic analyses do not fit the Map-Reduce paradigm. 
+We therefore survey the recently developed Spark engine, which is less rigid in the parallelisation architecture and hence more suitable for bioinformatics tasks, along with its associated machine learning library, MLlib. 
+To do this, we developed an interface from Mahout and MLlib to the standard variant format (VCF), which opens up the usage of advanced, efficient machine learning algorithms to genomic data. 
 \section{Results:}
-We achieve more than 2-fold speedup by using the scalable k-means MapReduce implementation over the equivalent analysis performed in R, by comparable accuracy. However, the real advantage lies in the scalability of MapReduce beyond R's capability to a genome-wide analysis. We successfully clustered more than 2,500 individuals each having more than 81 Million variants. 
+We successfully clustered more than 2,500 individuals each having more than 81 Million variants. Both Hadoop and Spark have superior performance over traditional approaches. We observe a 50 fold speedup when using the efficient in-memory Spark compute engine compared to Hadoop. 
+Furthermore, our implementation achieves a better performance compared to a previously published Spark-based genome clustering approach, ADAM. 
 \section{Availability:}
 The package is written in Java and available at \url{https://github.com/BauerLab/GeMaIn}.
 
