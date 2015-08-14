@@ -276,15 +276,18 @@ Clustering the samples is also fastest in VariantSpark, albeit by a smaller marg
 The similarity between VariantSpark and ADAM is expected, as they both use Spark's MLlib k-means implementation. The 30 second speed increase in VariantSpark is likely due to VariantSpark's pre-processing implementation converting VCF files to sparse vectors, whereas ADAM creates dense vectors.
 Due to the sparse nature of these row-vectors, the sparse vector format is likely to reduce some of the initial overhead.
 
-We also compared the k-means clustering times to a multi-threaded approach in Python and R. Although slower than the Spark implementations in VariantSpark and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation. Python required 11min and 29sec, whereas R required 7min and 25sec. This demonstrates one of Hadoop's disadvantages (one which Spark dramatically improves on). Hadoop can scale to datasets that exceed memory size as wall as distributing work across nodes in a cluster. However, in this example, the entire dataset can fit in the memory on a single machine. The k-means implemtations
+We also compared the k-means clustering times to a multi-threaded approach in Python and R. Although slower than the Spark implementations in VariantSpark and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation. Python required 11min and 29sec, whereas R required 7min and 25sec. This demonstrates one of Hadoop's disadvantages (one which Spark dramatically improves on). Hadoop can scale to datasets that exceed memory size as wall as distributing work across nodes in a cluster. However, in this example, the entire dataset can fit in the memory on a single machine. The k-means implementation
 we use in R and Python cluster the in-memory row vectors. Hadoop, however, writes the output of each MapReduce iteration to disk. This unnecessary disk IO forms a bottleneck that results in the longer run-times. Spark, on the other hand, can cache the intermediate results in memory, virtually eliminating the disk IO bottleneck on smaller datasets.
 
-To summarise the total times for each big-data platform, VariantSpark was 4mins and 18secs, ADAM was 14mins and 14secs (or 27mins and 53secs including the one-off conversion of VCF to ADAM) and our Hadoop implementation was 28mins and 45secs. 
+To summarise the total times for each big-data platform, VariantSpark was 4mins and 18secs, ADAM was 14mins and 14secs (or 27mins and 53secs including the one-off conversion of VCF to ADAM), and our Hadoop implementation was 28mins and 45secs. 
 
 
 \subsection*{VariantSpark allows genome wide sampling of variants to improve clustering quality}
-Add the results for the scalling from 1\% to X\%
+To demonstrate the scalability of Spark when applied to clustering individuals on their variants, we scale the size up from chromosome 22 to all 22 autosomes. Although this pre-processing and clustering is successful, the memory required for clustering increases dramatically.
 
+Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB. On the other hand, the memory requirements for our pre-processing implementation remain unchanged, at 2 gigabytes.
+One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors, rather than Dense Vectors. However, to cluster these vectors, the k-means algorithm converts them to Dense Vectors.
+With Dense Vectors, all the 0 values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required.
 
 
 
