@@ -297,14 +297,6 @@ We limit the genomic variants to only chromosome 22 as the traditional approache
 Furthermore, we perform the comparisons on a single virtual-machine to ensure the five different approaches have access to the same resources.
 We use k-means clustering algorithm in the respective implementations, which all require the VCF input files to be pre-processed (see methods). 
 We therefore compare the time required for the pre-processing step, as well as the time required for k-means clustering.
-% DENIS: include this in the table too
-%The python and R pre-processing implementation only runs on a single thread, so we don't include this in the comparison.
-
-%We compare the time required to cluster individuals based on their chromosome 22 variants using various implementations. We compare our Variant{\sc Spark} implementation with ADAM and our Hadoop implementation, as well as a Python and R implementation.
-%To keep the comparison fair for the Python and R implementations, we perform the comparisons on a single virtual-machine, rather than a cluster. Therefore, for k-means clustering, each implementation has access to the same resources.
-%Each of the k-means clustering implementations that we compare require the input to be row vectors. We need to pre-process the VCF input files to this format, so we compare the time required for the pre-processing step, as well as the time required for k-means clustering.
-%The python and R pre-processing implementation only runs on a single thread, so we don't include this in the comparison.
-
 
 As shown in Table~\ref{fivewaycomparison}, pre-processing the data is fastest in \variantSpark\, requiring 2mins and 58secs. %178s 
 This is almost 80\% faster than the ADAM implementation (12min and 48secs) %768s
@@ -312,44 +304,27 @@ or our Hadoop implementation(14min and 22secs). %862s
 Unlike \variantSpark\ or our Hadoop implementation, which pre-process VCF files directly, ADAM requires the input to be in their ADAM file format. 
 VCF files must hence be converted to this binary format before they can be pre-processed into the row vector format. 
 Although this additional pre-processing step is only required as a one-off for each input file, it requires an additional 13mins and 13secs %793s
-rendering our approach an order of magnitude faster. 
-[Results for Python and R here].
-This substantially different runtime for the pre-processing in Python and R is due to these implementations does not natively supporting multithreading while \variantSpark, ADAM and Hadoop using XX CPUs.
-
-%Pre-processing the data is fastest in \variantSpark\, requiring 2mins and 58secs. Next fastest is the ADAM implementation, requiring 12min and 48secs. 
-%Our Hadoop implementation took 14min and 22secs.
-%Unlike Variant{\sc Spark} and our Hadoop implementation, which pre-process VCF files directly, ADAM requires the input to be in their ADAM file format. VCF files must be converted to this binary format before they can be pre-processed into the row vector format. Although this additional pre-processing step is only required as a one-off for each input file, it requires an additional 13mins and 13secs.
+rendering our approach almost an order of magnitude faster. 
+R on the other hand takes 67 minutes and Python 92 minutes.
+This substantially different runtime for the pre-processing is due to the Python and R implementations not natively supporting multithreading while \variantSpark, ADAM and Hadoop using 8 CPUs.
 
 Clustering the samples 30\% fastest in \variantSpark\ compared to ADAM (1min and 20secs compared to 1min and 52secs) and  %80 vs 112
 90\% faster than Hadoop (14mins and 23secs), see Table~\ref{fivewaycomparison}.
 The similarity between \variantSpark\ and ADAM is expected, as they both use {\sc Spark}'s MLlib k-means implementation. 
-The 30 second speed increase in \variantSpark\ is likely due us converting the VCF files to sparse vectors, whereas ADAM creates dense vectors.
-%Due to the sparse nature of these row-vectors, the sparse vector format is likely to reduce some of the initial overhead.
+The 30 second speed increase in \variantSpark\ is likely due us converting the VCF files to sparse vectors, whereas ADAM creates dense vectors making operations less efficient.
+
 We also compared the k-means clustering times to a multi-threaded approach in Python and R. 
+Although an order of magnitude slower than \variantSpark\ and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation; Python required 11min and 29sec, whereas R required 7min and 25sec. 
+This is due the dataset (chromosome 22) being small enough to fit into memory on a single machine, which enables R and Python to store the output from each k-means iteration directly in memory whereas Hadoop is designed to write the output of each iteration to disk. 
+This demonstrates the improvements of {\sc Spark} over Hadoop where datasets can be processed in memory, virtually eliminating the disk IO bottleneck on smaller datasets.
 
-Although an order of magnitude slower than \variantSpark\ and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation. Python required 11min and 29sec, whereas R required 7min and 25sec. 
-This demonstrates one of Hadoop's disadvantages (one which {\sc Spark} dramatically improves on): the cost of disk IO. Where Hadoop's advantage is that it can scale to datasets that exceed memory size, in this example, the entire dataset can fit in memory on a single machine.
-So, where the k-means implemtations we use in R and Python store the output from each k-means iteration in memory, Hadoop writes the output of each iteration to disk, whether or not the amount of available memory is sufficient to store this data.
-
-This unnecessary disk IO forms a bottleneck that results in the longer run-times. {\sc Spark}, on the other hand, can cache the intermediate results in memory, virtually eliminating the disk IO bottleneck on smaller datasets.
-
-
-
-%Clustering the samples is also fastest in \variantSpark\, albeit by a smaller margin. The time required is 1min and 20secs compared to 1min and 52secs, in Variant{\sc Spark} and ADAM, respectively. Hadoop however, required 14mins and 23secs.
-%The similarity between Variant{\sc Spark} and ADAM is expected, as they both use {\sc Spark}'s MLlib k-means implementation. The 30 second speed increase in Variant{\sc Spark} is likely due to Variant{\sc Spark}'s pre-processing implementation converting VCF files to sparse vectors, whereas ADAM creates dense vectors.
-%Due to the sparse nature of these row-vectors, the sparse vector format is likely to reduce some of the initial overhead.
-
-%We also compared the k-means clustering times to a multi-threaded approach in Python and R. Although slower than the {\sc Spark} implementations in Variant{\sc Spark} and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation. Python required 11min and 29sec, whereas R required 7min and 25sec. This demonstrates one of Hadoop's disadvantages (one which {\sc Spark} dramatically improves on). Hadoop can scale to datasets that exceed memory size as wall as distributing work across nodes in a cluster. However, in this example, the entire dataset can fit in the memory on a single machine. The k-means implemtations
-%we use in R and Python cluster the in-memory row vectors. Hadoop, however, writes the output of each MapReduce iteration to disk. This unnecessary disk IO forms a bottleneck that results in the longer run-times. {\sc Spark}, on the other hand, can cache the intermediate results in memory, virtually eliminating the disk IO bottleneck on smaller datasets.
-
-
-%To summarise the total times for each big-data platform, Variant{\sc Spark} was 4mins and 18secs, ADAM was 14mins and 14secs (or 27mins and 53secs including the one-off conversion of VCF to ADAM) and our Hadoop implementation was 28mins and 45secs. 
+To summarise, \variantSpark\ completes the whole variant clustering task in just over 4 minutes, which is 80\% faster than ADAM (28 mins), 85\% faster than Hadoop (29 min), 94\% faster than R (75 min), and 95\% faster than Python (103 min).
 
 
 \subsection*{{\sc VariantSpark} allows genome wide sampling of variants to improve clustering quality}
 
 To demonstrate the scalability of {\sc Spark}, we continue to cluster the same individuals from the 1000 Genome Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
-Pre-processing the data takes approximately 12 minutes for a 20\% sample. For 40\% of the genome, the time required is about 19 minutes, and finally, to preprocess 100\% of the genome, the time required is about 40 minutes.
+Pre-processing the data takes approximately 12 minutes for 20\% of the genome, 19 minutes for 40\% and 40 minutes for 100\% of the genome, respectively.
 For each of these sample sizes, the memory required doesn't exceed a modest 2GB per executor, even for the entire autosome. Memory requirements for clustering, however, increase by a 
 
 Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB.
