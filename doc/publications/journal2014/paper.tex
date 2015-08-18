@@ -81,7 +81,7 @@
 \startlocaldefs
 \endlocaldefs
 
-\newcommand{\variantSpark}{{\sc Variant Spark}}
+\newcommand{\variantSpark}{{\sc VariantSpark}}
 \newcommand{\ARI}{Adjusted Rand Index}
 
 
@@ -348,10 +348,11 @@ This unnecessary disk IO forms a bottleneck that results in the longer run-times
 
 \subsection*{{\sc VariantSpark} allows genome wide sampling of variants to improve clustering quality}
 
-To demonstrate the scalability of {\sc Spark}, we continue to cluster individuals from the 1000 Genome Project, however, rather than clustering on a single chromosome, we cluster the individuals on their variants from all 22 autosomes (.
-Although this pre-processing and clustering is successful, the memory required for clustering increases dramatically.
+To demonstrate the scalability of {\sc Spark}, we continue to cluster the same individuals from the 1000 Genome Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
+Pre-processing the data takes approximately 12 minutes for a 20\% sample. For 40\% of the genome, the time required is about 19 minutes, and finally, to preprocess 100\% of the genome, the time required is about 40 minutes.
+For each of these sample sizes, the memory required doesn't exceed a modest 2GB per executor, even for the entire autosome. Memory requirements for clustering, however, increase by a 
 
-Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB. On the other hand, the memory requirements for our pre-processing implementation remain unchanged, at 2 gigabytes.
+Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB.
 One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors, rather than Dense Vectors. However, to cluster these vectors, the k-means algorithm converts them to Dense Vectors.
 With Dense Vectors, all the 0 values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required.
 
@@ -366,7 +367,18 @@ Add the image here \ldots
 
 \section*{Methods}
 \subsection*{Implementation}
+For each of the implementations, we pre-process the VCF files to arrays of features.
+In /VariantSpark/ we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and "zip" each value with it's heading from the VCF file.
+The key-value pairs (KVPs) from each line in the VCF file are stored in separate arrays. We then "zip" each array with a unique index, where these indexes form identifiers for the alleles.
+At this point, we have one array for each line from the VCF file. The values in the arrays are KVPs of the parsed tab-separated values zipped with their heading (individual ID), and each array has a unique index.
+We now use a "flatMap" to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out KVPs that aren't alleles (i.e. KVPs that are VCF metadata).
+This results in KVPs where the key is the individual ID, and the value is a tuple of the allele and it's index. We effectively have one KVP for each allele from the VCF file. At this point, each allele is still a string straight from the VCF file (i.e. "0\textbar1:13"), however, we require doubles.
+To convert this to a double, we take the Hamming distance of the allele, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. Also, for each individual, we filter out any alleles that have no variant, leaving us with KVPs of variants (homozygous and heterozygous) only.
+We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLLibs machine learning algorithms.
 
+For our ADAM comparison, we followed the ADAM implementation from (http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/).
+
+ For our R implementation, we read in the 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -459,11 +471,11 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
            Tool &  \multicolumn{3}{ c |}{Pre-processing} & \multicolumn{3}{ c |}{Clustering} & Accuracy \\
 & threads & memory & time  &threads & memory & time  & \\
   \hline
-\variantSpark\ &  & \\ 
-ADAM & & \\
-Hadoop & & \\
-R &  1&  \\
-Python & 1&  \\
+\variantSpark\	& 8	& 32	& 2min 58sec	& 8	& 32	& 1min 20sec	& x	\\ 
+ADAM		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& x	\\
+Hadoop		& 8	& 32	& 14min 22sec	& 8	& 32	& 14min 23sec	& x	\\
+R			& 1	& 32	& 67min		& 8	& 32	& 7min 25sec	& x	\\
+Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& x	\\
   \hline
       \end{tabular}
 \end{table}
