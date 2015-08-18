@@ -325,9 +325,10 @@ To summarise, \variantSpark\ completes the whole variant clustering task in just
 
 To demonstrate the scalability of {\sc Spark}, we continue to cluster the same individuals from the 1000 Genome Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
 Pre-processing the data takes approximately 12 minutes for 20\% of the genome, 19 minutes for 40\% and 40 minutes for 100\% of the genome, respectively.
-For each of these sample sizes, the memory required doesn't exceed a modest 2GB per executor, even for the entire autosome. Memory requirements for clustering, however, increase by a 
+For each of these sample sizes, the memory required doesn't exceed a modest 2GB per executor, even for the entire autosome. Memory requirements for clustering, however, increase in correlation with the dataset. 
 
-Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB.
+Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB. This scales in a linear trend, where 20\% of the genome requires 6GB and 40\% of the genome requires 12GB. To cluster 100\% of the genome, we need to allocate
+at least 24GB to each executor. 
 One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors, rather than Dense Vectors. However, to cluster these vectors, the k-means algorithm converts them to Dense Vectors.
 With Dense Vectors, all the 0 values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required.
 
@@ -343,7 +344,7 @@ Add the image here \ldots
 \section*{Methods}
 \subsection*{Implementation}
 For each of the implementations, we pre-process the VCF files to arrays of features.
-In /VariantSpark/ we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and "zip" each value with it's heading from the VCF file.
+In \variantSpark\ we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and "zip" each value with it's heading from the VCF file.
 The key-value pairs (KVPs) from each line in the VCF file are stored in separate arrays. We then "zip" each array with a unique index, where these indexes form identifiers for the alleles.
 At this point, we have one array for each line from the VCF file. The values in the arrays are KVPs of the parsed tab-separated values zipped with their heading (individual ID), and each array has a unique index.
 We now use a "flatMap" to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out KVPs that aren't alleles (i.e. KVPs that are VCF metadata).
@@ -353,8 +354,10 @@ We can now group these KVPs by their key (the individual ID) and map them to spa
 
 For our ADAM comparison, we followed the ADAM implementation from (http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/).
 
- For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. 
+For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark\ pre-processing, we convert the strings that represent each allele to a numeric value.
+We then transpose the matrix, resulting in a data-structure where each row represents an individual.
 
+Our Python implementation reads in a VCF file as tab-separated values, and stores it as a pandas dataframe. We convert the allele strings to numeric values and then transpose the dataframe.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
