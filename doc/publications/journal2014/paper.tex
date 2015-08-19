@@ -458,6 +458,22 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& x	\\
       \end{tabular}
 \end{table}
 
+\label{scalingcomparison}
+\begin{table}[h!]
+\caption{The resources consumption on different subsets of the entire autosome (chromosomes 1-22). Memory specified is memory allocated to each executor.}
+      \begin{tabular}{|c|ccc|ccc|c|c|}
+        \hline
+           Portion &  \multicolumn{3}{ c |}{Pre-processing} & \multicolumn{3}{ c |}{Clustering}  \\
+& executors & memory & time  & executors & memory & time \\
+  \hline
+20\%		& 64	& 2	& 11min 53sec	& 64	& 6	& 1hr 10min	\\
+40\%		& 64	& 2	& 19min 9sec	& 64	& 12	& 2hr 19min	\\
+60\%		& 64	& 2	& 67min		& x	& 32	& x	\\
+100\%	& 64	& 2	& 40min 48sec	& x	& 24	& 14hr 44min	\\
+  \hline
+      \end{tabular}
+\end{table}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
 %% Additional Files              %%
