@@ -330,7 +330,7 @@ For each of these sample sizes, the memory required doesn't exceed a modest 2GB 
 Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB. This scales in a linear trend, where 20\% of the genome requires 6GB and 40\% of the genome requires 12GB. To cluster 100\% of the genome, we need to allocate
 at least 24GB to each executor. 
 One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors, rather than Dense Vectors. However, to cluster these vectors, the k-means algorithm converts them to Dense Vectors.
-With Dense Vectors, all the 0 values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required.
+With Dense Vectors, the zero values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required. 
 
 
 \subsection*{Personal genomics project}
@@ -353,6 +353,11 @@ To convert this to a double, we take the Hamming distance of the allele, where a
 We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLLibs machine learning algorithms.
 
 For our ADAM comparison, we followed the ADAM implementation from (http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/).
+
+We used our previous Hadoop implementation based on the MapReduce model. This makes use of KVPs, similar to \variantSpark\ however, it is explicitly based on the MapReduce model.
+The Map stage creates keys from the VCF file, where the key is a tuple of a primary and secondary key. The primary key is the individual ID and the secondary key is the allele ID. The value is the variant.
+The primary key ensures that KVPs for each individual are distributed to the same node during the MapReduce shuffle stage. The KVPs for each individual are then sorted by their secondary key.
+Finally, the Reduce stage creates a sparse vector for each individual from the individual's KVPs.
 
 For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark\ pre-processing, we convert the strings that represent each allele to a numeric value.
 We then transpose the matrix, resulting in a data-structure where each row represents an individual.
@@ -460,7 +465,7 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& x	\\
 
 \label{scalingcomparison}
 \begin{table}[h!]
-\caption{The resources consumption on different subsets of the entire autosome (chromosomes 1-22). Memory specified is memory allocated to each executor.}
+\caption{The resources consumption on different subsets of the entire autosome (chromosomes 1-22). Memory specified is the memory allocated to each executor.}
       \begin{tabular}{|c|ccc|ccc|c|c|}
         \hline
            Portion &  \multicolumn{3}{ c |}{Pre-processing} & \multicolumn{3}{ c |}{Clustering}  \\
@@ -468,8 +473,8 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& x	\\
   \hline
 20\%		& 64	& 2	& 11min 53sec	& 64	& 6	& 1hr 10min	\\
 40\%		& 64	& 2	& 19min 9sec	& 64	& 12	& 2hr 19min	\\
-60\%		& 64	& 2	& 67min		& x	& 32	& x	\\
-100\%	& 64	& 2	& 40min 48sec	& x	& 24	& 14hr 44min	\\
+60\%		& 64	& 2	& 26min 34sec	& 64	& 17	& 3hr 33min	\\
+100\%	& 64	& 2	& 40min 48sec	& 40	& 24	& 14hr 44min	\\
   \hline
       \end{tabular}
 \end{table}
