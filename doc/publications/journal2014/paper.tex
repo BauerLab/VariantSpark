@@ -51,6 +51,7 @@
 %\RequirePackage{natbib}
 %\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
 %\RequirePackage{hyperref}
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
 \usepackage[utf8]{inputenc} %unicode support
 %\usepackage[applemac]{inputenc} %applemac support if unicode package fails
 %\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
@@ -289,80 +290,98 @@ In section three we replicate the analysis by using XX genomes from the Personal
 In the last section we discuss the pipeline for visualising the resulting cluster. 
 
 
-\section*{Results}
+\section*{Results and discussions}
 \subsection*{{\sc Spark} enables faster clustering of individuals compared to traditional methods}
 
-In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark\ against ADAM as well as the more traditional approaches using Hadoop Mahout, Python and R. 
+In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against ADAM as well as the more traditional approaches using Hadoop Mahout, Python and R. 
 We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption rendering a whole-genome input infeasible.  
 Furthermore, we perform the comparisons on a single virtual-machine to ensure the five different approaches have access to the same resources.
 We use k-means clustering algorithm in the respective implementations, which all require the VCF input files to be pre-processed (see methods). 
 We therefore compare the time required for the pre-processing step, as well as the time required for k-means clustering.
 
-As shown in Table~\ref{fivewaycomparison}, pre-processing the data is fastest in \variantSpark\, requiring 2mins and 58secs. %178s 
+As shown in Table~\ref{fivewaycomparison}, pre-processing the data is fastest in \variantSpark{}, requiring 2mins and 58secs. %178s 
 This is almost 80\% faster than the ADAM implementation (12min and 48secs) %768s
 or our Hadoop implementation(14min and 22secs). %862s
-Unlike \variantSpark\ or our Hadoop implementation, which pre-process VCF files directly, ADAM requires the input to be in their ADAM file format. 
+Unlike \variantSpark{} or our Hadoop implementation, which pre-process VCF files directly, ADAM requires the input to be in their ADAM file format. 
 VCF files must hence be converted to this binary format before they can be pre-processed into the row vector format. 
 Although this additional pre-processing step is only required as a one-off for each input file, it requires an additional 13mins and 13secs %793s
 rendering our approach almost an order of magnitude faster. 
 R on the other hand takes 67 minutes and Python 92 minutes.
-This substantially different runtime for the pre-processing is due to the Python and R implementations not natively supporting multithreading while \variantSpark, ADAM and Hadoop using 8 CPUs.
+This substantially different runtime for the pre-processing is due to the Python and R implementations not natively supporting multithreading while \variantSpark{}, ADAM and Hadoop using 8 CPUs.
 
-Clustering the samples 30\% fastest in \variantSpark\ compared to ADAM (1min and 20secs compared to 1min and 52secs) and  %80 vs 112
+Clustering the samples 30\% fastest in \variantSpark{} compared to ADAM (1min and 20secs compared to 1min and 52secs) and  %80 vs 112
 90\% faster than Hadoop (14mins and 23secs), see Table~\ref{fivewaycomparison}.
-The similarity between \variantSpark\ and ADAM is expected, as they both use {\sc Spark}'s MLlib k-means implementation. 
-The 30 second speed increase in \variantSpark\ is likely due us converting the VCF files to sparse vectors, whereas ADAM creates dense vectors making operations less efficient.
+The similarity between \variantSpark{} and ADAM is expected, as they both use {\sc Spark}'s MLlib k-means implementation. 
+The 30 second speed increase in \variantSpark{} is likely due us converting the VCF files to sparse vectors, whereas ADAM creates dense vectors making operations less efficient.
 
 We also compared the k-means clustering times to a multi-threaded approach in Python and R. 
-Although an order of magnitude slower than \variantSpark\ and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation; Python required 11min and 29sec, whereas R required 7min and 25sec. 
+Although an order of magnitude slower than \variantSpark{} and ADAM, k-means clustering in both Python and R were faster than our Hadoop implementation; Python required 11min and 29sec, whereas R required 7min and 25sec. 
 This is due the dataset (chromosome 22) being small enough to fit into memory on a single machine, which enables R and Python to store the output from each k-means iteration directly in memory whereas Hadoop is designed to write the output of each iteration to disk. 
 This demonstrates the improvements of {\sc Spark} over Hadoop where datasets can be processed in memory, virtually eliminating the disk IO bottleneck on smaller datasets.
 
-To summarise, \variantSpark\ completes the whole variant clustering task in just over 4 minutes, which is 80\% faster than ADAM (28 mins), 85\% faster than Hadoop (29 min), 94\% faster than R (75 min), and 95\% faster than Python (103 min).
+To summarise, \variantSpark{} completes the whole variant clustering task in just over 4 minutes, which is 80\% faster than ADAM (28 mins), 85\% faster than Hadoop (29 min), 94\% faster than R (75 min), and 95\% faster than Python (103 min).
 
 
-\subsection*{{\sc VariantSpark} allows genome wide sampling of variants to improve clustering quality}
+\subsection*{\variantSpark{} allows genome wide sampling of variants to improve clustering quality}
 
 To demonstrate the scalability of {\sc Spark}, we continue to cluster the same individuals from the 1000 Genome Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
-Pre-processing the data takes approximately 12 minutes for 20\% of the genome, 19 minutes for 40\% and 40 minutes for 100\% of the genome, respectively.
-For each of these sample sizes, the memory required doesn't exceed a modest 2GB per executor, even for the entire autosome. Memory requirements for clustering, however, increase in correlation with the dataset. 
+Pre-processing the data takes approximately 12 minutes, 19 minutes and 40 minutes for 20\%, 40\% and 100\% of the genome, respectively.
+For each of these sample sizes, the memory required doesn't exceed a modest 2GB per executor, even for all 22 autosomes. Memory requirements for clustering, however, increase in correlation with the dataset. 
 
-Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, clustering the entire genome increases this requirement to over 20GB. This scales in a linear trend, where 20\% of the genome requires 6GB and 40\% of the genome requires 12GB. To cluster 100\% of the genome, we need to allocate
+Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, when clustering the entire genome, this increases this requirement to over 20GB. This scales in a linear trend, where 20\% of the genome requires 6GB and 40\% of the genome requires 12GB. To cluster 100\% of the genome, we need to allocate
 at least 24GB to each executor. 
 One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors, rather than Dense Vectors. However, to cluster these vectors, the k-means algorithm converts them to Dense Vectors.
-With Dense Vectors, the zero values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required. 
+With Dense Vectors, the zero values (which are excluded from Sparse Vectors so don't require any memory) are explicitly defined, considerably increasing the memory required.
 
 
-\subsection*{Personal genomics project}
-
+\subsection*{Personal Genome Project}
+To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project. Unlike the 1000 genomes project, this data is open 
 
 
 \subsection*{Graph visualization}
 Add the image here \ldots
 
 
-\section*{Methods}
-\subsection*{Implementation}
+
+\section*{Conclusions}
+
+
+\section*{Materials and methods}
+\subsection*{Computational resources}
+We completed the Chromosome 22 comparisons on a virtual machine (VM) hosted on Microsoft Azure. This VM is an A7 Linux instance with 8 cores, 56GB RAM and Ubuntu installed as the OS. 
+For the whole-genome clustering, we used our in-house Hadoop cluster. This uses Hadoop 2.5.0, managed by CDH 5. We use Spark 1.3.1. This 13 node cluster has a total of 416 cores and 1.22TB memory.
+
+\subsection*{VariantSpark Implementation}
 For each of the implementations, we pre-process the VCF files to arrays of features.
-In \variantSpark\ we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and "zip" each value with it's heading from the VCF file.
-The key-value pairs (KVPs) from each line in the VCF file are stored in separate arrays. We then "zip" each array with a unique index, where these indexes form identifiers for the alleles.
+In \variantSpark{} we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and `zip' each value with it's heading from the VCF file.
+The key-value pairs (KVPs) from each line in the VCF file are stored in separate arrays. We then `zip' each array with a unique index, where these indexes form identifiers for the alleles.
 At this point, we have one array for each line from the VCF file. The values in the arrays are KVPs of the parsed tab-separated values zipped with their heading (individual ID), and each array has a unique index.
-We now use a "flatMap" to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out KVPs that aren't alleles (i.e. KVPs that are VCF metadata).
-This results in KVPs where the key is the individual ID, and the value is a tuple of the allele and it's index. We effectively have one KVP for each allele from the VCF file. At this point, each allele is still a string straight from the VCF file (i.e. "0\textbar1:13"), however, we require doubles.
+We now use a `flatMap' to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out KVPs that aren't alleles (i.e. KVPs that are VCF metadata).
+This results in KVPs where the key is the individual ID, and the value is a tuple of the allele and it's index. We effectively have one KVP for each allele from the VCF file. At this point, each allele is still a string straight from the VCF file (i.e. `0\textbar1'), however, we require doubles.
 To convert this to a double, we take the Hamming distance of the allele, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. Also, for each individual, we filter out any alleles that have no variant, leaving us with KVPs of variants (homozygous and heterozygous) only.
 We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLLibs machine learning algorithms.
 
-For our ADAM comparison, we followed the ADAM implementation from (http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/).
+\subsection*{ADAM Implementation}
+For our ADAM comparison, we followed the ADAM implementation from (\url{http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/}).
 
-We used our previous Hadoop implementation based on the MapReduce model. This makes use of KVPs, similar to \variantSpark\ however, it is explicitly based on the MapReduce model.
-The Map stage creates keys from the VCF file, where the key is a tuple of a primary and secondary key. The primary key is the individual ID and the secondary key is the allele ID. The value is the variant.
-The primary key ensures that KVPs for each individual are distributed to the same node during the MapReduce shuffle stage. The KVPs for each individual are then sorted by their secondary key.
-Finally, the Reduce stage creates a sparse vector for each individual from the individual's KVPs.
+\subsection*{Hadoop Implementation}
+We use our previous Hadoop implementation, which is based on the MapReduce model. This makes use of KVPs, similarly to \variantSpark{}, however, it is explicitly based on the MapReduce model.
+Because of this, and because we need a unique range of identifiers for alleles (in the smallest range possible), we need to run an initial MapReduce task to index the lines. This is comparable (however, more cumbersome) to the `zip' operation in \variantSpark{}.
+The second MapReduce task does the bulk of the work. The Map stage begins by creating KVPs from the VCF file. For each KVP, the key is a tuple of a primary and secondary key, where the primary key is the individual ID and the secondary key is the allele ID. The value for each KVP is the variant.
+The primary key ensures that KVPs for each individual are distributed to the same node during the MapReduce shuffle stage. After being distributed, the KVPs for each individual are sorted by their secondary key.
+Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage can efficiently create a sparse vector for each individual from these KVPs. The sparse vectors (one for each individual) are saved to disk, ready to be used as the input to one of MLLibs algorithms.
 
-For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark\ pre-processing, we convert the strings that represent each allele to a numeric value.
+\subsection*{R Implementation}
+For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
 We then transpose the matrix, resulting in a data-structure where each row represents an individual.
 
-Our Python implementation reads in a VCF file as tab-separated values, and stores it as a pandas dataframe. We convert the allele strings to numeric values and then transpose the dataframe.  
+\subsection*{Python Implementation}
+Our Python implementation reads in a VCF file as tab-separated values, and stores it as a pandas dataframe. We convert the allele strings to numeric values and then transpose the dataframe. 
+
+
+%% TODO %%
+\subsection*{Personal Genome Project VCF making}
+The PGP data..... 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -454,11 +473,11 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
            Tool &  \multicolumn{3}{ c |}{Pre-processing} & \multicolumn{3}{ c |}{Clustering} & Accuracy \\
 & threads & memory & time  &threads & memory & time  & \\
   \hline
-\variantSpark\	& 8	& 32	& 2min 58sec	& 8	& 32	& 1min 20sec	& x	\\ 
+\variantSpark{}	& 8	& 32	& 2min 58sec	& 8	& 32	& 1min 20sec	& 0.84	\\ 
 ADAM		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& x	\\
 Hadoop		& 8	& 32	& 14min 22sec	& 8	& 32	& 14min 23sec	& x	\\
 R			& 1	& 32	& 67min		& 8	& 32	& 7min 25sec	& x	\\
-Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& x	\\
+Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
   \hline
       \end{tabular}
 \end{table}
