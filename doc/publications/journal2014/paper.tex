@@ -362,6 +362,13 @@ To summarise, \variantSpark{} completes the whole variant clustering task in jus
 We completed the Chromosome 22 comparisons on a virtual machine (VM) hosted on Microsoft Azure. This VM is an A7 Linux instance with 8 cores, 56GB memory and Ubuntu as the OS. 
 For the whole-genome clustering, we used our in-house Hadoop cluster. This uses Hadoop 2.5.0, managed by CDH 5. We use Spark 1.3.1. This 13 node cluster has a total of 416 cores and 1.22TB memory.
 
+
+\subsection*{Datasets}
+We used  phase 1 variants from the 1000 Genomes Project. On the 22 autosomes, this dataset contains variants for 1092 individuals, spread over a total 38,219,238 alleles.
+We use chromosome 22 for some comparisons, and this contains variants over 494,328 alleles.
+These individuals from these datasets are distributed across four super populations, African (AFR), Mixed American (AMR), East Asian (EAS) and European (EUR).
+
+
 \subsection*{VariantSpark Implementation}
 For each of the implementations, we pre-process the VCF files to arrays of features.
 In \variantSpark{} we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and `zip' each value with it's heading from the VCF file.
@@ -372,8 +379,10 @@ This results in KVPs where the key is the individual ID, and the value is a tupl
 To convert this to a double, we take the Hamming distance of the allele, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. Also, for each individual, we filter out any alleles that have no variant, leaving us with KVPs of variants (homozygous and heterozygous) only.
 We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLLibs machine learning algorithms.
 
+
 \subsection*{ADAM Implementation}
 For our ADAM comparison, we followed the ADAM implementation from (\url{http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/}).
+
 
 \subsection*{Hadoop Implementation}
 We use our previous Hadoop implementation, which is based on the MapReduce model. This makes use of KVPs, similarly to \variantSpark{}, however, it is explicitly based on the MapReduce model.
@@ -382,9 +391,11 @@ The second MapReduce task does the bulk of the work. The Map stage begins by cre
 The primary key ensures that KVPs for each individual are distributed to the same node during the MapReduce shuffle stage. After being distributed, the KVPs for each individual are sorted by their secondary key.
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage can efficiently create a sparse vector for each individual from these KVPs. The sparse vectors (one for each individual) are saved to disk, ready to be used as the input to one of MLLibs algorithms.
 
+
 \subsection*{R Implementation}
 For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
 We then transpose the matrix, resulting in a data-structure where each row represents an individual.
+
 
 \subsection*{Python Implementation}
 Our Python implementation reads in a VCF file as tab-separated values, and stores it as a pandas dataframe. We convert the allele strings to numeric values and then transpose the dataframe. 
