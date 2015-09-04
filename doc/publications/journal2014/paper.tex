@@ -393,15 +393,16 @@ Now that the KVPs for each individual are physically located on the same hardwar
 
 
 \subsection*{R Implementation}
-For our R implementation, we read in the VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
+For our R implementation, we read in a VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
 We then transpose the matrix, resulting in a data-structure where each row represents an individual.
 
 
 \subsection*{Python Implementation}
-Our Python implementation reads in a VCF file as tab-separated values, and stores it as a pandas dataframe. We convert the allele strings to numeric values and then transpose the dataframe. 
+Our Python implementation reads in lines from a VCF file as tab-separated values and stores the lines in a pandas DataFrame. The column headings are the individual IDs and the row headings are the allele locations.
+We drop the first columns that aren't alleles, and then convert the remaining allele strings to numeric values. We can then transpose the DataFrame. Although to cluster this DataFrame (using sci-kit learn), we simply need to convert it to a matrix with {\sc .as\textunderscore{}matrix()}
 
 
-%% TODO (and better heading) %%
+%% TODO - NEIL - (and better heading) %%
 \subsection*{Personal Genome Project VCF making}
 The PGP data..... 
 
