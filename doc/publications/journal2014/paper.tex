@@ -83,6 +83,7 @@
 \endlocaldefs
 
 \newcommand{\variantSpark}{{\sc VariantSpark}}
+\newcommand{\kMeans}{\textit{k}-means}
 \newcommand{\ARI}{Adjusted Rand Index}
 
 
@@ -201,7 +202,7 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{Motivation} Genomic information is increasingly used in medical practice, giving rise to the need for efficient analysis methodology able to cope with thousands of individuals and millions of variants. The widely used Hadoop MapReduce architecture and associated machine-learning library, Mahout, provide the means for tackling computationally challenging tasks. However, many genomic analyses do not fit the Map-Reduce paradigm. We therefore survey the recently developed {\sc Spark} engine, along with its associated machine learning library, MLlib, which are more flexible in the parallelisation architecture and hence more suitable for population-scale bioinformatics tasks. To do this, we developed an interface from Mahout and MLlib to the standard variant format (VCF), which opens up the usage of advanced, efficient machine learning algorithms to genomic data. 
+\parttitle{Motivation} Genomic information is increasingly used in medical practice, giving rise to the need for efficient analysis methodology able to cope with thousands of individuals and millions of variants. The widely used Hadoop MapReduce architecture and associated machine learning library, Mahout, provide the means for tackling computationally challenging tasks. However, many genomic analyses do not fit the Map-Reduce paradigm. We therefore survey the recently developed {\sc Spark} engine, along with its associated machine learning library, MLlib, which are more flexible in the parallelisation architecture and hence more suitable for population-scale bioinformatics tasks. To do this, we developed an interface from Mahout and MLlib to the standard variant format (VCF), which opens up the usage of advanced, efficient machine learning algorithms to genomic data. 
 
 \parttitle{Results} We successfully clustered more than 2,500 individuals each having more than 38 Million variants. Both Hadoop and {\sc Spark} have superior performance over traditional approaches. We observe a 50 fold speedup when using the efficient in-memory {\sc Spark} compute engine compared to Hadoop. Furthermore, our implementation achieves a better performance compared to a previously published {\sc Spark}-based genome clustering approach, ADAM.
 
@@ -265,25 +266,25 @@
 
 Genomic information is increasingly used in medical practice.
 A commonly performed task in such applications is grouping individuals based on their genomic profile to identify population association~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  
-Due to the decreasing sequencing cost it is economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 genomes project~\cite{1KG2012} or The Cancer Genome Atlas, TCGA~\cite{TCGA2013}. 
+Due to the decreasing sequencing cost it is economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 Genomes Project~\cite{1KG2012} or The Cancer Genome Atlas, TCGA~\cite{TCGA2013}. 
 At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale to variable data sizes or require purpose-build hardware.
  
-Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into 'key-value pairs' that can then be distributed between multiple nodes across a commodity compute-cluster depending on the size of the problem. 
+Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity compute-cluster depending on the size of the problem. 
 MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). 
 This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}. 
 Apache also developed a machine learning library, Mahout~\cite{Owen2011}, which allows efficient out-of-the-box analysis to be applied to clinical applications, such as medical health records~\cite{Ko2014}.
-Unfortunately, the MapReduce paradigm is not always the optimal solution, specifically for bioinformatics or machine learning applications that require iterative in-memory computation. In addition, Hadoop is disk IO intensive, and this can prove to be a bottleneck in processing-speed.
+Unfortunately, the MapReduce paradigm is not always the optimal solution, specifically for bioinformatics or machine learning applications that require iterative in-memory computation. Specifically, Hadoop is disk IO intensive, and this can prove to be a bottleneck in processing-speed.
 
 {\sc Apache Spark}~\cite{Zaharia2011} is a more recent compute engine, which overcomes many of Hadoop's limitations. 
 One of the main benefits is that it allows programs to cache data in memory; potentially eliminating, or at least reducing, the bottleneck of disk IO. 
 When utilising caching, Apache claim {\sc Spark} to be 100x faster than Hadoop. 
 Although {\sc Spark} allows MapReduce-like programs, it does not require programs to exactly model the MapReduce paradigm, which in turn allows more flexibility when designing programs. 
-Recognising the capability, the Big Data Genomics (BDG) group has recently demonstrated the strength of {\sc Spark} in a genomic clustering application using ADAM, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
+Recognising the capability, the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using ADAM, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
 While the speedup over traditional methods was impressive, being limited by constraints within this general genomics framework hampered performance. 
 
 We hence developed a more focused purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
-We utilise {\sc Spark}'s machine-learning library, MLlib, and provide an interface from the standard variant data format, variant call format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms a wide range of genotype-based analysis tasks. 
-To demonstrate its capability, we cluster variant datasets from the 1000 genomes project~\cite{1KG2012} to determine population structure using the k-means clustering algorithm available in MLlib's. 
+We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface from the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms a wide range of genotype-based analysis tasks. 
+To demonstrate its capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib's. 
 In the first section we benchmark the performance and accuracy of MLlib's implementations against Hadoop's Mahout as well as more traditional methods (R, Python) limiting the used data to chromosome 22.
 In section two we demonstrate {\sc Spark}'s full capacity by seamlessly scaling from 1\% to 100\% of the human genome.
 In section three we replicate the analysis by using XX genomes from the Personal Genome Project~\cite{Lunshof2013}.
@@ -294,36 +295,35 @@ In the last section we discuss the pipeline for visualising the resulting cluste
 
 \subsection*{{\sc Spark} enables faster clustering of individuals compared to traditional methods}
 
-In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against ADAM as well as the more traditional approaches using Hadoop Mahout, Python and R. 
+In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against ADAM as well as the more traditional approaches using Hadoop (and Mahout), Python and R. 
 We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption rendering a whole-genome input infeasible.  
-Furthermore, we perform the comparisons on a single virtual-machine to ensure the five different approaches have access to the same resources.
-We use k-means clustering algorithm in the respective implementations, which all require the VCF input files to be pre-processed (see methods). 
-We therefore compare the time required for the pre-processing step, as well as the time required for k-means clustering.
+Furthermore, we perform the comparisons on a single virtual machine to ensure the five different approaches have access to the same resources.
+We use \kMeans{} clustering algorithm in the respective implementations, which all require the VCF input files to be pre-processed (see methods). 
+We therefore compare the time required for the pre-processing step, as well as the time required for \kMeans{} clustering.
 
 As shown in Table~\ref{fivewaycomparison}, pre-processing the data is fastest in \variantSpark{}, requiring 2mins and 58secs. %178s 
 This is almost 80\% faster than the ADAM implementation (12min and 48secs) %768s
-or our Hadoop implementation(14min and 22secs). %862s
-Unlike \variantSpark{} or our Hadoop implementation, which pre-process VCF files directly, ADAM requires the input to be in their ADAM file format. 
-VCF files must hence be converted to this binary format before they can be pre-processed into the row vector format. 
-Although this additional pre-processing step is only required as a one-off for each input file, it requires an additional 13mins and 13secs %793s
+or our Hadoop implementation (14min and 22secs). %862s
+Unlike \variantSpark{} or our Hadoop implementation, which pre-process VCF files directly, ADAM requires the input to be in their ADAM file format, and VCF files must be converted to this binary format. 
+Although this additional pre-processing step is only required as a one-off for each input file, it requires an additional 13mins and 13secs, %793s
 rendering our approach almost an order of magnitude faster. 
-R on the other hand takes 67 minutes and Python 92 minutes.
-This substantially different runtime for the pre-processing is due to the Python and R implementations not natively supporting multithreading while \variantSpark{}, ADAM and Hadoop using 8 CPUs.
+R on the other hand takes 67 minutes, and Python 92 minutes.
+This substantially different runtime for the pre-processing is due to the Python and R implementations not natively supporting multithreading while \variantSpark{}, ADAM and Hadoop are using 8 cores.
 
-Clustering the samples 30\% fastest in \variantSpark{} compared to ADAM (1min and 20secs compared to 1min and 52secs) and  %80 vs 112
+Clustering the samples is fastest in \variantSpark{} (1min and 20secs), being 30\% faster than ADAM (1min and 52secs) and  %80 vs 112
 90\% faster than Hadoop (14mins and 23secs), see Table~\ref{fivewaycomparison}.
-The similarity between \variantSpark{} and ADAM is expected, as they both use {\sc Spark}'s MLlib k-means implementation. 
+The similarity between \variantSpark{} and ADAM is expected, as they both use {\sc Spark}'s MLlib \kMeans{} implementation. 
 The 30 second speed increase in \variantSpark{} is likely due to us converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient.
 
-To demonstrate {\sc Spark}'s advantages over parallel approaches to k-means clustering in existing libraries, we compare the clustering libraries used in {\variantSpark}, to those in Python and R. 
-In regards to speed, clustering using Python and R were both an order of magnitude slower than \variantSpark{} and ADAM, however both were faster than our Hadoop implementation, where Python required 11min and 29sec and R required 7min and 25sec. 
-This is due the dataset (chromosome 22) being small enough to fit into memory on a single machine. This enables Python and R to store the output from each k-means iteration directly in memory. Hadoop, however, is designed to write the entire output of each iteration to disk.
-Although this feature allows for greater scalability, as memory availability is less of an issue, the bottleneck introduced from disk IO increases processing time notably.
-This demonstrates one of the major improvements of {\sc Spark} over Hadoop, where {\sc Spark} can cache datasets in memory. This virtually eliminates the disk IO bottleneck on smaller datasets, or at least reduces it on larger datasets where only a portion of the data can be cached in memory.
+To demonstrate {\sc Spark}'s advantages over parallel approaches to \kMeans{} clustering in existing libraries, we compare the clustering libraries used in {\variantSpark}, to those in Python and R. For this comparison, each implementation ran on 8 cores.
+In regards to speed, clustering using Python and R were both an order of magnitude slower than \variantSpark{} and ADAM, however both were faster than our Hadoop implementation. Python required 11mins and 29secs and R required 7mins and 25secs. 
+The increased speed compared to Hadoop is due the dataset (chromosome 22) being small enough to fit into memory. This enables Python and R to store the output from each \kMeans{} iteration directly in memory. Hadoop, however, is designed to write the entire output of each iteration to disk.
+Although this feature allows for greater scalability, as memory availability is less of an issue with huge datasets, the bottleneck introduced from disk IO increases processing time notably.
+This demonstrates one of the major improvements of {\sc Spark} over Hadoop, {\sc Spark}'s in-memory caching of datasets. Caching virtually eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where only a portion of the data can be cached in memory.
 
-For smaller datasets, we've demonstrated {\sc Spark} to be faster than it's single-machine counterparts, however it's also important that this speedup isn't at the cost of quality.
-The 1000 Genome data is ideal for investigating the clustering quality, as the consortium provides metadata which lists the super-population that each individual belongs to. This knowledge allows us to create a `truth' clustering, where individuals are clustered by their super-population.
-With the four super-populations (AMR, AFR, EAS, SAS), we can divide the individuals up into four clusters based on these labels. We can then compare this truth clustering with the k-means clusters.
+For smaller datasets, we've demonstrated {\sc Spark} to be faster than its single-machine counterparts, however it's also important that this speedup isn't at the cost of quality.
+The 1000 Genomes data is ideal for investigating the clustering quality, as the consortium provides metadata which lists the super-population that each individual belongs to. This knowledge allows us to create a `truth' clustering, where individuals are clustered by their super-population.
+With the four super-populations (AMR, AFR, EAS, SAS), we can divide the individuals up into four clusters based on these labels. We can then compare this truth clustering with the \kMeans{} clusters.
 For this comparison, we use the Adjusted Rand Index (ARI) metric. To generate the ARI, an algorithm takes two separate clusterings and returns a value based on their similarity.
 Two identical clusterings will result in a 1, whereas 0 represents two clusterings that do not agree on any points (individuals). On Chromosome 22, each or the algorithms resulted in an ARI of 0.84. Although not perfect, this demonstrates that the speed-up in spark isn't at the cost of quality, when compared to R and Python.
 A result of 1 is probably unlikely because, as mentioned by 10.15252/embr.201439469, although differences in the distribution of alleles exist between populations, the boundaries are rather diffuse. %TODO - proper citation
@@ -332,18 +332,18 @@ A result of 1 is probably unlikely because, as mentioned by 10.15252/embr.201439
 \subsection*{\variantSpark{} allows genome wide sampling of variants to improve clustering quality}
 
 Although we've demonstrated the advantages of \variantSpark{} with smaller datasets, the main advantage of {\sc Spark} (and hense \variantSpark) is it's scalability and ability to process datasets that exceed memory limits.
-To demonstrate the scalability, we continue to cluster the same individuals from the 1000 Genome Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
+To demonstrate the scalability, we continue to cluster the same individuals from the 1000 Genomes Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
 We run this comparison on our in-house Hadoop cluster. Pre-processing the VCF files takes approximately 12 minutes, 19 minutes and 40 minutes for 20\%, 40\% and 100\% of the genome, respectively.
 In each case, the memory required doesn't exceed a modest 2GB per executor, even for 100\% of the genome. Memory requirements for clustering, however, increase in correlation with the dataset. 
 
 Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, scaling to 100\% of the genome increases the requirement to more than 24GB. This scales in an approximate linear trend, where 20\% of the genome requires 6GB and 40\% of the genome requires 12GB.
-24GB per executor for k-means clustering makes it much more resource intensive than pre-processing's 2GB per executor. 
-One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors in our pre-processing stage. However, to cluster these vectors, the k-means algorithm converts these sparse vectors to dense vectors. This is much less memory-efficient, as dense vectors explicitly define zero values (which are excluded from Sparse Vectors so don't require any memory), considerably increasing the memory required.
-So although we demonstrate the potential of k-means clustering to scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, or for example, easily deal with more alleles.
+24GB per executor for \kMeans{} clustering makes it much more resource intensive than pre-processing's 2GB per executor. 
+One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors in our pre-processing stage. However, to cluster these vectors, the \kMeans{} algorithm converts these sparse vectors to dense vectors. This is much less memory-efficient, as dense vectors explicitly define zero values (which are excluded from Sparse Vectors so don't require any memory), considerably increasing the memory required.
+So although we demonstrate the potential of \kMeans{} clustering to scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, or for example, easily deal with more alleles.
 
 
 \subsection*{Personal Genome Project}
-To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project. Unlike the 1000 genomes project, this data is open 
+To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project. Unlike the 1000 Genomes Project, this data is open 
 
 
 \subsection*{Graph visualization}
@@ -365,7 +365,7 @@ For the whole-genome clustering, we used our in-house Hadoop cluster. This uses 
 
 \subsection*{Datasets}
 We used  phase 1 variants from the 1000 Genomes Project. On the 22 autosomes, this dataset contains variants for 1092 individuals, spread over a total 38,219,238 alleles.
-We use chromosome 22 for some comparisons, and this contains variants over 494,328 alleles.
+We also used a subset of this dataset, the variants from chromosome 22, and this contains 494,328 alleles.
 These individuals from these datasets are distributed across four super populations, African (AFR), Mixed American (AMR), East Asian (EAS) and European (EUR).
 
 
@@ -375,7 +375,7 @@ In \variantSpark{} we read in the VCF files as text files to a Resilient Data Se
 The key-value pairs (KVPs) from each line in the VCF file are stored in separate arrays. We then `zip' each array with a unique index, where these indexes form identifiers for the alleles.
 At this point, we have one array for each line from the VCF file. The values in the arrays are KVPs of the parsed tab-separated values zipped with their heading (individual ID), and each array has a unique index.
 We now use a `flatMap' to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out KVPs that aren't alleles (i.e. KVPs that are VCF metadata).
-This results in KVPs where the key is the individual ID, and the value is a tuple of the allele and it's index. We effectively have one KVP for each allele from the VCF file. At this point, each allele is still a string straight from the VCF file (i.e. `0\textbar1'), however, we require doubles for MLLib.
+This results in KVPs where the key is the individual ID, and the value is a tuple of the allele and it's index. We effectively have one KVP for each allele from the VCF file. At this point, each allele is still a string straight from the VCF file (i.e. `0\textbar{}1'), however, we require doubles for MLLib.
 To convert this to a double, we take the Hamming distance of the allele, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. Also, for each individual, we filter out any alleles that have no variant, leaving us with KVPs of variants (homozygous and heterozygous) only.
 We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLLibs machine learning algorithms.
 
