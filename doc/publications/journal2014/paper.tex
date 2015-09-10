@@ -305,11 +305,8 @@ As shown in Table~\ref{fivewaycomparison}, pre-processing the data is fastest in
 This is almost 80\% faster than the ADAM implementation (12min and 48secs) %768s
 or our Hadoop implementation (14min and 22secs). %862s
 Unlike \variantSpark{} and our Hadoop implementation, the ADAM framework cannot process the VCF files directly but requires them to be converted into a binary ADAM file format. 
-%Unlike \variantSpark{} or our Hadoop implementation, which pre-process VCF files directly, the ADAM framework requires the input to be in the ADAM file format, and VCF files must therefore be converted to this binary format. 
 Although this additional pre-processing step is only required once for each input file, it requires an additional 13mins and 13secs, %793s
-rendering our approach almost an order of magnitude faster. 
-%Although this additional pre-processing step is only required as a one-off for each input file, it requires an additional 13mins and 13secs, %793s
-rendering our approach almost an order of magnitude faster. 
+rendering our approach almost an order of magnitude faster.
 R and Python are slower at pre-processing, taking 67 minutes and 92 minutes, respectively. This increased pre-processing time is due to the Python and R implementations not natively supporting multithreading, while \variantSpark{}, ADAM and Hadoop can use the eight available cores.
 
 Clustering the samples is also fastest in \variantSpark{} (1min and 20secs), despite \variantSpark{} and ADAM both using {\sc Spark}'s MLlib \kMeans{} implementation, see Table~\ref{fivewaycomparison}.
@@ -317,23 +314,10 @@ Clustering the samples is also fastest in \variantSpark{} (1min and 20secs), des
 We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient.
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise 8 cores. 
 Despite this, both were an order of magnitude slower than \variantSpark{} and ADAM, with python requiring 11mins and 29secs and R requiring 7mins and 25secs.
-Out Hadoop implementation performed the worst with 14mins and 23secs.
+Our Hadoop implementation performed the worst with 14mins and 23secs.
 The substantially increased runtime is due the dataset (chromosome 22) being small enough to fit into memory. This enables Python and R to store the output from each \kMeans{} iteration in memory. Hadoop, however, writes the entire output of each iteration to disk.
 Although this feature allows for greater scalability, as memory availability is less of an issue with huge datasets, the bottleneck introduced from disk IO increases processing time notably.
 {\sc Spark} overcomes this limitation by performing in-memory caching of datasets. Caching virtually eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where at least a portion of the data can still be cached in memory.
-
-
-%Clustering the samples is fastest in \variantSpark{} (1min and 20secs), being 30\% faster than ADAM (1min and 52secs) and  %80 vs 112
-%90\% faster than Hadoop (14mins and 23secs), see Table~\ref{fivewaycomparison}.
-%The similarity between \variantSpark{} and ADAM is expected, as they both use {\sc Spark}'s MLlib \kMeans{} implementation. 
-%The 30 second speed increase in \variantSpark{} is likely due to us converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient.
-
-%To demonstrate {\sc Spark}'s advantages over parallel approaches to \kMeans{} clustering in existing libraries, we compare the clustering libraries used in {\variantSpark}, to those in Python and R. 
-%For this comparison, each implementation ran on 8 cores.
-%In regards to speed, clustering using Python and R were both an order of magnitude slower than \variantSpark{} and ADAM, however both were faster than our Hadoop implementation. Python required 11mins and 29secs and R required 7mins and 25secs.
-%The substantially increased speed compared to Hadoop is due the dataset (chromosome 22) being small enough to fit into memory. This enables Python and R to store the output from each \kMeans{} iteration in memory. Hadoop, however, writes the entire output of each iteration to disk.
-%Although this feature allows for greater scalability, as memory availability is less of an issue with huge datasets, the bottleneck introduced from disk IO increases processing time notably.
-%This demonstrates one of the major improvements of {\sc Spark} over Hadoop, {\sc Spark}'s in-memory caching of datasets. Caching virtually eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where only a portion of the data can be cached in memory.
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
 For this comparison, we use the \ARI{} (ARI) metric, which returns a value between 1 (perfect) and 0 (random clustering). 
@@ -343,43 +327,25 @@ Including AMR individuals, we observe that the majority of these individuals are
 Only a minority of AMR individuals form an independent group, likely comprising of genetic information otherwise not captured by the 26 sub-populations of the 1000 genomes project.
 This indicates that although allelic differences exist between populations, "genetic diversity is distributed on a continuum"~\cite{Hunter2014}.
 
-%For smaller datasets, we've demonstrated {\sc Spark} to be faster than its single-machine counterparts, however it's also important that this speedup isn't at the cost of quality.
-%The 1000 Genomes data is ideal for investigating the clustering quality, as the consortium provides metadata which lists the super-population that each individual belongs to. This knowledge allows us to create a `truth' clustering, where individuals are clustered by their super-population.
-%With the four super-populations (AMR, AFR, EAS, SAS), we can divide the individuals up into four clusters based on these labels. 
-%We can then compare this truth clustering with the \kMeans{} clusters.
-%For this comparison, we use the \ARI{} (ARI) metric. To generate the ARI, an algorithm takes two separate clusterings and returns a value based on their similarity.
-%Two identical clusterings will result in a 1, whereas 0 represents two clusterings that do not agree on any points (individuals). 
-%On Chromosome 22, each or the algorithms resulted in an ARI of 0.84. Although not perfect, the identical results demonstrate that the speed-up in {\sc Spark} isn't at the cost of quality.
-%A result of 1 is probably unlikely because, as mentioned by Hunter {\it et al.}~\cite{Hunter2014}, although differences in the distribution of alleles exist between populations, the boundaries are rather diffuse.
-
-
 \subsection*{\variantSpark{} allows genome wide sampling of variants to improve clustering quality}
 
 Although we have demonstrated the advantages of \variantSpark{} over traditional methods on small datasets, the main advantage of {\sc Spark} is its ability to process datasets that exceed memory limits.
-% TODO add numbers
-To demonstrate this scalability, we increase the number of variants used in the clustering from the initial XX on chromosome 22 to YY including all variants in the genome.
+To demonstrate this scalability, we increase the number of variants used in the clustering from the initial 494,328 on chromosome 22 to 38,219,238 including all variants in the genome.
 
-%Although we have demonstrated the advantages of \variantSpark{} on smaller datasets, the main advantage of {\sc Spark} (and hense \variantSpark) is it's scalability and ability to process datasets that exceed memory limits.
-%To demonstrate the scalability, we continue to cluster the same individuals from the 1000 Genomes Project, however, rather than clustering on a single chromosome, we cluster the individuals on different subsets of variants from their 22 autosomes, and finally every variant.
-
-% TODO add numbers
-We run this comparison on our in-house Hadoop cluster using with XX cores.
-Pre-processing the VCF files takes approximately 12 minutes, 19 minutes and 40 minutes for 20\%, 40\% and 100\% of the genome, respectively.
+We run this comparison on our in-house Hadoop cluster using 64 cores, although this was limited to 40 cores with 100\% of the genome due to memory availability.
+Pre-processing the VCF files takes approximately 12 minutes, 19 minutes, 27 minutes and 40 minutes for 20\%, 40\%, 60\% and 100\% of the genome, respectively.
 In each case, the memory required does not exceed a modest 2GB per executor, even for 100\% of the genome. 
-%TODO add numbers
-Clustering the data takes XX minutes, XX minutes and XX minutes, respectively.
-For clustering, the memory requirements increases approximate linearly with 6GB, 12GB and 24GB, respectively, per executor. 
-%Memory requirements for clustering, however, increase in correlation with the dataset. 
-%Where our previous clustering of chromosome 22 required no more than 4GB memory per executor, scaling to 100\% of the genome increases the requirement to more than 24GB. 
-%This scales in an approximate linear trend, where 20\% of the genome requires 6GB and 40\% of the genome requires 12GB.
-%24GB per executor for \kMeans{} clustering makes it much more resource intensive than pre-processing's 2GB per executor. 
-This substantial increase in memory requirement is due to \kMeans{} converting the provided sparse vectors into dense vectors during processing.  
-% DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors, 
+Clustering the data takes 70 minutes, 139 minutes, 213 minutes and 884 mins, respectively.
+For clustering, the memory requirements increase approximately linearly with 6GB, 12GB, 17GB and 24GB, respectively, per executor. 
+This substantial increase in memory required is a result of the increased dimensionality of the data causing the \kMeans{} centroids, which MLlib stores as dense vectors, requiring excessive memory.  
+% DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors,
+% AIDAN: Only centroids are dense. Reworded to explain this
 % TODO: is it farther ?
+% AIDAN: I had to check (http://www.quickanddirtytips.com/education/grammar/further-versus-farther) but I believe it is further.
 While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, for example process more alleles.
 
 %DENIS: do you see a change in ARI from chr22 to 20%, 40% ?
-
+%AIDAN: not really.. 
 
 %One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors in our pre-processing stage. However, to cluster these vectors, the \kMeans{} algorithm converts these sparse vectors to dense vectors. This is much less memory-efficient, as dense vectors explicitly define zero values (which are excluded from Sparse Vectors so don't require any memory), considerably increasing the memory required.
 %So although we demonstrate the potential of \kMeans{} clustering to scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, or for example, easily deal with more alleles.
