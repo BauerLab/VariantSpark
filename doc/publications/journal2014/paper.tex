@@ -313,6 +313,7 @@ rendering our approach almost an order of magnitude faster.
 R and Python are slower at pre-processing, taking 67 minutes and 92 minutes, respectively. This increased pre-processing time is due to the Python and R implementations not natively supporting multithreading, while \variantSpark{}, ADAM and Hadoop can use the eight available cores.
 
 Clustering the samples is also fastest in \variantSpark{} (1min and 20secs), despite \variantSpark{} and ADAM both using {\sc Spark}'s MLlib \kMeans{} implementation, see Table~\ref{fivewaycomparison}.
+% DENIS: how sure are we that this is not just a fluke, e.g. I typically repeat this 5 times and report the average and std/ste ...
 We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient.
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise 8 cores. 
 Despite this, both were an order of magnitude slower than \variantSpark{} and ADAM, with python requiring 11mins and 29secs and R requiring 7mins and 25secs.
@@ -336,7 +337,7 @@ Although this feature allows for greater scalability, as memory availability is 
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
 For this comparison, we use the \ARI{} (ARI) metric, which returns a value between 1 (perfect) and 0 (random clustering). 
-Using Chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
+Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
 We can substantially improve the accuracy to a perfect classification (ARI=1.0) by removing the fourth super-population, AMR (American). 
 Including AMR individuals, we observe that the majority of these individuals are placed in the same group as Europeans, likely accurately reflecting their migrational backgrounds. 
 Only a minority of AMR individuals form an independent group, likely comprising of genetic information otherwise not captured by the 26 sub-populations of the 1000 genomes project.
