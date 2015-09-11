@@ -311,6 +311,7 @@ R and Python are slower at pre-processing, taking 67 minutes and 92 minutes, res
 
 Clustering the samples is also fastest in \variantSpark{} (1min and 20secs), despite \variantSpark{} and ADAM both using {\sc Spark}'s MLlib \kMeans{} implementation, see Table~\ref{fivewaycomparison}.
 % DENIS: how sure are we that this is not just a fluke, e.g. I typically repeat this 5 times and report the average and std/ste ...
+% AIDAN: This result was consistent. But it was on the Azure cluster so I can't get std/ste..
 We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient.
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise 8 cores. 
 Despite this, both were an order of magnitude slower than \variantSpark{} and ADAM, with python requiring 11mins and 29secs and R requiring 7mins and 25secs.
@@ -341,35 +342,31 @@ This substantial increase in memory required is a result of the increased dimens
 % DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors,
 % AIDAN: Only centroids are dense. Reworded to explain this
 % TODO: is it farther ?
-% AIDAN: I had to check (http://www.quickanddirtytips.com/education/grammar/further-versus-farther) but I believe it is further.
+% AIDAN: I had to check, but I believe it is further? (http://www.quickanddirtytips.com/education/grammar/further-versus-farther)
 While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, for example process more alleles.
 
 %DENIS: do you see a change in ARI from chr22 to 20%, 40% ?
 %AIDAN: not really.. 
 
-%One factor which results in these differing memory requirements is the sparsity of the vectors used to store the variants. Due to their sparse nature (the abundance of 0s) we can store them efficiently as Sparse Vectors in our pre-processing stage. However, to cluster these vectors, the \kMeans{} algorithm converts these sparse vectors to dense vectors. This is much less memory-efficient, as dense vectors explicitly define zero values (which are excluded from Sparse Vectors so don't require any memory), considerably increasing the memory required.
-%So although we demonstrate the potential of \kMeans{} clustering to scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, or for example, easily deal with more alleles.
-
-
 \subsection*{Personal Genome Project}
 To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features ~\cite{Lunshof2013}.
 The VCF file we use contains 985,790 variants.
 
-% TODO add number
-Again we cluster the individuals allowing X clusters and compare the assigned labels to the same number of self-reported population labels.
-The observed ARI is 0.1. 
-This poor result may be due to the population annotation being too detailed and diverse especially so for self-reported and hence potential uncertain ancestry.
-%Some observations are that the population groups to diverse in the PGP data. 
-%Each individual has metadata stating which country each of their grandparents are from, and only 40 individuals have all four grandparents from the same country.
-%Also, being open to the public, the data may be more prone to error. For some individuals, the stated country of their grandparents changes between their updates. This could indicate some uncertainty about their origins, and hence, correct population.
+%AIDAN: Changed this section..
+Again we cluster the individuals allowing 5 clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
+The observed ARI is negative, indicating the clustering is completely random. 
+This poor result may be due to the labels being too broad and being a blanket label for a diverse range of individuals. For example, the `White' label includes individuals with grandparents from United States to Syrian Arab Republic to Bulgaria.
+The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
+%This poor result may be due to the population annotation being too detailed and diverse, especially so for self-reported, and hence potential uncertain ancestry.
 % TODO provide mapping
 We therefore only include individuals where all grandparents were reported to be from the same country and group them into their approximate super-populations (see Supplemental Table X). 
-This new dataset comprises XX individuals.
-%To try improve on these results, we only include the individuals with their grandparents were from the same country.
-%We then grouped them into their approximate super-populations. 
+This new dataset comprises 36 individuals.
 Clustering these individuals results in an ARI of 0.29. 
 
 %DENIS: If you see an increase in accuracy above we can hypothesise here that 985,790 variants are not sufficient... otherwise a sentence around the population mix in potential real world clinical cohorts.... 
+Although we see an increase, the relatively small ARI is likely due to the diversity in this real world clinical cohort across the small sample size. Although our filter removes individuals with a mixed background, we are left with only 36 individuals from 23 different countries.
+Applying a super-population mask, based on geographical distance, to these individuals reduces the number of groups from 23 to 5, however this grouping doesn't take migrations that occurred prior to their grandparents into account. 
+
 
 \subsection*{Graph visualization}
 Add the image here \ldots
