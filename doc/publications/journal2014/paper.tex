@@ -314,6 +314,7 @@ Clustering the samples is also fastest in \variantSpark{} (1min and 20secs), des
 % DENIS: how sure are we that this is not just a fluke, e.g. I typically repeat this 5 times and report the average and std/ste ...
 % AIDAN: This result was consistent. But it was on the Azure cluster so I can't get std/ste..
 % DENIS: OK but I thought all of them were run on the same machine and you are still generating results for python ... in any case can you write something like (repeated X times)
+% AIDAN: They were all run on Azure. I was just generating ARI results with Python the other day on another machine
 We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient. %
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise 8 cores. 
 Despite this, both were an order of magnitude slower than \variantSpark{} and ADAM, with python requiring 11mins and 29secs and R requiring 7mins and 25secs.
@@ -551,10 +552,11 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 & threads & memory & time  &threads & memory & time  & \\
   \hline
 \variantSpark{}	& 8	& 32	& 2min 58sec	& 8	& 32	& 1min 20sec	& 0.84	\\ 
-ADAM		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& x	\\
-Hadoop		& 8	& 32	& 14min 22sec	& 8	& 32	& 14min 23sec	& x	\\
-R			& 1	& 32	& 67min		& 8	& 32	& 7min 25sec	& x	\\
+ADAM		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& 0.84	\\
+Hadoop		& 8	& 32	& 14min 22sec	& 8	& 32	& 14min 23sec	& 0.84	\\
+R			& 1	& 32	& 67min		& 8	& 32	& 7min 25sec	& 0.84	\\
 Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
+ADMIXTURE	& 1	& 32	& 10min 8sec	& 8	& 32 & 8min 19sec	& 0.25	\\
   \hline
       \end{tabular}
 \end{table}
