@@ -267,7 +267,7 @@
 Genomic information is increasingly used in medical practice.
 A commonly performed task in such applications is grouping individuals based on their genomic profile to identify population association~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  
 Due to the decreasing sequencing cost it is economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 Genomes Project~\cite{1KG2012} or The Cancer Genome Atlas, TCGA~\cite{TCGA2013}. 
-At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale to variable data sizes or require purpose-build hardware.
+At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale with variable data sizes or require purpose-build hardware.
  
 Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity compute-cluster depending on the size of the problem. 
 MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). 
@@ -280,15 +280,15 @@ One of the main benefits is that it allows programs to cache data in memory; pot
 When utilising caching, Apache claim {\sc Spark} to be 100x faster than Hadoop. 
 Although {\sc Spark} allows MapReduce-like programs, it does not require programs to exactly model the MapReduce paradigm, which in turn allows more flexibility when designing programs. 
 Recognising the capability, the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using ADAM, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
-While the speedup over traditional methods was impressive, being limited by constraints within this general genomics framework hampered performance. 
+While the speedup over traditional methods was impressive (50 fold speedup), being limited by constraints within this general genomics framework hampered performance. 
 
 We hence developed a more focused purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
-We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface from the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms a wide range of genotype-based analysis tasks. 
-To demonstrate its capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib's. 
+We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface to the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms to a wide range of genotype-based analysis tasks. 
+
+To demonstrate \variantSpark's capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib's. 
 In the first section we benchmark the performance and accuracy of MLlib's implementations against Hadoop's Mahout as well as more traditional methods (R, Python) limiting the used data to chromosome 22.
-% TODO fill in
-In section two we demonstrate {\sc Spark}'s full capacity by seamlessly scaling from 1\% to 100\% of the human genome.
-In section three we replicate the analysis by using XX genomes from the Personal Genome Project~\cite{Lunshof2013}.
+In section two we demonstrate \variantSpark's full capacity by seamlessly scaling from 20\% to 100\% of the human genome.
+In section three we replicate the analysis by using 478 genomes from the Personal Genome Project~\cite{Lunshof2013}.
 In the last section we discuss the pipeline for visualising the resulting cluster. 
 
 
@@ -297,32 +297,38 @@ In the last section we discuss the pipeline for visualising the resulting cluste
 \subsection*{{\sc Spark} enables faster clustering of individuals compared to traditional methods}
 
 In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against ADAM as well as the more traditional approaches using Hadoop (and Mahout), Python and R. 
-We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption rendering a whole-genome input infeasible.  
+We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption, rendering a whole-genome input infeasible.  
 Furthermore, we perform the comparisons on a single virtual machine to ensure the five different approaches have access to the same resources.
-We use \kMeans{} clustering algorithm in the respective implementations, which all require the VCF input files to be pre-processed (see methods). 
-We therefore compare the time required for the pre-processing step, as well as the time required for \kMeans{} clustering.
+We use \kMeans{} clustering algorithms in the respective implementations, which require the VCF input files to be pre-processed (see methods). 
+We therefore compare the time required for the pre-processing step, as well as for \kMeans{} clustering.
 
-As shown in Table~\ref{fivewaycomparison}, pre-processing the data is fastest in \variantSpark{}, requiring 2mins and 58secs. %178s 
+As shown in Table 1, pre-processing the data is fastest in \variantSpark{}, requiring 2mins and 58secs. %178s 
 This is almost 80\% faster than the ADAM implementation (12min and 48secs) %768s
-or our Hadoop implementation (14min and 22secs). %862s
+or our Hadoop implementation (14min and 22secs), respectively. %862s
 Unlike \variantSpark{} and our Hadoop implementation, the ADAM framework cannot process the VCF files directly but requires them to be converted into a binary ADAM file format. 
 Although this additional pre-processing step is only required once for each input file, it requires an additional 13mins and 13secs, %793s
-rendering our approach almost an order of magnitude faster.
-R and Python are slower at pre-processing, taking 67 minutes and 92 minutes, respectively. This increased pre-processing time is due to the Python and R implementations not natively supporting multithreading, while \variantSpark{}, ADAM and Hadoop can use the eight available cores.
+rendering our approach almost an order of magnitude faster (see Figure 1).
+R and Python are also slower at pre-processing, taking 67 minutes and 92 minutes, respectively. 
+This increased pre-processing time is due to the Python and R implementations not natively supporting multithreading, while \variantSpark{}, ADAM and Hadoop can use the eight available cores.
 
-Clustering the samples is also fastest in \variantSpark{} (1min and 20secs), despite \variantSpark{} and ADAM both using {\sc Spark}'s MLlib \kMeans{} implementation, see Table~\ref{fivewaycomparison}. % 80
+Clustering the samples is also fastest in \variantSpark{} (1min and 20secs, see Table 1), despite \variantSpark{} and ADAM both using {\sc Spark}'s MLlib \kMeans{} implementation. % 80
 % DENIS: how sure are we that this is not just a fluke, e.g. I typically repeat this 5 times and report the average and std/ste ...
 % AIDAN: This result was consistent. But it was on the Azure cluster so I can't get std/ste..
-% DENIS: OK but I thought all of them were run on the same machine and you are still generating results for python ... in any case can you write something like (repeated X times)
-We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors which are less memory efficient. %
-Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise 8 cores. 
-Despite this, both were an order of magnitude slower than \variantSpark{} and ADAM, with python requiring 11mins and 29secs and R requiring 7mins and 25secs.
-Our Hadoop implementation performed the worst with 14mins and 23secs. % 863
-The substantially increased runtime is due the dataset (chromosome 22) being small enough to fit into memory. This enables Python and R to store the output from each \kMeans{} iteration in memory. Hadoop, however, writes the entire output of each iteration to disk.
-Although this feature allows for greater scalability, as memory availability is less of an issue with huge datasets, the bottleneck introduced from disk IO increases processing time notably.
-{\sc Spark} overcomes this limitation by performing in-memory caching of datasets. Caching virtually eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where at least a portion of the data can still be cached in memory.
+% DENIS: OK but I thought all of them were run on the same machine and you are still generating results for python ... 
+% TODO:  write something like (repeated X times)
+We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors, which are less memory efficient. %
+
+Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise eight cores. 
+Despite this, both are an order of magnitude slower than \variantSpark{} and ADAM, with Python requiring 11mins and 29secs and R requiring 7mins and 25secs.
+
+Our Hadoop implementation performs the worst with 14mins and 23secs, showcasing the limitations of the Hadoop engine. % 863
+The substantially increased runtime is due to the dataset (chromosome 22) being small enough to fit into memory, which enables Python and R to store the output from each \kMeans{} iteration in memory. 
+Hadoop, however, writes the entire output of each iteration to disk.
+Although this Hadoop feature allows for greater scalability, as disk IO is not the run-time determining factor for larger datasets, it introduces a bottleneck for smaller datasets.
+{\sc Spark} overcomes this limitation by performing in-memory caching of datasets, which eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where at least a portion of the data can be cached in memory.
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
+%TODO: 0 seems not to be the lowest number as we get a negative score for PGP
 For this comparison, we use the \ARI{} (ARI) metric, which returns a value between 1 (perfect) and 0 (random clustering). 
 Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
 We can substantially improve the accuracy to a perfect classification (ARI=1.0) by removing the fourth super-population, AMR (American). 
@@ -336,32 +342,31 @@ Although we have demonstrated the advantages of \variantSpark{} over traditional
 To demonstrate this scalability, we increase the number of variants used in the clustering from the initial 494,328 on chromosome 22 to 38,219,238 including all variants in the genome.
 
 We run this comparison on our in-house Hadoop cluster using 40 cores.
-%We run this comparison on our in-house Hadoop cluster using 64 cores, although this was limited to 40 cores with 100\% of the genome due to memory availability.
-Pre-processing the VCF files takes approximately 12 minutes, 19 minutes, 27 minutes and 40 minutes for 20\%, 40\%, 60\% and 100\% of the genome, respectively.
+Pre-processing the VCF files takes approximately 12 minutes, 19 minutes, 27 minutes and 40 minutes for 20\%, 40\%, 60\% and 100\% of the genome, respectively (see Table 2).
 In each case, the memory required does not exceed a modest 2GB per executor, even for 100\% of the genome. 
 Clustering the data takes 70 minutes, 139 minutes, 213 minutes and 884 mins, respectively.
-For clustering, the memory requirements increase approximately linearly with 6GB, 12GB, 17GB and 24GB, respectively, per executor. 
+For clustering, the memory requirements increase approximately linearly to 24GB per executor (see Figure 1). 
 %This substantial increase in memory required is a result of the increased dimensionality of the data causing the \kMeans{} centroids, which MLlib stores as dense vectors, requiring excessive memory.  
 % DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors,
 % AIDAN: Only centroids are dense. Reworded to explain this
 % DENIS: That means you allow more clusters ?
-This substantial increase in memory is a result of more \kMeans{} centroids being created, which MLlib stores as dense vectors. 
+The increase in memory is a result of more \kMeans{} centroids being created, which MLlib stores as dense vectors. 
+While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, for example process more alleles.
+
 %DENIS: do you see a change in ARI from chr22 to 20%, 40% ?
 %AIDAN: not really.. 
 %DENIS: so it is still exactly 0.84? Can you provide the number of Variants used in the different sets (e.g. is 20\% less than chrom 22)
-%TODO A citation wold be good here
-We do not observe an increase in cluster accuracy when providing variants from other chromosomes indicating that current practice of clustering based on a subset of the genome is sufficient to define the population boundaries~\cite{Hunter2014}.
-While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, for example process more alleles.
+%TODO A citation would be good here
+We do not observe an increase in cluster accuracy when providing variants from other chromosomes, indicating that current practice of clustering based on a subset of the genome is sufficient to define the population boundaries~\cite{Hunter2014}.
 
 
 \subsection*{Personal Genome Project}
-To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features ~\cite{Lunshof2013}.
-The VCF file we use contains 985,790 variants.
+To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features~\cite{Lunshof2013}. 
+We obtain and curate the data (see methods) resulting in 985,790 variants from 478 individuals.
 
-Again we cluster the individuals allowing 5 clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
+We cluster the individuals allowing five clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
 The observed ARI is negative, indicating the clustering is completely random. 
 This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, or Bulgaria, amongst others. 
-%This poor result may be due to the labels being too broad and being a blanket label for a diverse range of individuals. For example, the `White' label includes individuals with grandparents from United States to Syrian Arab Republic to Bulgaria.
 The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
 % TODO provide mapping
 We therefore only include individuals where all grandparents were reported to be from the same country leaving 36 individuals from 23 different countries, which we group into their approximate super-populations (see Supplemental Table X). 
@@ -371,12 +376,10 @@ Although we see an increase in cluster-accuracy when removing individuals with a
 %TODO add numbers
 This is especially the case since XX\% are 'White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
 
-This highlights the issue for clinical application where ancestries influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
+This highlights the issue for clinical application where ancestry influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 Hence fast genome-wide applicable approaches may help in providing the necessary depth to provide insight into genetic diversity. 
-
-
-%Although we see an increase, the relatively small ARI is likely due to the diversity in this real world clinical cohort across the small sample size. Although our filter removes individuals with a mixed background, we are left with only 36 individuals from 23 different countries.
-%Applying a super-population mask, based on geographical distance, to these individuals reduces the number of groups from 23 to 5, however this grouping doesn't take migrations that occurred prior to their grandparents into account. 
+% DENIS: statement about why we cannot do more with this data...
+Unfortunately, this hypothesis could no not be tested as whole genome information is not available for these individuals. 
 
 
 \subsection*{Graph visualization}
