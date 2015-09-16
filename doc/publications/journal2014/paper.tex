@@ -323,7 +323,7 @@ Although this feature allows for greater scalability, as memory availability is 
 {\sc Spark} overcomes this limitation by performing in-memory caching of datasets. Caching virtually eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where at least a portion of the data can still be cached in memory.
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
-For this comparison, we use the \ARI{} (ARI) metric, which returns a value between 1 (perfect) and 0 (random clustering). 
+For this comparison, we use the \ARI{} (ARI) metric, which returns a value between -1 (independent labelings) and 1 (perfect match)~\cite{Hubert1985}.
 Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
 We can substantially improve the accuracy to a perfect classification (ARI=1.0) by removing the fourth super-population, AMR (American). 
 Including AMR individuals, we observe that the majority of these individuals are placed in the same group as Europeans, likely accurately reflecting their migrational backgrounds. 
@@ -355,11 +355,11 @@ While \kMeans{} clustering can scale to 100\% of the genome, machine learning al
 
 
 \subsection*{Personal Genome Project}
-To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features ~\cite{Lunshof2013}.
+To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features~\cite{Lunshof2013}.
 The VCF file we use contains 985,790 variants.
 
 Again we cluster the individuals allowing 5 clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
-The observed ARI is negative, indicating the clustering is completely random. 
+The observed ARI is negative, indicating the clustering is random. 
 This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, and Bulgaria, amongst others. 
 The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
 % TODO provide mapping
@@ -368,7 +368,7 @@ Clustering these individuals results in an ARI of 0.29.
 
 Although we see an increase in cluster-accuracy when removing individuals with a mixed background and operating at super-population level, the clustering is not as precise as on the carefully curated and characterised individuals from the 1000 Genomes Project.
 %TODO add numbers
-This is especially the case since XX\% are 'White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
+This is especially the case since XX\% are `White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
 
 This highlights the issue for clinical application where ancestries influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 Hence fast genome-wide applicable approaches may help in providing the necessary depth to provide insight into genetic diversity. 
@@ -436,6 +436,10 @@ We then transpose the matrix, resulting in a data-structure where each row repre
 Our Python implementation reads in lines from a VCF file as tab-separated values and stores the lines in a pandas DataFrame. The column headings are the individual IDs and the row headings are the allele locations.
 We drop the first columns that aren't alleles, and then convert the remaining allele strings to numeric values. We can then transpose the DataFrame. Although to cluster this DataFrame (using sci-kit learn), we simply need to convert it to a matrix with {\sc .as\textunderscore{}matrix()}
 
+
+\subsection*{ADMIXTURE Implementation}
+We use Genome Analysis Toolkit (GATK) to convert the variants from the VCF file, and a 1000 Genomes Project supplied .ped file, to a binary PLINK (.bed), binary marker information file (.bim) and pedigree stub file (.fam).
+These three files are used as input to ADMIXTURE, with K (the number of ancestral populations) set to 4.
 
 %% TODO - NEIL - (and better heading) %%
 \subsection*{Personal Genome Project Data}
