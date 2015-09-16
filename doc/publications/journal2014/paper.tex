@@ -73,9 +73,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\def\includegraphic{}
-\def\includegraphics{}
-
+%\def\includegraphic{}
+%\def\includegraphics{}
+\usepackage{graphicx}
 
 
 %%% Put your definitions there:
@@ -342,17 +342,16 @@ Pre-processing the VCF files takes approximately 12 minutes, 19 minutes, 27 minu
 In each case, the memory required does not exceed a modest 2GB per executor, even for 100\% of the genome. 
 Clustering the data takes 70 minutes, 139 minutes, 213 minutes and 884 mins, respectively.
 For clustering, the memory requirements increase approximately linearly with 6GB, 12GB, 17GB and 24GB, respectively, per executor. 
+%This substantial increase in memory required is a result of the increased dimensionality of the data causing the \kMeans{} centroids, which MLlib stores as dense vectors, requiring excessive memory.  
+% DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors,
+% AIDAN: Only centroids are dense. Reworded to explain this
+% DENIS: That means you allow more clusters ?
 This substantial increase in memory is a result of more \kMeans{} centroids being created, which MLlib stores as dense vectors. 
 %DENIS: do you see a change in ARI from chr22 to 20%, 40% ?
 %AIDAN: not really.. 
 %DENIS: so it is still exactly 0.84? Can you provide the number of Variants used in the different sets (e.g. is 20\% less than chrom 22)
 %TODO A citation wold be good here
 We do not observe an increase in cluster accuracy when providing variants from other chromosomes indicating that current practice of clustering based on a subset of the genome is sufficient to define the population boundaries~\cite{Hunter2014}.
-
-%This substantial increase in memory required is a result of the increased dimensionality of the data causing the \kMeans{} centroids, which MLlib stores as dense vectors, requiring excessive memory.  
-% DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors,
-% AIDAN: Only centroids are dense. Reworded to explain this
-% DENIS: That means you allow more clusters ?
 While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, for example process more alleles.
 
 
@@ -392,22 +391,9 @@ Add the image here \ldots
 \variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 Million variants in under 15 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms ADAM by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
-\variantSpark{} utilizes {\sc Spark}, which allows for in-memory cashing and hence performs 85\% faster than Hadoop (29 min), 94\% faster than R (75 min), and 95\% faster than Python (103 min). 
-
-
-
-%\variantSpark{} excels at pre-processing VCF files into row vectors, being over an order of magnitude faster than ADAM. Memory consumption is also kept to a minimum. Where traditional approaches such as Python and R would fail when expanding to the whole genome,
-%\variantSpark{} can pre-process VCF files with over 1000 individuals in under half an hour using minimal memory.
-
-%Clustering these individuals is also much faster with \variantSpark{} than Python and R, although only marginally faster than ADAM.
-
-%These benefits of speed, resource consumption and scalability demonstrate \variantSpark{} to be a useful tool in applying machine learning tools to genomic data. Although we only run \kMeans on the data, MLlib provides many other machine learning algorithms, such as Random Forests.
-%Therefore it may be useful to investigate the novelty of applying these machine learning approaches to big genomic data.  
-
-
-%completes the whole variant clustering task in just over 4 minutes, which is 80\% faster than ADAM (28 mins), 85\% faster than Hadoop (29 min), 94\% faster than R (75 min), and 95\% faster than Python (103 min).
-
-
+\variantSpark{} utilises {\sc Spark}, which allows for in-memory cashing and hence performs 85\% faster than Hadoop (29 min).
+This novel parallelization approach is also faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
+These benefits of speed, resource consumption and scalability demonstrate \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 
 
 
@@ -458,8 +444,18 @@ We drop the first columns that aren't alleles, and then convert the remaining al
 
 
 %% TODO - NEIL - (and better heading) %%
-\subsection*{Personal Genome Project VCF making}
-The PGP data..... 
+\subsection*{Personal Genome Project Data}
+%% The PGP data..... 
+PGP genome data was downloaded from the PGP website (\url{https://my.pgp-hms.org/public_genetic_data}). Genotype data from 23andMe microarray platforms was sorted by genome 
+build. Those files corresponding to NCBI build 36 were converted to BED format, updated to build 37 using UCSC liftOver and then converted back to 23andMe format. The 
+23andMe files were then converted to VCF format using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
+Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, individual VCF files were combined for clustering into one 
+file using VCFtools \cite{Danecek2011Variant}.
+
+% DENIS yes, it will be in the git repository mentioned above (https://github.com/BauerLab/VariantSpark)
+% can you please push your code into https://stash.csiro.au/users/bau04c/repos/variantspark/browse
+[if code to be made available, say so here and where it will be]
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -524,9 +520,17 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 
 \section*{Figures}
   \begin{figure}[h!]
-  \caption{\csentence{Sample figure title.}
-      A short description of the figure content
-      should go here.}
+  \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.45]{images/Resources}
+  \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.45]{images/Scaling}
+  \caption{\csentence{Comparison of method and genome-wide scaling experiment.}
+      {\bf Left} Runtime is given in seconds with 32 GB of memory on 8 threads (except for the pre-processing in R and Python where this was not supported). 
+      {\bf Right} Scaling from 20\% to 100\% of variants in the genome with maximal number of executors and lowest possible memory assignment.}
+      \end{figure}
+
+%Hadoop%1. Map%The mapper converts each line of the VCF file into a preliminary key-value pair, where the Key is the byte-position of the first character thereby functioning as a proxy for the genomic location (variant ID), and the Value is a string of the line. From this, the key-value pairs for the individual genotypes are created by extracting the variant from each sample as the new Value. The new key is a tuple consisting of the primary key, which is the individual ID (position of the parsed variants), and the variant ID as the secondary key.%The MapReduce partitioner uses custom Collect/sort functions to collect the tuples by their primary key (individual ID) and distributes them between nodes. The data is sorted by secondary key (variant ID)%2. Reduce%This data is input to the Reducers, which store the variants for each individual to a sparse vector with the Key as the individual ID and the value as the variant vector.%%Spark%1. The lines from the VCF file(s) are parsed independently by worker nodes, where each line is zipped with the heading from the VCF file resulting in tuples of individual ID and the variant. %2. These arrays are each zipped again with the unique, sequential index (the Variant ID) resulting in tuples (essentially key/value pairs) of Variant IDs (?key?) and the array of tuples from step 1 (?value?).%3. The flatmap function restructures the data into Individual ID (?key?) and tuples with Variant ID and the Variant (?value?).%4. These tuples are grouped by the Individual ID, collecting all Variant ID and Variant tuples, and non-zero variants are saved as a sparse vector.
+\begin{figure}[h!]
+\includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.25]{signature}
+  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF file format to a data structure readable by Mahout and MLlib, respectively.}
       \end{figure}
 
 \begin{figure}[h!]

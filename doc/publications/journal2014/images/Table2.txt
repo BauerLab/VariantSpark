@@ -1,0 +1,9 @@
+variants task executors memory time
+20 pre-processing 64 2 713
+40 pre-processing 64 2 1149
+60 pre-processing 64 2 1594
+100 pre-processing 64 2 2448
+20 clustering 64 6 4200
+40 clustering 64 12 8340
+60 clustering 64 17 12780
+100 clustering 40 24 53040
