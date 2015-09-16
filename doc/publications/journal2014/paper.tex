@@ -267,9 +267,9 @@
 Genomic information is increasingly used in medical practice.
 A commonly performed task in such applications is grouping individuals based on their genomic profile to identify population association~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  
 Due to the decreasing sequencing cost it is economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 Genomes Project~\cite{1KG2012} or The Cancer Genome Atlas, TCGA~\cite{TCGA2013}. 
-At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale to variable data sizes or require purpose-build hardware.
+At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale to variable data sizes or require purpose-built hardware.
  
-Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity compute-cluster depending on the size of the problem. 
+Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity computer cluster, depending on the size of the problem. 
 MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). 
 This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}. 
 Apache also developed a machine learning library, Mahout~\cite{Owen2011}, which allows efficient out-of-the-box analysis to be applied to clinical applications, such as medical health records~\cite{Ko2014}.
@@ -284,11 +284,10 @@ While the speedup over traditional methods was impressive, being limited by cons
 
 We hence developed a more focused purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
 We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface from the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms a wide range of genotype-based analysis tasks. 
-To demonstrate its capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib's. 
+To demonstrate its capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib. 
 In the first section we benchmark the performance and accuracy of MLlib's implementations against Hadoop's Mahout as well as more traditional methods (R, Python) limiting the used data to chromosome 22.
-% TODO fill in
 In section two we demonstrate {\sc Spark}'s full capacity by seamlessly scaling from 1\% to 100\% of the human genome.
-In section three we replicate the analysis by using XX genomes from the Personal Genome Project~\cite{Lunshof2013}.
+In section three we replicate the analysis by using 478 genomes from the Personal Genome Project~\cite{Lunshof2013}.
 In the last section we discuss the pipeline for visualising the resulting cluster. 
 
 
@@ -361,8 +360,7 @@ The VCF file we use contains 985,790 variants.
 
 Again we cluster the individuals allowing 5 clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
 The observed ARI is negative, indicating the clustering is completely random. 
-This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, or Bulgaria, amongst others. 
-%This poor result may be due to the labels being too broad and being a blanket label for a diverse range of individuals. For example, the `White' label includes individuals with grandparents from United States to Syrian Arab Republic to Bulgaria.
+This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, and Bulgaria, amongst others. 
 The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
 % TODO provide mapping
 We therefore only include individuals where all grandparents were reported to be from the same country leaving 36 individuals from 23 different countries, which we group into their approximate super-populations (see Supplemental Table X). 
@@ -376,10 +374,6 @@ This highlights the issue for clinical application where ancestries influences t
 Hence fast genome-wide applicable approaches may help in providing the necessary depth to provide insight into genetic diversity. 
 
 
-%Although we see an increase, the relatively small ARI is likely due to the diversity in this real world clinical cohort across the small sample size. Although our filter removes individuals with a mixed background, we are left with only 36 individuals from 23 different countries.
-%Applying a super-population mask, based on geographical distance, to these individuals reduces the number of groups from 23 to 5, however this grouping doesn't take migrations that occurred prior to their grandparents into account. 
-
-
 \subsection*{Graph visualization}
 Add the image here \ldots
 
@@ -391,7 +385,7 @@ Add the image here \ldots
 \variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 Million variants in under 15 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms ADAM by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
-\variantSpark{} utilises {\sc Spark}, which allows for in-memory cashing and hence performs 85\% faster than Hadoop (29 min).
+\variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 85\% faster than Hadoop (29 min).
 This novel parallelization approach is also faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
 These benefits of speed, resource consumption and scalability demonstrate \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 
@@ -527,7 +521,18 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
       {\bf Right} Scaling from 20\% to 100\% of variants in the genome with maximal number of executors and lowest possible memory assignment.}
       \end{figure}
 
-%Hadoop%1. Map%The mapper converts each line of the VCF file into a preliminary key-value pair, where the Key is the byte-position of the first character thereby functioning as a proxy for the genomic location (variant ID), and the Value is a string of the line. From this, the key-value pairs for the individual genotypes are created by extracting the variant from each sample as the new Value. The new key is a tuple consisting of the primary key, which is the individual ID (position of the parsed variants), and the variant ID as the secondary key.%The MapReduce partitioner uses custom Collect/sort functions to collect the tuples by their primary key (individual ID) and distributes them between nodes. The data is sorted by secondary key (variant ID)%2. Reduce%This data is input to the Reducers, which store the variants for each individual to a sparse vector with the Key as the individual ID and the value as the variant vector.%%Spark%1. The lines from the VCF file(s) are parsed independently by worker nodes, where each line is zipped with the heading from the VCF file resulting in tuples of individual ID and the variant. %2. These arrays are each zipped again with the unique, sequential index (the Variant ID) resulting in tuples (essentially key/value pairs) of Variant IDs (?key?) and the array of tuples from step 1 (?value?).%3. The flatmap function restructures the data into Individual ID (?key?) and tuples with Variant ID and the Variant (?value?).%4. These tuples are grouped by the Individual ID, collecting all Variant ID and Variant tuples, and non-zero variants are saved as a sparse vector.
+%Hadoop
+%1. Map
+%The mapper converts each line of the VCF file into a preliminary key-value pair, where the Key is the byte-position of the first character thereby functioning as a proxy for the genomic location (variant ID), and the Value is a string of the line. From this, the key-value pairs for the individual genotypes are created by extracting the variant from each sample as the new Value. The new key is a tuple consisting of the primary key, which is the individual ID (position of the parsed variants), and the variant ID as the secondary key.
+%The MapReduce partitioner uses custom Collect/sort functions to collect the tuples by their primary key (individual ID) and distributes them between nodes. The data is sorted by secondary key (variant ID)
+%2. Reduce
+%This data is input to the Reducers, which store the variants for each individual to a sparse vector with the Key as the individual ID and the value as the variant vector.
+%
+%Spark
+%1. The lines from the VCF file(s) are parsed independently by worker nodes, where each line is zipped with the heading from the VCF file resulting in tuples of individual ID and the variant. 
+%2. These arrays are each zipped again with the unique, sequential index (the Variant ID) resulting in tuples (essentially key/value pairs) of Variant IDs (?key?) and the array of tuples from step 1 (?value?).
+%3. The flatmap function restructures the data into Individual ID (?key?) and tuples with Variant ID and the Variant (?value?).
+%4. These tuples are grouped by the Individual ID, collecting all Variant ID and Variant tuples, and non-zero variants are saved as a sparse vector.
 \begin{figure}[h!]
 \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.25]{signature}
   \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF file format to a data structure readable by Mahout and MLlib, respectively.}
