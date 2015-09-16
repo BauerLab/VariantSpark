@@ -204,7 +204,7 @@
 \begin{abstract} % abstract
 \parttitle{Motivation} Genomic information is increasingly used in medical practice, giving rise to the need for efficient analysis methodology able to cope with thousands of individuals and millions of variants. The widely used Hadoop MapReduce architecture and associated machine learning library, Mahout, provide the means for tackling computationally challenging tasks. However, many genomic analyses do not fit the Map-Reduce paradigm. We therefore survey the recently developed {\sc Spark} engine, along with its associated machine learning library, MLlib, which are more flexible in the parallelisation architecture and hence more suitable for population-scale bioinformatics tasks. To do this, we developed an interface from Mahout and MLlib to the standard variant format (VCF), which opens up the usage of advanced, efficient machine learning algorithms to genomic data. 
 
-\parttitle{Results} We successfully clustered more than 2,500 individuals each having more than 38 Million variants. Both Hadoop and {\sc Spark} have superior performance over traditional approaches. We observe a 50 fold speedup when using the efficient in-memory {\sc Spark} compute engine compared to Hadoop. Furthermore, our implementation achieves a better performance compared to a previously published {\sc Spark}-based genome clustering approach, ADAM.
+\parttitle{Results} We successfully clustered more than 2,500 individuals each having more than 38 Million variants. Both Hadoop and {\sc Spark} have superior performance over traditional approaches. We observe a 50 fold speedup when using the efficient in-memory {\sc Spark} compute engine compared to Hadoop. Furthermore, our implementation achieves a better performance compared to a previously published {\sc Spark}-based genome clustering approach, {\sc ADAM}.
 
 \parttitle{Availability} The package is written in Scala and available at \url{https://github.com/BauerLab/VariantSpark}.
 \end{abstract}
@@ -280,14 +280,14 @@ Unfortunately, the MapReduce paradigm is not always the optimal solution, specif
 One of the main benefits is that it allows programs to cache data in memory; potentially eliminating, or at least reducing, the bottleneck of disk IO. 
 When utilising caching, Apache claim {\sc Spark} to be 100x faster than Hadoop. 
 Although {\sc Spark} allows MapReduce-like programs, it does not require programs to exactly model the MapReduce paradigm, which in turn allows more flexibility when designing programs. 
-Recognising the capability, the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using ADAM, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
+Recognising the capability, the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using {\sc ADAM}, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
 While the speedup over traditional methods was impressive (50 fold speedup), being limited by constraints within this general genomics framework hampered performance. 
 
 We hence developed a more focused purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
 We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface to the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms to a wide range of genotype-based analysis tasks. 
 
 To demonstrate \variantSpark's capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib's. 
-In the first section we benchmark \variantSpark's performance and accuracy against ADAM and a Hadoop Mahout implementation as well as more traditional methods (R, Python) and the purpose-build tool {\sc Admixture}~\cite{Alexander2009} limiting the used data to chromosome 22.
+In the first section we benchmark \variantSpark's performance and accuracy against {\sc ADAM} and a Hadoop Mahout implementation as well as more traditional methods (R, Python) and the purpose-build tool {\sc Admixture}~\cite{Alexander2009} limiting the used data to chromosome 22.
 In section two we demonstrate \variantSpark's full capacity by seamlessly scaling from 20\% to 100\% of the human genome.
 In section three we replicate the analysis by using 478 genomes from the Personal Genome Project~\cite{Lunshof2013}.
 In the last section we discuss the pipeline for visualising the resulting cluster. 
@@ -297,7 +297,7 @@ In the last section we discuss the pipeline for visualising the resulting cluste
 
 \subsection*{{\sc Spark} enables faster clustering of individuals compared to traditional methods}
 
-In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against ADAM as well as the more traditional approaches using Hadoop (and Mahout), Python and R. 
+In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against {\sc ADAM} as well as the more traditional approaches using Hadoop (and Mahout), Python and R. 
 We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption, rendering a whole-genome input infeasible.  
 Furthermore, we perform the comparisons on a single virtual machine to ensure the six different approaches have access to the same resources.
 We use \kMeans{} clustering algorithms in the respective implementations, which require the VCF input files to be pre-processed (see methods). 
@@ -305,23 +305,23 @@ The state-of-the-art tool, {\sc Admixture}, also requires a pre-processing step 
 We therefore compare the time required for the pre-processing step, as well as for \kMeans{} clustering.
 
 As shown in Table 1, pre-processing the data is fastest in \variantSpark{}, requiring 2mins and 58secs. %178s 
-This is almost 80\% faster than the ADAM implementation (12min and 48secs) %768s
+This is almost 80\% faster than the {\sc ADAM} implementation (12min and 48secs) %768s
 or our Hadoop implementation (14min and 22secs), respectively. %862s
-Unlike \variantSpark{} and our Hadoop implementation, the ADAM framework cannot process the VCF files directly but requires them to be converted into a binary ADAM file format. 
+Unlike \variantSpark{} and our Hadoop implementation, the {\sc ADAM} framework cannot process the VCF files directly but requires them to be converted into a binary {\sc ADAM} file format. 
 Although this additional pre-processing step is only required once for each input file, it requires an additional 13mins and 13secs, %793s
 rendering our approach almost an order of magnitude faster (see Figure 1).
 R and Python are also slower at pre-processing, taking 67 minutes and 92 minutes, respectively. 
-This increased pre-processing time is due to the Python and R implementations not natively supporting multithreading, while \variantSpark{}, ADAM and Hadoop can use the eight available cores.
+This increased pre-processing time is due to the Python and R implementations not natively supporting multithreading, while \variantSpark{}, {\sc ADAM} and Hadoop can use the eight available cores.
 The GATK-based VCF to PED conversion is also slower with over 10 minutes. 
 
-Clustering the samples is also fastest in \variantSpark{} (1min and 20secs, see Table 1), despite \variantSpark{} and ADAM both using {\sc Spark}'s MLlib \kMeans{} implementation. % 80
+Clustering the samples is also fastest in \variantSpark{} (1min and 20secs, see Table 1), despite \variantSpark{} and {\sc ADAM} both using {\sc Spark}'s MLlib \kMeans{} implementation. % 80
 % DENIS: how sure are we that this is not just a fluke, e.g. I typically repeat this 5 times and report the average and std/ste ...
 % AIDAN: This result was consistent. But it was on the Azure cluster so I can't get std/ste..
 % DENIS: OK but I thought all of them were run on the same machine and you are still generating results for python ... 
 % TODO:  write something like (repeated X times)
-We attribute the 30\% speedup over ADAM (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas ADAM creates dense vectors, which are less memory efficient. %
+We attribute the 30\% speedup over {\sc ADAM} (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas {\sc ADAM} creates dense vectors, which are less memory efficient. %
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise eight cores. 
-Despite this, both are an order of magnitude slower than \variantSpark{} and ADAM, with Python requiring 11mins and 29secs and R requiring 7mins and 25secs.
+Despite this, both are an order of magnitude slower than \variantSpark{} and {\sc ADAM}, with Python requiring 11mins and 29secs and R requiring 7mins and 25secs.
 {\sc Admixture} is also slower with a runtime of just over 8 minutes. 
 Our Hadoop implementation performs the worst with 14mins and 23secs, showcasing the limitations of the Hadoop engine. % 863
 The substantially increased runtime is due to the dataset (chromosome 22) being small enough to fit into memory, which enables Python and R to store the output from each \kMeans{} iteration in memory. 
@@ -350,7 +350,7 @@ In each case, the memory required does not exceed a modest 2GB per executor, eve
 Clustering the data takes 70 minutes, 139 minutes, 213 minutes and 884 mins, respectively.
 For clustering, the memory requirements increase approximately linearly to 24GB per executor (see Figure 1). 
 %This substantial increase in memory required is a result of the increased dimensionality of the data causing the \kMeans{} centroids, which MLlib stores as dense vectors, requiring excessive memory.  
-% DENIS: This conflicts with the 30 seconds gain over ADAM which you attribute to our clustering using sparse vectors,
+% DENIS: This conflicts with the 30 seconds gain over {\sc ADAM} which you attribute to our clustering using sparse vectors,
 % AIDAN: Only centroids are dense. Reworded to explain this
 % DENIS: That means you allow more clusters ?
 The increase in memory is a result of more \kMeans{} centroids being created, which MLlib stores as dense vectors. 
@@ -395,9 +395,10 @@ Add the image here \ldots
 
 \variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 Million variants in under 15 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
-On the benchmarking dataset, it outperforms ADAM by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
+On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
 \variantSpark{} utilises {\sc Spark}, which allows for in-memory cashing and hence performs 85\% faster than Hadoop (29 min).
 This novel parallelization approach is also faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
+\variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
 These benefits of speed, resource consumption and scalability demonstrate \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 
 
@@ -426,8 +427,8 @@ To convert this to a double, we take the Hamming distance of the allele, where a
 We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLlib's machine learning algorithms.
 
 
-\subsection*{ADAM Implementation}
-For our ADAM comparison, we followed the ADAM implementation from (\url{http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/}).
+\subsection*{{\sc ADAM} Implementation}
+For our {\sc ADAM} comparison, we followed the {\sc ADAM} implementation from (\url{http://bdgenomics.org/blog/2015/02/02/scalable-genomes-clustering-with-adam-and-spark/}).
 
 
 \subsection*{Hadoop Implementation}
@@ -572,11 +573,11 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 & threads & memory & time  &threads & memory & time  & \\
   \hline
 \variantSpark{}	& 8	& 32	& 2min 58sec	& 8	& 32	& 1min 20sec	& 0.84	\\ 
-ADAM		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& 0.84	\\
+{\sc ADAM}		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& 0.84	\\
 Hadoop		& 8	& 32	& 14min 22sec	& 8	& 32	& 14min 23sec	& 0.84	\\
 R			& 1	& 32	& 67min		& 8	& 32	& 7min 25sec	& 0.84	\\
 Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
-ADMIXTURE	& 1	& 32	& 10min 8sec	& 8	& 32 & 8min 19sec	& 0.25	\\
+{\sc Admixture}	& 1	& 32	& 10min 8sec	& 8	& 32 & 8min 19sec	& 0.25	\\
   \hline
       \end{tabular}
 \end{table}
