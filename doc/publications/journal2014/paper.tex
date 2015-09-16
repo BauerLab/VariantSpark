@@ -268,9 +268,9 @@ Genomic information is increasingly used in medical practice.
 A commonly performed task in such applications is grouping individuals based on their genomic profile to identify population association~\cite{Gao2007} or elucidate different haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  
 The commonly used tool is {\sc Admixture}~\cite{Alexander2009}, which performs maximum likelihood estimation of individual ancestries from multilocus SNP genotype datasets.
 Due to the decreasing sequencing cost it is economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 Genomes Project~\cite{1KG2012} or The Cancer Genome Atlas, TCGA~\cite{TCGA2013}. 
-At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale with variable data sizes or require purpose-build hardware.
+At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like OpenMPI or hardware accelerators (GPGPU) cannot scale with variable data sizes or require purpose-built hardware.
  
-Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity compute-cluster depending on the size of the problem. 
+Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity computer cluster, depending on the size of the problem. 
 MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). 
 This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}. 
 Apache also developed a machine learning library, Mahout~\cite{Owen2011}, which allows efficient out-of-the-box analysis to be applied to clinical applications, such as medical health records~\cite{Ko2014}.
@@ -286,7 +286,7 @@ While the speedup over traditional methods was impressive (50 fold speedup), bei
 We hence developed a more focused purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
 We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface to the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms to a wide range of genotype-based analysis tasks. 
 
-To demonstrate \variantSpark's capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib's. 
+To demonstrate \variantSpark's capability, we cluster variant datasets from the 1000 Genomes Project~\cite{1KG2012} to determine population structure using the \kMeans{} clustering algorithm available in MLlib. 
 In the first section we benchmark \variantSpark's performance and accuracy against {\sc ADAM} and a Hadoop Mahout implementation as well as more traditional methods (R, Python) and the purpose-build tool {\sc Admixture}~\cite{Alexander2009} limiting the used data to chromosome 22.
 In section two we demonstrate \variantSpark's full capacity by seamlessly scaling from 20\% to 100\% of the human genome.
 In section three we replicate the analysis by using 478 genomes from the Personal Genome Project~\cite{Lunshof2013}.
@@ -329,9 +329,8 @@ Hadoop, however, writes the entire output of each iteration to disk.
 Although this Hadoop feature allows for greater scalability, as disk IO is not the run-time determining factor for larger datasets, it introduces a bottleneck for smaller datasets.
 {\sc Spark} overcomes this limitation by performing in-memory caching of datasets, which eliminates the disk IO bottleneck on smaller datasets, and minimises the bottleneck on larger datasets where at least a portion of the data can be cached in memory.
 
-We also investigate the cluster quality for the six different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
-%TODO: 0 seems not to be the lowest number as we get a negative score for PGP
-For this comparison, we use the \ARI{} (ARI) metric, which returns a value between 1 (perfect) and 0 (random clustering). 
+We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
+For this comparison, we use the \ARI{} (ARI) metric, which returns a value between -1 (independent labelings) and 1 (perfect match)~\cite{Hubert1985}.
 Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
 Even the state-of-the-art tool, {\sc Admixture} does returns a low ARI=0.25.
 We can substantially improve the accuracy to a perfect classification (ARI=1.0) by removing the fourth super-population, AMR (American). 
@@ -368,7 +367,7 @@ To demonstrate the versatility of \variantSpark{} we also process and cluster in
 We obtain and curate the data (see methods) resulting in 985,790 variants from 478 individuals.
 
 We cluster the individuals allowing five clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
-The observed ARI is negative, indicating the clustering is completely random. 
+The observed ARI is negative, indicating the clustering is random. 
 This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, or Bulgaria, amongst others. 
 The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
 % TODO provide mapping
@@ -377,7 +376,7 @@ Clustering these individuals results in an ARI of 0.29.
 
 Although we see an increase in cluster-accuracy when removing individuals with a mixed background and operating at super-population level, the clustering is not as precise as on the carefully curated and characterised individuals from the 1000 Genomes Project.
 %TODO add numbers
-This is especially the case since XX\% are 'White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
+This is especially the case since XX\% are `White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
 
 This highlights the issue for clinical application where ancestry influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 Hence fast genome-wide applicable approaches may help in providing the necessary depth to provide insight into genetic diversity. 
@@ -396,7 +395,7 @@ Add the image here \ldots
 \variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 Million variants in under 15 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
-\variantSpark{} utilises {\sc Spark}, which allows for in-memory cashing and hence performs 85\% faster than Hadoop (29 min).
+\variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 85\% faster than Hadoop (29 min).
 This novel parallelization approach is also faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
 \variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
 These benefits of speed, resource consumption and scalability demonstrate \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
@@ -449,12 +448,16 @@ Our Python implementation reads in lines from a VCF file as tab-separated values
 We drop the first columns that aren't alleles, and then convert the remaining allele strings to numeric values. We can then transpose the DataFrame. Although to cluster this DataFrame (using sci-kit learn), we simply need to convert it to a matrix with {\sc .as\textunderscore{}matrix()}
 
 
+\subsection*{ADMIXTURE Implementation}
+We use Genome Analysis Toolkit (GATK) to convert the variants from VCF, and a 1000 Genomes Project supplied .ped file, to a binary PLINK (.bed), binary marker information file (.bim) and pedigree stub file (.fam).
+These three files are used as input to ADMIXTURE, with K (the number of ancestral populations) set to 4.
+
 %% TODO - NEIL - (and better heading) %%
 \subsection*{Personal Genome Project Data}
 %% The PGP data..... 
 PGP genome data was downloaded from the PGP website (\url{https://my.pgp-hms.org/public_genetic_data}). Genotype data from 23andMe microarray platforms was sorted by genome 
 build. Those files corresponding to NCBI build 36 were converted to BED format, updated to build 37 using UCSC liftOver and then converted back to 23andMe format. The 
-23andMe files were then converted to VCF format using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
+23andMe files were then converted to VCF using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
 Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, individual VCF files were combined for clustering into one 
 file using VCFtools \cite{Danecek2011Variant}.
 
@@ -547,7 +550,7 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 %4. These tuples are grouped by the Individual ID, collecting all Variant ID and Variant tuples, and non-zero variants are saved as a sparse vector.
 \begin{figure}[h!]
 \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.25]{signature}
-  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF file format to a data structure readable by Mahout and MLlib, respectively.}
+  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF to a data structure readable by Mahout and MLlib, respectively.}
       \end{figure}
 
 \begin{figure}[h!]
