@@ -438,7 +438,7 @@ We drop the first columns that aren't alleles, and then convert the remaining al
 
 
 \subsection*{ADMIXTURE Implementation}
-We use Genome Analysis Toolkit (GATK) to convert the variants from the VCF file, and a 1000 Genomes Project supplied .ped file, to a binary PLINK (.bed), binary marker information file (.bim) and pedigree stub file (.fam).
+We use Genome Analysis Toolkit (GATK) to convert the variants from VCF, and a 1000 Genomes Project supplied .ped file, to a binary PLINK (.bed), binary marker information file (.bim) and pedigree stub file (.fam).
 These three files are used as input to ADMIXTURE, with K (the number of ancestral populations) set to 4.
 
 %% TODO - NEIL - (and better heading) %%
@@ -446,7 +446,7 @@ These three files are used as input to ADMIXTURE, with K (the number of ancestra
 %% The PGP data..... 
 PGP genome data was downloaded from the PGP website (\url{https://my.pgp-hms.org/public_genetic_data}). Genotype data from 23andMe microarray platforms was sorted by genome 
 build. Those files corresponding to NCBI build 36 were converted to BED format, updated to build 37 using UCSC liftOver and then converted back to 23andMe format. The 
-23andMe files were then converted to VCF format using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
+23andMe files were then converted to VCF using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
 Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, individual VCF files were combined for clustering into one 
 file using VCFtools \cite{Danecek2011Variant}.
 
@@ -539,7 +539,7 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 %4. These tuples are grouped by the Individual ID, collecting all Variant ID and Variant tuples, and non-zero variants are saved as a sparse vector.
 \begin{figure}[h!]
 \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.25]{signature}
-  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF file format to a data structure readable by Mahout and MLlib, respectively.}
+  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF to a data structure readable by Mahout and MLlib, respectively.}
       \end{figure}
 
 \begin{figure}[h!]
