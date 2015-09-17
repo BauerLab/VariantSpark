@@ -456,23 +456,13 @@ These three files are used as input to ADMIXTURE, with K (the number of ancestra
 \subsection*{Personal Genome Project Data}
 %% The PGP data..... 
 PGP genome data was downloaded from the PGP website (\url{https://my.pgp-hms.org/public_genetic_data}). Genotype data from 23andMe microarray platforms was sorted by genome 
-<<<<<<< HEAD
 build. Shell scripts were written to convert NCBI build 36 files to BED format, update to build 37 using UCSC liftOver (\url{https://genome.ucsc.edu/cgi-bin/hgLiftOver}) and 
 then convert back to 23andMe format. The 23andMe files were then converted to VCF format using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
 Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, individual VCF files were combined for clustering into one 
 file using VCFtools \cite{Danecek2011Variant}.
 
-=======
-build. Those files corresponding to NCBI build 36 were converted to BED format, updated to build 37 using UCSC liftOver and then converted back to 23andMe format. The 
-23andMe files were then converted to VCF using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
-Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, individual VCF files were combined for clustering into one 
-file using VCFtools \cite{Danecek2011Variant}.
-
 % DENIS yes, it will be in the git repository mentioned above (https://github.com/BauerLab/VariantSpark)
 % can you please push your code into https://stash.csiro.au/users/bau04c/repos/variantspark/browse
-[if code to be made available, say so here and where it will be]
-
->>>>>>> cfb5359be3564870c261b5a49c52d90dd817c6aa
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
