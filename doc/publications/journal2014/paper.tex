@@ -202,9 +202,13 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{Motivation} Genomic information is increasingly used in medical practice, giving rise to the need for efficient analysis methodology able to cope with thousands of individuals and millions of variants. The widely used Hadoop MapReduce architecture and associated machine learning library, Mahout, provide the means for tackling computationally challenging tasks. However, many genomic analyses do not fit the Map-Reduce paradigm. We therefore survey the recently developed {\sc Spark} engine, along with its associated machine learning library, MLlib, which are more flexible in the parallelisation architecture and hence more suitable for population-scale bioinformatics tasks. To do this, we developed an interface from Mahout and MLlib to the standard variant format (VCF), which opens up the usage of advanced, efficient machine learning algorithms to genomic data. 
+\parttitle{Motivation} Genomic information is increasingly used in medical practice giving rise to the need for efficient analysis methodology able to cope with thousands of individuals and millions of variants. The widely used Hadoop MapReduce architecture and associated machine learning library, Mahout, provide the means for tackling computationally challenging tasks. However, many genomic analyses do not fit the Map-Reduce paradigm. 
+We therefore utilise the recently developed {\sc Spark} engine, along with its associated machine learning library, MLlib, which offers more flexibility in the parallelisation of population-scale bioinformatics tasks. 
+\variantSpark{} provides an interface from MLlib to the standard variant format (VCF), offers seamless genome-wide sampling of variants and provides a pipeline for visualising results. 
 
-\parttitle{Results} We successfully clustered more than 2,500 individuals each having more than 38 Million variants. Both Hadoop and {\sc Spark} have superior performance over traditional approaches. We observe a 50 fold speedup when using the efficient in-memory {\sc Spark} compute engine compared to Hadoop. Furthermore, our implementation achieves a better performance compared to a previously published {\sc Spark}-based genome clustering approach, {\sc ADAM}.
+\parttitle{Results} To demonstrate the capabilities of \variantSpark, we clustered more than 1,000 individuals with 38 Million variants each to determine the population structure in the dataset. \variantSpark{} is 80\% faster than the {\sc Spark}-based genome clustering approach, {\sc ADAM}, the comparable implementation using Hadoop/Mahout, as well as a {\sc Admixture}, a commonly used tool for determining individual ancestries. It is over 90\% faster than traditional implementations using R and Python.  
+These benefits of speed, resource consumption and scalability enables \variantSpark{} to open up the usage of advanced, efficient machine learning algorithms to genomic data. 
+
 
 \parttitle{Availability} The package is written in Scala and available at \url{https://github.com/BauerLab/VariantSpark}.
 \end{abstract}
@@ -394,7 +398,7 @@ On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of mag
 \variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 85\% faster than Hadoop (29 min).
 This novel parallelisation approach is also faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
 \variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
-These benefits of speed, resource consumption and scalability demonstrate \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
+These benefits of speed, resource consumption and scalability allows \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 
 
 
