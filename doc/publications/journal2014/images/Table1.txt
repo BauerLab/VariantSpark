@@ -1,0 +1,13 @@
+name task time
+VariantSpark pre-processing 178
+Adam pre-processing 768
+Hadoop pre-processing 742
+R pre-processing 4020
+Python pre-processing 5520
+ADMIXTURE pre-processing 608
+VariantSpark clustering 80
+Adam clustering 112
+Hadoop clustering 872
+R clustering 472
+Python clustering 689
+ADMIXTURE clustering 499
