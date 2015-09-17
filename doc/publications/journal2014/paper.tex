@@ -379,8 +379,7 @@ We therefore only include individuals where all grandparents were reported to be
 Clustering these individuals results in an ARI of 0.29. 
 
 Although we see an increase in cluster-accuracy when removing individuals with a mixed background and operating at super-population level, the clustering is not as precise as on the carefully curated and characterised individuals from the 1000 Genomes Project.
-%TODO add numbers
-This is especially the case since XX\% are `White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
+This is especially the case since 65\% are `White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
 
 This highlights the issue for clinical application where ancestry influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 As noted by Patterson et al ~\cite{Patterson2006}, more markers are needed for populations with low genetic divergence. 
@@ -416,14 +415,17 @@ The individuals from these datasets are distributed across four super population
 
 
 \subsection*{VariantSpark Implementation}
-For each of the implementations, we pre-process the VCF files to arrays of features.
-In \variantSpark{} we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and `zip' each value with it's heading from the VCF file.
-The key-value pairs (KVPs) from each line in the VCF file are stored in separate arrays. We then `zip' each array with a unique index, where these indexes form identifiers for the alleles.
-At this point, we have one array for each line from the VCF file. The values in the arrays are KVPs of the parsed tab-separated values zipped with their heading (individual ID), and each array has a unique index.
-We now use a `flatMap' to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out KVPs that aren't alleles (i.e. KVPs that are VCF metadata).
-This results in KVPs where the key is the individual ID, and the value is a tuple of the allele and it's index. We effectively have one KVP for each allele from the VCF file. At this point, each allele is still a string straight from the VCF file (i.e. `0\textbar{}1'), however, we require doubles for MLlib.
-To convert this to a double, we take the Hamming distance of the allele, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. Also, for each individual, we filter out any alleles that have no variant, leaving us with KVPs of variants (homozygous and heterozygous) only.
-We can now group these KVPs by their key (the individual ID) and map them to sparse vectors. This results in a sparse vector for each individual, the format required by MLlib's machine learning algorithms.
+To cluster the individuals in a VCF file, we initially need to pre-process the variants to feature vectors.
+In \variantSpark{} we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and `zip' each value with it's heading from the VCF file, as shown in Figure 2.
+The result is an array of key-value pairs (KVPs) for each line, where the column heading is the key and the variant is the value.
+We then `zip' each KVP array with a unique sequential index, where these indexes will serve as identifiers for the alleles.
+Now each KVP array is the value in a parent KVP, where the key is the unique index.
+We use a `flatMap' (step 3 of Figure 2) to convert these indexed arrays of KVPs into a less convoluted data-structure, as well as to filter out any extra metadata.
+This results in KVPs (number of variants x number of alleles) where the key is the individual ID, and the value is a tuple of an allele and its index. Effectively, we have a KVP for each allele from the VCF file.
+At this point, each allele is still a string straight from the VCF file (i.e. `0\textbar{}1'), however, we require doubles, for MLlib.
+To convert these strings to doubles, we use the Hamming distance of the allele, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. Also, for each individual, we filter out any alleles that have no variant, leaving us with KVPs of variants (homozygous and heterozygous) only.
+We perform this `map' operation inside the previous `flatMap' (step 3).
+We can now group these KVPs by their key (the individual ID) and save them to sparse vectors (step 4). This results in a sparse vector for each individual, the format required by MLlib's machine learning algorithms.
 
 
 \subsection*{{\sc ADAM} Implementation}
@@ -432,15 +434,16 @@ For our {\sc ADAM} comparison, we followed the {\sc ADAM} implementation from (\
 
 \subsection*{Hadoop Implementation}
 We use our previous Hadoop implementation, which is based on the MapReduce model. This makes use of KVPs, similarly to \variantSpark{}, however, it is explicitly based on the MapReduce model.
-Because of this, and because we need a unique range of identifiers for alleles (in the smallest range possible), we need to run an initial MapReduce task to index the lines. This is comparable (however, more cumbersome) to the `zip' operation in \variantSpark{}.
-The second MapReduce task does the bulk of the work. The Map stage begins by creating KVPs from the VCF file. For each KVP, the key is a tuple of a primary and secondary key, where the primary key is the individual ID and the secondary key is the allele ID. The value for each KVP is the variant.
+Because of this, and because we need a unique range of identifiers for alleles (in the smallest range possible), we need to run an initial MapReduce task to index the lines. This is comparable (however, more verbose) to the `zip' operation in \variantSpark{}.
+The second MapReduce task does the bulk of the work and is visualised in Figure 2. The Map stage (step 1) begins by creating KVPs from the VCF file. For each KVP, the key is a tuple of a primary and secondary key, where the primary key is the individual ID and the secondary key is the allele ID. The value for each KVP is the variant.
 The primary key ensures that KVPs for each individual are distributed to the same node during the MapReduce shuffle stage. After being distributed, the KVPs for each individual are sorted by their secondary key.
-Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage can efficiently create a sparse vector for each individual from these KVPs. The sparse vectors (one for each individual) are saved to disk, ready to be used as the input to one of MLlib's algorithms.
+Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. The sparse vectors (one for each individual) are saved to disk, ready to be used as the input to one of MLlib's algorithms.
 
 
+%% Need to cite R package??
 \subsection*{R Implementation}
-For our R implementation, we read in a VCF file as a table and convert it to a matrix, dropping the columns that don't represent alleles. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
-We then transpose the matrix, resulting in a data-structure where each row represents an individual.
+For our R implementation, we read in a VCF file as a table and convert it to a matrix, dropping columns that don't represent alleles. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
+We then transpose the matrix, resulting in a data-structure where each row represents an individual. We convert the matrix to a `big.matrix', for the \kMeans{} algorithm from the `biganalytics' package. 
 
 
 \subsection*{Python Implementation}
