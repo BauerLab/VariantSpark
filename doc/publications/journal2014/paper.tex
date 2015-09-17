@@ -280,8 +280,8 @@ Unfortunately, the MapReduce paradigm is not always the optimal solution, specif
 One of the main benefits is that it allows programs to cache data in memory; potentially eliminating, or at least reducing, the bottleneck of disk IO. 
 When utilising caching, Apache claim {\sc Spark} to be 100x faster than Hadoop. 
 Although {\sc Spark} allows MapReduce-like programs, it does not require programs to exactly model the MapReduce paradigm, which in turn allows more flexibility when designing programs. 
-Recognising the capability, the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using {\sc ADAM}, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
-While the speedup over traditional methods was impressive (50 fold speedup), being limited by constraints within this general genomics framework hampered performance. 
+Recognising the capability, Wiewi{\'o}rka {\it et al.}~\cite{Wiewiorka2014} developed SparkSeq for high-throughput sequence data analysis and the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using {\sc ADAM}, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
+While the speedup of {\sc ADAM} over traditional methods was impressive (50 fold speedup), being limited by constraints within this general genomics framework hampered performance. 
 
 We hence developed a more focused purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
 We utilise {\sc Spark}'s machine learning library, \mbox{MLlib}, and provide an interface to the standard variant data format, Variant Call Format (VCF)~\cite{1KG2012}, which opens up the application of MLlib's different machine learning algorithms to a wide range of genotype-based analysis tasks. 

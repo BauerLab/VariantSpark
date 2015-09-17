@@ -36,7 +36,7 @@
   Pages                    = {1655--1664},
   Volume                   = {19},
 
-  __markedentry            = {[bau04c:6]},
+  __markedentry            = {[bau04c:]},
   Abstract                 = {Population stratification has long been recognized as a confounding factor in genetic association studies. Estimated ancestries, derived from multi-locus genotype data, can be used to perform a statistical correction for population stratification. One popular technique for estimation of ancestry is the model-based approach embodied by the widely applied program structure. Another approach, implemented in the program EIGENSTRAT, relies on Principal Component Analysis rather than model-based estimation and does not directly deliver admixture fractions. EIGENSTRAT has gained in popularity in part owing to its remarkable speed in comparison to structure. We present a new algorithm and a program, ADMIXTURE, for model-based estimation of ancestry in unrelated individuals. ADMIXTURE adopts the likelihood model embedded in structure. However, ADMIXTURE runs considerably faster, solving problems in minutes that take structure hours. In many of our experiments, we have found that ADMIXTURE is almost as fast as EIGENSTRAT. The runtime improvements of ADMIXTURE rely on a fast block relaxation scheme using sequential quadratic programming for block updates, coupled with a novel quasi-Newton acceleration of convergence. Our algorithm also runs faster and with greater accuracy than the implementation of an Expectation-Maximization (EM) algorithm incorporated in the program FRAPPE. Our simulations show that ADMIXTURE's maximum likelihood estimates of the underlying admixture coefficients and ancestral allele frequencies are as accurate as structure's Bayesian estimates. On real-world data sets, ADMIXTURE's estimates are directly comparable to those from structure and EIGENSTRAT. Taken together, our results show that ADMIXTURE's computational speed opens up the possibility of using a much larger set of markers in model-based ancestry estimation and that its estimates are suitable for use in correcting for population stratification in association studies.},
   Doi                      = {10.1101/gr.094052.109},
   Institution              = {Department of Biomathematics, University of California at Los Angeles, Los Angeles, California 90095, USA. dalexander@ucla.edu},
@@ -48,6 +48,17 @@
   Pmid                     = {19648217},
   Timestamp                = {2015.09.16},
   Url                      = {http://dx.doi.org/10.1101/gr.094052.109}
+}
+
+@Article{ICWSM09154,
+  Title                    = {Gephi: An Open Source Software for Exploring and Manipulating Networks},
+  Author                   = {Mathieu Bastian and Sebastien Heymann and Mathieu Jacomy},
+  Year                     = {2009},
+
+  Abstract                 = {Gephi is an open source software for graph and network analysis. It uses a 3D render engine to display large networks in real-time and to speed up the exploration. A flexible and multi-task architecture brings new possibilities to work with complex data sets and produce valuable visual results. We present several key features of Gephi in the context of interactive exploration and interpretation of networks. It provides easy and broad access to network data and allows for spatializing, filtering, navigating, manipulating and clustering. Finally, by presenting dynamic features of Gephi, we highlight key aspects of dynamic network visualization.},
+  Conference               = {International AAAI Conference on Weblogs and Social Media},
+  Keywords                 = {network;network science;visualization;graph exploration;open source;free software;dynamic network;interactive interface;graph;force vector;java;OpenGL;3-D visualization;user-centric;graph layout;complex graph rendering;network analysis;webatlas},
+  Url                      = {http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154}
 }
 
 @InProceedings{ICWSM09154,
@@ -234,8 +245,6 @@
   Number                   = {7534},
   Pages                    = {327--332},
   Volume                   = {517},
-
-  __markedentry            = {[bau04c:]},
   Abstract                 = {Given the importance of Africa to studies of human origins and disease susceptibility, detailed characterization of African genetic diversity is needed. The African Genome Variation Project provides a resource with which to design, implement and interpret genomic studies in sub-Saharan Africa and worldwide. The African Genome Variation Project represents dense genotypes from 1,481 individuals and whole-genome sequences from 320 individuals across sub-Saharan Africa. Using this resource, we find novel evidence of complex, regionally distinct hunter-gatherer and Eurasian admixture across sub-Saharan Africa. We identify new loci under selection, including loci related to malaria susceptibility and hypertension. We show that modern imputation panels (sets of reference genotypes from which unobserved or missing genotypes in study sets can be inferred) can identify association signals at highly differentiated loci across populations in sub-Saharan Africa. Using whole-genome sequencing, we demonstrate further improvements in imputation accuracy, strengthening the case for large-scale sequencing efforts of diverse African haplotypes. Finally, we present an efficient genotype array design capturing common genetic variation in Africa.},
   Doi                      = {10.1038/nature13997},
   Institution              = { Department of Public Health and Primary Care, University of Cambridge, 2 Wort's Causeway, Cambridge, CB1 8RN, UK.},
@@ -319,8 +328,6 @@
   Number                   = {10},
   Pages                    = {1019--1022},
   Volume                   = {15},
-
-  __markedentry            = {[bau04c:]},
   Bdsk-url-1               = {http://dx.doi.org/10.15252/embr.201439469},
   Doi                      = {10.15252/embr.201439469},
   Institution              = {Freelance journalist in London, UK.},
@@ -675,6 +682,31 @@
   Url                      = {http://dx.doi.org/10.1186/1471-2105-11-S12-S1}
 }
 
+@Article{Wiewiorka2014,
+  Title                    = {SparkSeq: fast, scalable and cloud-ready tool for the interactive genomic data analysis with nucleotide precision.},
+  Author                   = {Wiewi{\'{o}}rka, Marek S. and Messina, Antonio and Pacholewska, Alicja and Maffioletti, Sergio and Gawrysiak, Piotr and Okoniewski, Micha{\l} J.},
+  Journal                  = {Bioinformatics},
+  Year                     = {2014},
+
+  Month                    = {Sep},
+  Number                   = {18},
+  Pages                    = {2652--2653},
+  Volume                   = {30},
+
+  __markedentry            = {[bau04c:6]},
+  Abstract                 = {Many time-consuming analyses of next -: generation sequencing data can be addressed with modern cloud computing. The Apache Hadoop-based solutions have become popular in genomics BECAUSE OF: their scalability in a cloud infrastructure. So far, most of these tools have been used for batch data processing rather than interactive data querying. The SparkSeq software has been created to take advantage of a new MapReduce framework, Apache Spark, for next-generation sequencing data. SparkSeq is a general-purpose, flexible and easily extendable library for genomic cloud computing. It can be used to build genomic analysis pipelines in Scala and run them in an interactive way. SparkSeq opens up the possibility of customized ad hoc secondary analyses and iterative machine learning algorithms. This article demonstrates its scalability and overall fast performance by running the analyses of sequencing datasets. Tests of SparkSeq also prove that the use of cache and HDFS block size can be tuned for the optimal performance on multiple worker nodes.Available under open source Apache 2.0 license: https://bitbucket.org/mwiewiorka/sparkseq/.},
+  Doi                      = {10.1093/bioinformatics/btu343},
+  Institution              = {Institute of Computer Science, Warsaw University of Technology, Warsaw, Poland, ICS 00-665 Warsaw (MW, PG), Grid Computing Competence Center-GC3, University of Zurich, 8057 ZŸrich (SM, AM), Swiss Institute of Equine Medicine, Vetsuisse Faculty, University of Bern and ALP-Haras, 3001 Bern (AP), Institute of Genetics, Vetsuisse Faculty, University of Bern, Bern, 3001 Bern (AP) and Functional Genomics Center Zurich, CH-8057 Zurich, Switzerland.},
+  Keywords                 = {Algorithms; Genomics, methods; High-Throughput Nucleotide Sequencing, methods; Internet; Nucleotides, genetics; Software; Statistics as Topic, methods; Time Factors},
+  Language                 = {eng},
+  Medline-pst              = {ppublish},
+  Owner                    = {bau04c},
+  Pii                      = {btu343},
+  Pmid                     = {24845651},
+  Timestamp                = {2015.09.17},
+  Url                      = {http://dx.doi.org/10.1093/bioinformatics/btu343}
+}
+
 @Other{Zaharia2011,
   Title                    = {Resilient distributed datasets: A fault-tolerant abstraction for in-memory cluster computing},
   Abstract                 = {We present Resilient Distributed Datasets (RDDs), a distributed memory abstraction that lets programmers perform in-memory computations on large clusters in a fault-tolerant manner. RDDs are motivated by two types of applications that current computing frameworks handle inefficiently: iterative algorithms and interactive data mining tools. In both cases, keeping data in memory can improve performance by an order of magnitude. To achieve fault tolerance efficiently, RDDs provide a restricted form of shared memory, based on coarsegrained transformations rather than fine-grained updates to shared state. However, we show that RDDs are expressive enough to capture a wide class of computations, including recent specialized programming models for iterative jobs, such as Pregel, and new applications that these models do not capture. We have implemented RDDs in a system called Spark, which we evaluate through a variety of user applications and benchmarks. 1},
@@ -695,7 +727,7 @@
   Pages                    = {192--200},
   Volume                   = {14},
 
-  __markedentry            = {[bau04c:6]},
+  __markedentry            = {[bau04c:]},
   Abstract                 = {Genotyping of classical human leukocyte antigen (HLA) alleles is an essential tool in the analysis of diseases and adverse drug reactions with associations mapping to the major histocompatibility complex (MHC). However, deriving high-resolution HLA types subsequent to whole-genome single-nucleotide polymorphism (SNP) typing or sequencing is often cost prohibitive for large samples. An alternative approach takes advantage of the extended haplotype structure within the MHC to predict HLA alleles using dense SNP genotypes, such as those available from genome-wide SNP panels. Current methods for HLA imputation are difficult to apply or may require the user to have access to large training data sets with SNP and HLA types. We propose HIBAG, HLA Imputation using attribute BAGging, that makes predictions by averaging HLA-type posterior probabilities over an ensemble of classifiers built on bootstrap samples. We assess the performance of HIBAG using our study data (n=2668 subjects of European ancestry) as a training set and HLA data from the British 1958 birth cohort study (n=1000 subjects) as independent validation samples. Prediction accuracies for HLA-A, B, C, DRB1 and DQB1 range from 92.2\% to 98.1\% using a set of SNP markers common to the Illumina 1M Duo, OmniQuad, OmniExpress, 660K and 550K platforms. HIBAG performed well compared with the other two leading methods, HLA*IMP and BEAGLE. This method is implemented in a freely available HIBAG R package that includes pre-fit classifiers for European, Asian, Hispanic and African ancestries, providing a readily available imputation approach without the need to have access to large training data sets.},
   Bdsk-url-1               = {http://dx.doi.org/10.1038/tpj.2013.18},
   Doi                      = {10.1038/tpj.2013.18},
@@ -728,16 +760,6 @@
   Pmid                     = {23396756},
   Timestamp                = {2014.05.01},
   Url                      = {http://dx.doi.org/10.1093/bib/bbs088}
-}
-
-@Article{ICWSM09154,
-author = {Mathieu Bastian and Sebastien Heymann and Mathieu Jacomy},
-title = {Gephi: An Open Source Software for Exploring and Manipulating Networks},
-conference = {International AAAI Conference on Weblogs and Social Media},
-year = {2009},
-keywords = {network;network science;visualization;graph exploration;open source;free software;dynamic network;interactive interface;graph;force vector;java;OpenGL;3-D visualization;user-centric;graph layout;complex graph rendering;network analysis;webatlas},
-abstract = {Gephi is an open source software for graph and network analysis. It uses a 3D render engine to display large networks in real-time and to speed up the exploration. A flexible and multi-task architecture brings new possibilities to work with complex data sets and produce valuable visual results. We present several key features of Gephi in the context of interactive exploration and interpretation of networks. It provides easy and broad access to network data and allows for spatializing, filtering, navigating, manipulating and clustering. Finally, by presenting dynamic features of Gephi, we highlight key aspects of dynamic network visualization.},
-url = {http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154}
 }
 
 @comment{jabref-meta: selector_review:}
