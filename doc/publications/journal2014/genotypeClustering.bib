@@ -35,8 +35,6 @@
   Number                   = {9},
   Pages                    = {1655--1664},
   Volume                   = {19},
-
-  __markedentry            = {[bau04c:]},
   Abstract                 = {Population stratification has long been recognized as a confounding factor in genetic association studies. Estimated ancestries, derived from multi-locus genotype data, can be used to perform a statistical correction for population stratification. One popular technique for estimation of ancestry is the model-based approach embodied by the widely applied program structure. Another approach, implemented in the program EIGENSTRAT, relies on Principal Component Analysis rather than model-based estimation and does not directly deliver admixture fractions. EIGENSTRAT has gained in popularity in part owing to its remarkable speed in comparison to structure. We present a new algorithm and a program, ADMIXTURE, for model-based estimation of ancestry in unrelated individuals. ADMIXTURE adopts the likelihood model embedded in structure. However, ADMIXTURE runs considerably faster, solving problems in minutes that take structure hours. In many of our experiments, we have found that ADMIXTURE is almost as fast as EIGENSTRAT. The runtime improvements of ADMIXTURE rely on a fast block relaxation scheme using sequential quadratic programming for block updates, coupled with a novel quasi-Newton acceleration of convergence. Our algorithm also runs faster and with greater accuracy than the implementation of an Expectation-Maximization (EM) algorithm incorporated in the program FRAPPE. Our simulations show that ADMIXTURE's maximum likelihood estimates of the underlying admixture coefficients and ancestral allele frequencies are as accurate as structure's Bayesian estimates. On real-world data sets, ADMIXTURE's estimates are directly comparable to those from structure and EIGENSTRAT. Taken together, our results show that ADMIXTURE's computational speed opens up the possibility of using a much larger set of markers in model-based ancestry estimation and that its estimates are suitable for use in correcting for population stratification in association studies.},
   Doi                      = {10.1101/gr.094052.109},
   Institution              = {Department of Biomathematics, University of California at Los Angeles, Los Angeles, California 90095, USA. dalexander@ucla.edu},
@@ -553,6 +551,52 @@
   Url                      = {http://manning.com/owen/}
 }
 
+@Article{Patterson2006,
+  Title                    = {Population structure and eigenanalysis.},
+  Author                   = {Patterson, Nick and Price, Alkes L. and Reich, David},
+  Journal                  = {PLoS Genet},
+  Year                     = {2006},
+
+  Month                    = {Dec},
+  Number                   = {12},
+  Pages                    = {e190},
+  Volume                   = {2},
+
+  __markedentry            = {[bau04c:6]},
+  Abstract                 = {Current methods for inferring population structure from genetic data do not provide formal significance tests for population differentiation. We discuss an approach to studying population structure (principal components analysis) that was first applied to genetic data by Cavalli-Sforza and colleagues. We place the method on a solid statistical footing, using results from modern statistics to develop formal significance tests. We also uncover a general "phase change" phenomenon about the ability to detect structure in genetic data, which emerges from the statistical theory we use, and has an important implication for the ability to discover structure in genetic data: for a fixed but large dataset size, divergence between two populations (as measured, for example, by a statistic like FST) below a threshold is essentially undetectable, but a little above threshold, detection will be easy. This means that we can predict the dataset size needed to detect structure.},
+  Doi                      = {10.1371/journal.pgen.0020190},
+  Institution              = {Broad Institute of Harvard and MIT, Cambridge, Massachusetts, United States of America.},
+  Keywords                 = {Computer Simulation, statistics /&/ numerical data; Genetic Markers; Genetic Variation; Genetics, Medical, methods/statistics /&/ numerical data; Genetics, Population, methods/statistics /&/ numerical data; Humans; Models, Genetic; Models, Statistical; Principal Component Analysis, methods},
+  Language                 = {eng},
+  Medline-pst              = {ppublish},
+  Owner                    = {bau04c},
+  Pii                      = {06-PLGE-RA-0101R3},
+  Pmid                     = {17194218},
+  Timestamp                = {2015.09.17},
+  Url                      = {http://dx.doi.org/10.1371/journal.pgen.0020190}
+}
+
+@Article{Pugach2015,
+  Title                    = {Genome-wide insights into the genetic history of human populations.},
+  Author                   = {Pugach, Irina and Stoneking, Mark},
+  Journal                  = {Investig Genet},
+  Year                     = {2015},
+  Pages                    = {6},
+  Volume                   = {6},
+
+  __markedentry            = {[bau04c:]},
+  Abstract                 = {Although mtDNA and the non-recombining Y chromosome (NRY) studies continue to provide valuable insights into the genetic history of human populations, recent technical, methodological and computational advances and the increasing availability of large-scale, genome-wide data from contemporary human populations around the world promise to reveal new aspects, resolve finer points, and provide a more detailed look at our past demographic history. Genome-wide data are particularly useful for inferring migrations, admixture, and fine structure, as well as for estimating population divergence and admixture times and fluctuations in effective population sizes. In this review, we highlight some of the stories that have emerged from the analyses of genome-wide SNP genotyping data concerning the human history of Southern Africa, India, Oceania, Island South East Asia, Europe and the Americas and comment on possible future study directions. We also discuss advantages and drawbacks of using SNP-arrays, with a particular focus on the ascertainment bias, and ways to circumvent it.},
+  Doi                      = {10.1186/s13323-015-0024-0},
+  Institution              = {Department of Evolutionary Genetics, Max Planck Institute for Evolutionary Anthropology, Deutscher Platz 6, D04103 Leipzig, Germany.},
+  Language                 = {eng},
+  Medline-pst              = {epublish},
+  Owner                    = {bau04c},
+  Pii                      = {24},
+  Pmid                     = {25834724},
+  Timestamp                = {2015.09.17},
+  Url                      = {http://dx.doi.org/10.1186/s13323-015-0024-0}
+}
+
 @Article{Qiu2010,
   Title                    = {Hybrid cloud and cluster computing paradigms for life science applications.},
   Author                   = {Qiu, Judy and Ekanayake, Jaliya and Gunarathne, Thilina and Choi, Jong Youl and Bae, Seung-Hee and Li, Hui and Zhang, Bingjing and Wu, Tak-Lon and Ruan, Yang and Ekanayake, Saliya and Hughes, Adam and Fox, Geoffrey},
@@ -586,6 +630,26 @@
   Bdsk-url-1               = {http://dx.doi.org/10.1109/HPCA.2007.346181},
   Doi                      = {10.1109/HPCA.2007.346181},
   Keywords                 = {fault tolerance;multi-threading;multiprocessing systems;performance evaluation;scheduling;MapReduce;Phoenix;data partitioning;distributed system;dynamic task scheduling;error recovery;fault tolerance;functional-style code;multicore system;multiprocessor system;programming API and;shared-memory systems;thread creation;Concurrent computing;Dynamic scheduling;Fault tolerance;Laboratories;Multiprocessing systems;Parallel programming;Processor scheduling;Programming profession;Runtime;Yarn}
+}
+
+@Article{ReyesOrtiz2015121,
+  Title                    = {Big Data Analytics in the Cloud: Spark on Hadoop vs MPI/OpenMP on Beowulf},
+  Author                   = {Jorge L. Reyes-Ortiz and Luca Oneto and Davide Anguita},
+  Journal                  = {Procedia Computer Science},
+  Year                     = {2015},
+  Note                     = {\{INNS\} Conference on Big Data 2015 Program San Francisco, CA, \{USA\} 8-10 August 2015},
+  Pages                    = {121 - 130},
+  Volume                   = {53},
+
+  Abstract                 = {Abstract One of the biggest challenges of the current big data landscape is our inability to pro- cess vast amounts of information in a reasonable time. In this work, we explore and com- pare two distributed computing frameworks implemented on commodity cluster architectures: MPI/OpenMP on Beowulf that is high-performance oriented and exploits multi-machine/multi- core infrastructures, and Apache Spark on Hadoop which targets iterative algorithms through in-memory computing. We use the Google Cloud Platform service to create virtual machine clusters, run the frameworks, and evaluate two supervised machine learning algorithms: \{KNN\} and Pegasos SVM. Results obtained from experiments with a particle physics data set show MPI/OpenMP outperforms Spark by more than one order of magnitude in terms of processing speed and provides more consistent performance. However, Spark shows better data manage- ment infrastructure and the possibility of dealing with other aspects such as node failure and data replication. },
+  Bdsk-url-1               = {http://www.sciencedirect.com/science/article/pii/S1877050915017895},
+  Bdsk-url-2               = {http://dx.doi.org/10.1016/j.procs.2015.07.286},
+  Doi                      = {http://dx.doi.org/10.1016/j.procs.2015.07.286},
+  ISSN                     = {1877-0509},
+  Keywords                 = {Parallel Computing},
+  Owner                    = {bau04c},
+  Timestamp                = {2015.09.21},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S1877050915017895}
 }
 
 @Article{Schatz2009,
@@ -692,8 +756,6 @@
   Number                   = {18},
   Pages                    = {2652--2653},
   Volume                   = {30},
-
-  __markedentry            = {[bau04c:6]},
   Abstract                 = {Many time-consuming analyses of next -: generation sequencing data can be addressed with modern cloud computing. The Apache Hadoop-based solutions have become popular in genomics BECAUSE OF: their scalability in a cloud infrastructure. So far, most of these tools have been used for batch data processing rather than interactive data querying. The SparkSeq software has been created to take advantage of a new MapReduce framework, Apache Spark, for next-generation sequencing data. SparkSeq is a general-purpose, flexible and easily extendable library for genomic cloud computing. It can be used to build genomic analysis pipelines in Scala and run them in an interactive way. SparkSeq opens up the possibility of customized ad hoc secondary analyses and iterative machine learning algorithms. This article demonstrates its scalability and overall fast performance by running the analyses of sequencing datasets. Tests of SparkSeq also prove that the use of cache and HDFS block size can be tuned for the optimal performance on multiple worker nodes.Available under open source Apache 2.0 license: https://bitbucket.org/mwiewiorka/sparkseq/.},
   Doi                      = {10.1093/bioinformatics/btu343},
   Institution              = {Institute of Computer Science, Warsaw University of Technology, Warsaw, Poland, ICS 00-665 Warsaw (MW, PG), Grid Computing Competence Center-GC3, University of Zurich, 8057 ZŸrich (SM, AM), Swiss Institute of Equine Medicine, Vetsuisse Faculty, University of Bern and ALP-Haras, 3001 Bern (AP), Institute of Genetics, Vetsuisse Faculty, University of Bern, Bern, 3001 Bern (AP) and Functional Genomics Center Zurich, CH-8057 Zurich, Switzerland.},
@@ -726,8 +788,6 @@
   Number                   = {2},
   Pages                    = {192--200},
   Volume                   = {14},
-
-  __markedentry            = {[bau04c:]},
   Abstract                 = {Genotyping of classical human leukocyte antigen (HLA) alleles is an essential tool in the analysis of diseases and adverse drug reactions with associations mapping to the major histocompatibility complex (MHC). However, deriving high-resolution HLA types subsequent to whole-genome single-nucleotide polymorphism (SNP) typing or sequencing is often cost prohibitive for large samples. An alternative approach takes advantage of the extended haplotype structure within the MHC to predict HLA alleles using dense SNP genotypes, such as those available from genome-wide SNP panels. Current methods for HLA imputation are difficult to apply or may require the user to have access to large training data sets with SNP and HLA types. We propose HIBAG, HLA Imputation using attribute BAGging, that makes predictions by averaging HLA-type posterior probabilities over an ensemble of classifiers built on bootstrap samples. We assess the performance of HIBAG using our study data (n=2668 subjects of European ancestry) as a training set and HLA data from the British 1958 birth cohort study (n=1000 subjects) as independent validation samples. Prediction accuracies for HLA-A, B, C, DRB1 and DQB1 range from 92.2\% to 98.1\% using a set of SNP markers common to the Illumina 1M Duo, OmniQuad, OmniExpress, 660K and 550K platforms. HIBAG performed well compared with the other two leading methods, HLA*IMP and BEAGLE. This method is implemented in a freely available HIBAG R package that includes pre-fit classifiers for European, Asian, Hispanic and African ancestries, providing a readily available imputation approach without the need to have access to large training data sets.},
   Bdsk-url-1               = {http://dx.doi.org/10.1038/tpj.2013.18},
   Doi                      = {10.1038/tpj.2013.18},
