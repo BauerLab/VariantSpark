@@ -206,7 +206,7 @@
 We therefore utilise the recently developed {\sc Spark} engine, along with its associated machine learning library, MLlib, which offers more flexibility in the parallelisation of population-scale bioinformatics tasks. 
 \variantSpark{} provides an interface from MLlib to the standard variant format (VCF), offers seamless genome-wide sampling of variants and provides a pipeline for visualising results. 
 
-\parttitle{Results} To demonstrate the capabilities of \variantSpark, we clustered more than 1,000 individuals with 38 Million variants each to determine the population structure in the dataset. \variantSpark{} is 80\% faster than the {\sc Spark}-based genome clustering approach, {\sc ADAM}, the comparable implementation using Hadoop/Mahout, as well as a {\sc Admixture}, a commonly used tool for determining individual ancestries. It is over 90\% faster than traditional implementations using R and Python.  
+\parttitle{Results} To demonstrate the capabilities of \variantSpark, we clustered more than 1,000 individuals with 38 Million variants each to determine the population structure in the dataset. \variantSpark{} is 80\% faster than the {\sc Spark}-based genome clustering approach, {\sc ADAM}, the comparable implementation using Hadoop/Mahout, as well as a {\sc Admixture}, a commonly used tool for determining individual ancestries. It is over 90\% faster than traditional implementations using R and Python.
 These benefits of speed, resource consumption and scalability enables \variantSpark{} to open up the usage of advanced, efficient machine learning algorithms to genomic data. 
 
 
@@ -272,7 +272,7 @@ These benefits of speed, resource consumption and scalability enables \variantSp
 \section*{Background}
 
 Genomic information is increasingly used in medical practice.
-A commonly performed task in such applications is grouping individuals based on their genomic profile to identify population association~\cite{Gao2007} or elucidate haplotype involvement in diseases susceptibility~\cite{Laitman2013}.  
+A commonly performed task in such applications is grouping individuals based on their genomic profile to identify population association~\cite{Gao2007} or elucidate haplotype involvement in diseases susceptibility~\cite{Laitman2013}.
 The commonly used tool is {\sc Admixture}~\cite{Alexander2009}, which performs maximum likelihood estimation of individual ancestries from multilocus SNP genotype datasets.
 Due to the decreasing sequencing cost it is now economical to generate studies with sample sizes previously reserved for larger consortia such as the 1000 Genomes Project~\cite{1KG2012} or The Cancer Genome Atlas, TCGA~\cite{TCGA2013}. 
 At the same time, whole genome sequencing enables the inclusion of rare or even somatic mutations in the analysis, increasing the feature space by orders of magnitude. This drastic increase in both sample numbers and features per sample requires a massively parallel approach to data processing~\cite{Stein2010}. Traditional parallelisation strategies like MPI/OpenMP or hardware accelerators (GPGPU) cannot scale with variable data sizes at runtime~\cite{ReyesOrtiz2015121} or require purpose-built hardware.
@@ -305,7 +305,7 @@ In the last section we replicate the analysis by using 478 genomes from the Pers
 \subsection*{{\sc Spark} enables faster clustering of individuals compared to traditional methods}
 
 In this section we compare the time required to cluster individuals based on genomic variants using \variantSpark{} against {\sc ADAM} as well as the more traditional approaches using Hadoop (and Mahout), Python and R. 
-We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption, rendering a whole-genome input infeasible.  
+We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption, rendering a whole-genome input infeasible.
 Furthermore, we perform the comparisons on a single virtual machine to ensure the six different approaches have access to the same resources.
 We use \kMeans{} clustering algorithms in the respective implementations, which require the VCF input files to be pre-processed (see methods). 
 The state-of-the-art tool, {\sc Admixture}, also requires a pre-processing step from VCF to PED format, which we performed using GAKT~\cite{McKenna2010}.
@@ -328,14 +328,14 @@ Despite this, both are an order of magnitude slower than \variantSpark{} and {\s
 {\sc Admixture} is also slower with a runtime of just over 8 minutes. 
 Our Hadoop implementation performs the worst with 14mins and 23secs, showcasing the limitations of the Hadoop engine for iterative algorithms such as \kMeans{}. % 863
 Hadoop writes the entire output of each \kMeans{} iteration to disk. This feature was designed to ensure scalability but here substantially increases the runtime as disk IO becomes the limiting factor for this small dataset (chromosome 22).
-Python and R store the output from each iteration in memory thereby eliminating the IO bottleneck but without being able to utilise the disk they are limited to datasets that fit into memory.  
-{\sc Spark} overcomes both limitations by performing in-memory caching for each executor, which eliminates the disk IO bottleneck on smaller datasets, while maintaining scalability to larger datasets where the data actively processed on executors is cashed in memory.
+Python and R store the output from each iteration in memory, thereby eliminating the IO bottleneck, but without being able to utilise the disk they are limited to datasets that fit into memory.
+{\sc Spark} overcomes both limitations by performing in-memory caching for each executor, which eliminates the disk IO bottleneck on smaller datasets, while maintaining scalability to larger datasets by spilling data that exceeds memory availability to disk.
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
 For this comparison, we use the \ARI{} (ARI) metric, which returns a value between -1 (independent labelings) and 1 (perfect match)~\cite{Hubert1985}.
 Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
 The state-of-the-art tool, {\sc Admixture}, returns a low ARI of 0.25. It should be noted that {\sc Admixture}'s underlying statistical model does not take linkage disequilibrium (LD) into account. 
-Therefore removing variants with high LD may result in higher accuracy.   
+Therefore removing variants with high LD may result in higher accuracy. 
 We can substantially improve the accuracy to a perfect classification (ARI=1.0) by removing the fourth super-population, AMR (American). 
 This is due to the majority of AMR individuals being placed in the same group as Europeans, likely reflecting their migrational backgrounds. 
 Only a minority of AMR individuals form an independent group, likely comprising of genetic information otherwise not captured by the 26 sub-populations of the 1000 genomes project.
@@ -406,7 +406,7 @@ For the whole-genome clustering, we used our in-house Hadoop cluster with Hadoop
 
 
 \subsection*{Datasets}
-We used  phase 1 variants from the 1000 Genomes Project. On the 22 autosomes, this dataset contains variants for 1092 individuals, spread over a total 38,219,238 alleles.
+We used phase 1 variants from the 1000 Genomes Project. On the 22 autosomes, this dataset contains variants for 1092 individuals, spread over a total 38,219,238 alleles.
 We also used a subset of this dataset, the variants from chromosome 22 containing 494,328 alleles.
 The individuals from these datasets are distributed across four super populations, African (AFR), Mixed American (AMR), East Asian (EAS) and European (EUR).
 
@@ -414,11 +414,11 @@ The individuals from these datasets are distributed across four super population
 
 \subsection*{VariantSpark Implementation}
 To cluster the individuals in a VCF file, we initially need to pre-process the variants to feature vectors.
-In \variantSpark{} we read in the VCF files as text files to a Resilient Data Set (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and Spark's `zip' each value with it's heading (Sample name) from the VCF file, resulting in key-value pairs (KVPs) for each line see Figure 2 (Spark step 1). 
+In \variantSpark{} we read in the VCF files as text files to a Resilient Distributed Dataset (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and with Spark's `zip' function, `zip' each value with it's heading (Sample name) from the VCF file, resulting in key-value pairs (KVPs) for each line see Figure 2 (Spark step 1). 
 We then `zip' each pair with a unique sequential index, which later-on will serve as identifier for each allele (and keep the genome loci order), resulting in a KVP array (step 2).
 We use `flatMap' to transpose the data structure to facilitate the grouping of variants by individuals.
 For the \kMeans{} clustering, we convert the VCF genotypes (i.e. `0\textbar{}1') to doubles using the Hamming distance to the reference, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. 
-To remove uninformative KVPs,  we filter out any alleles that have no variant. 
+To remove uninformative KVPs, we filter out any alleles that have no variant. 
 We perform this `map' operation inside the previous `flatMap' (step 3).
 We can now group these KVPs by their key (the individual ID) and save them to sparse vectors (step 4).
 
