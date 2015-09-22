@@ -76,7 +76,7 @@
 %\def\includegraphic{}
 %\def\includegraphics{}
 \usepackage{graphicx}
-\usepackage{multirow}
+
 
 %%% Put your definitions there:
 \startlocaldefs
@@ -287,7 +287,7 @@ Unfortunately, the MapReduce paradigm is not always the optimal solution, specif
 One of the main benefits is that it allows programs to cache data in memory; potentially eliminating, or at least reducing, the bottleneck of disk IO. 
 When utilising caching, Apache claim {\sc Spark} to be up to 100x faster than Hadoop. 
 Although {\sc Spark} allows MapReduce-like programs, it does not require programs to exactly model the MapReduce paradigm, which in turn allows more flexible software design. 
-Recognising the capability, Wiewi{\'o}rka {\it et al.}~\cite{Wiewiorka2014} developed SparkSeq for high-throughput sequence data analysis and the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using {\sc ADAM}, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
+Recognising the capability, Wiewi{\'o}rka {\it et al.}~\cite{Wiewiorka2014} developed {\sc SparkSeq} for high-throughput sequence data analysis and the Big Data Genomics (BDG) group recently demonstrated the strength of {\sc Spark} in a genomic clustering application using {\sc ADAM}, a set of formats and APIs as well as processing stage implementations for genomic data~\cite{Massie2013}. 
 While the speedup of {\sc ADAM} over traditional methods was impressive (50 fold speedup), being limited by constraints within this general genomics framework hampered performance. 
 
 We hence developed a purpose-built application in {\sc Spark} to perform genomic clustering of individuals. 
@@ -308,31 +308,32 @@ In this section we compare the time required to cluster individuals based on gen
 We limit the genomic variants to only chromosome 22 as the traditional approaches have substantially larger memory consumption, rendering a whole-genome input infeasible.
 Furthermore, we perform the comparisons on a single virtual machine to ensure the six different approaches have access to the same resources.
 We use \kMeans{} clustering algorithms in the respective implementations, which require the VCF input files to be pre-processed (see methods). 
-The state-of-the-art tool, {\sc Admixture}, also requires a pre-processing step from VCF to PED format, which we performed using GAKT~\cite{McKenna2010}.
+The state-of-the-art tool, {\sc Admixture}, also requires a pre-processing step from VCF to PED format, which we performed using GATK~\cite{McKenna2010}.
 We therefore compare the time required for the pre-processing step, as well as for \kMeans{} clustering.
 
-As shown in Table 1, pre-processing the data is fastest in \variantSpark{}, requiring 2mins and 58secs. %178s 
-This is almost 80\% faster than both the {\sc ADAM} implementation (12min and 48secs) %768s
-and our Hadoop implementation (14min and 22secs). %862s
+As shown in Table 1, pre-processing the data is fastest in \variantSpark{}, requiring 3 minutes. %2mins and 58secs. %178s 
+This is almost 80\% faster than both the {\sc ADAM} implementation (13 minutes) %(12min and 48secs) %768s
+and our Hadoop implementation (14 minutes). %(14min and 22secs). %862s
 Unlike \variantSpark{} and our Hadoop implementation, the {\sc ADAM} framework cannot process the VCF files directly but requires them to be converted into a binary {\sc ADAM} file format. 
-Although this additional pre-processing step is only required once for each input file, it requires an additional 13mins and 13secs, %793s
+Although this additional pre-processing step is only required once for each input file, it uses an additional 13 minutes, %13mins and 13secs, %793s
 rendering our approach almost an order of magnitude faster (see Figure 1).
 R and Python are also slower at pre-processing, taking 67 minutes and 92 minutes, respectively. 
 This increased pre-processing time is due to the standard Python and R implementations not natively supporting multithreading, while \variantSpark{}, {\sc ADAM} and Hadoop can use the eight available cores.
-The GATK-based VCF to PED conversion is also slower with over 10 minutes. 
+The GATK-based VCF to PED conversion for {\sc Admixture} is also slower with over 10 minutes. 
 
 Clustering the samples is also fastest in \variantSpark{} (1min and 20secs, see Table 1), despite \variantSpark{} and {\sc ADAM} both using {\sc Spark}'s MLlib \kMeans{} implementation. % 80
 We attribute the 30\% speedup over {\sc ADAM} (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas {\sc ADAM} creates dense vectors, which are less memory efficient. %
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise eight cores. 
-Despite this, both are an order of magnitude slower than \variantSpark{} and {\sc ADAM}, with Python requiring 11mins and 29secs and R requiring 7mins and 25secs.
+Despite this, both are an order of magnitude slower than \variantSpark{} and {\sc ADAM}, with Python requiring 11 minutes  and R requiring 8 minutes. %11and 29secs 7mins and 25secs
 {\sc Admixture} is also slower with a runtime of just over 8 minutes. 
-Our Hadoop implementation performs the worst with 14mins and 23secs, showcasing the limitations of the Hadoop engine for iterative algorithms such as \kMeans{}. % 863
+Our Hadoop implementation performs the worst with 14 minutes, showcasing the limitations of the Hadoop engine for iterative algorithms such as \kMeans{}. % 863 14mins and 23secs
 Hadoop writes the entire output of each \kMeans{} iteration to disk. This feature was designed to ensure scalability but here substantially increases the runtime as disk IO becomes the limiting factor for this small dataset (chromosome 22).
 Python and R store the output from each iteration in memory, thereby eliminating the IO bottleneck, but without being able to utilise the disk they are limited to datasets that fit into memory.
 {\sc Spark} overcomes both limitations by performing in-memory caching for each executor, which eliminates the disk IO bottleneck on smaller datasets, while maintaining scalability to larger datasets by spilling data that exceeds memory availability to disk.
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
 For this comparison, we use the \ARI{} (ARI) metric, which returns a value between -1 (independent labelings) and 1 (perfect match)~\cite{Hubert1985}.
+
 Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
 The state-of-the-art tool, {\sc Admixture}, returns a low ARI of 0.25. It should be noted that {\sc Admixture}'s underlying statistical model does not take linkage disequilibrium (LD) into account. 
 Therefore removing variants with high LD may result in higher accuracy. 
@@ -371,8 +372,7 @@ We cluster the individuals allowing five clusters and compare the assigned label
 The observed ARI is negative, indicating the clustering is random. 
 This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, or Bulgaria, amongst others. 
 The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
-% TODO provide mapping
-We therefore only include individuals where all grandparents were reported to be from the same country leaving 35 individuals from 22 different countries, which we group into their approximate super-populations (see Supplemental Table X). 
+We therefore only include individuals where all grandparents were reported to be from the same country leaving 35 individuals from 22 different countries, which we group into their approximate super-populations (see Supplemental Table 1). 
 Clustering these individuals results in an ARI of 0.45. 
 
 Although we see an increase in cluster-accuracy when removing individuals with a mixed background and operating at super-population level, the clustering is not as precise as on the carefully curated and characterised individuals from the 1000 Genomes Project.
@@ -392,7 +392,8 @@ Unfortunately, this hypothesis can no not be tested as whole genome information 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
 \variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 85\% faster than Hadoop (29 min).
-This novel parallelisation approach is also faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
+\variantSpark{} scales to data sizes that are not feasible to process using R or Python due their requirement to load the whole dataset into memory. 
+But even on the small benchmarking dataset, \variantSpark{}'s novel parallelisation approach is faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
 \variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
 These benefits of speed, resource consumption and scalability allows \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 
@@ -578,37 +579,6 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
       \end{tabular}
 \end{table}
 
-
-\label{pgppops}
-\begin{table}[h!]
-\caption{The resources consumption on different subsets of the entire autosome (chromosomes 1-22). Memory specified is the memory allocated to each executor.}
-      \begin{tabular}{|c|c|c|c|}
- 
-Super Population		&	Super Population Size &	Populations	&	Population size \\
-\multirow{4}{*}{AMR} 	&	\multirow{4}{*}{5}	&	Canada	&	2	\\
-					&					&	Mexico	&	1	\\
-					&					&	Puerto Rico               & 1               \\
-					&					&	US Minor Outlying Islands & 1               \\
-\multirow{2}{*}{EAS}		&	\multirow{2}{*}{6}	&	China                     & 5               \\
-					&					&	Taiwan, Province of China & 1	\\
-\multirow{14}{*}{EUR}	&	\multirow{14}{*}{20}	& Belgium				& 1	\\
-					&					& Estonia				& 1	\\
-					&					& Finland				& 1	\\
-					&					& France				& 1	\\
-					&					& Germany			& 1	\\
-					&					& Greece				& 1	\\
-					&					& Ireland				& 3	\\
-					&					& Poland				& 2	\\
-					&					& Russian Federation	& 1	\\
-					&					& Slovenia			& 1	\\
-					&					& Spain				& 2	\\
-					&					& Sweden				& 1	\\
-					&					& Ukraine				& 2	\\
-					&					& United Kingdom		& 2	\\
-\multirow{2}{*}{SAS}		&	\multirow{2}{*}{4}	& Bangladesh			& 1	\\
-					&					& India				& 3              
-      \end{tabular}
-\end{table}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

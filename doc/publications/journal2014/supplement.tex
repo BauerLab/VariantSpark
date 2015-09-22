@@ -1,0 +1,129 @@
+%% BioMed_Central_Tex_Template_v1.06
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                     %%
+%%  LaTeX template for BioMed Central  %%
+%%     journal article submissions     %%
+%%                                     %%
+%%          <8 June 2012>              %%
+%%                                     %%
+%%                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\mutrix}{mutagenetix}
+\newcommand{\pheno}{phenomics}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                 %%
+%% For instructions on how to fill out this Tex template           %%
+%% document please refer to Readme.html and the instructions for   %%
+%% authors page on the biomed central website                      %%
+%% http://www.biomedcentral.com/info/authors/                      %%
+%%                                                                 %%
+%% Please do not use \input{...} to include other tex files.       %%
+%% Submit your LaTeX manuscript as one .tex document.              %%
+%%                                                                 %%
+%% All additional figures and files should be attached             %%
+%% separately and not embedded in the \TeX\ document itself.       %%
+%%                                                                 %%
+%% BioMed Central currently use the MikTex distribution of         %%
+%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
+%% http://www.miktex.org                                           %%
+%%                                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+\documentclass{bmcart}
+
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage{hyperref}
+\usepackage[utf8]{inputenc} %unicode support
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\def\includegraphic{}
+%\def\includegraphics{}
+\usepackage{graphicx}
+\usepackage{multirow}
+
+
+%%% Put your definitions there:
+\startlocaldefs
+\endlocaldefs
+
+
+%%% Begin ...
+\begin{document}
+
+\label{pgppops}
+\begin{table}[h!]
+\caption{Country of origin assignment to super-population.}
+      \begin{tabular}{|c|c|c|c|}
+\hline
+Super Population		&	Super Population Size &	Populations	&	Population size \\
+\hline
+\multirow{4}{*}{AMR} 	&	\multirow{4}{*}{5}	&	Canada	&	2	\\
+					&					&	Mexico	&	1	\\
+					&					&	Puerto Rico               & 1               \\
+					&					&	US Minor Outlying Islands & 1               \\
+					\hline
+\multirow{2}{*}{EAS}		&	\multirow{2}{*}{6}	&	China                     & 5               \\
+					&					&	Taiwan, Province of China & 1	\\
+					\hline
+\multirow{14}{*}{EUR}	&	\multirow{14}{*}{20}	& Belgium				& 1	\\
+					&					& Estonia				& 1	\\
+					&					& Finland				& 1	\\
+					&					& France				& 1	\\
+					&					& Germany			& 1	\\
+					&					& Greece				& 1	\\
+					&					& Ireland				& 3	\\
+					&					& Poland				& 2	\\
+					&					& Russian Federation	& 1	\\
+					&					& Slovenia			& 1	\\
+					&					& Spain				& 2	\\
+					&					& Sweden				& 1	\\
+					&					& Ukraine				& 2	\\
+					&					& United Kingdom		& 2	\\
+					\hline
+\multirow{2}{*}{SAS}		&	\multirow{2}{*}{4}	& Bangladesh			& 1	\\
+					&					& India				& 3        \\     
+					\hline
+      \end{tabular}
+\end{table}
+
+
+
+\end{document}
