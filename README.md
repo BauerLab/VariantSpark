@@ -1,18 +1,18 @@
-# VariatSpark Readme
+# VariantSpark Readme
 
 ## Install
 
-1. Download `variantspark.sh', example.conf and `variantspark-1.0.jar'
-4. Ensure `variantspark.sh' is executable `chmod +x variantspark.sh'
+1. Download `variantspark.sh`, `example.conf` and `variantspark-1.0.jar`
+4. Ensure `variantspark.sh` is executable `chmod +x variantspark.sh`
 
 ## Building From Source
 
 If you have trouble running VariantSpark, you can build it yourself using Maven.
 
 1. Check out the repo
-2. `cd variantspark'
-3. `vi pom.xml' and ensure software versions match that as on your cluster. 
-4. `mvn build' to build.
+2. `cd variantspark`
+3. `vi pom.xml` and ensure software versions match that as on your cluster. 
+4. `mvn build` to build.
 5. If you built it locally, copy `target/VCF-clusterer-0.0.1-SNAPSHOT.jar` to your cluster.
 
 ## Submit a Job
