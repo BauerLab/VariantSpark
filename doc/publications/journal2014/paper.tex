@@ -76,7 +76,7 @@
 %\def\includegraphic{}
 %\def\includegraphics{}
 \usepackage{graphicx}
-
+\usepackage{multirow}
 
 %%% Put your definitions there:
 \startlocaldefs
@@ -375,8 +375,8 @@ The observed ARI is negative, indicating the clustering is random.
 This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, or Bulgaria, amongst others. 
 The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
 % TODO provide mapping
-We therefore only include individuals where all grandparents were reported to be from the same country leaving 36 individuals from 23 different countries, which we group into their approximate super-populations (see Supplemental Table X). 
-Clustering these individuals results in an ARI of 0.29. 
+We therefore only include individuals where all grandparents were reported to be from the same country leaving 35 individuals from 22 different countries, which we group into their approximate super-populations (see Supplemental Table X). 
+Clustering these individuals results in an ARI of 0.45. 
 
 Although we see an increase in cluster-accuracy when removing individuals with a mixed background and operating at super-population level, the clustering is not as precise as on the carefully curated and characterised individuals from the 1000 Genomes Project.
 This is especially the case since 65\% are `White' Americans, which formed the group most difficult to cluster in the 1000 Genomes Project data.
@@ -453,7 +453,7 @@ We drop the first columns that aren't alleles, and then convert the remaining al
 
 \subsection*{{\sc Admixture} Implementation}
 We use Genome Analysis Toolkit (GATK) to convert the variants from VCF, and a 1000 Genomes Project supplied .ped file, to a binary PLINK (.bed), binary marker information file (.bim) and pedigree stub file (.fam).
-These three files are used as input to {\sc Admixture}, with $K$ (the number of ancestral populations) set to 4.
+These three files are used as input to {\sc Admixture}, with default options, and $K$ (the number of ancestral populations) set to 4.
 
 %% TODO - NEIL - (and better heading) %%
 \subsection*{Personal Genome Project Data}
@@ -602,6 +602,39 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
   \hline
       \end{tabular}
 \end{table}
+
+
+\label{pgppops}
+\begin{table}[h!]
+\caption{The resources consumption on different subsets of the entire autosome (chromosomes 1-22). Memory specified is the memory allocated to each executor.}
+      \begin{tabular}{|c|c|c|c|}
+ 
+Super Population		&	Super Population Size &	Populations	&	Population size \\
+\multirow{4}{*}{AMR} 	&	\multirow{4}{*}{5}	&	Canada	&	2	\\
+					&					&	Mexico	&	1	\\
+					&					&	Puerto Rico               & 1               \\
+					&					&	US Minor Outlying Islands & 1               \\
+\multirow{2}{*}{EAS}		&	\multirow{2}{*}{6}	&	China                     & 5               \\
+					&					&	Taiwan, Province of China & 1	\\
+\multirow{14}{*}{EUR}	&	\multirow{14}{*}{20}	& Belgium				& 1	\\
+					&					& Estonia				& 1	\\
+					&					& Finland				& 1	\\
+					&					& France				& 1	\\
+					&					& Germany			& 1	\\
+					&					& Greece				& 1	\\
+					&					& Ireland				& 3	\\
+					&					& Poland				& 2	\\
+					&					& Russian Federation	& 1	\\
+					&					& Slovenia			& 1	\\
+					&					& Spain				& 2	\\
+					&					& Sweden				& 1	\\
+					&					& Ukraine				& 2	\\
+					&					& United Kingdom		& 2	\\
+\multirow{2}{*}{SAS}		&	\multirow{2}{*}{4}	& Bangladesh			& 1	\\
+					&					& India				& 3              
+      \end{tabular}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
