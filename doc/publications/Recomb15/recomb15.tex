@@ -59,7 +59,7 @@ As a result machine learning methods such as random forest (RF) have become popu
 However, training a RF on such an expansive dataset as the TCGA is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
 
 We therefore utilise the {\sc Spark} engine in our recently developed framework, \variantSpark~\cite{OBrien}, for applying machine learning methods to standard variant files in Variant Call Format (VCF). 
-Unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in memory cashing, both critically components for efficient "big learning" tasks. 
+Unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient "big learning" tasks. 
 
 To demonstrate \variantSpark's capability, we train a RF on the genomic profiles and BMI values of cancer patients from the TCGA dataset to detect differences in the mutational signature of tumours arising in a lean and obese background. 
 In the first section we determine the cross-validation accuracy of the model and discuss overfitting potential. 
