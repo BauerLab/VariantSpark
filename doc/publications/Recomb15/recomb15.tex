@@ -57,6 +57,8 @@ Using conventional machine learning analysis to elucidate this additive effects 
 As a result machine learning methods such as random forest (RF) have become popular as the underlying decision trees are build from a subsets of the features, which make the approach robust against overfitting issues~\cite{Breiman2001}. 
 However, training a RF on such an expansive dataset as the 1000 genomes is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
 
+%TODO add paragraph about deep learning
+
 We therefore use {\sc Spark} through or recently developed \variantSpark~\cite{OBrien} framework, which allows us to apply RF in the MLlib library to the variant file in the standard Variant Call Format (VCF) format. 
 Please note that unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient "big learning" tasks. 
 
