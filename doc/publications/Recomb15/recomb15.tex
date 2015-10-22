@@ -19,7 +19,7 @@
 \def\addcontentsline#1#2#3{}%
 \def\markboth#1#2{}%
 %
-\title{Using VariantSpark to uncover the link between obesity and cancer}
+\title{Using VariantSpark to learn population structure from genomic profiles}
 
 \author{Aidan R. O'Brien\inst{1,2}, Jason Ross\inst{1}, Robert Dunne\inst{1}, Firoz Anwar\inst{1}, \and Denis C. Bauer\inst{1}}
 
@@ -39,76 +39,103 @@ in short terms.
 \section{Introduction}
 %
 
-Obesity is the second leading risk factor for cancer~\cite{DePergola2013}. 
-For colorectal cancer (CRC) there is a 2\% increase in risk per 1 kg/m$^2$, which is similar to the pancreatic, ovarian and prostate cancer risk (about RR 1.06 - 1.10 per 5 kg/m2), while other rarer cancers such as Kidney, gallbladder and endometrial cancers have an even higher risk of up to RR 1.5 per 5 kg/m2. 
-The currently observed shift in the global population from a median BMI of 25 to 30 means we must expect a 10\% to 50\% increase in cancer cases in the future, which is akin to the temporal relationship observed with cigarette smoking and lung cancer. 
-While the associations between obesity and cancer are robust, almost nothing is known about the mechanism.
+%TODO add a paper where ethnicity (i.e. allelefrequency) is important for drug dosage. 
+Determining a persons ethnicity has become important for medical applications (EXAMPLES). This highlights the issue for clinical application where ancestry influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 
-BMI itself has a genetic component as demonstrated in a recent meta study, which finds 97 BMI-associated loci using linear regression against BMI adjusting for study-specific covariates~\cite{Locke2015}. 
-It is therefore critical to study the impact of obesity on cancer on a large well characterised cohort such as that of the cancer genome atlas (TCGA)~\cite{1KG2012}. 
-Hakimi {\it et al.} investigated implication of obesity in the renal cell carcinoma mortality using TCGA data of somatic mutation, copy number, global methylation, and gene/mRNA expression~\cite{DePergola2013}. 
-They used a logistic regression models to infer the associations between BMI and disease and a multivariable competing risks regression models to estimate associations between BMI and cancer specific mortality. 
-They concluded that BMI is not an independent prognostic factor for cancer specific mortality after controlling for stage and grade. 
-But as Locke {\it et al.}~\cite{Locke2015} pointed out in their study, only five of the 97 loci have an independent association signal, the rest seem jointly predict the metabolic phenotype.
 
+In previous work we have developed \variantSpark~\cite{OBrien}, a \kMeans\ approach using {\sc Spark} machine library, {\sc MLlib}, to cluster samples from the 1000 genome project~\cite{1KG2012}.
+%TODO add value of the kmeans method on the full dataset (the equivalent of the ARI=0.84)
+We observed a perfect separation for the super populations African (AFR), East Asian (EAS) and European (EUR), however when adding the fourth super-population group, American (AMR), we observe that only a subset of the AMR individual form an independent cluster while the majority falls into the EUR cluster, resulting in an accuracy of XX, with 0 being random and 1 a perfect clustering.
+As Spark enabled our approach to utilises whole genome information (40 Million variants), we argue that the analysis already includes a sufficient number of markers to separate populations with low genetic divergence~\cite{Patterson2006}. 
+
+As \kMeans, does not take higher order interactions between features into account it is hence possible that the chosen methodology is not capable to accurately capture the underlying population structure. 
 In fact, several studies have shown that single gene or single SNP approaches often fail to identify strong feature association or find marginal effect of the feature on the target phenotype~\cite{Bureau2005,Yoo2012,Qi2012}. 
-%Such approaches undermine the inter-relationship between multiple trait loci and often specify one locus a time (Pociot, Karlsen et al. 2004). In addition to that, 
-The phenotypic relationship between obesity and cancer may hence manifest itself in small additive multi-loci effects, known as epistasis~\cite{Mackay2014}, which is not interrogated with logistic regression models.
+As recently shown by Locke {\it et al.}~\cite{Locke2015} in a meta-study around genetic susceptibility of obesity only five of the 97 genomic loci have an independent association signal, the rest seem to jointly predict the metabolic phenotype.
+Ethnicity may hence manifest itself in small additive multi-loci effects, known as epistasis~\cite{Mackay2014}, and hence requires to investigate the effect of one variant against all other variants in the feature vector.
+
 Using conventional machine learning analysis to elucidate this additive effects is challenging as there are not enough samples to robustly fit the model over such a high-dimensional feature space~\cite{Chen2012}. 
 As a result machine learning methods such as random forest (RF) have become popular as the underlying decision trees are build from a subsets of the features, which make the approach robust against overfitting issues~\cite{Breiman2001}. 
-However, training a RF on such an expansive dataset as the TCGA is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
+However, training a RF on such an expansive dataset as the 1000 genomes is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
 
-We therefore utilise the {\sc Spark} engine in our recently developed framework, \variantSpark~\cite{OBrien}, for applying machine learning methods to standard variant files in Variant Call Format (VCF). 
-Unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient "big learning" tasks. 
+We therefore use {\sc Spark} through or recently developed \variantSpark~\cite{OBrien} framework, which allows us to apply RF in the MLlib library to the variant file in the standard Variant Call Format (VCF) format. 
+Please note that unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient "big learning" tasks. 
 
-To demonstrate \variantSpark's capability, we train a RF on the genomic profiles and BMI values of cancer patients from the TCGA dataset to detect differences in the mutational signature of tumours arising in a lean and obese background. 
-In the first section we determine the cross-validation accuracy of the model and discuss overfitting potential. 
-In section two record the runtime and memory consumption of the approach. 
-In the last section we compare the genomic profiles of samples that can be fitted by a model very well as oppose to those that do not and discuss the influence of cancer type and tissue of origin. 
-
-
+To demonstrate \variantSpark's capability, we train a RF on the genomic profiles of the 1000 genome data using the annotated super-population labels. 
+In the first section we determine the cross-validation accuracy of RF on three populations and compare against the unsupervised \kMeans\ clustering and the reported accuracy of a deep-learning approach using {\sc ADAM}~\cite{Massie2013}.
+In section two we record the performance of RF and \kMeans\ on the full set of populations. 
+In the last section we discuss the memory consumptions and runtime of RF compared to \kMeans.
 
 
-%The major outcomes for us are:
-%1) Can we detect a difference in the mutational signature of tumours arising in a lean and obese background?
-%2) Can we characterise the observed differences and highlight new possible modes of therapy?
-%3) Can we develop a biomarker(s) that identifies this group of tumours with an obese-specific mutational signature?
-
-
-
-
-
-%
+%TODO check accuracy of titles
 \section{Results}
 %
-\subsubsection{Random forest accurately predicts BMI pan-cancer}
+\subsubsection{Random Forests and \kMeans\ capture the population better than deep learning in a three population test}
+We perform 10-fold cross-validation and report the mean accuracy over all training and testing folds along with the standard error.
+We compare against the reported accuracy of the deep learning approach using the ADAM framework as reported on their webpage~\cite{Ferguson}. 
+The analysis was performed on only three of the 14 populations, we hence restrict our comparison also to ASW (Americans of African Ancestry in SW USA), CHB (Han Chinese in Bejing, China), and GBR (British in England and Scotland).
 
+%TODO[say that this may be a too easy dataset to benchmark the performance differences between kmeans and RF (hence the full dataset needed)]
 
 \begin{table}
-\caption{Cross-validated results, mean accuracy (and standard error).}
+\caption{Cross-validated results, mean accuracy (and standard error) on 3 populations.}
 \begin{center}
 \renewcommand{\arraystretch}{1.4}
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
 method  & test folds & training folds & hold out \\
-5-fold  & X (Y) & X (Y) & X (Y) \\
+RF  & X (Y) & X (Y) & X (Y) \\
+\kMeans & X (Y) & X (Y) & X (Y) \\
+deep learning & X (Y) & X (Y) & X (Y) \\
 \noalign{\smallskip}
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-\subsubsection{Runtime}
+\subsubsection{Random Forests is more accurate than \kMeans\ in capturing the full population structure}
+In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations. 
+
+%TODO [Discuss supervised vs unsupervised]
+%TODO can you drill down to the population clusters and see if and where the best performing method still makes mistakes - this will help in the conclusion to argue that actually the labels are wrong rather than the method not being able to capture the structure (e.g. say if AMR are mixed in with GBR TSI)
 
 \begin{table}
-\caption{Runtime and memory consuption}
+\caption{Cross-validated results, mean accuracy (and standard error) on the 4 super-populations.}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\setlength\tabcolsep{3pt}
+\begin{tabular}{lcccc}
+\hline\noalign{\smallskip}
+method  & test folds & training folds & hold out \\
+RF  & X (Y) & X (Y) & X (Y) \\
+\kMeans & X (Y) & X (Y) & X (Y) \\
+\noalign{\smallskip}
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+
+
+
+
+
+\subsubsection{Kmeans clustering is faster and consumes less memory than Random Forest}
+
+%TODO [write up the observations and argue why one is less resource hungry than the other one]
+
+
+\begin{table}
+\caption{Runtime and memory consumption on the 4 super-populations}
 \begin{center}
 \renewcommand{\arraystretch}{1.4}
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
 method  & nodes & runtime & memory \\
+RF  & X (Y) & X (Y) & X (Y) \\
+\kMeans & X (Y) & X (Y) & X (Y) \\
 \noalign{\smallskip}
 \hline
 \end{tabular}
@@ -118,18 +145,20 @@ method  & nodes & runtime & memory \\
 
 
 
-\subsubsection{Biological insights}
+\section{Conclusion}
+In this paper we investigated the benefit of using a supervised method, Random Forest, compared to an unsupervised method,\kMeans, to determine the ethnicity from whole genome variant data. 
+%TODO fill in the next sections
+We find that X is better than Y because Z.
+We also compare to the supervised deep learning approach as reported by Big Data Genomics using the ADAM framework and find X.
+While we can improve the performance by X\% using the RF, even a supervised method is unable to accurately predict the assigned population labels. 
+We therefore ague that the remaining mixture in X is reflective of the migrational background and hence the underlying genomic profile of Y is accurately similar to X.
+%TODO add
+This may be an important observation for EXAMPLES ABOVE.
 
-
-% 
-\begin{figure}
-\vspace{2.5cm}
-\caption{This is the caption of the figure displaying a white eagle and
-a white horse on a snow field}
-\end{figure}
 
 
 \bibliographystyle{plain}
+%TODO you need to find a way of shortening the Locket paper author list
 \bibliography{recomb}  
 
 \end{document}
