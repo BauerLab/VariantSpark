@@ -43,38 +43,46 @@ in short terms.
 Determining a persons ethnicity has become important for medical applications (EXAMPLES). This highlights the issue for clinical application where ancestry influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 
 
-In previous work we have developed \variantSpark~\cite{OBrien}, a \kMeans\ approach using {\sc Spark} machine library, {\sc MLlib}, to cluster samples from the 1000 genome project~\cite{1KG2012}.
+In previous work we have developed \variantSpark~\cite{OBrien}, a \kMeans{} approach using {\sc Spark} machine library, {\sc MLlib}, to cluster samples from the 1000 Genomes Project~\cite{1KG2012}.
 %TODO add value of the kmeans method on the full dataset (the equivalent of the ARI=0.84)
-We observed a perfect separation for the super populations African (AFR), East Asian (EAS) and European (EUR), however when adding the fourth super-population group, American (AMR), we observe that only a subset of the AMR individual form an independent cluster while the majority falls into the EUR cluster, resulting in an accuracy of XX, with 0 being random and 1 a perfect clustering.
+We observed a perfect separation for the super populations African (AFR), East Asian (EAS) and European (EUR), however when adding the fourth super-population group, American (AMR), we observe that only a subset of the AMR individual form an independent cluster while the majority falls into the EUR cluster, resulting in an accuracy of 0.84, with -1 being random and 1 a perfect clustering.
 As Spark enabled our approach to utilises whole genome information (40 Million variants), we argue that the analysis already includes a sufficient number of markers to separate populations with low genetic divergence~\cite{Patterson2006}. 
 
-As \kMeans, does not take higher order interactions between features into account it is hence possible that the chosen methodology is not capable to accurately capture the underlying population structure. 
+As \kMeans{}, does not take higher order interactions between features into account it is hence possible that the chosen methodology is not capable to accurately capture the underlying population structure. 
 In fact, several studies have shown that single gene or single SNP approaches often fail to identify strong feature association or find marginal effect of the feature on the target phenotype~\cite{Bureau2005,Yoo2012,Qi2012}. 
 As recently shown by Locke {\it et al.}~\cite{Locke2015} in a meta-study around genetic susceptibility of obesity only five of the 97 genomic loci have an independent association signal, the rest seem to jointly predict the metabolic phenotype.
 Ethnicity may hence manifest itself in small additive multi-loci effects, known as epistasis~\cite{Mackay2014}, and hence requires to investigate the effect of one variant against all other variants in the feature vector.
 
 Using conventional machine learning analysis to elucidate this additive effects is challenging as there are not enough samples to robustly fit the model over such a high-dimensional feature space~\cite{Chen2012}. 
-As a result machine learning methods such as random forest (RF) have become popular as the underlying decision trees are build from a subsets of the features, which make the approach robust against overfitting issues~\cite{Breiman2001}. 
-However, training a RF on such an expansive dataset as the 1000 genomes is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
+As a result machine learning methods such as random forests (RF) have become popular as the underlying decision trees are build from a subsets of the features, which make the approach robust against overfitting issues~\cite{Breiman2001}. 
+However, training an RF on such an expansive dataset as the 1000 genomes is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
 
 %TODO add paragraph about deep learning
 
 We therefore use {\sc Spark} through or recently developed \variantSpark~\cite{OBrien} framework, which allows us to apply RF in the MLlib library to the variant file in the standard Variant Call Format (VCF) format. 
-Please note that unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient "big learning" tasks. 
+Please note that unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient ``big learning" tasks. 
 
-To demonstrate \variantSpark's capability, we train a RF on the genomic profiles of the 1000 genome data using the annotated super-population labels. 
-In the first section we determine the cross-validation accuracy of RF on three populations and compare against the unsupervised \kMeans\ clustering and the reported accuracy of a deep-learning approach using {\sc ADAM}~\cite{Massie2013}.
-In section two we record the performance of RF and \kMeans\ on the full set of populations. 
-In the last section we discuss the memory consumptions and runtime of RF compared to \kMeans.
+To demonstrate \variantSpark's capability, we train an RF on the genomic profiles of the 1000 Genomes data using the annotated super-population labels. 
+In the first section we determine the cross-validation accuracy of RF on three populations and compare against the unsupervised \kMeans{} clustering and the reported accuracy of a deep-learning approach using {\sc ADAM}~\cite{Massie2013}.
+In section two we record the performance of RF and \kMeans{} on the full set of populations. 
+In the last section we discuss the memory consumptions and runtime of RF compared to \kMeans{}.
 
 
 %TODO check accuracy of titles
 \section{Results}
 %
-\subsubsection{Random Forests and \kMeans\ capture the population better than deep learning in a three population test}
-We perform 10-fold cross-validation and report the mean accuracy over all training and testing folds along with the standard error.
+\subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
+We perform 5-fold cross-validation and report the mean accuracy over all training and testing folds along with the standard error.
+We also perform 5 runs of \kMeans and report the mean accuracy of the resulting models along with the standard error. 
 We compare against the reported accuracy of the deep learning approach using the ADAM framework as reported on their webpage~\cite{Ferguson}. 
 The analysis was performed on only three of the 14 populations, we hence restrict our comparison also to ASW (Americans of African Ancestry in SW USA), CHB (Han Chinese in Bejing, China), and GBR (British in England and Scotland).
+
+The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach where they achieved an accuracy of 99\% (two misclassified individuals). Our supervised logistic regression result, however, improves upon this result.
+With logistic regression, we achieve an accuracy of 100\%. This is the average across five folds, with a standard error of 0. This is on the above three populations, ASW, CHB and GBR, and these three populations belong to the super-populations, AFR, EAS and EUR, respectively.
+As we mention in the introduction, we observed a perfect clustering result when we cluster the entirety of these three super-populations, with an ARI of 1. However, when we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.
+Given the perfect result when building the logistic regression model on this small subset of data, we expand our dataset to include every population from the 1000 Genomes Project phase1 dataset.  
+
+
 
 %TODO[say that this may be a too easy dataset to benchmark the performance differences between kmeans and RF (hence the full dataset needed)]
 
@@ -95,8 +103,13 @@ deep learning & X (Y) & X (Y) & X (Y) \\
 \end{center}
 \end{table}
 
-\subsubsection{Random Forests is more accurate than \kMeans\ in capturing the full population structure}
-In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations. 
+\subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
+In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations.
+Using 5-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.93 \pm{} XX\). This is an improvement on our previous result from \kMeans{} clustering the same dataset
+where we observed an ARI of \(0.83\).
+We also record the precision and recall for each of the groups, and observe that for each classification, the precision and recall for EAS were always 1.0. Therefore each logistic regression model we built was able to classify every EAS individual correctly while not including any false positives in this group.
+We consistently observed a relatively low precision for the AMR group (\(0.85\pm{} XX \)). 
+
 
 %TODO [Discuss supervised vs unsupervised]
 %TODO can you drill down to the population clusters and see if and where the best performing method still makes mistakes - this will help in the conclusion to argue that actually the labels are wrong rather than the method not being able to capture the structure (e.g. say if AMR are mixed in with GBR TSI)
@@ -123,7 +136,9 @@ RF  & X (Y) & X (Y) & X (Y) \\
 
 
 
-\subsubsection{Kmeans clustering is faster and consumes less memory than Random Forest}
+\subsubsection{\kMeans{} clustering is faster and consumes less memory than random forests}
+
+Although memory requirements scale linearly with 
 
 %TODO [write up the observations and argue why one is less resource hungry than the other one]
 
@@ -148,7 +163,7 @@ RF  & X (Y) & X (Y) & X (Y) \\
 
 
 \section{Conclusion}
-In this paper we investigated the benefit of using a supervised method, Random Forest, compared to an unsupervised method,\kMeans, to determine the ethnicity from whole genome variant data. 
+In this paper we investigated the benefit of using a supervised method, random forests, compared to an unsupervised method,\kMeans, to determine the ethnicity from whole genome variant data. 
 %TODO fill in the next sections
 We find that X is better than Y because Z.
 We also compare to the supervised deep learning approach as reported by Big Data Genomics using the ADAM framework and find X.
