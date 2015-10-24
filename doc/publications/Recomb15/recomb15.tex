@@ -77,9 +77,9 @@ We also perform 5 runs of \kMeans and report the mean accuracy of the resulting 
 We compare against the reported accuracy of the deep learning approach using the ADAM framework as reported on their webpage~\cite{Ferguson}. 
 The analysis was performed on only three of the 14 populations, we hence restrict our comparison also to ASW (Americans of African Ancestry in SW USA), CHB (Han Chinese in Bejing, China), and GBR (British in England and Scotland).
 
-The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach where they achieved an accuracy of 99\% (two misclassified individuals). Our supervised logistic regression result, however, improves upon this result.
-With logistic regression, we achieve an accuracy of 100\%. This is the average across five folds, with a standard error of 0. This is on the above three populations, ASW, CHB and GBR, and these three populations belong to the super-populations, AFR, EAS and EUR, respectively.
-As we mention in the introduction, we observed a perfect clustering result when we cluster the entirety of these three super-populations, with an ARI of 1. However, when we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.
+The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach where they achieved an accuracy of 99\% (two misclassified individuals). Our supervised logistic regression approach, however, improves upon this result.
+With this approach, we achieve an accuracy of 100\%. This is the average across five folds, with a standard error of 0. This is on the above three populations, ASW, CHB and GBR, that belong to the super-populations, AFR, EAS and EUR, respectively.
+As we mention in the introduction, we observed a perfect clustering result when we cluster the entirety of these three super-populations, with an ARI of 1.0. However, when we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.
 Given the perfect result when building the logistic regression model on this small subset of data, we expand our dataset to include every population from the 1000 Genomes Project phase1 dataset.  
 
 
