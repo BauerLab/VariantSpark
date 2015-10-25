@@ -71,20 +71,24 @@ In the last section we discuss the memory consumptions and runtime of RF compare
 %TODO check accuracy of titles
 \section{Results}
 %
-\subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
-We perform 5-fold cross-validation and report the mean accuracy over all training and testing folds along with the standard error.
-We also perform 5 runs of \kMeans and report the mean accuracy of the resulting models along with the standard error. 
+\subsubsection{Logistic regression and captures the population better than deep learning in a three population test}
+To test the quality We perform 5-fold cross-validation and report the mean accuracy over all training and testing folds along with the standard error.
+We also perform 5 runs of \kMeans and report the mean Adjusted Rand Index (ARI) of the resulting models along with the standard error. 
 We compare against the reported accuracy of the deep learning approach using the ADAM framework as reported on their webpage~\cite{Ferguson}. 
 The analysis was performed on only three of the 14 populations, we hence restrict our comparison also to ASW (Americans of African Ancestry in SW USA), CHB (Han Chinese in Bejing, China), and GBR (British in England and Scotland).
 
-The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach where they achieved an accuracy of 99\% (two misclassified individuals). Our supervised logistic regression approach, however, improves upon this result.
-With this approach, we achieve an accuracy of 100\%. This is the average across five folds, with a standard error of 0. This is on the above three populations, ASW, CHB and GBR, that belong to the super-populations, AFR, EAS and EUR, respectively.
-As we mention in the introduction, we observed a perfect clustering result when we cluster the entirety of these three super-populations, with an ARI of 1.0. However, when we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.
-Given the perfect result when building the logistic regression model on this small subset of data, we expand our dataset to include every population from the 1000 Genomes Project phase1 dataset.  
+We use the Adjusted Rand Index to test our \kMeans clustering quality as it allows us to compare the result to the expected clustering (based on populations) and takes into account the structure, rather than just the error-rate. We see an average ARI across five runs of \(0.772 \pm 0.086 \).
+Although the average ARI is relatively low, it varies greatly between runs. The two best models clustered all but one and all but two individuals correctly, with an ARI of 0.988 and 0.978, respectively.
+However, for the three less-accurate models, a common trait is that ASW and GBR individuals are grouped into one cluster with CHB individuals in a second cluster. The third cluster would contain between 1 and 10 seemingly random individuals.
+One possible reason for this varied result is the cluster initialization step. Some individuals may have enough variation from the majority of their population, that if the algorithm uses one of their coordinates as an initial centroid, they will cluster separately from the rest of their population.
 
+Although we see two of our five runs meet the accuracy of the deep-learning approach, where they achieved an accuracy of 99\% (or ARI of 0.975, with two misclassified individuals), our logistic regression approach demonstrates a consistent improvement.
+With this approach, we achieve an accuracy of \(99.997 \pm 0.003\) across five folds.
 
+To reiterate, these results are from the three populations, ASW, CHB and GBR, that belong to the super-populations, AFR, EAS and EUR, respectively.
+As we mention in the introduction, we observed a perfect clustering result when we cluster the entirety of these three super-populations (rather than one population from each), with an ARI of 1.0. However, when we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.
+Given the perfect result from the logistic regression models on the three populations, and the improvement over \kMeans{}, we proceed with logistic regression on the four super-populations.  
 
-%TODO[say that this may be a too easy dataset to benchmark the performance differences between kmeans and RF (hence the full dataset needed)]
 
 \begin{table}
 \caption{Cross-validated results, mean accuracy (and standard error) on 3 populations.}
@@ -103,13 +107,14 @@ deep learning & X (Y) & X (Y) & X (Y) \\
 \end{center}
 \end{table}
 
-\subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
+\subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full super-population structure}
 In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations.
-Using 5-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.93 \pm{} XX\). This is an improvement on our previous result from \kMeans{} clustering the same dataset
+Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.93 \pm{} XX\). This is an improvement on our previous result from \kMeans{} clustering the same dataset
 where we observed an ARI of \(0.83\).
-We also record the precision and recall for each of the groups, and observe that for each classification, the precision and recall for EAS were always 1.0. Therefore each logistic regression model we built was able to classify every EAS individual correctly while not including any false positives in this group.
-We consistently observed a relatively low precision for the AMR group (\(0.85\pm{} XX \)). 
-
+We also record the precision and recall for each of the groups, and observe that for each classification, and both values are always 1.0 for the EAS super-population. This demonstrates that each logistic regression model was able to classify every EAS individual correctly while not including any false positives in this group.
+For the AMR group, however, we consistantly observed a relatively low precision (\(0.85\pm{} XX \)). This was generally due to individuals from the EUR super-population being misclassified as AMR. As a result, this led to EUR having a relatively low recall (\(0.9 \pm XX \)).
+Although not present in the result of every fold, another observation is that AFR individuals would sometimes be misclassified as AMR. In all ten folds, we didn't observe AFR being classified as EUR, and vice-verse, nor AMR individuals being misclassified as another super-population.
+These results demonstrate the diversity, or relative difference of some of the groups. 
 
 %TODO [Discuss supervised vs unsupervised]
 %TODO can you drill down to the population clusters and see if and where the best performing method still makes mistakes - this will help in the conclusion to argue that actually the labels are wrong rather than the method not being able to capture the structure (e.g. say if AMR are mixed in with GBR TSI)
