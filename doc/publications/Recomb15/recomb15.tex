@@ -45,21 +45,25 @@ Determining a persons ethnicity has become important for medical applications (E
 
 In previous work we have developed \variantSpark~\cite{OBrien}, a \kMeans{} approach using {\sc Spark} machine library, {\sc MLlib}, to cluster samples from the 1000 Genomes Project~\cite{1KG2012}.
 %TODO add value of the kmeans method on the full dataset (the equivalent of the ARI=0.84)
+% Denis: umm correct/total happend to be 0.84 too ? or are you quoting here the ARI ? I want to have the same accuracy measure as reported by bdgenomics for all comparisons in this paper
 We observed a perfect separation for the super populations African (AFR), East Asian (EAS) and European (EUR), however when adding the fourth super-population group, American (AMR), we observe that only a subset of the AMR individual form an independent cluster while the majority falls into the EUR cluster, resulting in an accuracy of 0.84, with -1 being random and 1 a perfect clustering.
-As Spark enabled our approach to utilises whole genome information (40 Million variants), we argue that the analysis already includes a sufficient number of markers to separate populations with low genetic divergence~\cite{Patterson2006}. 
+As Spark enabled our approach to utilises whole genome information (40 Million variants), we argue that the analysis already includes a sufficient number of markers to separate populations with low genetic divergence~\cite{Patterson2006}, and hence investigate here whether a supervised method yields better results. 
 
-As \kMeans{}, does not take higher order interactions between features into account it is hence possible that the chosen methodology is not capable to accurately capture the underlying population structure. 
-In fact, several studies have shown that single gene or single SNP approaches often fail to identify strong feature association or find marginal effect of the feature on the target phenotype~\cite{Bureau2005,Yoo2012,Qi2012}. 
-As recently shown by Locke {\it et al.}~\cite{Locke2015} in a meta-study around genetic susceptibility of obesity only five of the 97 genomic loci have an independent association signal, the rest seem to jointly predict the metabolic phenotype.
-Ethnicity may hence manifest itself in small additive multi-loci effects, known as epistasis~\cite{Mackay2014}, and hence requires to investigate the effect of one variant against all other variants in the feature vector.
+%TODO Rob can you think of a better description of what it does
+One of the simplest supervised machine learning methods is logistic regression, which creates a decision boundary by fitting a linear combination of the feature variables. 
+It is therefore able to adjust the weight of the individual genotypes to increase the accuracy of the multi-class prediction.    
 
-Using conventional machine learning analysis to elucidate this additive effects is challenging as there are not enough samples to robustly fit the model over such a high-dimensional feature space~\cite{Chen2012}. 
-As a result machine learning methods such as random forests (RF) have become popular as the underlying decision trees are build from a subsets of the features, which make the approach robust against overfitting issues~\cite{Breiman2001}. 
-However, training an RF on such an expansive dataset as the 1000 genomes is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
 
-%TODO add paragraph about deep learning
 
-We therefore use {\sc Spark} through or recently developed \variantSpark~\cite{OBrien} framework, which allows us to apply RF in the MLlib library to the variant file in the standard Variant Call Format (VCF) format. 
+%TODO do we need to cite ~\cite{Bureau2005,Yoo2012,Qi2012}. 
+We also investigate more complex supervised approaches, namely Random Forest (RF) and deep learning (DL), as for example Locke {\it et al.}~\cite{Locke2015} showed in a recent meta-study around genetic susceptibility of obesity that only five of the 97 genomic loci have an independent association signal the rest seem to jointly predict the complex metabolic phenotype. 
+We therefore hypothesise that ethnicity is a similarly complex phenotype that requires higher order dependencies between features to be taken into account, as done by RF and DL.
+%TODO Rob do you want to add two sentences about RF and DL and the respective benefits (ideally with respect to the multi variable interactions and RF benefit of being hard to overfit).
+%Using conventional machine learning analysis to elucidate this additive effects is challenging as there are not enough samples to robustly fit the model over such a high-dimensional feature space~\cite{Chen2012}. 
+%As a result machine learning methods such as random forests (RF) have become popular as the underlying decision trees are build from a subsets of the features, which make the approach robust against overfitting issues~\cite{Breiman2001}. 
+However, training a supervised learning method on such an expansive dataset as the 1000 genomes is computationally challenging and traditional massively parallel approaches to data processing are not easily applicable to machine learning tasks, as they iteratively refine models based on information from the full dataset. 
+
+We therefore use {\sc Spark} through our recently developed \variantSpark~\cite{OBrien} framework, which allows us to apply RF in the MLlib library to the variant file in the standard Variant Call Format (VCF) format. 
 Please note that unlike {\sc Hadoop}, {\sc Spark} allows a more flexible software design to utilise node-parallelisation and offers in-memory cashing, both critical components for efficient ``big learning" tasks. 
 
 To demonstrate \variantSpark's capability, we train an RF on the genomic profiles of the 1000 Genomes data using the annotated super-population labels. 
@@ -70,8 +74,21 @@ In the last section we discuss the memory consumptions and runtime of RF compare
 
 %TODO check accuracy of titles
 \section{Results}
-%
+
+\subsubsection{Random Forest does not scale to whole genome analysis and is outperformed by logistic regression}
+In this section we compare RF against \kMeans\ and the logistic regression.
+%TODO elaborate on the error
+Despite using {\sc Spark} and {\s MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40 Million variables, due to XXX. 
+We therefore use only chromosome 22 for the comparison.
+%TODO elaborate on accuracy measures
+As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately (XX\%, ARI=Y). 
+RF achieves a higher accuracy (XX\%, ARI=Y) but is outperformed by the simple logistic regression (XX\%, ARI=Y).
+This indicates that a multivariate approach may not be needed to accurately fit ethnicity. 
+
+
+%TODO report bd's accuracy measure as the main measure (add ARI as the additional information linking to our paper)
 \subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
+In this section we investigate whether the multivariate approach, deep learning, is able to acheive a better result than RF by again comparing it against \kMeans\ and logistic regression.  
 We perform 5-fold cross-validation and report the mean accuracy over all training and testing folds along with the standard error.
 We also perform 5 runs of \kMeans and report the mean accuracy of the resulting models along with the standard error. 
 We compare against the reported accuracy of the deep learning approach using the ADAM framework as reported on their webpage~\cite{Ferguson}. 
@@ -102,6 +119,9 @@ deep learning & X (Y) & X (Y) & X (Y) \\
 \end{tabular}
 \end{center}
 \end{table}
+
+
+
 
 \subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
 In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations.
