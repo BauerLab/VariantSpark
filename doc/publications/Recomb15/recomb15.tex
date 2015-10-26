@@ -111,14 +111,15 @@ random forest implementation to fail. This error is due to the number of feature
 with a potential solution being to limit the features through feature selection, or simply using a subset of the dataset.
 We therefore use only chromosome 22 (494,328 alleles) for the comparison in this section.  We train a RF
 and LR on this subset of genomic profiles from the 1000 Genomes data using the annotated labels of all
-super-populations.  We perform 10-fold cross-validation and report the mean accuracy over all training and testing folds
-along with the standard error.  We also perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean accuracy of the
+super-populations.  We perform 10-fold cross-validation and report the mean error over all training and testing folds
+along with the standard error of the mean (SEM). We also use the Adjusted Rand Index as a metric, as it allows us to
+compare the classification results with the \kMeans{} clustering result. We also perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean accuracy of the
 resulting models along with the standard error.
 
 \marginpar{TODO elaborate on accuracy measures}
 As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately.
-Although capable of fitting a relatively accurate model (ARI=0.832), the average ARI over ten models is  \(0.553 \pm 0.07\), see table~\ref{RF}.
-RF achieves a better fitting model (XX\%, ARI=Y) but is outperformed by the simple logistic regression, with an ARI of \(0.923 \pm 0.02\).
+Although capable of fitting a relatively accurate model \(ARI=0.837\), the average ARI over ten models is  \(0.596 \pm 0.067\), see table~\ref{RF}.
+RF achieves a better fitting model \(ARI = 0.757 \pm 0.011\) but is outperformed by the simple logistic regression, with an ARI of \(0.923 \pm 0.015\).
 This indicates that a multivariate approach may not be needed to accurately fit ethnicity. 
 
 
@@ -129,10 +130,10 @@ This indicates that a multivariate approach may not be needed to accurately fit 
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & test folds & training folds & hold out \\
-RF  & X (Y) & X (Y) & X (Y) \\
-\kMeans & X (Y) & X (Y) & X (Y) \\
-LR & X (Y) & X (Y) & X (Y) \\
+method  & ARI & error (\%) & hold out \\
+RF  & 0.757 (0.011) &0.13 (0.007) & X (Y) \\
+\kMeans & 0.596 (0.066) & -- & X (Y) \\
+LR & 0.923 (0.015) & 0.034 (0.006) & X (Y) \\
 \noalign{\smallskip}
 \hline
 \label{RF}
@@ -182,10 +183,10 @@ the logistic regression model on this small subset of data, we expand our datase
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & test folds & training folds & hold out \\
+method  & ARI & training folds & hold out \\
 RF  & X (Y) & X (Y) & X (Y) \\
 \kMeans & X (Y) & X (Y) & X (Y) \\
-deep learning & X (Y) & X (Y) & X (Y) \\
+deep learning & 0.976 & X (Y) & X (Y) \\
 \noalign{\smallskip}
 \hline
 \end{tabular}
