@@ -69,23 +69,23 @@ ethnicity~\cite{Ferguson}.  \marginpar{``bigdata genomics'' seems to be a domain
   how should we cite this}
 
 In this paper we therefore systematically evaluate supervised and unsupervised methods for determining population
-association and compare our results to those obtained using deep learning.
+association and compare our results to the ones obtained using deep learning.
 %\marginpar{TODO Rob can you think of a better description of what it does}
 One of the simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary
-by fitting a linear combination of the feature variables.  In this appliction, it is not feasible to model interactions and
-so the model is restricted to main effects. 
+by fitting a linear combination of the feature variables.  In this appliction it is not fesible to model interactions,
+so the model is retricted to main effects. 
 
 %\marginpar{TODO do we need to cite ~\cite{Bureau2005,Yoo2012,Qi2012}.}  
 We also investigate more complex supervised
-approaches, namely Random Forest (RF), with the rationale being that interaction effects may dominate. A recent meta-study by
-Locke {\it et al.}~\cite{Locke2015} found across 97 genomic loci associated with genetic susceptibility to obesity, only five
-had an independent association signal and the rest seem to jointly predict this complex metabolic phenotype.  
-We therefore investigate whether ethnicity is a similarly complex phenotype that requires higher order dependencies between
-features to be taken into account. %, as done by RF and DL.
+approaches, namely Random Forest (RF), as for example Locke {\it et al.}~\cite{Locke2015} showed in a recent meta-study
+around genetic susceptibility to obesity that only five of the 97 genomic loci have an independent association signal
+the rest seem to jointly predict the complex metabolic phenotype.  We therefore investigate whether ethnicity is a
+similarly complex phenotype that requires higher order dependencies between features to be taken into
+account. %, as done by RF and DL.
 
 RF inherit many of the benefits of decision trees. It handles large numbers of variables transparently and
 provides an unbiased estimate of the generalization error (in addition, it handles missing values and unbalanced
-population classes sizes). RF provide a measure of variable importance and allow for interactions between
+population classes sizes). They provide a measure of variable importance and allow for interactions between
 variables to be investigated. However, in this problem, with many millions of variables, inspecting plots of interactions
 is not feasible.  We note that decision trees (and random forests) model local variable interactions -- there are 
 no main effects or global interaction effects. 
@@ -110,18 +110,18 @@ section.  In the second section we compare LR and \kMeans{} against the reported
 deep learning (DL) method.  In section three we record the accuracy of LR and \kMeans{} on the full dataset set using all populations.
 In the last section we discuss the memory consumptions and runtime of LR compared to \kMeans{}.
 
-%\clearpage
-%\hrule
-%I think the use of the term ``multivariate'' is a bit loose. We have only one $y$ variable -- obesity. By analogy with linear regression:
-%\begin{itemize}
-%\item simple linear regression $y=\beta_0 + \beta_1x_1$
-%\item multi-variable regression $y=\beta_0 + \beta_1x_1 + \beta_2 x_2$
-%\item multivariate regression $\underset{n\times m}{Y}= \underset{(n\times p+1)}{X} \underset{(p+1 \times m)}{B}$
-%\end{itemize}
-%So RF, DL and LR are all multi-variable (in this application). 
+\clearpage
+\hrule
+I think the use of the term ``multivariate'' is a bit loose. We have only one $y$ variable -- obesity. By analogy with linear regression:
+\begin{itemize}
+\item simple linear regression $y=\beta_0 + \beta_1x_1$
+\item multi-variable regression $y=\beta_0 + \beta_1x_1 + \beta_2 x_2$
+\item multivariate regression $\underset{n\times m}{Y}= \underset{(n\times p+1)}{X} \underset{(p+1 \times m)}{B}$
+\end{itemize}
+So RF, DL and LR are all multi-variable (in this application). 
 
-%A multivarite technique we could use is PCA, $T = X W$ where $W$ is a $p \times p$ matrix whose columns are the eigenvectors of $X^tX$. 
-%\hrule
+A multivarite technique we could use is PCA, $T = X W$ where $W$ is a $p \times p$ matrix whose columns are the eigenvectors of $X^tX$. 
+\hrule
 
 \section{Results}
 
@@ -130,14 +130,12 @@ In this section we compare RF against \kMeans\ and the LR.
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
 Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
 random forest implementation to fail. This error is due to the number of features present in each sample,
-rather than the number of samples, and a potential solution is to either limit the features through feature selection, or to simply use a subset of the dataset.
-We therefore use only chromosome 22 (494,328 variants) for the comparison in this section.  We train a RF
-and LR on this subset of genomic profiles from the 1000 Genomes Project dataset using the annotated labels of all
-super-populations.  We perform 10-fold cross-validation and calculate the Adjusted Rand Index (ARI) for use as a metric for model quality.
-The ARI allows us to compare the classification results with \kMeans{} clustering results, as it takes the partitioning of the dataset into account, rather than just labels.
-report the mean error over all training and testing folds
-along with the standard error of the mean (SEM)
-We also calculate the error
+with a potential solution being to limit the features through feature selection, or simply using a subset of the dataset.
+We therefore use only chromosome 22 (494,328 alleles) for the comparison in this section.  We train a RF
+and LR on this subset of genomic profiles from the 1000 Genomes data using the annotated labels of all
+super-populations.  We perform 10-fold cross-validation and report the mean error over all training and testing folds
+along with the standard error of the mean (SEM). We also use the Adjusted Rand Index (ARI) as a metric for model quality
+as it allows us to compare the classification results with \kMeans{} clustering models. We also calculate the error
 for the two classification methods, which is simply the number of misclassified individuals divided by the number of samples.
 We perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean ARI of the
 resulting models along with the standard error.
@@ -214,6 +212,7 @@ deep learning & 0.976 & 0.008 \\
 In this section we apply both the supervised LR and unsupervised \kMeans\ method on the full dataset of 14 populations and assess the 
 classification accuracy into the 4 super-populations.
 Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.936 \pm{} 0.014\).
+%DENIS: above you argue that kMeans has local optima and results might hence be too optimistic but here you only train one model. So either remove the above section or add some repeats to this one
 This is an improvement on our previous result from \kMeans{} clustering the same dataset in our previous work, where we observed an ARI of \(0.83\).
 
 \begin{table}
@@ -237,7 +236,7 @@ We observe that for each model, the precision and recall are always 1.0 for the 
 This demonstrates that each logistic regression model was able to classify every EAS individual correctly, while not misclassifying any other individuals as EAS.
 For the AMR group, however, we consistently observed a relatively low precision (\(0.829 \pm{} 0.02 \)).
 This is due to individuals from the AFR and EUR super-populations being misclassified as AMR.
-Consequently, this leads to these two super-populations having a lower recall of \(0.956 \pm 0.01 \) and \(0.950 \pm 0.02 \), respectively.
+Consequently, this leds to these two super-populations having a lower recall of \(0.956 \pm 0.01 \) and \(0.950 \pm 0.02 \), respectively.
 Although these misclassifications as AMR are relatively frequent, we did not observe any AFR individuals being classified as EUR, or {\it vice versa}, in any of the ten folds.
 Also, only in one fold did we observe one AMR individual misclassified as another super-population (AFR).
 These results demonstrate the diversity, or relative difference of some of the groups. 
@@ -268,14 +267,15 @@ EUR  & 1 (0) & 0.950 (0.015) \\
 
 \subsubsection{\kMeans{} clustering is faster and consumes less memory than random forests}
 
-Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests (see table~\ref{resources}).
-This is likely due to RF being an ensemble method. For example, where logistic regression and \kMeans{} clustering build a single model,
-RF is building an forest of decision trees.
-When training on chromosome 22 (494,328 variants), resource requirements are kept to a minimum, with no more than 3GB memory required per executor (node)
-(6GB for RF). Although we specify 80 executors, the same algorithm could successfully complete on a much smaller cluster, at the expense of time. 
-However, when we train the algorithms on the entire genome, memory requirements increase to 24GB. This limited us to using 40 executors, due to memory availability.
-The memory requirements also restricts a job of that size to clusters with at least 24GB available. This demonstrates that pre-processing the data to reduce its dimensionality will
-be an essential step for future work, especially as datasets grow outwards.
+Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests.
+This is likely due to RF being an ensemble method. Where logistic regression and \kMeans{} clustering build a single model,
+RF is building an forest of decision trees. So not only is training longer, but then each sample in the test fold must be classified by each and every tree.
+
+LR is 
+
+
+
+\marginpar{TODO [write up the observations and argue why one is less resource hungry than the other one]}
 
 
 \begin{table}
@@ -285,15 +285,11 @@ be an essential step for future work, especially as datasets grow outwards.
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & chromosomes & executors & runtime & memory (GB) \\
-\kMeans & 22 & 80 & 2mins 3secs & 3 \\
-LR  & 22 & 80 & 5mins 1sec & 3 \\
-RF & 22 & 80 & 17mins 20secs & 6 \\
-\kMeans & 1-22 & 40 & 14hrs 44mins & 24 \\
-LR  & 1-22 & 40 & 30hrs 12mins & 24 \\
+method  & nodes & runtime & memory \\
+RF  & X (Y) & X (Y) & X (Y) \\
+\kMeans & X (Y) & X (Y) & X (Y) \\
 \noalign{\smallskip}
 \hline
-\label{resources}
 \end{tabular}
 \end{center}
 \end{table}
@@ -309,8 +305,8 @@ logistic regression method compared to the
 %unsupervised \kMeans{} approach or the 
 multivariate random forest or deep learning approach as reported by
 Big Data Genomics using the ADAM framework (1 vs 0.96 and 0.976, respectively).  Furthermore, we observe a limitation within
-Java, which limits the random forest implementation of {\sc Spark}'s {\sc MLlib} to XX features for the 1096 individuals
-of the 1000 Genomes Project.  This property would make feature selection mandatory for the 100,000 genome project when classifying their
+Java, which limits the random forest implementation of {\sc Spark}'s {\sc MLlib} to XX features for the 1069 individuals
+of the 1000 genome project.  This property would make feature selection mandatory for the 100,000 genome project when classifying their
 70,000 individuals, when using the same random forest implementation.  We conclude that while logistic regression
 outperforms all other methods it remains unable to accurately identify all individuals from EUR (lowest precision) or misclassify AMR (lowest recall) individuals. 
 We therefore ague that the remaining mixture is potentially reflective of the migrational background, which may be an important observation for medical
@@ -322,6 +318,10 @@ applications that need accurate population association.
 
 
 \bibliographystyle{my_plain}
+<<<<<<< HEAD
+\marginpar{FIXED:  TODO you need to find a way of shortening the Locket paper author list}
+=======
+>>>>>>> 7fcbff9a5610e2b12c8ab5d74fb6874328651beb
 \bibliography{recomb}  
 
 \end{document}
