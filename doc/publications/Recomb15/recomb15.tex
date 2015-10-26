@@ -121,15 +121,19 @@ In the last section we discuss the memory consumptions and runtime of LR compare
 In this section we compare RF against \kMeans\ and the LR.  
 \marginpar{TODO elaborate on the error} 
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
-Million variables, due to XXX.  We therefore use only chromosome 22 for the comparison in this section.  We train a RF
+Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
+random forest implementation to fail. This error is due to the number of features present in each sample,
+with a potential solution being to limit the features through feature selection, or simply using a subset of the dataset.
+We therefore use only chromosome 22 (494,328 alleles) for the comparison in this section.  We train a RF
 and LR on this subset of genomic profiles from the 1000 Genomes data using the annotated labels of all
-super-populations.  We perform 5-fold cross-validation and report the mean accuracy over all training and testing folds
-along with the standard error.  We also perform 5 runs of \kMeans{} with 4 clusters and report the mean accuracy of the
+super-populations.  We perform 10-fold cross-validation and report the mean accuracy over all training and testing folds
+along with the standard error.  We also perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean accuracy of the
 resulting models along with the standard error.
 
 \marginpar{TODO elaborate on accuracy measures}
-As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately (XX\%, ARI=Y), see table~\ref{RF}.
-RF achieves a higher accuracy (XX\%, ARI=Y) but is outperformed by the simple logistic regression (XX\%, ARI=Y).
+As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately.
+Although capable of fitting a relatively accurate model (ARI=0.832), the average ARI over ten models is  \(0.553 \pm 0.07\), see table~\ref{RF}.
+RF achieves a better fitting model (XX\%, ARI=Y) but is outperformed by the simple logistic regression, with an ARI of \(0.923 \pm 0.02\).
 This indicates that a multivariate approach may not be needed to accurately fit ethnicity. 
 
 
@@ -160,7 +164,7 @@ In this section we investigate whether the multivariate approach, deep learning,
 RF by again comparing it against \kMeans{} and logistic regression.  We compare against the reported accuracy of the
 deep learning approach using the {\sc ADAM} framework~\cite{Massie2013} as reported on their webpage~\cite{Ferguson}.
 As the reported results were performed on only three of the 14 populations, we hence restrict our comparison also to ASW
-(Americans of African Ancestry in SW USA), CHB (Han Chinese in Bejing, China), and GBR (British in England and
+(Americans of African Ancestry in SW USA), CHB (Han Chinese in Beijing, China), and GBR (British in England and
 Scotland).
 
 The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach
@@ -171,10 +175,6 @@ super-populations, AFR, EAS and EUR, respectively.  As we mention in the introdu
 result when we cluster the entirety of these three super-populations, with an ARI of 1.0. However, when we introduce the
 fourth super-population into the mix, AMR, the ARI drops to 0.84.
 
-
-Given the perfect result when building the logistic regression model on this small subset of data, we expand our dataset
-to include every population from the 1000 Genomes Project phase1 dataset.
-
 Although we see two of our five runs meet the accuracy of the deep-learning approach, where they achieved an accuracy of
 99\% (or ARI of 0.975, with two misclassified individuals), our logistic regression approach demonstrates a consistent
 improvement.  With this approach, we achieve an accuracy of \(99.997 \pm 0.003\) across five folds.
@@ -182,9 +182,9 @@ improvement.  With this approach, we achieve an accuracy of \(99.997 \pm 0.003\)
 To reiterate, these results are from the three populations, ASW, CHB and GBR, that belong to the super-populations, AFR,
 EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering result when we cluster
 the entirety of these three super-populations (rather than one population from each), with an ARI of 1.0. However, when
-we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  Given the perfect result from the
-logistic regression models on the three populations, and the improvement over \kMeans{}, we proceed with logistic
-regression on the four super-populations.
+we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  Given the perfect result when building
+the logistic regression model on this small subset of data, we expand our dataset to include every population from the
+1000 Genomes Project phase1 dataset.
 
 \marginpar{TODO[say that this may be a too easy dataset to benchmark the performance differences between kmeans and RF
   (hence the full dataset needed)]}
@@ -207,12 +207,19 @@ deep learning & X (Y) & X (Y) & X (Y) \\
 \end{table}
 
 \subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
-In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations.
-Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.93 \pm{} XX\). This is an improvement on our previous result from \kMeans{} clustering the same dataset
-where we observed an ARI of \(0.83\).
-We also record the precision and recall for each of the groups, and observe that for each classification, and both values are always 1.0 for the EAS super-population. This demonstrates that each logistic regression model was able to classify every EAS individual correctly while not including any false positives in this group.
-For the AMR group, however, we consistently observed a relatively low precision (\(0.85\pm{} XX \)). This was generally due to individuals from the EUR super-population being misclassified as AMR. As a result, this led to EUR having a relatively low recall (\(0.9 \pm XX \)).
-Although not present in the result of every fold, another observation is that AFR individuals would sometimes be misclassified as AMR. In all ten folds, we didn't observe AFR being classified as EUR, and vice-verse, nor AMR individuals being misclassified as another super-population.
+In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate
+classification into the 4 super-populations.
+Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.936 \pm{} 0.014\).
+This is an improvement on our previous result from \kMeans{} clustering the same dataset in our previous work, where we observed an ARI of \(0.83\).
+
+To determine where the model is underperforming, we also record the precision and recall for each of the groups.
+We observe that for each model, the precision and recall are always 1.0 for the EAS super-population.
+This demonstrates that each logistic regression model was able to classify every EAS individual correctly, while not misclassifying any other individuals as EAS.
+For the AMR group, however, we consistently observed a relatively low precision (\(0.829 \pm{} 0.02 \)).
+This is due to individuals from the AFR and EUR super-populations being misclassified as AMR.
+Consequently, this led to these two super-populations having a lower recall of \(0.956 \pm 0.01 \) and \(0.950 \pm 0.02 \), respectively.
+Although these misclassifications as AMR are relatively frequent, we didn't observe any AFR individuals being classified as EUR, or vice-versa, in any of the ten folds.
+Also, only in one fold did we observe one AMR individual misclassified as another super-population (AFR).
 These results demonstrate the diversity, or relative difference of some of the groups. 
 
 \marginpar{TODO [Discuss supervised vs unsupervised]} \marginpar{TODO can you drill down to the population clusters and
