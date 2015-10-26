@@ -172,9 +172,7 @@ The mean error for our \kMeans clustering models is approximately XXX. This is s
 where they achieved an accuracy of 99\% (two misclassified individuals). Our supervised logistic regression approach,
 however, improves upon this result.  With this approach, we achieve an accuracy of 100\%. This is the average across
 five folds, with a standard error of 0. This is on the above three populations, ASW, CHB and GBR, that belong to the
-super-populations, AFR, EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering
-result when we cluster the entirety of these three super-populations, with an ARI of 1.0. However, when we introduce the
-fourth super-population into the mix, AMR, the ARI drops to 0.84.
+super-populations, AFR, EAS and EUR, respectively.
 
 Although we see two of our five runs meet the accuracy of the deep-learning approach, where they achieved an accuracy of
 99\% (or ARI of 0.975, with two misclassified individuals), our logistic regression approach demonstrates a consistent
@@ -270,7 +268,13 @@ EUR  & 1 (0) & 0.950 (0.015) \\
 
 \subsubsection{\kMeans{} clustering is faster and consumes less memory than random forests}
 
-Although memory requirements scale linearly with 
+Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests.
+This is likely due to RF being an ensemble method. Where logistic regression and \kMeans{} clustering build a single model,
+RF is building a forest of trees. So not only is training longer, but then each sample in the test fold must be classified by each and every tree.
+
+LR is 
+
+
 
 \marginpar{TODO [write up the observations and argue why one is less resource hungry than the other one]}
 
