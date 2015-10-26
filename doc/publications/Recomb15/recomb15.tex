@@ -170,7 +170,7 @@ optima are close to the global optimum, and the algorithm is choosing one that d
 \FloatBarrier
 \clearpage
 \marginpar{TODO report bd's accuracy measure as the main measure (add ARI as the additional information linking to our
-  paper)}
+  paper) Aidan:See email}
 \subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
 In this section we investigate whether the multivariate approach, deep learning, is able to achieve a better result than
 RF by again comparing it against \kMeans{} and logistic regression.  We compare against the reported accuracy of the
@@ -181,18 +181,17 @@ Scotland).
 
 The mean ARI for our \kMeans clustering models is \(0.960 \pm 0.004 \). Although slightly lower, this value is similar to the deep-learning approach
 where they achieved an ARI of 0.976 (where one ASW and one GBR individual is misclassified as CHB). Our supervised logistic regression approach,
-however, improves upon this result.  With this approach, we achieve an accuracy of 100\%. This is the average across
-ten folds.
+however, improves upon this result.  With this approach, we achieve an ARI of 1 across the ten folds.
 
 To reiterate, these results are from the three populations, ASW, CHB and GBR, that belong to the super-populations, AFR,
 EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering result when we previously clustered
 the these three super-populations (rather than one population from each), with an ARI of 1.0. However, when
 we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  Given the perfect result when building
-the logistic regression model on this small subset of data, we expand our dataset to include every population from the
-1000 Genomes Project phase1 dataset.
+the logistic regression model on this small subset of data, and the similarity with the other models,
+we expand our dataset to include every population from the 1000 Genomes Project phase1 dataset.
 
 \marginpar{TODO[say that this may be a too easy dataset to benchmark the performance differences between kmeans and RF
-  (hence the full dataset needed)]}
+  (hence the full dataset needed) Aidan: done(probably)]}
 
 \begin{table}
 \caption{Cross-validated results, mean accuracy (and standard error) on 3 populations.}
@@ -202,7 +201,7 @@ the logistic regression model on this small subset of data, we expand our datase
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
 method  & ARI & error \\
-LR  & X (Y) & -- \\
+LR  & 1.000 (0.000) & 0.000 \\
 \kMeans & 0.960 (0.004) & -- \\
 deep learning & 0.976 & 0.008 \\
 \noalign{\smallskip}
@@ -243,10 +242,10 @@ Although these misclassifications as AMR are relatively frequent, we didn't obse
 Also, only in one fold did we observe one AMR individual misclassified as another super-population (AFR).
 These results demonstrate the diversity, or relative difference of some of the groups. 
 
-\marginpar{TODO [Discuss supervised vs unsupervised]} \marginpar{TODO can you drill down to the population clusters and
+\marginpar{TODO [Discuss supervised vs unsupervised] Aidan: wrote in previous section (where I mention initialisation)} \marginpar{TODO can you drill down to the population clusters and
   see if and where the best performing method still makes mistakes - this will help in the conclusion to argue that
   actually the labels are wrong rather than the method not being able to capture the structure (e.g. say if AMR are
-  mixed in with GBR TSI)}
+  mixed in with GBR TSI) Aidan: not in time :( }
 
 \begin{table}
 \caption{Mean precision and recall (and standard error of mean) for each super-population across the ten logistic regression folds.}
