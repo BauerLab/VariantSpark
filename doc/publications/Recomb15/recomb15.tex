@@ -145,10 +145,10 @@ This indicates that a multivariate approach may not be needed to accurately fit 
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & ARI & error (\%) & hold out \\
-RF  & 0.757 (0.011) &0.13 (0.007) & X (Y) \\
-\kMeans & 0.596 (0.066) & -- & X (Y) \\
-LR & 0.923 (0.015) & 0.034 (0.006) & X (Y) \\
+method  & ARI & error (\%) \\
+RF  & 0.757 (0.011) &0.13 (0.007) \\
+\kMeans & 0.596 (0.066) & -- \\
+LR & 0.923 (0.015) & 0.034 (0.006) \\
 \noalign{\smallskip}
 \hline
 \label{RF}
@@ -213,6 +213,22 @@ classification into the 4 super-populations.
 Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.936 \pm{} 0.014\).
 This is an improvement on our previous result from \kMeans{} clustering the same dataset in our previous work, where we observed an ARI of \(0.83\).
 
+\begin{table}
+\caption{Cross-validated results, mean accuracy (and standard error) on the 4 super-populations.}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\setlength\tabcolsep{3pt}
+\begin{tabular}{lcccc}
+\hline\noalign{\smallskip}
+method  & test folds & training folds & hold out \\
+RF  & X (Y) & X (Y) & X (Y) \\
+\kMeans & X (Y) & X (Y) & X (Y) \\
+\noalign{\smallskip}
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
 To determine where the model is underperforming, we also record the precision and recall for each of the groups.
 We observe that for each model, the precision and recall are always 1.0 for the EAS super-population.
 This demonstrates that each logistic regression model was able to classify every EAS individual correctly, while not misclassifying any other individuals as EAS.
@@ -229,15 +245,17 @@ These results demonstrate the diversity, or relative difference of some of the g
   mixed in with GBR TSI)}
 
 \begin{table}
-\caption{Cross-validated results, mean accuracy (and standard error) on the 4 super-populations.}
+\caption{Mean precision and recall (and standard error of mean) for each super-population across the ten logistic regression folds.}
 \begin{center}
 \renewcommand{\arraystretch}{1.4}
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & test folds & training folds & hold out \\
-RF  & X (Y) & X (Y) & X (Y) \\
-\kMeans & X (Y) & X (Y) & X (Y) \\
+super-population  & precision & recall \\
+AFR  & 0.997 (0.003) & 0.956 (0.013) \\
+AMR & 0.829 (0.020) & 0.994 (0.005) \\
+EAS  & 1 (0) & 1 (0) \\
+EUR  & 1 (0) & 0.950 (0.015) \\
 \noalign{\smallskip}
 \hline
 \end{tabular}
