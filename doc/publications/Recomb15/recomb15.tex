@@ -106,15 +106,19 @@ In the last section we discuss the memory consumptions and runtime of LR compare
 In this section we compare RF against \kMeans\ and the LR.  
 \marginpar{TODO elaborate on the error} 
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
-Million variables, due to XXX.  We therefore use only chromosome 22 for the comparison in this section.  We train a RF
+Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
+random forest implementation to fail. This error is due to the number of features present in each sample,
+with a potential solution being to limit the features through feature selection, or simply using a subset of the dataset.
+We therefore use only chromosome 22 (494,328 alleles) for the comparison in this section.  We train a RF
 and LR on this subset of genomic profiles from the 1000 Genomes data using the annotated labels of all
-super-populations.  We perform 5-fold cross-validation and report the mean accuracy over all training and testing folds
-along with the standard error.  We also perform 5 runs of \kMeans{} with 4 clusters and report the mean accuracy of the
+super-populations.  We perform 10-fold cross-validation and report the mean accuracy over all training and testing folds
+along with the standard error.  We also perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean accuracy of the
 resulting models along with the standard error.
 
 \marginpar{TODO elaborate on accuracy measures}
-As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately (XX\%, ARI=Y), see table~\ref{RF}.
-RF achieves a higher accuracy (XX\%, ARI=Y) but is outperformed by the simple logistic regression (XX\%, ARI=Y).
+As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately.
+Although capable of fitting a relatively accurate model (ARI=0.832), the average ARI over ten models is  \(0.553 \pm 0.07\), see table~\ref{RF}.
+RF achieves a better fitting model (XX\%, ARI=Y) but is outperformed by the simple logistic regression, with an ARI of \(0.923 \pm 0.02\).
 This indicates that a multivariate approach may not be needed to accurately fit ethnicity. 
 
 
@@ -146,7 +150,7 @@ In this section we investigate whether the multivariate approach, deep learning,
 RF by again comparing it against \kMeans{} and logistic regression.  We compare against the reported accuracy of the
 deep learning approach using the {\sc ADAM} framework~\cite{Massie2013} as reported on their webpage~\cite{Ferguson}.
 As the reported results were performed on only three of the 14 populations, we hence restrict our comparison also to ASW
-(Americans of African Ancestry in SW USA), CHB (Han Chinese in Bejing, China), and GBR (British in England and
+(Americans of African Ancestry in SW USA), CHB (Han Chinese in Beijing, China), and GBR (British in England and
 Scotland).
 
 The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach
