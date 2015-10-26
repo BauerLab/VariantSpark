@@ -119,7 +119,7 @@ In the last section we discuss the memory consumptions and runtime of LR compare
 
 \subsubsection{Random Forest does not scale to whole genome analysis and is outperformed by logistic regression}
 In this section we compare RF against \kMeans\ and the LR.  
-\marginpar{TODO elaborate on the error} 
+\marginpar{TODO elaborate on the error Aidan: See near end of paragraph} 
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
 Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
 random forest implementation to fail. This error is due to the number of features present in each sample,
@@ -127,27 +127,29 @@ with a potential solution being to limit the features through feature selection,
 We therefore use only chromosome 22 (494,328 alleles) for the comparison in this section.  We train a RF
 and LR on this subset of genomic profiles from the 1000 Genomes data using the annotated labels of all
 super-populations.  We perform 10-fold cross-validation and report the mean error over all training and testing folds
-along with the standard error of the mean (SEM). We also use the Adjusted Rand Index as a metric, as it allows us to
-compare the classification results with the \kMeans{} clustering result. We also perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean accuracy of the
+along with the standard error of the mean (SEM). We also use the Adjusted Rand Index as a metric for model quality
+as it allows us to compare the classification results with the \kMeans{} clustering model. We also calculate the error
+for the two classification methods, which is simply the number of misclassified individuals divided by the number of samples.
+We perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean ARI of the
 resulting models along with the standard error.
 
-\marginpar{TODO elaborate on accuracy measures}
+\marginpar{TODO elaborate on accuracy measures Aidan: See above}
 As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately.
-Although capable of fitting a relatively accurate model \(ARI=0.837\), the average ARI over ten models is  \(0.596 \pm 0.067\), see table~\ref{RF}.
-RF achieves a better fitting model \(ARI = 0.757 \pm 0.011\) but is outperformed by the simple logistic regression, with an ARI of \(0.923 \pm 0.015\).
+Although capable of fitting a relatively accurate model (\(ARI=0.837\)), the average ARI over ten models is  \(0.596 \pm 0.067\), see table~\ref{RF}.
+RF achieves a better fitting model with a mean ARI of \(0.769 \pm 0.021\) but is outperformed by the simple logistic regression, with an ARI of \(0.923 \pm 0.015\).
 This indicates that a multivariate approach may not be needed to accurately fit ethnicity. 
 
 
 \begin{table}
-\caption{Cross-validated results, mean accuracy (and standard error) on variants from chromosome 22 of 4 super-populations.}
+\caption{Cross-validated results, ARI and error (and standard error of mean) on variants from chromosome 22 of 4 super-populations.}
 \begin{center}
 \renewcommand{\arraystretch}{1.4}
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & ARI & error (\%) \\
-RF  & 0.757 (0.011) &0.13 (0.007) \\
-\kMeans & 0.596 (0.066) & -- \\
+method  & ARI & error \\
+RF  & 0.769 (0.021) &0.118 (0.011) \\
+\kMeans & 0.596 (0.067) & -- \\
 LR & 0.923 (0.015) & 0.034 (0.006) \\
 \noalign{\smallskip}
 \hline
@@ -155,6 +157,15 @@ LR & 0.923 (0.015) & 0.034 (0.006) \\
 \end{tabular}
 \end{center}
 \end{table}
+
+These results also demonstrate how much the quality of the models can vary between runs (or folds) for supervised and unsupervised learning.
+For both of the supervised methods, RF and LR, the ARI was fairly consistent when testing on each holdout set, with a standard deviation of
+\( 0.064 \) and 0.048, respectively. For the \kMeans{} models however, the standard deviation was 0.211.
+One pitfall of \kMeans{} clustering is that depending on the starting points, the resulting model may represent a local optimum of the dataset ~\cite{Steinley2003}.
+{\sc MLlib} uses {\sc \kMeans\textbar\textbar}~\cite{Bahmani2012} (a parallel implementation of \kMeans{}++) for the cluster initialisation.
+Although this produces close to the optimal solution for the initial cluster centres, these initial cluster centres are different for each model.
+Due to the amount of variance in the 1000 Genomes dataset, it's possible that multiple local optima are close to the global optimum, and the algorithm
+is choosing one that doesn't represent population structure.
 
 \FloatBarrier
 \clearpage
@@ -168,19 +179,18 @@ As the reported results were performed on only three of the 14 populations, we h
 (Americans of African Ancestry in SW USA), CHB (Han Chinese in Beijing, China), and GBR (British in England and
 Scotland).
 
-The mean error for our \kMeans clustering models is approximately XXX. This is similar to the deep-learning approach
-where they achieved an accuracy of 99\% (two misclassified individuals). Our supervised logistic regression approach,
+The mean ARI for our \kMeans clustering models is \(0.960 \pm 0.004 \). Although slightly lower, this value is similar to the deep-learning approach
+where they achieved an ARI of 0.976 (where one ASW and one GBR individual is misclassified as CHB). Our supervised logistic regression approach,
 however, improves upon this result.  With this approach, we achieve an accuracy of 100\%. This is the average across
-five folds, with a standard error of 0. This is on the above three populations, ASW, CHB and GBR, that belong to the
-super-populations, AFR, EAS and EUR, respectively.
+ten folds, with a standard error of 0.
 
-Although we see two of our five runs meet the accuracy of the deep-learning approach, where they achieved an accuracy of
+Although we see two of our ten runs meet the accuracy of the deep-learning approach, where they achieved an accuracy of
 99\% (or ARI of 0.975, with two misclassified individuals), our logistic regression approach demonstrates a consistent
-improvement.  With this approach, we achieve an accuracy of \(99.997 \pm 0.003\) across five folds.
+improvement.  With this approach, we achieve an accuracy of \(99.997 \pm 0.003\) across ten folds.
 
 To reiterate, these results are from the three populations, ASW, CHB and GBR, that belong to the super-populations, AFR,
-EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering result when we cluster
-the entirety of these three super-populations (rather than one population from each), with an ARI of 1.0. However, when
+EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering result when we previously clustered
+the these three super-populations (rather than one population from each), with an ARI of 1.0. However, when
 we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  Given the perfect result when building
 the logistic regression model on this small subset of data, we expand our dataset to include every population from the
 1000 Genomes Project phase1 dataset.
@@ -195,10 +205,10 @@ the logistic regression model on this small subset of data, we expand our datase
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & ARI & training folds & hold out \\
-RF  & X (Y) & X (Y) & X (Y) \\
-\kMeans & X (Y) & X (Y) & X (Y) \\
-deep learning & 0.976 & X (Y) & X (Y) \\
+method  & ARI & error \\
+LR  & X (Y) & -- \\
+\kMeans & 0.960 (0.004) & -- \\
+deep learning & 0.976 & 0.008 \\
 \noalign{\smallskip}
 \hline
 \end{tabular}
@@ -218,9 +228,9 @@ This is an improvement on our previous result from \kMeans{} clustering the same
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & test folds & training folds & hold out \\
-RF  & X (Y) & X (Y) & X (Y) \\
-\kMeans & X (Y) & X (Y) & X (Y) \\
+method  & ARI & error \\
+LR  & 0.936 (0.014) & 0.029 (0.005) \\
+\kMeans & 0.84 & -- \\
 \noalign{\smallskip}
 \hline
 \end{tabular}
