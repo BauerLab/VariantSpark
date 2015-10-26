@@ -3,6 +3,7 @@
 % for Lecture Notes in Computer Science, version 2.4
 \documentclass{llncs}
 \usepackage{llncsdoc}
+\usepackage{placeins}
 %
 
 % Variable definitions
@@ -71,12 +72,26 @@ genotypes to increase the accuracy of the multi-class prediction.
 
 
  
-\marginpar{TODO do we need to cite ~\cite{Bureau2005,Yoo2012,Qi2012}.}  We also investigate more complex supervised
+\marginpar{TODO do we need to cite ~\cite{Bureau2005,Yoo2012,Qi2012}.}  
+We also investigate more complex supervised
 approaches, namely Random Forest (RF), as for example Locke {\it et al.}~\cite{Locke2015} showed in a recent meta-study
 around genetic susceptibility of obesity that only five of the 97 genomic loci have an independent association signal
 the rest seem to jointly predict the complex metabolic phenotype.  We therefore investigate whether ethnicity is a
 similarly complex phenotype that requires higher order dependencies between features to be taken into
 account. %, as done by RF and DL.
+
+RF inherit many of the benefits of decision trees. It handles large numbers of variables transparently and
+provides an unbiased estimate of the generalization error (in addition, it handles missing values and unbalanced
+population classes sizes). They provide a measure of variable importance and allow for interactions between
+variables to be investigated. However, in this problem, with many millions of variables, inspecting plots of interactions
+is not feasible.  We note that decision trees (and random forests) model local variable interactions -- there are 
+no main effects or global interaction effects. 
+
+For shallow neural networks there are a number of methods for controlling overfitting including regularization, max norm
+constraints, and dropout. Whether the problem of overfitting is exacerbated or not in deep networks is an open problem.
+With a large number of variables (like this problem) some regularization is going to be necesssary. 
+%http://stats.stackexchange.com/questions/21152/obtaining-knowledge-from-a-random-forest
+
 \marginpar{TODO Rob do you want to add two sentences about RF and DL and the respective benefits (ideally with respect
   to the multi variable interactions and RF benefit of being hard to overfit).  Using conventional machine learning
   analysis to elucidate this additive effects is challenging as there are not enough samples to robustly fit the model
@@ -136,9 +151,8 @@ LR & X (Y) & X (Y) & X (Y) \\
 \end{center}
 \end{table}
 
-
-
-
+\FloatBarrier
+\clearpage
 \marginpar{TODO report bd's accuracy measure as the main measure (add ARI as the additional information linking to our
   paper)}
 \subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
