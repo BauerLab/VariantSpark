@@ -4,11 +4,12 @@
 \documentclass{llncs}
 \usepackage{llncsdoc}
 \usepackage{placeins}
+\usepackage{hyperref}
 %
 
 % Variable definitions
 \newcommand{\variantSpark}{{\sc VariantSpark}}
-\newcommand{\kMeans}{\textit{k}-means}
+\newcommand{\kMeans}{\textit{k}-means }
 \newcommand{\ARI}{adjusted Rand index}
 
 
@@ -42,6 +43,7 @@ in short terms.
 
 %TODO other examples?
 
+\marginpar{I don't understand this. Can't you just sak a patient about their ancestry?}
 Determining a person's ethnicity has become important for medical applications, such as HLA allele genotyping from SNP
 information~\cite{Zheng2014}. Such clinical application are severely hampered for patients where accurate population
 association is unknown due to a diverse migrational background. Determining the population association from genomic
@@ -53,13 +55,14 @@ by clustering samples from the 1000 Genomes Project~\cite{1KG2012}.
 
 Using \kMeans{} we observed a perfect separation for the super populations African (AFR), East Asian (EAS) and European
 (EUR), however when adding the fourth super-population group, American (AMR), we observe that only a subset of the AMR
-individual form an independent cluster while the majority falls into the EUR cluster. 
-We quantified this by calculating the \ARI\ (ARI), which compares the predicted and annotated labels. \kMeans achieved an ARI=0.84,
-with -1 being random and 1 a perfect clustering.  We argue that the suboptimal clustering is a result of using an
-unsupervised method rather than an insufficient number of genomic markers~\cite{Patterson2006} and hence hypothesise
-that a supervised machine learning method may be capable of separating these subgroups of low genetic divergence.
-Indeed, bigdata genomics recently investigated the supervised method, deep learning, for clustering the 1000 genomes
-data by ethnicity~\cite{Ferguson}.
+individual form an independent cluster while the majority falls into the EUR cluster.  We quantified this by calculating
+the \ARI\ ( ARI), which compares the predicted and annotated labels. \kMeans achieved an ARI of 0.84, with -1 being
+random and 1 a perfect clustering.  We argue that the suboptimal clustering is a result of using an unsupervised method
+rather than an insufficient number of genomic markers~\cite{Patterson2006} and hence hypothesise that a supervised
+machine learning method may be capable of separating these subgroups of low genetic divergence.  Indeed, bigdata
+genomics recently investigated the supervised method, deep learning, for clustering the 1000 genomes data by
+ethnicity~\cite{Ferguson}.  \marginpar{``bigdata genomics'' seems to be a domain name \url{http://bdgenomics.org/} --
+  how should we cite this}
 
 In this paper we therefore systematically evaluate supervised and unsupervised methods for determining population
 association and compare our results to the ones obtained using deep learning.
@@ -71,7 +74,7 @@ genotypes to increase the accuracy of the multi-class prediction.
 %\marginpar{TODO do we need to cite ~\cite{Bureau2005,Yoo2012,Qi2012}.}  
 We also investigate more complex supervised
 approaches, namely Random Forest (RF), as for example Locke {\it et al.}~\cite{Locke2015} showed in a recent meta-study
-around genetic susceptibility of obesity that only five of the 97 genomic loci have an independent association signal
+around genetic susceptibility to obesity that only five of the 97 genomic loci have an independent association signal
 the rest seem to jointly predict the complex metabolic phenotype.  We therefore investigate whether ethnicity is a
 similarly complex phenotype that requires higher order dependencies between features to be taken into
 account. %, as done by RF and DL.
@@ -127,6 +130,9 @@ As reported in our earlier work, \kMeans\ is not able to fit the dataset accurat
 %Although capable of fitting a relatively accurate model (\(ARI=0.837\)), The average ARI over ten models is  \(0.596 \pm 0.067\), see table~\ref{RF}.
 RF achieves a better fitting model with a mean ARI of \(0.769 \pm 0.021\), however it is outperformed by the LR, with an ARI of \(0.923 \pm 0.015\).
 This indicates that while applying a supervised learning method results in higher accuracy, a multivariate approach may not be needed to accurately fit ethnicity. 
+
+\marginpar{not sure what is meant here. RF, LR etc are not multivariate -- there is only one $y$ variable, obesity. They
+are multi-variable.}
 
 
 \begin{table}
@@ -315,7 +321,7 @@ applications that need accurate population association.
 
 
 \bibliographystyle{my_plain}
-\marginpar{TODO you need to find a way of shortening the Locket paper author list}
+\marginpar{FIXED:  TODO you need to find a way of shortening the Locket paper author list}
 \bibliography{recomb}  
 
 \end{document}
