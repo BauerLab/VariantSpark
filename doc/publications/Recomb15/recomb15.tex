@@ -35,8 +35,11 @@ School of Biomedical Sciences and Pharmacy, Faculty of Health, University of New
 \maketitle
 %
 \begin{abstract}
-This paragraph shall summarize the contents of the paper
-in short terms.
+Using our 
+We apply various machine learning algorithms to the 1092 individuals in the 1000 Genomes Project dataset.
+Although each algorithm we investigate can cluster individuals from three populations with near perfect accuracy,
+we find logistic regression to be superior. Comparing  With the entire dataset, 
+
 \end{abstract}
 %
 \section{Introduction}
@@ -104,7 +107,7 @@ in-memory cashing, both critical components for efficient ``big learning" tasks.
 To demonstrate \variantSpark's capability, we determine the cross-validation accuracy of the supervised multivariate RF
 method and compare it against the simple supervised method LR as well as the unsupervised \kMeans{} in the first
 section.  In the second section we compare LR and \kMeans{} against the reported accuracy of the supervised multivariate
-DL method.  In section three we record the accuracy of LR and \kMeans{} on the full dataset set using all populations.
+deep learning (DL) method.  In section three we record the accuracy of LR and \kMeans{} on the full dataset set using all populations.
 In the last section we discuss the memory consumptions and runtime of LR compared to \kMeans{}.
 
 \clearpage
@@ -161,14 +164,14 @@ LR & 0.923 (0.015) & 0.034 (0.006) \\
 \end{center}
 \end{table}
 
-These results also demonstrate how much the quality of the models can vary between runs (or folds) for supervised and unsupervised learning.
-For both of the supervised methods, RF and LR, the ARI was fairly consistent when testing on each holdout set, with a standard deviation of
-\( 0.064 \) and 0.048, respectively. For the \kMeans{} models however, the standard deviation was 0.211.
-One pitfall of \kMeans{} clustering is that depending on the starting points, the resulting model may represent a local optimum of the dataset~\cite{Steinley2003}.
-{\sc MLlib} uses {\sc \kMeans\textbar\textbar}~\cite{Bahmani2012} (a parallel implementation of \kMeans{}++) for the cluster initialisation.
-Although this produces close to the optimal solution for the initial cluster centres, due to the heuristical nature of the algorithm,
-these initial cluster centres will be different for each model. Due to the amount of variance in the 1000 Genomes dataset, it is possible that multiple local
-optima are close to the global optimum, and the algorithm is choosing one that does not represent population structure.
+%These results also demonstrate how much the quality of the models can vary between runs (or folds) for supervised and unsupervised learning.
+%For both of the supervised methods, RF and LR, the ARI was fairly consistent when testing on each holdout set, with a standard deviation of
+%\( 0.064 \) and 0.048, respectively. For the \kMeans{} models however, the standard deviation was 0.211.
+%One pitfall of \kMeans{} clustering is that depending on the starting points, the resulting model may represent a local optimum of the dataset~\cite{Steinley2003}.
+%{\sc MLlib} uses {\sc \kMeans\textbar\textbar}~\cite{Bahmani2012} (a parallel implementation of \kMeans{}++) for the cluster initialisation.
+%Although this produces close to the optimal solution for the initial cluster centres, due to the heuristical nature of the algorithm,
+%these initial cluster centres will be different for each model. Due to the amount of variance in the 1000 Genomes dataset, it is possible that multiple local
+%optima are close to the global optimum, and the algorithm is choosing one that does not represent population structure.
 
 \subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
 In this section we investigate whether another multivariate approach, DL, is able to achieve a better result than
@@ -178,20 +181,14 @@ As the reported results were performed on only three of the 14 populations, we h
 (Americans of African Ancestry in SW USA), CHB (Han Chinese in Beijing, China), and GBR (British in England and
 Scotland).
 
-The mean ARI for our \kMeans clustering models on this dataset is \(0.960 \pm 0.004 \). 
-%DENIS: lower compared to what ?
-Although slightly lower, this value is similar to the one reported for the deep-learning approach, which achieved an ARI of 0.976 (where one ASW and one GBR individual is misclassified as CHB). 
+The mean ARI for our \kMeans{} clustering models on this dataset is \(0.960 \pm 0.004 \). 
+This value is slightly less than the one reported for the deep-learning approach, which achieved an ARI of 0.976 (where one ASW and one GBR individual are misclassified as CHB). 
 Our supervised logistic regression approach, however, improves upon this result and achieves an ARI of 1 across the ten folds.
 
-%DENIS: I don't understand this 
-To reiterate, these results are from the three populations, ASW, CHB and GBR, that belong to the super-populations, AFR,
-EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering result when we previously clustered
- these three super-populations (rather than one population from each), with an ARI of 1.0. However, when
-we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  
+Although we see a slight improvement with logistic regression in regards to other algorithms, their results are still very similar.
+However, there is not much room in the first place for logistic regression to demonstrate any potential increases in model accuracy.
+We therefore proceed to apply our method to the entire 1000 Genomes Project phase 1 dataset, which we previously clustered with an ARI of 0.84.
 
-Given the perfect result when building
-the logistic regression model on this small subset of data, and the similarity with the other models,
-we expand our dataset to include every population from the 1000 Genomes Project phase1 dataset.
 
 \begin{table}
 \caption{Cross-validated results, mean accuracy (and standard error) on 3 populations.}
@@ -209,6 +206,7 @@ deep learning & 0.976 & 0.008 \\
 \end{tabular}
 \end{center}
 \end{table}
+
 
 \subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
 In this section we apply both the supervised LR and unsupervised \kMeans\ method on the full dataset of 14 populations and assess the 
@@ -271,7 +269,7 @@ EUR  & 1 (0) & 0.950 (0.015) \\
 
 Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests.
 This is likely due to RF being an ensemble method. Where logistic regression and \kMeans{} clustering build a single model,
-RF is building a forest of trees. So not only is training longer, but then each sample in the test fold must be classified by each and every tree.
+RF is building an forest of decision trees. So not only is training longer, but then each sample in the test fold must be classified by each and every tree.
 
 LR is 
 
