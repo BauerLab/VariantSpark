@@ -111,7 +111,6 @@ In the last section we discuss the memory consumptions and runtime of LR compare
 
 \subsubsection{Random Forest does not scale to whole genome analysis and is outperformed by logistic regression}
 In this section we compare RF against \kMeans\ and the LR.  
-\marginpar{TODO elaborate on the error Aidan: See near end of paragraph} 
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
 Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
 random forest implementation to fail. This error is due to the number of features present in each sample,
@@ -125,7 +124,6 @@ for the two classification methods, which is simply the number of misclassified 
 We perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean ARI of the
 resulting models along with the standard error.
 
-\marginpar{TODO elaborate on accuracy measures Aidan: See above paragraph}
 As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately, with an average ARI over ten models of \(0.596 \pm 0.067\), see table~\ref{RF}.
 %Although capable of fitting a relatively accurate model (\(ARI=0.837\)), The average ARI over ten models is  \(0.596 \pm 0.067\), see table~\ref{RF}.
 RF achieves a better fitting model with a mean ARI of \(0.769 \pm 0.021\), however it is outperformed by the LR, with an ARI of \(0.923 \pm 0.015\).
@@ -162,10 +160,6 @@ Although this produces close to the optimal solution for the initial cluster cen
 these initial cluster centres will be different for each model. Due to the amount of variance in the 1000 Genomes dataset, it is possible that multiple local
 optima are close to the global optimum, and the algorithm is choosing one that does not represent population structure.
 
-\FloatBarrier
-\clearpage
-\marginpar{TODO report bd's accuracy measure as the main measure (add ARI as the additional information linking to our
-  paper) Aidan:See email}
 \subsubsection{Logistic regression and \kMeans{} capture the population better than deep learning in a three population test}
 In this section we investigate whether another multivariate approach, DL, is able to achieve a better result than
 RF by again comparing it against \kMeans{} and logistic regression.  We compare against the reported accuracy of the
@@ -238,11 +232,6 @@ Consequently, this leds to these two super-populations having a lower recall of 
 Although these misclassifications as AMR are relatively frequent, we did not observe any AFR individuals being classified as EUR, or {\it vice versa}, in any of the ten folds.
 Also, only in one fold did we observe one AMR individual misclassified as another super-population (AFR).
 These results demonstrate the diversity, or relative difference of some of the groups. 
-
-\marginpar{TODO [Discuss supervised vs unsupervised] Aidan: wrote in previous section (where I mention initialisation)} \marginpar{TODO can you drill down to the population clusters and
-  see if and where the best performing method still makes mistakes - this will help in the conclusion to argue that
-  actually the labels are wrong rather than the method not being able to capture the structure (e.g. say if AMR are
-  mixed in with GBR TSI) Aidan: not in time :( }
 
 \begin{table}
 \caption{Mean precision and recall (and standard error of mean) for each super-population across the ten logistic regression folds.}
@@ -321,7 +310,10 @@ applications that need accurate population association.
 
 
 \bibliographystyle{my_plain}
+<<<<<<< HEAD
 \marginpar{FIXED:  TODO you need to find a way of shortening the Locket paper author list}
+=======
+>>>>>>> 7fcbff9a5610e2b12c8ab5d74fb6874328651beb
 \bibliography{recomb}  
 
 \end{document}
