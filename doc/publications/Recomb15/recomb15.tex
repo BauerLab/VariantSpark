@@ -168,9 +168,9 @@ improvement.  With this approach, we achieve an accuracy of \(99.997 \pm 0.003\)
 To reiterate, these results are from the three populations, ASW, CHB and GBR, that belong to the super-populations, AFR,
 EAS and EUR, respectively.  As we mention in the introduction, we observed a perfect clustering result when we cluster
 the entirety of these three super-populations (rather than one population from each), with an ARI of 1.0. However, when
-we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  Given the perfect result from the
-logistic regression models on the three populations, and the improvement over \kMeans{}, we proceed with logistic
-regression on the four super-populations.
+we introduce the fourth super-population into the mix, AMR, the ARI drops to 0.84.  Given the perfect result when building
+the logistic regression model on this small subset of data, we expand our dataset to include every population from the
+1000 Genomes Project phase1 dataset.
 
 \marginpar{TODO[say that this may be a too easy dataset to benchmark the performance differences between kmeans and RF
   (hence the full dataset needed)]}
