@@ -110,18 +110,18 @@ section.  In the second section we compare LR and \kMeans{} against the reported
 deep learning (DL) method.  In section three we record the accuracy of LR and \kMeans{} on the full dataset set using all populations.
 In the last section we discuss the memory consumptions and runtime of LR compared to \kMeans{}.
 
-\clearpage
-\hrule
-I think the use of the term ``multivariate'' is a bit loose. We have only one $y$ variable -- obesity. By analogy with linear regression:
-\begin{itemize}
-\item simple linear regression $y=\beta_0 + \beta_1x_1$
-\item multi-variable regression $y=\beta_0 + \beta_1x_1 + \beta_2 x_2$
-\item multivariate regression $\underset{n\times m}{Y}= \underset{(n\times p+1)}{X} \underset{(p+1 \times m)}{B}$
-\end{itemize}
-So RF, DL and LR are all multi-variable (in this application). 
+%\clearpage
+%\hrule
+%I think the use of the term ``multivariate'' is a bit loose. We have only one $y$ variable -- obesity. By analogy with linear regression:
+%\begin{itemize}
+%\item simple linear regression $y=\beta_0 + \beta_1x_1$
+%\item multi-variable regression $y=\beta_0 + \beta_1x_1 + \beta_2 x_2$
+%\item multivariate regression $\underset{n\times m}{Y}= \underset{(n\times p+1)}{X} \underset{(p+1 \times m)}{B}$
+%\end{itemize}
+%So RF, DL and LR are all multi-variable (in this application). 
 
-A multivarite technique we could use is PCA, $T = X W$ where $W$ is a $p \times p$ matrix whose columns are the eigenvectors of $X^tX$. 
-\hrule
+%A multivarite technique we could use is PCA, $T = X W$ where $W$ is a $p \times p$ matrix whose columns are the eigenvectors of $X^tX$. 
+%\hrule
 
 \section{Results}
 
@@ -130,12 +130,14 @@ In this section we compare RF against \kMeans\ and the LR.
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
 Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
 random forest implementation to fail. This error is due to the number of features present in each sample,
-with a potential solution being to limit the features through feature selection, or simply using a subset of the dataset.
-We therefore use only chromosome 22 (494,328 alleles) for the comparison in this section.  We train a RF
-and LR on this subset of genomic profiles from the 1000 Genomes data using the annotated labels of all
-super-populations.  We perform 10-fold cross-validation and report the mean error over all training and testing folds
-along with the standard error of the mean (SEM). We also use the Adjusted Rand Index (ARI) as a metric for model quality
-as it allows us to compare the classification results with \kMeans{} clustering models. We also calculate the error
+rather than the number of samples, and a potential solution is to either limit the features through feature selection, or to simply use a subset of the dataset.
+We therefore use only chromosome 22 (494,328 variants) for the comparison in this section.  We train a RF
+and LR on this subset of genomic profiles from the 1000 Genomes Project dataset using the annotated labels of all
+super-populations.  We perform 10-fold cross-validation and calculate the Adjusted Rand Index (ARI) for use as a metric for model quality.
+The ARI allows us to compare the classification results with \kMeans{} clustering results, as it takes the partitioning of the dataset into account, rather than just labels.
+report the mean error over all training and testing folds
+along with the standard error of the mean (SEM)
+We also calculate the error
 for the two classification methods, which is simply the number of misclassified individuals divided by the number of samples.
 We perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)) and report the mean ARI of the
 resulting models along with the standard error.
@@ -212,7 +214,6 @@ deep learning & 0.976 & 0.008 \\
 In this section we apply both the supervised LR and unsupervised \kMeans\ method on the full dataset of 14 populations and assess the 
 classification accuracy into the 4 super-populations.
 Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.936 \pm{} 0.014\).
-%DENIS: above you argue that kMeans has local optima and results might hence be too optimistic but here you only train one model. So either remove the above section or add some repeats to this one
 This is an improvement on our previous result from \kMeans{} clustering the same dataset in our previous work, where we observed an ARI of \(0.83\).
 
 \begin{table}
@@ -267,15 +268,14 @@ EUR  & 1 (0) & 0.950 (0.015) \\
 
 \subsubsection{\kMeans{} clustering is faster and consumes less memory than random forests}
 
-Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests.
-This is likely due to RF being an ensemble method. Where logistic regression and \kMeans{} clustering build a single model,
-RF is building an forest of decision trees. So not only is training longer, but then each sample in the test fold must be classified by each and every tree.
-
-LR is 
-
-
-
-\marginpar{TODO [write up the observations and argue why one is less resource hungry than the other one]}
+Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests (see table~\ref{resources}).
+This is likely due to RF being an ensemble method. For example, where logistic regression and \kMeans{} clustering build a single model,
+RF is building an forest of decision trees.
+When training on chromosome 22 (494,328 variants), resource requirements are kept to a minimum, with no more than 3GB memory required per executor (node)
+(6GB for RF). Although we specify 80 executors, the same algorithm could successfully complete on a much smaller cluster, at the expense of time. 
+However, when we train the algorithms on the entire genome, memory requirements increase to 24GB. This limited us to using 40 executors, due to memory availability.
+The memory requirements also restricts a job of that size to clusters with at least 24GB available. This demonstrates that pre-processing the data to reduce its dimensionality will
+be an essential step for future work, especially as datasets grow outwards.
 
 
 \begin{table}
@@ -285,11 +285,15 @@ LR is
 \setlength\tabcolsep{3pt}
 \begin{tabular}{lcccc}
 \hline\noalign{\smallskip}
-method  & nodes & runtime & memory \\
-RF  & X (Y) & X (Y) & X (Y) \\
-\kMeans & X (Y) & X (Y) & X (Y) \\
+method  & chromosomes & executors & runtime & memory (GB) \\
+\kMeans & 22 & 80 & 2mins 3secs & 3 \\
+LR  & 22 & 80 & 5mins 1sec & 3 \\
+RF & 22 & 80 & 17mins 20secs & 6 \\
+\kMeans & 1-22 & 40 & 14hrs 44mins & 24 \\
+LR  & 1-22 & 40 & 30hrs 12mins & 24 \\
 \noalign{\smallskip}
 \hline
+\label{resources}
 \end{tabular}
 \end{center}
 \end{table}
@@ -305,8 +309,8 @@ logistic regression method compared to the
 %unsupervised \kMeans{} approach or the 
 multivariate random forest or deep learning approach as reported by
 Big Data Genomics using the ADAM framework (1 vs 0.96 and 0.976, respectively).  Furthermore, we observe a limitation within
-Java, which limits the random forest implementation of {\sc Spark}'s {\sc MLlib} to XX features for the 1069 individuals
-of the 1000 genome project.  This property would make feature selection mandatory for the 100,000 genome project when classifying their
+Java, which limits the random forest implementation of {\sc Spark}'s {\sc MLlib} to XX features for the 1096 individuals
+of the 1000 Genomes Project.  This property would make feature selection mandatory for the 100,000 genome project when classifying their
 70,000 individuals, when using the same random forest implementation.  We conclude that while logistic regression
 outperforms all other methods it remains unable to accurately identify all individuals from EUR (lowest precision) or misclassify AMR (lowest recall) individuals. 
 We therefore ague that the remaining mixture is potentially reflective of the migrational background, which may be an important observation for medical
