@@ -155,11 +155,13 @@ deep learning & X (Y) & X (Y) & X (Y) \\
 
 \subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
 In this section we train and test our two methods on the full dataset of 14 populations and assess the accuracy with respect to the accurate classification into the 4 super-populations.
-Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.93 \pm{} XX\). This is an improvement on our previous result from \kMeans{} clustering the same dataset
-where we observed an ARI of \(0.83\).
-We also record the precision and recall for each of the groups, and observe that for each classification, and both values are always 1.0 for the EAS super-population. This demonstrates that each logistic regression model was able to classify every EAS individual correctly while not including any false positives in this group.
-For the AMR group, however, we consistently observed a relatively low precision (\(0.85\pm{} XX \)). This was generally due to individuals from the EUR super-population being misclassified as AMR. As a result, this led to EUR having a relatively low recall (\(0.9 \pm XX \)).
-Although not present in the result of every fold, another observation is that AFR individuals would sometimes be misclassified as AMR. In all ten folds, we didn't observe AFR being classified as EUR, and vice-verse, nor AMR individuals being misclassified as another super-population.
+Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.936 \pm{} 0.014\). This is an improvement on our previous result from \kMeans{} clustering the same dataset
+in our previous work, where we observed an ARI of \(0.83\).
+
+To determine where the model is underperforming, we also record the precision and recall for each of the groups, and observe that for each model. For each model, the precision and recall are always 1.0 for the EAS super-population.
+This demonstrates that each logistic regression model was able to classify every EAS individual correctly while not misclassifying any individuals as EAS.
+For the AMR group, however, we consistently observed a relatively low precision (\(0.829 \pm{} 0.02 \)). This is due to individuals from the AFR and EUR super-populations being misclassified as AMR. Consequently, this led to these two super-populations having a relatively low recall of \(0.956 \pm 0.01 \) and \(0.950 \pm 0.02 \), respectively.
+Although these misclassifications as AMR are relatively frequent, we didn't observe any AFR individuals being classified as EUR, or vice-versa, in any of the ten folds. Also, only in one fold did we observe one AMR individual misclassified as another super-population (AFR).
 These results demonstrate the diversity, or relative difference of some of the groups. 
 
 %TODO [Discuss supervised vs unsupervised]
