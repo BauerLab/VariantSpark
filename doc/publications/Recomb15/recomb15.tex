@@ -35,10 +35,13 @@ School of Biomedical Sciences and Pharmacy, Faculty of Health, University of New
 \maketitle
 %
 \begin{abstract}
-Using VariantSpark, we compare various machine learning algorithms on the 1092 individuals in the 1000 Genomes Project dataset.
-Although each algorithm that we investigate can classify or cluster individuals from three populations with near perfect accuracy,
-we find logistic regression to outperform the others. We observe a similar outcome on the entire dataset, with logistic regression
-classifying the majority of the individuals correctly. 
+Using VariantSpark, we compare various machine learning algorithms on the 1000 Genomes Project dataset.
+The algorithms we investigate classify or cluster the individuals from three populations with near perfect accuracy,
+with logistic regression outperforming the others.
+We proceed to investigate the algorithms on all four super-populations, where we also observe
+logistic regression to outperform the rest.
+However, even with the parallel nature of {\sc Spark}, resource requirements increase dramatically with the feature size,
+indicating that feature selection will be a requirement for larger datasets.
 
 \end{abstract}
 %
@@ -47,7 +50,7 @@ classifying the majority of the individuals correctly.
 
 %TODO other examples?
 
-\marginpar{I don't understand this. Can't you just ask a patient about their ancestry?}
+%\marginpar{I don't understand this. Can't you just ask a patient about their ancestry?}
 Determining a person's ethnicity has become important for medical applications, such as HLA allele genotyping from SNP
 information~\cite{Zheng2014}. Such clinical application are severely hampered for patients where accurate population
 association is unknown due to a diverse migrational background. Determining the population association from genomic
@@ -65,8 +68,8 @@ random and 1 a perfect clustering.  We argue that the suboptimal clustering is a
 rather than an insufficient number of genomic markers~\cite{Patterson2006} and hence hypothesise that a supervised
 machine learning method may be capable of separating these subgroups of low genetic divergence.  Indeed, bigdata
 genomics recently investigated the supervised method, deep learning, for clustering the 1000 Genomes data by
-ethnicity~\cite{Ferguson}.  \marginpar{``bigdata genomics'' seems to be a domain name \url{http://bdgenomics.org/} --
-  how should we cite this}
+ethnicity~\cite{Ferguson}.
+%\marginpar{``bigdata genomics'' seems to be a domain name \url{http://bdgenomics.org/} --  how should we cite this}
 
 In this paper we therefore systematically evaluate supervised and unsupervised methods for determining population
 association and compare our results to those obtained using deep learning.
@@ -108,7 +111,7 @@ To demonstrate \variantSpark's capability, we determine the cross-validation acc
 method and compare it against the simple supervised method LR as well as the unsupervised \kMeans{} in the first
 section.  In the second section we compare LR and \kMeans{} against the reported accuracy of the supervised multivariate
 deep learning (DL) method.  In section three we record the accuracy of LR and \kMeans{} on the full dataset set using all populations.
-In the last section we discuss the memory consumptions and runtime of LR compared to \kMeans{}.
+In the last section we discuss the memory consumptions and runtime of LR compared to \kMeans{} clustering.
 
 %\clearpage
 %\hrule
@@ -126,7 +129,7 @@ In the last section we discuss the memory consumptions and runtime of LR compare
 \section{Results}
 
 \subsubsection{Random Forest does not scale to whole genome analysis and is outperformed by logistic regression}
-In this section we compare RF against \kMeans\ and the LR.  
+In this section we compare RF against \kMeans\ and LR.  
 Despite using {\sc Spark} and {\sc MLlib}, RF is not able to scale to the full dataset of 1000 individuals and 40
 Million variables, due to a limitation of the Java virtual machine (maximum array size) that causes {\sc Mllib}'s
 random forest implementation to fail. This error is due to the number of features present in each sample,
@@ -141,7 +144,7 @@ We also report the mean error for the two classification methods, which is simpl
 We perform 10 runs of \kMeans{} with 4 clusters (\(k=4\)). As reported in our earlier work, \kMeans\ is not able to fit the dataset accurately,
 with an average ARI over ten models of \(0.596 \pm 0.067\) (see table~\ref{RF}).
 %Although capable of fitting a relatively accurate model (\(ARI=0.837\)), The average ARI over ten models is  \(0.596 \pm 0.067\), see table~\ref{RF}.
-RF achieves a better fitting model with a mean ARI of \(0.769 \pm 0.021\), however it is outperformed by the LR, with an ARI of \(0.923 \pm 0.015\).
+RF achieves a better fitting model with a mean ARI of \(0.769 \pm 0.021\), however it is outperformed by LR, with an ARI of \(0.923 \pm 0.015\).
 This indicates that while applying a supervised learning method results in higher accuracy, a multivariate approach may not be needed to accurately fit ethnicity. 
 
 
@@ -184,7 +187,7 @@ The mean ARI for our \kMeans{} clustering models on this dataset is \(0.960 \pm 
 This value is slightly less than the one reported for the deep-learning approach, which achieved an ARI of 0.976 (where one ASW and one GBR individual are misclassified as CHB). 
 Our supervised logistic regression approach, however, improves upon this result and achieves an ARI of 1 across the ten folds.
 
-Although we see a slight improvement with logistic regression in regards to other algorithms, their results are still very similar.
+Although we see this slight improvement with logistic regression in regards to other algorithms, their results are still very similar.
 However, there is not much room in the first place for logistic regression to demonstrate any potential increases in model accuracy.
 We therefore proceed to apply our method to the entire 1000 Genomes Project phase 1 dataset, which we previously clustered with an ARI of 0.84.
 
@@ -206,15 +209,14 @@ deep learning & 0.976 & 0.008 \\
 \end{center}
 \end{table}
 
-
 \subsubsection{Logistic regression is more accurate than \kMeans{} in capturing the full population structure}
 In this section we apply both the supervised LR and unsupervised \kMeans\ method on the full dataset of 14 populations and assess the 
 classification accuracy into the 4 super-populations.
 Using 10-fold cross-validation to assess the logistic regression classification results, we observe an average ARI of \(0.936 \pm{} 0.014\).
-This is an improvement on our previous result from \kMeans{} clustering the same dataset in our previous work, where we observed an ARI of \(0.83\).
+This is an improvement on our result from \kMeans{} clustering the same dataset in our previous work, where we observed an ARI of \(0.84\) (see table~\ref{ALLCHR}).
 
 \begin{table}
-\caption{Cross-validated results, mean accuracy (and standard error) on the 4 super-populations.}
+\caption{Cross-validated results, mean accuracy (and standard error of the mean) on the 4 super-populations.}
 \begin{center}
 \renewcommand{\arraystretch}{1.4}
 \setlength\tabcolsep{3pt}
@@ -225,11 +227,12 @@ LR  & 0.936 (0.014) & 0.029 (0.005) \\
 \kMeans & 0.84 & -- \\
 \noalign{\smallskip}
 \hline
+\label{ALLCHR}
 \end{tabular}
 \end{center}
 \end{table}
 
-To determine where the model is underperforming, we also record the precision and recall for each of the groups.
+To determine where the model is underperforming, we also record the precision and recall for each of the groups (see table~\ref{PR}).
 We observe that for each model, the precision and recall are always 1.0 for the EAS super-population.
 This demonstrates that each logistic regression model was able to classify every EAS individual correctly, while not misclassifying any other individuals as EAS.
 For the AMR group, however, we consistently observed a relatively low precision (\(0.829 \pm{} 0.02 \)).
@@ -253,25 +256,22 @@ EAS  & 1 (0) & 1 (0) \\
 EUR  & 1 (0) & 0.950 (0.015) \\
 \noalign{\smallskip}
 \hline
+\label{PR}
 \end{tabular}
 \end{center}
 \end{table}
 
 
+\subsubsection{\kMeans{} clustering is faster and consumes less memory than random forests and logistic regression}
 
-
-
-
-
-\subsubsection{\kMeans{} clustering is faster and consumes less memory than random forests}
-
-Time and resources vary greatly between the three algorithms, with the most resource intensive being random forests (see table~\ref{resources}).
+Time and resource consumption vary greatly between the three algorithms, with the most resource intensive being random forests (see table~\ref{resources}).
 This is likely due to RF being an ensemble method. For example, where logistic regression and \kMeans{} clustering build a single model,
-RF is building an forest of decision trees.
+RF is building an forest of decision trees. Although memory requirements for LR are identical to \kMeans{} clustering, LR requires more than twice as much time.
+
 When training on chromosome 22 (494,328 variants), resource requirements are kept to a minimum, with no more than 3GB memory required per executor (node)
-(6GB for RF). Although we specify 80 executors, the same algorithm could successfully complete on a much smaller cluster, at the expense of time. 
-However, when we train the algorithms on the entire genome, memory requirements increase to 24GB. This limited us to using 40 executors, due to memory availability.
-The memory requirements also restricts a job of that size to clusters with at least 24GB available. This demonstrates that pre-processing the data to reduce its dimensionality will
+for \kMeans and LR, with 6GB required for RF. Although we specify 80 executors, the same algorithm could successfully complete on a much smaller cluster, albeit at the expense of time. 
+However, when we train the algorithms on the entire genome, memory requirements increase to 24GB. This limited us to using 40 executors, due to memory availability, and would also restrict
+a job of this size to clusters with at least 24GB available. This demonstrates that pre-processing the data to reduce its dimensionality will
 be an essential step for future work, especially as datasets grow outwards.
 
 
@@ -306,7 +306,7 @@ logistic regression method compared to the
 %unsupervised \kMeans{} approach or the 
 multivariate random forest or deep learning approach as reported by
 Big Data Genomics using the ADAM framework (1 vs 0.96 and 0.976, respectively).  Furthermore, we observe a limitation within
-Java, which limits the random forest implementation of {\sc Spark}'s {\sc MLlib} to XX features for the 1096 individuals
+Java, which limits the random forest implementation of {\sc Spark}'s {\sc MLlib} to approximately 10 million features for the 1096 individuals
 of the 1000 Genomes Project.  This property would make feature selection mandatory for the 100,000 genome project when classifying their
 70,000 individuals, when using the same random forest implementation.  We conclude that while logistic regression
 outperforms all other methods it remains unable to accurately identify all individuals from EUR (lowest precision) or misclassify AMR (lowest recall) individuals. 
