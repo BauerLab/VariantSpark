@@ -1,4 +1,4 @@
-
+.DS_Store
 *.bbl
 
 *.pdf
@@ -26,3 +26,5 @@ doc/publications/incob2014/readme.html
 doc/publications/incob2014/images/mahout-logo.svg
 
 *.orig
+
+*~
