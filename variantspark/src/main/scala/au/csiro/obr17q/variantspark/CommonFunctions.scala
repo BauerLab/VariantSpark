@@ -1,34 +1,36 @@
 package au.csiro.obr17q.variantspark
 
-import org.apache.spark.mllib.linalg.Vector
-import org.apache.spark.mllib.linalg.{Vector=>MLVector, Vectors}
-import org.apache.log4j.Logger
-import org.apache.log4j.Level
-import java.lang.Math.sqrt
+import org.apache.spark.rdd.RDD
+import scala.language.postfixOps
+import scala.sys.process._
+
 object CommonFunctions {
    //val logger = Logger.getLogger("au.csiro.obr17q.variantspark");
    //logger.setLevel(Warn)
 
+
+  def toCsv (processedRDD: RDD[String]) {
+    
+  }
   
-  // Takes a VCF string and returns the distance between the variant and wildtype.
-  // Returns m if variant is missing (i.e. .|.)
-  // Useful to either impute 0 for missign variants, or -1 to filter out missing variants.
-  def variantDist(n: String, m: Int): Double = {
+  def variantDist(n: String, m: Int=0): Double = {
     val alleles = n.split(":")(0)
     val distance = if(!alleles.matches("""^[0-9][\||\/][0-9]$""")) m else alleles.split("""[\|]|[/]""").map(_.toDouble).reduce(_+_)
     return distance
   }
   
-  
-  def numNonzeros(n: Array[Double]): Int = {
-    // same as values.count(_ != 0.0) but faster
-    var nnz = 0
-    n.foreach { v =>
-      if (v != 0.0) {
-        nnz += 1
-      }
-    }
-    return nnz
+  def getBmi(height: Double, weight: Double): Double = {
+    if (height > 0 && weight > 0) {
+      val h = if (height > 10) height/100 else height
+      weight / (h * h)
+    } else 0
   }
-    
+
+  def GetRandIndex(predicted: String, expected: String, pythonPath: String = "/usr/bin/python"): String = {
+    val pythonFunc = "from sklearn.metrics.cluster import adjusted_rand_score;print adjusted_rand_score(%s, %s)".format(predicted, expected)
+    Seq(pythonPath, "-c", pythonFunc) !!
+  }
+  
 }
+
+

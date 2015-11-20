@@ -1,26 +1,10 @@
 package au.csiro.obr17q.variantspark
 
 import au.csiro.obr17q.variantspark.CommonFunctions._
-import au.csiro.obr17q.variantspark.CustomSettings._
-
-import au.com.bytecode.opencsv.CSVParser
-import org.apache.spark.mllib.linalg.Vector
-import org.apache.spark.mllib.linalg.{Vector=>MLVector, Vectors}
 import org.apache.spark.mllib.clustering.KMeans
-import org.apache.spark.rdd.RDD
-import sys.process._
-import java.util.Arrays;
-import java.io.Writer;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import org.json.JSONObject;
-import org.json.JSONArray;
+import org.apache.spark.mllib.linalg.Vectors
+
 import scala.io.Source
-
-
-
-
 
 object VcfClustering extends SparkApp {
   conf.setAppName("VCF cluster")
@@ -34,7 +18,6 @@ object VcfClustering extends SparkApp {
          */
         Array(
             "data/merged.vcf", //Input VCF file
-            "0", "2811814",  //Filter for variants between these two values
             "3",             //Number of clusters (k)
             "",   //Groups for inclusion
             "",   //Groups for exclusion
@@ -48,87 +31,51 @@ object VcfClustering extends SparkApp {
         println("Usage: CsvClusterer <input-path>")
     }
 
-
-    val StartPos = args1(1).toLong
-    val EndPos = args1(2).toLong
-    val k = args1(3).toInt
-    val IncludeGroups = args1(4).split('|')
-    val ExcludeGroups = args1(5).split('|')
-    val SampleSize = args1(6).toFloat
-    val VariantRe = """^[A-Za-z]{2}[A-Fa-f0-9]{4,6}$""".r // More generic individual ID matcher
-    
-    // The VCF file(s)
-    val VcfFiles = sc.textFile(args1(0), 10)
-        
-    // Returns the heading row from the FASTA file
-    val Headings = VcfFiles
-    .filter( _.startsWith("#CHROM") )
-    .map(
-      line => {
-        val parser = new CSVParser('\t') 
-        parser.parseLine(line)
-    } ).map(e => List(e:_*)).first()
-        
-
-    val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
-    val Populations = sc.parallelize(new PopulationMap(PopFiles, "Participant", ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups).toList)
-
-    //val PopFiles = Source.fromFile("data/ALL.panel").getLines()
-    //val Populations = sc.parallelize(new PopulationMap(PopFiles, "sample", '\t', 0, 1 ).returnMap(IncludeGroups, ExcludeGroups).toList)
-    
-    Populations.foreach { p => println(p.IndividualId) }
-   
-    // Array of elements for each line in the VCF file
-    // Array elements are zipped with the VCF heading
-    val AllVariants = VcfFiles
-    .filter( !_.startsWith("#") )
-    .mapPartitions( lines => {
-      val parser = new CSVParser('\t')
-      lines.map( line => {
-        parser.parseLine(line)
-        .zip(Headings)
-      } )
-      //.filter(g => (g(0)._1 == "2") ) //Filter for specified chromosome
-      //.filter(g => (g(1)._1.toInt >= StartPos && g(1)._1.toInt <= EndPos) ) //Filter for variant position
-    } ).sample(false, SampleSize)
-
-    val pStartTime = System.currentTimeMillis();
-    // The total number of alleles present in the VCF file.
-    val NoOfAlleles = AllVariants.count().toInt
+    val VcfFiles = args1(0)
+    val k = args1(1).toInt
+    val IncludeGroups = args1(2).split('|')
+    val ExcludeGroups = args1(3).split('|')
+    val VariantCutoff = args1(4).toInt
 
     
     
     
     
-    
-    // Vector of elements for each individual
-    // Vector elements are zipped with the Individual ID
-    val SparseVariants = AllVariants
-    .zipWithIndex // zip each row array (of alleles) with a unique index
-    .flatMap( (h) => {
-      h._1
-      .filter( v => VariantRe.findFirstIn(v._2).isDefined ) //filter kv pairs that aren't variants (don't match regex)
-      .map( i => ( i._2, (h._2.toInt, variantDist(i._1, 0)) ) ) //convert strings to distance
-      .filter(_._2._2 != 0) //remove 0-variants to make data sparce
-    })    
+    //val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
+    //val Populations = sc.parallelize(new PopulationMap(PopFiles, 1, ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups))
+
+    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
+    val Populations = sc.parallelize(new MetaDataParser(PopFiles, 1, '\t', "NA", 0, 1 ).returnMap(IncludeGroups, ExcludeGroups))
+    val vcfParser = new VcfParser(VcfFiles, VariantCutoff, sc)
+
+    val NoOfAlleles = vcfParser.variantCount
+
+    val FilteredAlleles = vcfParser.individualTuples
+
+
+
+    /**
+     * Vector of elements for each individual
+     * Vector elements are zipped with the Individual ID
+     */
+    val IndividualVariants = FilteredAlleles
     .groupByKey //group by individual ID, i.e. get RDD of individuals
-    .join(Populations.map(_.toIndo)) //filter out population groups you don't want
-    .map(h => (h._1, Vectors.sparse(NoOfAlleles, h._2._1.to[Seq] ) ))//.cache() //create sparse vectors
+    .join(Populations.map(_.toPops)) //filter out population groups you don't want
+    .map(h => (h._1, h._2._2, Vectors.sparse(NoOfAlleles, h._2._1.to[Seq] )))//.cache() //create sparse vectors
 
 
 
 
-
-    /** Print populations included and number of individuals **/
-    //SparseVariants.map(p => (p._1, 1)).join(Populations).map(p => (p._2._2._1, 1)).reduceByKey(_ + _).collect().foreach(println)
+    /** Print populations included and number of individuals (slow) **/
+    //IndividualVariants.map(p => (p._1, 1)).join(Populations.map(_.toPops)).map(p => (p._2._2, 1)).reduceByKey(_ + _).collect().foreach(println)
 
     /** Print the count of variants for each individual **/
     //val countt = SparseVariants.map(p => (p._2.toArray).reduce(_ + _)).collect().foreach(println)
 
-
     //Populations.collect().foreach(println)
-    println("Processed VCF file with %s alleles.".format( NoOfAlleles))
-    val pEndTime = System.currentTimeMillis();  
+    println("Processed VCF file with %s variants.".format(NoOfAlleles))
+    
+    val pEndTime = System.currentTimeMillis()
 
 
 
@@ -152,20 +99,18 @@ object VcfClustering extends SparkApp {
     //println(s"Average absolute error in estimate is: $MAE")
 
 
-     val dataFrame = SparseVariants.map(p => (p._2) )
+     //val dataFrame = SparseVariants.map(p => (p._2) )
 
 
-    //dataFrame.saveAsObjectFile("/flush/obr17q/genomeRDD-PGP")
-
-
-    //val dataFrame: RDD[(String, Array[Double])] = sc.objectFile("/flush/obr17q/genomeRDD-PGP").cache();
-    //val dataFrame: RDD[Vector] = sc.objectFile("/flush/obr17q/genomeRDD-chr22").cache();
-
+    //val SparseVariants: RDD[(String, String, Vector)] = sc.objectFile("/flush/obr17q/phase3RDD")
+    
+    val dataFrame = IndividualVariants.cache()
+    //val dataFrame: RDD[Vector] = sc.objectFile("/flush/obr17q/genomeRDD-chr22").cache()
 
 
 
     /*
-    val writer = new PrintWriter(HOME + "pgp.json", "UTF-8");
+    val writer = new PrintWriter(HOME + "pgp.json", "UTF-8")
     val m2JSONArray = new JSONArray()
     dataFrame.collect().foreach(p => {
       val mJSONArray = new JSONArray(p._2.toArray)
@@ -175,7 +120,7 @@ object VcfClustering extends SparkApp {
       m2JSONArray.put(mJSONObject)
     })
     writer.println( m2JSONArray )
-    writer.close();
+    writer.close()
     */
     
     
@@ -183,18 +128,23 @@ object VcfClustering extends SparkApp {
     
     
     
-    val kStartTime = System.currentTimeMillis();
-    val KMeansModel = KMeans.train(dataFrame, k, 300)
-    val kEndTime = System.currentTimeMillis();
+    val kStartTime = System.currentTimeMillis()
+    val model = KMeans.train(dataFrame.map(_._3), k, 300)
+    //model.save(sc, "myModelPath")
+    //val model = KMeansModel.load(sc, "myModelPath")
+    val kEndTime = System.currentTimeMillis()
 
-    val WSSSE = KMeansModel.computeCost(dataFrame)
+
+    
+    
+    val WSSSE = model.computeCost(dataFrame.map(_._3))
     
    
     
     
     /** predictions = RDD(IndividualID, DistanceFromCenter, Centroid) **/
-    val predictions = SparseVariants.map(p => {
-      (p._1, Vectors.sqdist(p._2, KMeansModel.clusterCenters(KMeansModel.predict(p._2))), KMeansModel.predict(p._2) )
+    val predictions = IndividualVariants.map(p => {
+      (p._1, Vectors.sqdist(p._3, model.clusterCenters(model.predict(p._3))), model.predict(p._3) )
     })
      
     val SuperPopulationUniqueId = Populations.map(_.SuperPopulationId).distinct().zipWithIndex() //For ARI
@@ -221,20 +171,19 @@ object VcfClustering extends SparkApp {
 
     // Find the Adjusted Rand Index.
     // Must have Python and module Scikit installed. 
-    val pythonPath = "/usr/bin/python"
+
+    
     //val pythonPath ="/Library/Frameworks/Python.framework/Versions/2.7/bin/python"
     val clustered = "[%s]".format(predVsExpec.map(_._2.toString()).reduceLeft(_+","+_))
     val expected = "[%s]".format(predVsExpec.map(_._3.toString()).reduceLeft(_+","+_))
-
-    val pythonFunc = "from sklearn.metrics.cluster import adjusted_rand_score;print adjusted_rand_score(%s, %s)".format(clustered, expected)
-    val adjustedRandIndex = Seq(pythonPath, "-c", pythonFunc) !!
+    val adjustedRandIndex = GetRandIndex(clustered, expected)
     
     println("Metrics:")
-    println("Pre-processing time: %s seconds".format((pEndTime - pStartTime)/1000.0));
-    println("k-Means time: %s seconds".format((kEndTime - kStartTime)/1000.0));
+    //println("Pre-processing time: %s seconds".format((pEndTime - pStartTime)/1000.0))
+    println("k-Means time: %s seconds".format((kEndTime - kStartTime)/1000.0))
     println("Within Set Sum of Squared Errors = %s".format(WSSSE))
     println("Adjusted Rand Index: %s".format(adjustedRandIndex))
-    println("From %s alleles".format(NoOfAlleles))
+    //println("From %s alleles".format(NoOfAlleles))
     
         
     

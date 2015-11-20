@@ -1,79 +1,81 @@
 package au.csiro.obr17q.variantspark
 
-import au.com.bytecode.opencsv.CSVParser
-import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.linalg.Vector
-import org.apache.spark.mllib.linalg.{Vector=>MLVector, Vectors}
-import org.apache.spark.mllib.tree.RandomForest
-import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.feature.ChiSqSelector
+import org.apache.spark.mllib.linalg.{Vector => MLVector, Vectors}
+import org.apache.spark.mllib.regression.LabeledPoint
+
+import scala.io.Source
 
 
 /**
  * @author obr17q
  */
 object VcfSelection extends SparkApp {
-  conf.setAppName("VCF foresting")
+  conf.setAppName("VCF Feature Selection")
     
   def main(args:Array[String]) {
-    val numClasses = 2 // 0 - healthy, 1 - obese
-    val categoricalFeaturesInfo = Map[Int, Int]()
-    val numTrees = 500
-    val featureSubsetStrategy = "auto"
-    val impurity = "entropy"
-    val maxDepth = 20
-    val maxBins = 300
-    val seed = 4363465
-  
-
-    val genoFiles = sc.textFile("data/tcga_csv_1k.csv");
 
     
-    // Population information
-    val featureLabels = genoFiles
-    .first().split(',').splitAt(2)._2
 
-    // Population information
-    val Populations = genoFiles
-    .filter( !_.startsWith("bcr_sample_barcode") )
-    .mapPartitions ( lines => {
-      val parser = new CSVParser(',')
-      lines.map ( line => {
-        val l = parser.parseLine(line)
-        val name = l(0)
-        val obese = l(1).toDouble
-        val genotype = l.slice(2,l.length).map(_.toDouble)
-        val genotypeVector = Vectors.dense(genotype)
-        val n = l.length
-        LabeledPoint(obese, genotypeVector)
-        //( name, obese, v ) // IndividualID, ObesityStatus, Relationship
-      } )
-    } )
+    val VcfFiles = args(0)
+    val Features = args(1).toInt
+    val VariantCutoff = args(4).toInt
 
     
-    val selector = new ChiSqSelector(10)
-    val transformer = selector.fit(Populations)
-    val filteredData = Populations.map { lp =>
-      LabeledPoint(lp.label, transformer.transform(lp.features)) 
-    }
-    val splits = filteredData.randomSplit(Array(0.6, 0.4))
-    val (trainingData, testData) = (splits(0), splits(1)) 
-    
-    val model = RandomForest.trainClassifier(trainingData, numClasses, categoricalFeaturesInfo,
-        numTrees, featureSubsetStrategy, impurity, maxDepth, maxBins)
-        
-    val labelAndPreds = testData.map { point =>
-      val prediction = model.predict(point.features)
-      (point.label, prediction)
-    }
-    val testErr = labelAndPreds.filter(r => r._1 != r._2).count.toDouble / testData.count()
-    println("Learned classification forest model:\n" + model.totalNumNodes)
-    println("Test Error = " + testErr)
+    // (..., "", 0, 2) for super-populations, (..., "", 0, 1) for populations Remember to change filters etc.
+    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
+    //val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 2)(SexCol = 3, extra1 = 1).returnMap()) //Super-populations
+    val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 1)(SexCol = 3, extra1 = 2).returnMap())
 
+    
+    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, sc)
+
+    val NoOfAlleles = vcfObject.variantCount
+
+    val FilteredAlleles = vcfObject.individualTuples
+    
+    val IndividualVariants = FilteredAlleles
+    .groupByKey //group by individual ID, i.e. get RDD of individuals
+    //.map(p => (p._1.split('_')(0).substring(0,12), (p._1.split('_')(1), p._2)))
+    .map(p => (p._1, (p._1, p._2)))
+    .join(IndividualMeta.map(_.toIndo)) //filter out individuals lacking required data 
+    .map(h =>
       
+      /*(h._1, h._2._2._1, h._2._2._2, LabeledPoint(
+                  if (h._2._2._1 =="EUR") 0
+                  else if (h._2._2._1 =="AFR") 1 else if (h._2._2._1 =="AMR") 2
+                  else if (h._2._2._1 =="EAS") 3
+                  else -1, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] )
+                  ))*/
+      
+      (h._1, h._2._2._1, h._2._2._2, LabeledPoint(
+                  if (h._2._2._1 =="GBR") 0
+                  else if (h._2._2._1 =="ASW") 1 else if (h._2._2._1 =="CHB") 2
+                  else -1, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] )
+                  ))
+
+    )
+    //.filter(_._2 == "NORMAL")
+    .cache
+    //def isObese(i: Double) = i >= 30
+    //val obese = SparseVariants.filter(h => isObese(h._3)).count
+    //val healthy = SparseVariants.count - obese
+    //println("Totals:")
+    //println(obese + " obese")
+    //println(healthy + " healthy")
+    println("Selecting " + Features + " features from " + NoOfAlleles + " alleles")    
     
-    labelAndPreds.foreach(println)
-    val feats = transformer.selectedFeatures.map(_.toString()).reduceLeft(_+","+_)
-    println(feats)
+    
+    
+    val labeled = IndividualVariants.map(_._4).cache
+    val selector = new ChiSqSelector(Features)
+    val transformer = selector.fit(labeled)
+    val filteredData = IndividualVariants.map { lp =>
+      (lp._1, lp._2, lp._3, LabeledPoint(lp._4.label, transformer.transform(lp._4.features)))
+    }
+    
+    filteredData.saveAsObjectFile("1000reduced")
+
+
   }
 }
