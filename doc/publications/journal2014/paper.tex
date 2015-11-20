@@ -402,26 +402,48 @@ These benefits of speed, resource consumption and scalability allows \variantSpa
 
 \section*{Materials and methods}
 \subsection*{Computational resources}
-We completed the Chromosome 22 comparisons on a virtual machine (VM) hosted on Microsoft Azure. This VM is an A7 Linux instance with 8 cores, 56GB memory running Ubuntu. 
-For the whole-genome clustering, we used our in-house Hadoop cluster with Hadoop 2.5.0, managed by cloudera's CDH 5. We use Spark 1.3.1. This 13 node cluster has a total of 416 cores and 1.22TB memory.
+We completed the Chromosome 22 comparisons on a virtual machine (VM) hosted on Microsoft Azure. This VM is an A7 Linux instance with 8 cores, 56GB
+memory running Ubuntu. 
+For the whole-genome clustering, we used our in-house Hadoop cluster with Hadoop 2.5.0, managed by cloudera's CDH 5. We use Spark 1.3.1. This 13 node
+cluster has a total of 416 cores and 1.22TB memory.
 
 
 \subsection*{Datasets}
-We used phase 1 variants from the 1000 Genomes Project. On the 22 autosomes, this dataset contains variants for 1092 individuals, spread over a total 38,219,238 alleles.
-We also used a subset of this dataset, the variants from chromosome 22 containing 494,328 alleles.
+We use the 22 autosomes from the 1000 Genomes Project phase 1 dataset. This dataset contains variants from 1092 individuals, across 38,219,238 alleles.
+For the smaller dataset, we use the variants from chromosome 22, with 494,328 alleles.
 The individuals from these datasets are distributed across four super populations, African (AFR), Mixed American (AMR), East Asian (EAS) and European (EUR).
+We also cluster the Phase 3 dataset, which, contains variants from 2535 individuals, across 81,271,745 variants. As well as the above for super populations, this
+dataset also includes South Asian (SAS).
 
 
 
 \subsection*{VariantSpark Implementation}
-To cluster the individuals in a VCF file, we initially need to pre-process the variants to feature vectors.
-In \variantSpark{} we read in the VCF files as text files to a Resilient Distributed Dataset (RDD). RDDs allow us to process the files, line-by-line, in parallel. We parse each line as tab-separated values, and with Spark's `zip' function, `zip' each value with it's heading (Sample name) from the VCF file, resulting in key-value pairs (KVPs) for each line see Figure 2 (Spark step 1). 
-We then `zip' each pair with a unique sequential index, which later-on will serve as identifier for each allele (and keep the genome loci order), resulting in a KVP array (step 2).
-We use `flatMap' to transpose the data structure to facilitate the grouping of variants by individuals.
-For the \kMeans{} clustering, we convert the VCF genotypes (i.e. `0\textbar{}1') to doubles using the Hamming distance to the reference, where a 1 represents a heterozygous variant, 2 a homozygous variant, and 0, no variant. 
-To remove uninformative KVPs, we filter out any alleles that have no variant. 
-We perform this `map' operation inside the previous `flatMap' (step 3).
-We can now group these KVPs by their key (the individual ID) and save them to sparse vectors (step 4).
+To cluster individuals from a VCF file, we initially need to pre-process the variants to feature vectors.
+In \variantSpark{} we read in VCF files as text files, to a Resilient Distributed Dataset (RDD). RDDs allow us to process the files, line-by-line, in parallel.
+
+We parse each line as tab-separated values, and store these the values from each line in an array.
+
+For each array, we use Spark's `zip' function to `zip' each value with it's heading (Sample name) from the VCF file. Now each array element is a
+key-value pair (KVP) of the previous value and its heading. For the KVPs that contain an allele as the value, the key (derived from the heading) is
+the Individual ID (see Figure 2, Spark step 1).
+
+For each array, we remove any KVPs that represent data other than alleles (such as the genomic location). With the remaining KVPs, which all
+represent alleles, we apply a function to convert these from the strings found in VCF files (i.e. `0\textbar{}1'), to doubles, where the double is the
+Hamming distance to the reference. I.e. a 1 represents a heterozygous variant, 2, a homozygous variant, and 0, no variant. Because we will
+eventually be converting this data to sparse vectors, we remove any KVPs with a value of 0 (i.e. no variant).
+
+At this stage, we can optionally filter variants that don't match a specific criteria. For the Phase 3 dataset, we exclude rare variants that are present in
+only one individual. Because each array now only contains variants (rather than every allele), we can simply drop arrays with a length of one, as the length
+of each array is equal to the number of individuals who have a variant at that allele.
+
+Now that the dataset only contains alleles we are interested in, we `zip' each array with a unique sequential index (allele ID). This index will serve
+as identifier for each allele (and keep the genome loci order) (step 2).
+
+Although we now have the data we require, the variants are stored in arrays of alleles, whereas we require the data to be transposed into arrays of individuals.
+To facilitate the grouping of variants by individuals, we use `flatMap' to flatten out the arrays into a collection of KVPs, where the key is the individual ID, and the
+value is a tuple of the variant ID and the variant.
+
+We can now group these KVPs by their key (individual ID) and save them to sparse vectors (step 4).
 
 
 \subsection*{{\sc ADAM} Implementation}
@@ -435,8 +457,11 @@ The primary key ensures that KVPs for each individual are distributed to the sam
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. 
 
 \subsection*{R Implementation}
-For our R implementation, we read in a VCF file as a table and convert it to a matrix, filtering columns where all variant as conform to the reference. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
-We then transpose the matrix, resulting in a data-structure where each row represents an individual. We convert the matrix to a `big.matrix', for the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}). 
+For our R implementation, we read in a VCF file using {\sc read.table}, and then convert the resulting table to a matrix ({\sc vcfMatrix} with {\sc as.data.frame.matrix}.
+We remove the first 9 columns which leaves us with just the variants. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
+We then transpose the matrix with {\sc t(vcfMatrix)}, which results in a data-structure where each row represents an individual. We convert the matrix to a {\sc big.matrix} object,
+as required by the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}), and then call {\sc bigkmeans} with
+the {\sc big.matrix} object and the required number of clusters as arguments.
 
 \subsection*{Python Implementation}
 Our Python implementation reads in lines from a VCF file as tab-separated values and stores the lines in a pandas DataFrame (\url{http://pandas.pydata.org}). The column headings are the individual IDs and the row headings are the allele locations.
