@@ -11,6 +11,7 @@ import org.apache.spark.SparkContext
 class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: SparkContext) extends java.io.Serializable {
 
 
+  private val NotAVariant = "#CHROM" :: "POS" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
 
   private val VcfFilesRDD = sc.textFile(VcfFileNames, 20)
 
@@ -38,7 +39,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
    */
   private val VcfLineRdd : RDD[(Long, Array[(String, Double)])] = {
     val VariantCutoff = this.VariantCutoff
-    val NotAVariant = "#CHROM" :: "POS" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
+    val NotAVariant = this.NotAVariant
     val Headings = getHeadings(VcfFilesRDD)
     VcfFilesRDD
     .filter( !_.startsWith("#") )
