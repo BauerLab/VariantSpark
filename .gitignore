@@ -28,3 +28,9 @@ doc/publications/incob2014/images/mahout-logo.svg
 *.orig
 
 *~
+
+data
+
+.project
+.classpath
+.settings

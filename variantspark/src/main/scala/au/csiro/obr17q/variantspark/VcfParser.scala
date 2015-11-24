@@ -4,6 +4,7 @@ import au.com.bytecode.opencsv.CSVParser
 import au.csiro.obr17q.variantspark.CommonFunctions.variantDist
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
+import model.FlatVariant
 
 /**
  * @author obr17q
@@ -79,4 +80,11 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
     })
   }
   
+  def individualVariants : RDD[FlatVariant] = {
+    VcfLineRdd
+    .flatMap( (h) => {
+      h._2
+      .map( i => FlatVariant( i._1, h._1.toInt, i._2))
+    })
+  }
 }
