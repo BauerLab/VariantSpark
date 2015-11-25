@@ -29,21 +29,25 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_${scala.tools.version}</artifactId>
       <version>1.5.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-mllib_${scala.tools.version}</artifactId>
       <version>1.5.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.databricks</groupId>
       <artifactId>spark-csv_${scala.tools.version}</artifactId>
       <version>1.2.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.json</groupId>
@@ -103,6 +107,25 @@
             </includes>
         </configuration>
       </plugin>
+      
+      <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-shade-plugin</artifactId>
+              <version>2.3</version>
+              <executions>
+                      <execution>
+                              <phase>package</phase>
+                              <goals>
+                                      <goal>shade</goal>
+                              </goals>
+                      </execution>
+              </executions>
+              <configuration>
+                      <shadedArtifactAttached>true</shadedArtifactAttached>
+                      <shadedClassifierName>all</shadedClassifierName>
+              </configuration>
+      </plugin>      
+      
     </plugins>
   </build>
 </project>
