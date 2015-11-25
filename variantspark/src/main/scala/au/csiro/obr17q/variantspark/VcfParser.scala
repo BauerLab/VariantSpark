@@ -68,7 +68,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
   /**
     * Number of variants in the file
     */
-  val variantCount : Int =
+  lazy val variantCount : Int =
     VcfLineRdd.count().toInt
 
 
