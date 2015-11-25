@@ -114,7 +114,7 @@ object SparseClustering extends SparkApp {
     
     
     val kStartTime = System.currentTimeMillis()
-    val model = KMeans.train(dataFrame.map(_._3), k, 300)
+    val model = KMeans.train(dataFrame.map(_._3), k, 300, 1, "random")
     //model.save(sc, "myModelPath")
     //val model = KMeansModel.load(sc, "myModelPath")
     val kEndTime = System.currentTimeMillis()
