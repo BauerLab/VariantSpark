@@ -354,7 +354,7 @@ Although we have demonstrated the advantages of \variantSpark{} over traditional
 To demonstrate this scalability, we increase the number of variants used in the clustering from the initial 494,328 on chromosome 22 to 38,219,238 including all variants in the genome.
 
 We run this comparison on our in-house Hadoop cluster using 40 cores.
-Pre-processing the VCF files takes approximately 12 minutes, 19 minutes, 27 minutes and 40 minutes for 20\%, 40\%, 60\% and 100\% of the genome, respectively (see Table 2).
+Pre-processing the VCF files takes approximately 12, 19, 27 and 40 minutes for 20, 40, 60 and 100 percent of the genome, respectively (see Table 2).
 In each case, the memory required does not exceed a modest 2GB per executor, even for the complete genome. 
 Clustering the data takes 70 minutes, 139 minutes, 213 minutes and 884 mins, respectively.
 For clustering, the memory requirements increase approximately linearly to 24GB per executor (see Figure 1). 
@@ -363,6 +363,8 @@ While \kMeans{} clustering can scale to 100\% of the genome, machine learning al
 
 We do not observe an increase in cluster accuracy when providing variants from all chromosomes, indicating that current practice of clustering based on a subset of the genome is sufficient to define the existing population boundaries for populations with large genetic distance~\cite{Pugach2015}.
 
+To further demonstrate the scalability of \variantSpark{}, we also cluster the larger 1000 Genomes Project phase 3 VCF files. Although \kMeans{} clustering completes successfully on this dataset,
+it takes over 27 hours (see Table 2) due to more than twice the number of individuals, and hence more variants. For comparison, the uncompressed size of the phase 3 files is 770GB vs the 161GB of the phase 1 dataset.
 
 \subsection*{Determining the population structure of the Personal Genome Project}
 To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features~\cite{Lunshof2013}. 
@@ -462,6 +464,13 @@ We remove the first 9 columns which leaves us with just the variants. As with ou
 We then transpose the matrix with {\sc t(vcfMatrix)}, which results in a data-structure where each row represents an individual. We convert the matrix to a {\sc big.matrix} object,
 as required by the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}), and then call {\sc bigkmeans} with
 the {\sc big.matrix} object and the required number of clusters as arguments.
+
+%Compare with our old implementation still? Or just have the VariantAnnotation one.
+%Do we acknowledge that this is a reviewer suggestion in any way?
+We also compare this approach to one using the `VariantAnnotation' package. Reading the VCF file to a matrix with `readGT' is faster than reading a VCF file to a table using R's `read.table', at 116 seconds compared to 207 seconds,
+however, because `readGT' only includes genotype information in the matrix, we can simplify our function that converts this information into numeric values. This speeds up processing time greatly. More implementation details are available
+in the supplementary material. 
+
 
 \subsection*{Python Implementation}
 Our Python implementation reads in lines from a VCF file as tab-separated values using {\sc DataFrame.from\textunderscore{}csv}, and stores the data in a pandas DataFrame (\url{http://pandas.pydata.org}). The column headings are the individual IDs and the row headings are the allele locations.
@@ -600,6 +609,7 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
 40\%		& 64	& 2	& 19min 9sec	& 64	& 12	& 2hr 19min	\\
 60\%		& 64	& 2	& 26min 34sec	& 64	& 17	& 3hr 33min	\\
 100\%	& 64	& 2	& 40min 48sec	& 40	& 24	& 14hr 44min	\\
+???\%	& 64 & 2	& ??min ??sec	& 40 & 24	& 27hr 46min	\\
   \hline
       \end{tabular}
 \end{table}
