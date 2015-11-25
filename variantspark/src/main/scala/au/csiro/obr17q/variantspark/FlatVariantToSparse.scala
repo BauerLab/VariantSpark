@@ -48,7 +48,7 @@ object FlatVariantToSparse extends SparkApp {
           (m, t) =>  {m.put(t._1,t._2); m},
           (m1,m2) => {m1.putAll(m2); m1}
        )
-      .mapValues(i => map2Sparse(maxVariantIndex,i))
+      .mapValues(i => map2Sparse(maxVariantIndex+1,i))
       .map {case (subjectId, sparseVector) =>
         SubjectSparseVariant(subjectId, sparseVector.size, sparseVector.indices, sparseVector.values)}
       .toDF().saveAsParquetFile(output)  
