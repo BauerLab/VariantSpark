@@ -28,7 +28,7 @@ object SparseClustering extends SparkApp {
     //val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
     //val Populations = sc.parallelize(new PopulationMap(PopFiles, 1, ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups))
 
-    val PopFiles = Source.fromFile("../data/ALL.panel").getLines()
+    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
     val Populations = sc.parallelize(new MetaDataParser(PopFiles, 1, '\t', "NA", 0, 1 ).returnMap(IncludeGroups, ExcludeGroups))
 
     
