@@ -2,6 +2,8 @@ package au.csiro.obr17q.variantspark.algo
 
 import au.csiro.obr17q.variantspark.SparkApp
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.rdd.RDD
 
 object TestWideKMeans extends SparkApp {
   conf.setAppName("VCF cluster")
@@ -9,6 +11,7 @@ object TestWideKMeans extends SparkApp {
   
   def main(args:Array[String]) {
     println("Testign WideKMeans")
+    
     
     val dims = 1000
     val centersNo = 5
@@ -19,7 +22,7 @@ object TestWideKMeans extends SparkApp {
     val clusterAssignment = Range(0,samples).map(i => Math.floor(Math.random()*centersNo).toInt).toList
     println(clusterAssignment)
     
-    val data = centers.map(v =>
+    val data:RDD[Vector] = centers.map(v =>
       Vectors.dense(clusterAssignment.map(c => v(c) + (Math.random() * clusterVariance - clusterVariance/2)).toArray)
     )
     

@@ -5,6 +5,11 @@ import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.mllib.linalg.Vectors
 import java.util.Arrays
 import org.apache.spark.SparkContext
+import org.apache.spark.mllib.linalg.SparseVector
+
+object WideKMeans {
+  def sqr(d:Double) = d*d
+}
 
 class WideKMeans(kk:Int, kiter:Int) {
   
@@ -75,7 +80,8 @@ class WideKMeans(kk:Int, kiter:Int) {
      val clusterAssignment = data.zip(clusterCentres)
         .aggregate(Array.fill(dims)(Array.fill(k)(0.0)))(
             (dists, vac) => {
-              for(i <- Range(0,dims); j<- Range(0,k)) {dists(i)(j) += (vac._1(i) - vac._2(j))*(vac._1(i) - vac._2(j)) }
+              val dv = vac._1.toArray
+              for(i <- Range(0,dims); j<- Range(0,k)) {dists(i)(j) += WideKMeans.sqr(dv(i) - vac._2(j)) }                
               dists
             } ,  // add sqr(dists - vectorsAndCenters) for all (i, j)
             (dist1, dist2) => { 
