@@ -23,7 +23,7 @@ object TestWideKMeans extends SparkApp {
     println(clusterAssignment)
     
     val data:RDD[Vector] = centers.map(v =>
-      Vectors.dense(clusterAssignment.map(c => v(c) + (Math.random() * clusterVariance - clusterVariance/2)).toArray)
+      Vectors.dense(clusterAssignment.map(c => v(c) + (Math.random() * clusterVariance - clusterVariance/2)).toArray).toSparse
     )
     
     val test = data.cache().count()
