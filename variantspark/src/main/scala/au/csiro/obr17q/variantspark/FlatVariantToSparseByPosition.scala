@@ -49,11 +49,8 @@ object FlatVariantToSparseByPosition extends SparkApp {
     
     val parirRDD:RDD[(Int,(Int,Double))] = flatVariandDF.rdd.map(r => (r.getInt(1), (br_subjectToIndexMap.value(r.getString(0)), r.getDouble(2))))
     parirRDD
-      .aggregateByKey(new Int2DoubleOpenHashMap(),chunks)(
-          (m, t) =>  {m.put(t._1,t._2); m},
-          (m1,m2) => {m1.putAll(m2); m1}
-       )
-      .mapValues(i => map2Sparse(subjectsSize,i))
+      .groupByKey(chunks)
+      .mapValues(i => Vectors.sparse(subjectsSize,i.to[Seq]).toSparse)
       .map {case (locusId, sparseVector) =>
         LocusSparseVariant(locusId, sparseVector.size, sparseVector.indices, sparseVector.values)}
       .toDF().saveAsParquetFile(output)  
