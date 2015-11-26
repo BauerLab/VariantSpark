@@ -64,7 +64,12 @@
 	<groupId>it.unimi.dsi</groupId>
 	<artifactId>fastutil</artifactId>
 	<version>7.0.8</version>
-</dependency>
+	</dependency>
+	<dependency>
+		<groupId>com.github.tototoshi</groupId>
+		<artifactId>scala-csv_2.10</artifactId>
+		<version>1.2.2</version>
+	</dependency>
 </dependencies>
 
   <build>

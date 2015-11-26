@@ -15,6 +15,10 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleRBTreeMap
 import org.apache.spark.mllib.linalg.SparseVector
 import scala.collection.mutable.HashMap
 import au.csiro.obr17q.variantspark.model.LocusSparseVariant
+import au.csiro.pbdava.sparkle.LoanUtils
+import com.github.tototoshi.csv.CSVWriter
+import java.io.FileWriter
+import java.io.File
 
 
 object FlatVariantToSparseByPosition extends SparkApp {
@@ -54,5 +58,10 @@ object FlatVariantToSparseByPosition extends SparkApp {
       .map {case (locusId, sparseVector) =>
         LocusSparseVariant(locusId, sparseVector.size, sparseVector.indices, sparseVector.values)}
       .toDF().saveAsParquetFile(output)  
+      
+    // and also commit the dictionary
+    LoanUtils.withCloseable(new CSVWriter(new FileWriter(new File(output, "_index.csv")))) { cvsWriter =>
+        subjectToIndexMap.foreach(t => cvsWriter.writeRow(t.productIterator.toSeq))
+    }
   } 
 }
