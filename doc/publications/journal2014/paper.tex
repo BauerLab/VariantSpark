@@ -363,8 +363,14 @@ While \kMeans{} clustering can scale to 100\% of the genome, machine learning al
 
 We do not observe an increase in cluster accuracy when providing variants from all chromosomes, indicating that current practice of clustering based on a subset of the genome is sufficient to define the existing population boundaries for populations with large genetic distance~\cite{Pugach2015}.
 
-To further demonstrate the scalability of \variantSpark{}, we also cluster the larger 1000 Genomes Project phase 3 VCF files. Although \kMeans{} clustering completes successfully on this dataset,
-it takes over 27 hours (see Table 2) due to more than twice the number of individuals, and hence more variants. For comparison, the uncompressed size of the phase 3 files is 770GB vs the 161GB of the phase 1 dataset.
+%To further demonstrate the scalability of \variantSpark{}, we also cluster the larger 1000 Genomes Project phase 3 VCF files. Although \kMeans{} clustering completes successfully on this dataset,
+%it takes over 27 hours (see Table 2) due to more than twice the number of individuals, and hence more variants. For comparison, the uncompressed size of the phase 3 files is 770GB vs the 161GB of the phase 1 dataset.
+%TODO add value
+To further demonstrate the scalability of \variantSpark{}, we also cluster the 1000 Genomes Project phase 3 data, which contains 3000 individuals from 5 superpopulations and as a result has over 80 Million variants. 
+The uncompressed size of the phase 3 files is 770GB compared to the 161GB of the phase 1 dataset.
+\variantSpark{} successfully completes the clustering in just 27 hours (see Table 2) with an ARI of XX. % if XX is smaller than 0.84 we need to explain more. 
+
+
 
 \subsection*{Determining the population structure of the Personal Genome Project}
 To demonstrate the versatility of \variantSpark{} we also process and cluster individuals from the Personal Genomics Project (PGP). The PGP is open to the public for individuals to submit their genomic sequence along with any metadata, such as diseases or clinical features~\cite{Lunshof2013}. 
@@ -390,7 +396,8 @@ Unfortunately, this hypothesis can no not be tested as whole genome information 
 
 \section*{Conclusions}
 
-\variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 million variants in under 15 hours using minimal memory (24GB). 
+%\variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 million variants in under 15 hours using minimal memory (24GB). 
+\variantSpark{} performs clustering on VCF files with over 3000 individuals and 80 million variants in 27 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
 \variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 85\% faster than Hadoop (29 min).
@@ -398,6 +405,8 @@ On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of mag
 But even on the small benchmarking dataset, \variantSpark{}'s novel parallelisation approach is faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
 \variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
 These benefits of speed, resource consumption and scalability allows \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
+%TODO added sentence
+Utilising MLlib as well as Spark.ML will enable supervised machine learning applications to e.g. identify variants that jointly interact with phenotypes as well as include electronic health record in addition to the genomic feature vector to e.g. capture medical history as well as predispositions for diagnosis and treatment decisions. 
 
 
 
@@ -414,7 +423,7 @@ cluster has a total of 416 cores and 1.22TB memory.
 We use the 22 autosomes from the 1000 Genomes Project phase 1 dataset. This dataset contains variants from 1092 individuals, across 38,219,238 alleles.
 For the smaller dataset, we use the variants from chromosome 22, with 494,328 alleles.
 The individuals from these datasets are distributed across four super populations, African (AFR), Mixed American (AMR), East Asian (EAS) and European (EUR).
-We also cluster the Phase 3 dataset, which, contains variants from 2535 individuals, across 81,271,745 variants. As well as the above for super populations, this
+We also cluster the Phase 3 dataset, which contains variants from 2535 individuals, across 81,271,745 variants. As well as the above for super populations, this
 dataset also includes South Asian (SAS).
 
 
@@ -460,17 +469,12 @@ Now that the KVPs for each individual are physically located on the same hardwar
 
 \subsection*{R Implementation}
 For our R implementation, we read in a VCF file using {\sc read.table}, and then convert the resulting table to a matrix ({\sc vcfMatrix} with {\sc as.data.frame.matrix}.
+%TODO VariantAnnotation reads in the file quicker but causes issue down the track so overall read.table is faster, right ? - can you add this explanation to the supplementary material.
+In the supplementary material we benchmark this approach against reading the VCF file in using the `VariantAnnotation' package.
 We remove the first 9 columns which leaves us with just the variants. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
 We then transpose the matrix with {\sc t(vcfMatrix)}, which results in a data-structure where each row represents an individual. We convert the matrix to a {\sc big.matrix} object,
 as required by the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}), and then call {\sc bigkmeans} with
 the {\sc big.matrix} object and the required number of clusters as arguments.
-
-%Compare with our old implementation still? Or just have the VariantAnnotation one.
-%Do we acknowledge that this is a reviewer suggestion in any way?
-We also compare this approach to one using the `VariantAnnotation' package. Reading the VCF file to a matrix with `readGT' is faster than reading a VCF file to a table using R's `read.table', at 116 seconds compared to 207 seconds,
-however, because `readGT' only includes genotype information in the matrix, we can simplify our function that converts this information into numeric values. This speeds up processing time greatly. More implementation details are available
-in the supplementary material. 
-
 
 \subsection*{Python Implementation}
 Our Python implementation reads in lines from a VCF file as tab-separated values using {\sc DataFrame.from\textunderscore{}csv}, and stores the data in a pandas DataFrame (\url{http://pandas.pydata.org}). The column headings are the individual IDs and the row headings are the allele locations.
@@ -562,12 +566,14 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 
 \begin{figure}[h!]
 \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.25]{signature}
-  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF to a data structure readable by Mahout and MLlib, respectively.}
+\caption{\csentence{Schematic overview of VariantSpark}. The image shows the flow from the input VCF file to the machine learning library and onto the visualization. It highlights the differences between the Hadoop and Spark implementations for converting data in VCF format to a data structure readable by Mahout and MLlib, respectively.}
+%  \caption{\csentence{Schematic of the Hadoop and Spark implementation.} The image shows the conceptual differences in the steps necessary to convert variants in VCF to a data structure readable by Mahout and MLlib, respectively.}
       \end{figure}
 
 \begin{figure}[h!]
 \includegraphics[type=pdf,ext=.pdf,read=.pdf, scale=0.40]{chr22-k4-gephi-legend}
-  \caption{\csentence{Visualisation of \variantSpark{} predicted clusters.} Individuals from the 1000 Genomes project are clustered effectively by super-populations AFR, AMR and EAS; a fourth cluster is predominantly EUR + AMR.}
+  \caption{\csentence{Visualisation of \variantSpark{} predicted clusters.} The figure shows the four clusters predicted for the 1000 Genomes data. Individuals from the super-populations AFR, AMR and EAS are accurately grouped into distinct clusters. The fourth cluster contains predominantly EUR + AMR individuals potentially accurately reflecting migrational backgrounds.}
+%  \caption{\csentence{Visualisation of \variantSpark{} predicted clusters.} Individuals from the 1000 Genomes project are clustered effectively by super-populations AFR, AMR and EAS; a fourth cluster is predominantly EUR + AMR.}
       \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

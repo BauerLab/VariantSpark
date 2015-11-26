@@ -124,6 +124,13 @@ Super Population		&	Super Population Size &	Populations	&	Population size \\
       \end{tabular}
 \end{table}
 
+\newpage
+
+\section{R implementation comparison}
+
+We compare {\sc read.table} to one using the `VariantAnnotation' package. Reading the VCF file to a matrix with `readGT' is faster than reading a VCF file to a table using R's `read.table', at 116 seconds compared to 207 seconds,
+however, because `readGT' only includes genotype information in the matrix, we can simplify our function that converts this information into numeric values. This speeds up processing time greatly. More implementation details are available
+in the provided R script. 
 
 
 \end{document}
