@@ -34,3 +34,4 @@ data
 .project
 .classpath
 .settings
+.cache
