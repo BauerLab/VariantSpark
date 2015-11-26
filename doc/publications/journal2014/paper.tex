@@ -466,10 +466,12 @@ The primary key ensures that KVPs for each individual are distributed to the sam
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. 
 
 \subsection*{R Implementation}
-For our R implementation, we read in a VCF file using {\sc read.table}, and then convert the resulting table to a matrix ({\sc vcfMatrix} with {\sc as.data.frame.matrix}.
+For our R implementation, we utilize {\sc read.table} to read in a VCF file as a tab-delimited document. As this also captures the first nine columns that don't contain variants, we subsequently remove those columns with {\sc vcf[1:9] <- list()}.
 %TODO VariantAnnotation reads in the file quicker but causes issue down the track so overall read.table is faster, right ? - can you add this explanation to the supplementary material.
-In the supplementary material we benchmark this faster approach against reading the VCF file in using the `VariantAnnotation' package.
-We remove the first 9 columns which leaves us with just the variants. As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value.
+In the supplementary material we benchmark a slightly faster (by less than one minute) approach of reading the VCF file in using the `VariantAnnotation' package.
+
+As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. This process is identical for both of our R approaches, and essentially consists
+of applying our {\sc Hamming} function to the dataframe with {\sc sapply}.
 We then transpose the matrix with {\sc t(vcfMatrix)}, which results in a data-structure where each row represents an individual. We convert the matrix to a {\sc big.matrix} object,
 as required by the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}), and then call {\sc bigkmeans} with
 the {\sc big.matrix} object and the required number of clusters as arguments.
