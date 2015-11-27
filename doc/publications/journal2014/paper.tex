@@ -490,19 +490,19 @@ the {\sc big.matrix} object and the required number of clusters as arguments.
 
 \subsection*{Python Implementation}
 Our Python implementation reads in lines from a VCF file as tab-separated values using {\sc DataFrame.read\textunderscore{}csv}, and stores the data in a pandas DataFrame (\url{http://pandas.pydata.org}). The column headings are the individual IDs and the row headings are the allele locations.
-We the first 9 columns and convert the remaining allele strings to numeric values.
-We convert the DataFrame to a matrix with {\sc .as\textunderscore{}matrix()} and cluster the matrix using sci-kit learn (\url{http://scikit-learn.org/stable/}).
+We remove the first 9 columns and convert the remaining allele strings to numeric values by applying our {\sc Hamming} function to the DataFrame.
+We then convert the DataFrame to a matrix with {\sc .as\textunderscore{}matrix()} and cluster the matrix using `scikit-learn' (\url{http://scikit-learn.org/stable/}).
 
 \subsection*{{\sc Admixture} Implementation}
 We use Genome Analysis Toolkit ({\sc -T VariantsToBinaryPed})~\cite{McKenna2010} to convert the variants from VCF, and a 1000 Genomes Project supplied .ped file, to a binary PLINK (.bed), binary marker information file (.bim) and pedigree stub file (.fam).
 These three files are used as input to {\sc Admixture}, with default options and $K$ (the number of ancestral populations) set to 4.
 
 \subsection*{Personal Genome Project Data}
-Genome data was downloaded from the Personal Genome Project Data (PGP) website (\url{https://my.pgp-hms.org/public_genetic_data}). Genotype data from 23andMe microarray platforms was sorted by genome 
-build. Shell scripts were written to convert NCBI build 36 files to BED format, update to build 37 using UCSC liftOver (\url{https://genome.ucsc.edu/cgi-bin/hgLiftOver}) and 
-then convert back to 23andMe format. The 23andMe files were then converted to VCF format using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
-Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, individual VCF files were combined for clustering into one 
-file using VCFtools \cite{Danecek2011Variant}.
+We acquired genomic data from the Personal Genome Project (PGP) website (\url{https://my.pgp-hms.org/public_genetic_data}). We sorted the genotype data from 23andMe microarray platforms by genome 
+build. Using custom shell scripts, we convert NCBI build 36 files to BED format, update to build 37 using UCSC liftOver (\url{https://genome.ucsc.edu/cgi-bin/hgLiftOver}) and 
+then convert back to 23andMe format. We then convert the 23andMe files to VCF format using code obtained from the Broad Institute (\url{http://apol1.blogspot.com.au/2013/08/impute-apoe-and-apol1-with-23andme.html}). 
+Where individuals had genotype data for both genome builds 36 and 37, only the latter was used. Finally, we combined the individual VCF files into one 
+file for clustering, using VCFtools \cite{Danecek2011Variant}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -609,7 +609,7 @@ The authors would like to thank Piotr Szul and Gareth Williams for their help wi
 {\sc ADAM}		& 8	& 32	& 12min 48sec	& 8	& 32	& 1min 52sec	& 0.84	\\
 Hadoop		& 8	& 32	& 14min 22sec	& 8	& 32	& 14min 23sec	& 0.84	\\
 R			& 1	& 32	& 34min 30sec	& 8	& 32	& 7min 25sec	& 0.84	\\
-Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
+Python		& 1	& 32	& 34min 15sec	& 8	& 32	& 11min 29sec	& 0.84	\\
 {\sc Admixture}	& 1	& 32	& 10min 8sec	& 8	& 32 & 8min 19sec	& 0.25	\\
   \hline
       \end{tabular}
