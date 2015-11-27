@@ -3,7 +3,7 @@ package au.csiro.obr17q.variantspark
 /**
  * @author obr17q
  */
-class IndividualMap (val IndividualId: String, val PopulationId: String, val SuperPopulationId: String = "")
+case class IndividualMap (val IndividualId: String, val PopulationId: String, val SuperPopulationId: String = "")
 (val AdditionalOne: String = "", val AdditionalTwo: String = "", val AdditionalThree: String = "", val AdditionalFour: String = "")
 (val Weight: Double = 0, val Height: Double = 0, val BMI: Double = 0)
 (val Sex: Int = 0)

@@ -20,7 +20,7 @@ class MetaDataParser(val PopFiles:Iterator[String], val HeaderLines:Int, val Fil
         val l = parser.parseLine(line)
         val individualId = l(IndividualIdCol)
         val Population = l(PopulationCol)
-        val SuperPopulation = l(extra1)
+        val SuperPopulation = l(extra1+1)
         //val SuperPopulation = popmap.pops(Population)
         //( l(IndividualIdCol), l(PopulationCol) ) // (IndividualID, Population)
         
