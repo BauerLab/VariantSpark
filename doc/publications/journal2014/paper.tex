@@ -435,19 +435,19 @@ We use the 22 autosomes from the 1000 Genomes Project phase 1 dataset. This data
 For the smaller dataset, we use the variants from chromosome 22, with 494,328 alleles.
 The individuals from these datasets are distributed across four super populations, African (AFR), Mixed American (AMR), East Asian (EAS) and European (EUR).
 We also cluster the Phase 3 dataset, which contains variants from 2535 individuals, across 81,271,745 variants. As well as the above for super populations, this
-dataset also includes South Asian (SAS).
+dataset also includes the South Asian (SAS) super population.
 
 
 
 \subsection*{VariantSpark Implementation}
 To cluster individuals from a VCF file, we initially need to pre-process the variants to feature vectors.
-In \variantSpark{} we read in VCF files as text files, to a Resilient Distributed Dataset (RDD). RDDs allow us to process the files, line-by-line, in parallel.
+In \variantSpark{} we read in VCF files as text files to a Resilient Distributed Dataset (RDD). RDDs allow us to process the files, line-by-line, in parallel.
 
-We parse each line as tab-separated values, and store these the values from each line in an array.
+We parse each line as tab-separated values, and store the values from each line in an array.
 
-For each array, we use Spark's `zip' function to `zip' each value with it's heading (Sample name) from the VCF file. Now each array element is a
+For each array, we use Spark's `zip' function to create tuples of the values with their respective heading (sample name). Now each array element is a
 key-value pair (KVP) of the previous value and its heading. For the KVPs that contain an allele as the value, the key (derived from the heading) is
-the Individual ID (see Figure 2, Spark step 1).
+the individual ID (see Figure 2, Spark step 1).
 
 For each array, we remove any KVPs that represent data other than alleles (such as the genomic location). With the remaining KVPs, which all
 represent alleles, we apply a function to convert these from the strings found in VCF files (i.e. `0\textbar{}1'), to doubles, where the double is the
@@ -458,7 +458,7 @@ At this stage, we can optionally filter variants that don't match a specific cri
 only one individual. Because each array now only contains variants (rather than every allele), we can simply drop arrays with a length of one, as the length
 of each array is equal to the number of individuals who have a variant at that allele.
 
-Now that the dataset only contains alleles we are interested in, we `zip' each array with a unique sequential index (allele ID). This index will serve
+Now that the dataset only contains alleles we are interested in, we zip each array with a unique sequential index (allele ID). This index will serve
 as identifier for each allele (and keep the genome loci order) (step 2).
 
 Although we now have the data we require, the variants are stored in arrays of alleles, whereas we require the data to be transposed into arrays of individuals.
