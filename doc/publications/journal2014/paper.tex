@@ -479,8 +479,8 @@ The primary key ensures that KVPs for each individual are distributed to the sam
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. 
 
 \subsection*{R Implementation}
-We utilise the {\sc readGT} from the {\sc VariantAnnotation} package for reading in the VCF file and extracting the the genotype matrix.  
-In the supplementary material we demonstrate that this approach is approximately one minute faster than using R's built-in {\sc read.table} function, which requires  removing the first nine columns that do not contain genotypes.
+We utilise {\sc readGT} from the {\sc VariantAnnotation} package for reading in the VCF file and extracting the genotype matrix.  
+In the supplementary material we demonstrate that this approach is approximately one minute faster than using R's built-in {\sc read.table} function.
 
 As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. 
 This process consists of applying our {\sc Hamming} function to the dataframe with {\sc sapply}.
