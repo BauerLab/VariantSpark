@@ -128,9 +128,12 @@ Super Population		&	Super Population Size &	Populations	&	Population size \\
 
 \section{R implementation comparison}
 
-We compare {\sc read.table} to one using the `VariantAnnotation' package. Reading the VCF file to a matrix with `readGT' is faster than reading a VCF file to a table using R's `read.table', at 116 seconds compared to 207 seconds,
-however, because `readGT' only includes genotype information in the matrix, we can simplify our function that converts this information into numeric values. This speeds up processing time greatly. More implementation details are available
-in the provided R script. 
+We compare our implementation using {\sc read.table} to one using the `VariantAnnotation' package. Reading the VCF file to a matrix with `readGT' is faster than reading a VCF file to a
+table using R's `read.table', at 138 seconds compared to 208 seconds. However, the entire process takes around 30 minutes, so the relative savings in time are minimal.
+One other difference is that `readGT' produces a matrix of variants, so we don't need to remove the first nine columns. However, this step takes less than one second.
+
+The function to convert the variant strings to the Hamming distance consumes the majority of the time required for preprocessing. However, we created this as a vectorized function to
+improve performance. Compared to our previous non-vectorized implementation, the run-time is halved.
 
 
 \end{document}
