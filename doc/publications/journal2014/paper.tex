@@ -296,7 +296,7 @@ At the same time, whole genome sequencing enables the inclusion of rare or even 
 Addressing this issue, {\sc Apache Hadoop MapReduce}~\cite{Borthakur2007} transforms data into `key-value pairs' that can then be distributed between multiple nodes across a commodity computer cluster, depending on the size of the problem. 
 MapReduce approaches are increasingly being used in bioinformatics (for reviews see~\cite{Zou2013, Qiu2010,Taylor2010}). 
 This is especially the case for sequence analysis tasks, such as read mapping~\cite{Schatz2009}, duplicate removal~\cite{Jourdren2012}, and variant calling~\cite{Langmead2009, McKenna2010} as well as Genome Wide Analysis Study based tasks~\cite{Huang2013, Guo2014}. 
-Apache also developed a machine learning library, Mahout~\cite{Owen2011}, which allows efficient out-of-the-box analysis to be applied to clinical applications, such as medical health records~\cite{Ko2014}.
+Apache has also developed a machine learning library, Mahout~\cite{Owen2011}, which allows efficient out-of-the-box analysis to be applied to clinical applications, such as medical health records~\cite{Ko2014}.
 Unfortunately, the MapReduce paradigm is not always the optimal solution, specifically for bioinformatics or machine learning applications that require iterative in-memory computation. Specifically, Hadoop is relying extensively on hard disk input-output operations (disk IO), and this can prove to be a bottleneck in processing-speed.
 
 {\sc Apache Spark}~\cite{Zaharia2011} is a more recent compute engine, which overcomes many of Hadoop's limitations. 
@@ -335,16 +335,16 @@ Although this additional pre-processing step is only required once for each inpu
 rendering our approach almost an order of magnitude faster (see Figure 1).
 R and Python are also slower at pre-processing, taking 34 minutes and 92 minutes, respectively. %34min 30sec % 2070
 This increased pre-processing time is due to the standard Python and R implementations not natively supporting multithreading, while \variantSpark{}, {\sc ADAM} and Hadoop can use the eight available cores.
-The GATK-based VCF to PED conversion for {\sc Admixture} is also slower with over 10 minutes. 
+The GATK-based VCF to PED conversion for {\sc Admixture} is also slower, with a runtime of over 10 minutes. 
 
 Clustering the samples is also fastest in \variantSpark{} (1min and 20secs, see Table 1), despite \variantSpark{} and {\sc ADAM} both using {\sc Spark}'s MLlib \kMeans{} implementation. % 80
 We attribute the 30\% speedup over {\sc ADAM} (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas {\sc ADAM} creates dense vectors, which are less memory efficient. %
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise eight cores. 
 Despite this, both are an order of magnitude slower than \variantSpark{} and {\sc ADAM}, with Python requiring 11 minutes  and R requiring 8 minutes. %11and 29secs 7mins and 25secs
 {\sc Admixture} is also slower with a runtime of just over 8 minutes. 
-Our Hadoop implementation performs the worst with 14 minutes, showcasing the limitations of the Hadoop engine for iterative algorithms such as \kMeans{}. % 863 14mins and 23secs
-Hadoop writes the entire output of each \kMeans{} iteration to disk. This feature was designed to ensure scalability but here substantially increases the runtime as disk IO becomes the limiting factor for this small dataset (chromosome 22).
-Python and R store the output from each iteration in memory, thereby eliminating the IO bottleneck, but without being able to utilise the disk they are limited to datasets that fit into memory.
+Our Hadoop implementation performs the worst, at 14 minutes, showcasing the limitations of the Hadoop engine for iterative algorithms such as \kMeans{}. % 863 14mins and 23secs
+Hadoop writes the entire output of each \kMeans{} iteration to disk. This feature enables scalability but, in this case, substantially increases the runtime as disk IO becomes the limiting factor for this small dataset (chromosome 22).
+Python and R store the output from each iteration in memory, thereby eliminating the IO bottleneck, but without being able to utilise disk storage they are limited to datasets that fit into memory.
 {\sc Spark} overcomes both limitations by performing in-memory caching for each executor, which eliminates the disk IO bottleneck on smaller datasets, while maintaining scalability to larger datasets by spilling data that exceeds memory availability to disk.
 
 We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
