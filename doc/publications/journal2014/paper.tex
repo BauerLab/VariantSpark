@@ -477,7 +477,7 @@ as required by the \kMeans{} algorithm from the `biganalytics' package (\url{htt
 the {\sc big.matrix} object and the required number of clusters as arguments.
 
 \subsection*{Python Implementation}
-Our Python implementation reads in lines from a VCF file as tab-separated values using {\sc DataFrame.from\textunderscore{}csv}, and stores the data in a pandas DataFrame (\url{http://pandas.pydata.org}). The column headings are the individual IDs and the row headings are the allele locations.
+Our Python implementation reads in lines from a VCF file as tab-separated values using {\sc DataFrame.read\textunderscore{}csv}, and stores the data in a pandas DataFrame (\url{http://pandas.pydata.org}). The column headings are the individual IDs and the row headings are the allele locations.
 We the first 9 columns and convert the remaining allele strings to numeric values.
 We convert the DataFrame to a matrix with {\sc .as\textunderscore{}matrix()} and cluster the matrix using sci-kit learn (\url{http://scikit-learn.org/stable/}).
 
