@@ -1,5 +1,7 @@
 import pandas as pd
 import io
+from sklearn.cluster import KMeans
+
 file_path = "/Users/obr17q/Documents/workspace/genespark/data/data2.vcf"
 
 ### Convets strings from a serial to integers
@@ -23,3 +25,12 @@ with io.open(file_path, 'r') as f:
 ### Apply Hamming to DataFrame and transpose
 vcf = vcf.apply(hamming).T
 
+### Convert DataFrame to matrix
+vcfMatrix = vcf.as_matrix()
+
+### Build kmeans model and fit data
+model = KMeans(n_clusters=4)
+model.fit(vcfMatrix)
+
+### Labels
+labels = model.labels_
