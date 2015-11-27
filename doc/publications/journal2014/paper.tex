@@ -128,6 +128,11 @@
    addressref={aff1},
 ]{\inits{}\fnm{Neil F.W.} \snm{Saunders}}
 \author[
+   addressref={aff5},
+   email={Yi.Guo@csiro.au}
+%   email={john.RS.Smith@cambridge.co.uk}
+]{\inits{}\fnm{Yi} \snm{Guo}}
+\author[
    addressref={aff3,aff4},
 %   email={john.RS.Smith@cambridge.co.uk}
 ]{\inits{}\fnm{Fabian A.} \snm{Buske}}
@@ -137,6 +142,7 @@
 ]{\inits{}\fnm{Rodney J.} \snm{Scott}}
 \author[
    addressref={aff1},
+   corref={aff1},
    email={Denis.Bauer@CSIRO.au}
 %   email={john.RS.Smith@cambridge.co.uk}
 ]{\inits{}\fnm{Denis C.} \snm{Bauer}}
@@ -172,6 +178,12 @@
 \address[id=aff4]{%
   \orgname{UNSW Medicine, University of New South Wales},
 %  \street{384 Victoria St},
+  \postcode{2052},
+  \city{Sydney},
+  \cny{Australia}
+}
+\address[id=aff5]{%
+  \orgname{CSIRO, Data61},
   \postcode{2052},
   \city{Sydney},
   \cny{Australia}
@@ -369,7 +381,7 @@ We do not observe an increase in cluster accuracy when providing variants from a
 
 To further demonstrate the scalability of \variantSpark{}, we also cluster the 1000 Genomes Project phase 3 data, which contains 3000 individuals from 5 super-populations and as a result has over 80 Million variants. 
 The uncompressed size of the phase 3 files is 770GB compared to the 161GB of the phase 1 dataset.
-\variantSpark{} successfully completes the clustering in 27 hours (see Table 2) with an ARI of 0.82. 
+\variantSpark{} successfully completes the clustering in 30 hours (see Table 2) with an ARI of 0.82. 
 
 
 
@@ -397,8 +409,7 @@ Unfortunately, this hypothesis can no not be tested as whole genome information 
 
 \section*{Conclusions}
 
-%TODO add value
-\variantSpark{} performs clustering on VCF files with over 3000 individuals and 80 million variants in XX hours using minimal memory (24GB). 
+\variantSpark{} performs clustering on VCF files with over 3000 individuals and 80 million variants in 30 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
 \variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 86\% faster than Hadoop (29 min). %7-fold speedup
@@ -468,13 +479,11 @@ The primary key ensures that KVPs for each individual are distributed to the sam
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. 
 
 \subsection*{R Implementation}
-%For our R implementation, we utilize {\sc read.table} to read in a VCF file as a tab-delimited document. As this also captures the first nine columns that don't contain variants, we subsequently remove those columns with {\sc vcf[1:9] <- list()}.
-For our R implementation, we utilize {\sc read.table} to read in a VCF file as a tab-delimited document and remove the first nine columns that do not contain variants. 
-%In the supplementary material we benchmark a slightly faster (by less than one minute) approach of reading the VCF file in using the `VariantAnnotation' package.
-In the supplementary material we benchmark this against an approach reading the VCF file using the `VariantAnnotation' package, which causes inefficiencies for the subsequent data manipulation tasks and is hence overall slower. 
+We utilise the {\sc readGT} from the {\sc VariantAnnotation} package for reading in the VCF file and extracting the the genotype matrix.  
+In the supplementary material we demonstrate that this approach is approximately one minute faster than using R's built-in {\sc read.table} function, which requires  removing the first nine columns that do not contain genotypes.
 
-As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. This process is identical for both of our R approaches, and essentially consists
-of applying our {\sc Hamming} function to the dataframe with {\sc sapply}.
+As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. 
+This process consists of applying our {\sc Hamming} function to the dataframe with {\sc sapply}.
 We then transpose the matrix with {\sc t(vcfMatrix)}, which results in a data-structure where each row represents an individual. We convert the matrix to a {\sc big.matrix} object,
 as required by the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}), and then call {\sc bigkmeans} with
 the {\sc big.matrix} object and the required number of clusters as arguments.
