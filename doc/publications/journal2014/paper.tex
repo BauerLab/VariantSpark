@@ -347,7 +347,7 @@ Hadoop writes the entire output of each \kMeans{} iteration to disk. This featur
 Python and R store the output from each iteration in memory, thereby eliminating the IO bottleneck, but without being able to utilise disk storage they are limited to datasets that fit into memory.
 {\sc Spark} overcomes both limitations by performing in-memory caching for each executor, which eliminates the disk IO bottleneck on smaller datasets, while maintaining scalability to larger datasets by spilling data that exceeds memory availability to disk.
 
-We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the assigned label from the clustering allowing four clusters. 
+We also investigate the cluster quality for the five different methods by comparing the annotated super-population label (AMR, AFR, EAS, SAS) for each individual in the 1000 Genomes data to the label assigned by \kMeans{} clustering. 
 For this comparison, we use the \ARI{} (ARI) metric, which returns a value between -1 (independent labelings) and 1 (perfect match)~\cite{Hubert1985}.
 
 Using chromosome 22, each of the algorithms resulted in an ARI of 0.84, confirming that the speed-up in {\sc Spark} is not at the cost of quality.
@@ -356,7 +356,7 @@ Therefore removing variants with high LD may result in higher accuracy.
 We can substantially improve the accuracy to a perfect classification (ARI=1.0) by removing the fourth super-population, AMR (American). 
 This is due to the majority of AMR individuals being placed in the same group as Europeans, likely reflecting their migrational backgrounds. 
 Only a minority of AMR individuals form an independent group, likely comprising of genetic information otherwise not captured by the 26 sub-populations of the 1000 genomes project.
-This indicates that although allelic differences exist between populations, "genetic diversity is distributed on a continuum"~\cite{Pugach2015}.
+This indicates that although allelic differences exist between populations, ``genetic diversity is distributed on a continuum"~\cite{Pugach2015}.
 
 \subsection*{Graph visualisation}
 \variantSpark{} supports visualisation of the resulting population clusters by generating a file that can be loaded into {\sc Gephi}~\cite{ICWSM09154}.
@@ -367,7 +367,7 @@ consists predominantly of individuals labelled EUR and AMR providing a visual re
 
 \subsection*{\variantSpark{} enables genome wide sampling of variants to improve clustering quality}
 Although we have demonstrated the advantages of \variantSpark{} over traditional methods on small datasets, such as individual chromosomes, the main advantage of {\sc Spark} is its ability to process datasets that exceed memory limits.
-To demonstrate this scalability, we increase the number of variants used in the clustering from the initial 494,328 on chromosome 22 to 38,219,238 including all variants in the genome.
+To demonstrate this scalability, we increase the number of variants used in the clustering from the initial 494,328 on chromosome 22 to 38,219,238 variants across the 1000 Genomes Project dataset.
 
 We run this comparison on our in-house Hadoop cluster using 40 cores.
 Pre-processing the VCF files takes approximately 12, 19, 27 and 40 minutes for 20, 40, 60 and 100 percent of the genome, respectively (see Table 2).
@@ -375,12 +375,12 @@ In each case, the memory required does not exceed a modest 2GB per executor, eve
 Clustering the data takes 70 minutes, 139 minutes, 213 minutes and 884 mins, respectively.
 For clustering, the memory requirements increase approximately linearly to 24GB per executor (see Figure 1). 
 The increase in memory is due to more distance measurements between variants and \kMeans{} centroids being created, which MLlib stores as dense vectors. 
-While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further, for example process more alleles.
+While \kMeans{} clustering can scale to 100\% of the genome, machine learning algorithms that can deal with sparse vectors would potentially be able to scale much further and potentially process more alleles.
 
 We do not observe an increase in cluster accuracy when providing variants from all chromosomes, indicating that current practice of clustering based on a subset of the genome is sufficient to define the existing population boundaries for populations with large genetic distance~\cite{Pugach2015}.
 
 To further demonstrate the scalability of \variantSpark{}, we also cluster the 1000 Genomes Project phase 3 data, which contains 3000 individuals from 5 super-populations and as a result has over 80 Million variants. 
-The uncompressed size of the phase 3 files is 770GB compared to the 161GB of the phase 1 dataset.
+The uncompressed size of the phase 3 files is 770GB compared to 161GB for the phase 1 dataset.
 \variantSpark{} successfully completes the clustering in 30 hours (see Table 2) with an ARI of 0.82. 
 
 
@@ -392,7 +392,7 @@ We obtain and curate the data (see methods) resulting in 985,790 variants from 4
 We cluster the individuals allowing five clusters and compare the assigned labels to the same number of self-reported `Race/ethnicity' labels (`White', `Hispanic or Latino', `Asian', `Black or African American' and `American Indian').
 The observed ARI is negative, indicating the clustering is random. 
 This poor result may be due to the labels being too broad and not accurately reflecting genetic diversity. For example, the `White' label includes individuals with grandparents from United States, Syria, Arab Republic, or Bulgaria, amongst others. 
-The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals being classified as white, even though geographical location of their grandparents are very diverse.
+The dataset is also very one-sided with 433 out of the 478 (over 90\%) of the individuals labeled as white, even though geographical location of their grandparents are very diverse.
 We therefore only include individuals where all grandparents were reported to be from the same country leaving 35 individuals from 22 different countries, which we group into their approximate super-populations (see Supplemental Table 1). 
 Clustering these individuals results in an ARI of 0.45. 
 
@@ -402,7 +402,7 @@ This is especially the case since 65\% are `White' Americans, which formed the g
 This highlights the issue for clinical application where ancestry influences treatment (e.g. HLA allele genotyping from SNP information~\cite{Zheng2014}) and accurate population association may not be known for patients with diverse migrational background.
 As noted by Patterson et al ~\cite{Patterson2006}, more markers are needed for populations with low genetic divergence. 
 It is hence likely that higher density genotyping (e.g. from genome sequencing) would help in elucidating population structure in this dataset, which demonstrates the need for fast whole-genome approaches. 
-Unfortunately, this hypothesis can no not be tested as whole genome information is not available for these individuals. 
+Unfortunately, this hypothesis can not be tested as whole genome information is not available for these individuals. 
 
 
 
