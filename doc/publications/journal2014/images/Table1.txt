@@ -3,7 +3,7 @@ VariantSpark pre-processing 178
 Adam pre-processing 768
 Adam binary-conversion 793
 Hadoop pre-processing 862
-R pre-processing 4020
+R pre-processing 2070
 Python pre-processing 5520
 ADMIXTURE pre-processing 608
 VariantSpark clustering 80

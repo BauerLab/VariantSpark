@@ -126,13 +126,23 @@
 ]{\inits{}\fnm{Aidan R.} \snm{O'Brien}}
 \author[
    addressref={aff1},
-]{\inits{}\fnm{Neil} \snm{Saunders}}
+]{\inits{}\fnm{Neil F.W.} \snm{Saunders}}
+\author[
+   addressref={aff5},
+   email={Yi.Guo@csiro.au}
+%   email={john.RS.Smith@cambridge.co.uk}
+]{\inits{}\fnm{Yi} \snm{Guo}}
 \author[
    addressref={aff3,aff4},
 %   email={john.RS.Smith@cambridge.co.uk}
 ]{\inits{}\fnm{Fabian A.} \snm{Buske}}
 \author[
+   addressref={aff2},
+   email={rodney.scott@newcastle.edu.au}
+]{\inits{}\fnm{Rodney J.} \snm{Scott}}
+\author[
    addressref={aff1},
+   corref={aff1},
    email={Denis.Bauer@CSIRO.au}
 %   email={john.RS.Smith@cambridge.co.uk}
 ]{\inits{}\fnm{Denis C.} \snm{Bauer}}
@@ -168,6 +178,12 @@
 \address[id=aff4]{%
   \orgname{UNSW Medicine, University of New South Wales},
 %  \street{384 Victoria St},
+  \postcode{2052},
+  \city{Sydney},
+  \cny{Australia}
+}
+\address[id=aff5]{%
+  \orgname{CSIRO, Data61},
   \postcode{2052},
   \city{Sydney},
   \cny{Australia}
@@ -317,7 +333,7 @@ and our Hadoop implementation (14 minutes). %(14min and 22secs). %862s
 Unlike \variantSpark{} and our Hadoop implementation, the {\sc ADAM} framework cannot process the VCF files directly but requires them to be converted into a binary {\sc ADAM} file format. 
 Although this additional pre-processing step is only required once for each input file, it uses an additional 13 minutes, %13mins and 13secs, %793s
 rendering our approach almost an order of magnitude faster (see Figure 1).
-R and Python are also slower at pre-processing, taking 67 minutes and 92 minutes, respectively. 
+R and Python are also slower at pre-processing, taking 34 minutes and 92 minutes, respectively. %34min 30sec % 2070
 This increased pre-processing time is due to the standard Python and R implementations not natively supporting multithreading, while \variantSpark{}, {\sc ADAM} and Hadoop can use the eight available cores.
 The GATK-based VCF to PED conversion for {\sc Admixture} is also slower with over 10 minutes. 
 
@@ -363,11 +379,9 @@ While \kMeans{} clustering can scale to 100\% of the genome, machine learning al
 
 We do not observe an increase in cluster accuracy when providing variants from all chromosomes, indicating that current practice of clustering based on a subset of the genome is sufficient to define the existing population boundaries for populations with large genetic distance~\cite{Pugach2015}.
 
-%To further demonstrate the scalability of \variantSpark{}, we also cluster the larger 1000 Genomes Project phase 3 VCF files. Although \kMeans{} clustering completes successfully on this dataset,
-%it takes over 27 hours (see Table 2) due to more than twice the number of individuals, and hence more variants. For comparison, the uncompressed size of the phase 3 files is 770GB vs the 161GB of the phase 1 dataset.
 To further demonstrate the scalability of \variantSpark{}, we also cluster the 1000 Genomes Project phase 3 data, which contains 3000 individuals from 5 super-populations and as a result has over 80 Million variants. 
 The uncompressed size of the phase 3 files is 770GB compared to the 161GB of the phase 1 dataset.
-\variantSpark{} successfully completes the clustering in just 27 hours (see Table 2) with an ARI of 0.82. 
+\variantSpark{} successfully completes the clustering in 30 hours (see Table 2) with an ARI of 0.82. 
 
 
 
@@ -395,13 +409,12 @@ Unfortunately, this hypothesis can no not be tested as whole genome information 
 
 \section*{Conclusions}
 
-%\variantSpark{} performs clustering on VCF files with over 1000 individuals and 40 million variants in under 15 hours using minimal memory (24GB). 
-\variantSpark{} performs clustering on VCF files with over 3000 individuals and 80 million variants in 27 hours using minimal memory (24GB). 
+\variantSpark{} performs clustering on VCF files with over 3000 individuals and 80 million variants in 30 hours using minimal memory (24GB). 
 \variantSpark{} supports random genome-wide sampling of variants allowing faster clustering for well characterised cohorts where 20\% of the genome is sufficient. 
 On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
-\variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 85\% faster than Hadoop (29 min).
+\variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 86\% faster than Hadoop (29 min). %7-fold speedup
 \variantSpark{} scales to data sizes that are not feasible to process using R or Python due their requirement to load the whole dataset into memory. 
-But even on the small benchmarking dataset, \variantSpark{}'s novel parallelisation approach is faster than traditional multithreading with 94\% speedup over R (75 min), and 95\% over Python (103 min).
+But even on the small benchmarking dataset, \variantSpark{}'s novel parallelisation approach is faster than traditional multithreading with 90\% speedup over R (42 min), and 96\% over Python (103 min). %10 fold %25-fold
 \variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
 These benefits of speed, resource consumption and scalability allows \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 Utilising MLlib as well as Spark.ML will enable supervised machine learning applications to e.g. identify variants that jointly interact with phenotypes as well as include electronic health record in addition to the genomic feature vector to e.g. capture medical history as well as predispositions for diagnosis and treatment decisions. 
@@ -466,12 +479,11 @@ The primary key ensures that KVPs for each individual are distributed to the sam
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. 
 
 \subsection*{R Implementation}
-For our R implementation, we utilize {\sc read.table} to read in a VCF file as a tab-delimited document. As this also captures the first nine columns that don't contain variants, we subsequently remove those columns with {\sc vcf[1:9] <- list()}.
-%TODO VariantAnnotation reads in the file quicker but causes issue down the track so overall read.table is faster, right ? - can you add this explanation to the supplementary material.
-In the supplementary material we benchmark a slightly faster (by less than one minute) approach of reading the VCF file in using the `VariantAnnotation' package.
+We utilise the {\sc readGT} from the {\sc VariantAnnotation} package for reading in the VCF file and extracting the the genotype matrix.  
+In the supplementary material we demonstrate that this approach is approximately one minute faster than using R's built-in {\sc read.table} function, which requires  removing the first nine columns that do not contain genotypes.
 
-As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. This process is identical for both of our R approaches, and essentially consists
-of applying our {\sc Hamming} function to the dataframe with {\sc sapply}.
+As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. 
+This process consists of applying our {\sc Hamming} function to the dataframe with {\sc sapply}.
 We then transpose the matrix with {\sc t(vcfMatrix)}, which results in a data-structure where each row represents an individual. We convert the matrix to a {\sc big.matrix} object,
 as required by the \kMeans{} algorithm from the `biganalytics' package (\url{https://cran.r-project.org/web/packages/biganalytics/index.html}), and then call {\sc bigkmeans} with
 the {\sc big.matrix} object and the required number of clusters as arguments.
@@ -505,11 +517,11 @@ file using VCFtools \cite{Danecek2011Variant}.
   The authors declare that they have no competing interests.
 
 \section*{Author's contributions}
-    DCB and FAB designed the overall study. ARO implemented \variantSpark\ and conducted the comparison. NS obtained the PGP data and generated the graph.
+    DCB and FAB designed the overall study. ARO implemented \variantSpark\ and conducted the comparison. NFS obtained the PGP data and generated the graph. RJS guided the interpretation. 
     All authors contributed to the writing of the document. 
 
 \section*{Acknowledgements}
-  A.R.O was funded by the NSW Cancer Institute Big Data Big Impact schema, F.A.B by the National Health and Medical Research Council [1051757] and both D.C.B and N.S by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services. The computation on Azure was funded by Microsoft Azure Research Award. 
+  ARO was funded by the NSW Cancer Institute Big Data Big Impact schema, FAB by the National Health and Medical Research Council [1051757] and both DCB and NFS by Commonwealth Scientific and Industrial Research Organisation's Transformational Capability Platform, Science and Industry Endowment Fund and Information Management and Technology Services. The computation on Azure was funded by Microsoft Azure Research Award. 
 The authors would like to thank Piotr Szul and Gareth Williams for their help with setting up Hadoop on the HPC system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -629,8 +641,9 @@ Python		& 1	& 32	& 92min		& 8	& 32	& 11min 29sec	& 0.84	\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Additional Files}
-  \subsection*{Additional file 1 --- PGP population labels}
-    Conversion map self-reported descriptive population labels to super-population labels.
+  \subsection*{Additional file 1 --- PGP population labels and implementation details}
+    Conversion map self-reported descriptive population labels to super-population labels. 
+    Details of the R implementation.
 
 
 
