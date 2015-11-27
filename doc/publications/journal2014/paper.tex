@@ -333,14 +333,14 @@ and our Hadoop implementation (14 minutes). %(14min and 22secs). %862s
 Unlike \variantSpark{} and our Hadoop implementation, the {\sc ADAM} framework cannot process the VCF files directly but requires them to be converted into a binary {\sc ADAM} file format. 
 Although this additional pre-processing step is only required once for each input file, it uses an additional 13 minutes, %13mins and 13secs, %793s
 rendering our approach almost an order of magnitude faster (see Figure 1).
-R and Python are also slower at pre-processing, taking 34 minutes and 92 minutes, respectively. %34min 30sec % 2070
+R and Python are also slower at pre-processing, each taking approximately 34 minutes. %34min 30sec % 2070
 This increased pre-processing time is due to the standard Python and R implementations not natively supporting multithreading, while \variantSpark{}, {\sc ADAM} and Hadoop can use the eight available cores.
 The GATK-based VCF to PED conversion for {\sc Admixture} is also slower, with a runtime of over 10 minutes. 
 
 Clustering the samples is also fastest in \variantSpark{} (1min and 20secs, see Table 1), despite \variantSpark{} and {\sc ADAM} both using {\sc Spark}'s MLlib \kMeans{} implementation. % 80
 We attribute the 30\% speedup over {\sc ADAM} (1min and 52secs) to \variantSpark{} converting the VCF files to sparse vectors, whereas {\sc ADAM} creates dense vectors, which are less memory efficient. %
 Multithreading \kMeans{} clustering is natively supported by both R and Python, we are therefore able to utilise eight cores. 
-Despite this, both are an order of magnitude slower than \variantSpark{} and {\sc ADAM}, with Python requiring 11 minutes  and R requiring 8 minutes. %11and 29secs 7mins and 25secs
+Despite this, both are an order of magnitude slower than \variantSpark{} and {\sc ADAM}, with Python requiring 11 minutes and R requiring 8 minutes. %11and 29secs 7mins and 25secs
 {\sc Admixture} is also slower with a runtime of just over 8 minutes. 
 Our Hadoop implementation performs the worst, at 14 minutes, showcasing the limitations of the Hadoop engine for iterative algorithms such as \kMeans{}. % 863 14mins and 23secs
 Hadoop writes the entire output of each \kMeans{} iteration to disk. This feature enables scalability but, in this case, substantially increases the runtime as disk IO becomes the limiting factor for this small dataset (chromosome 22).
@@ -414,7 +414,7 @@ Unfortunately, this hypothesis can not be tested as whole genome information is 
 On the benchmarking dataset, it outperforms {\sc ADAM} by almost an order of magnitude (4 vs 28 minutes) by processing VCF files directly and storing the information in sparse vectors. % 258 vs 1673 
 \variantSpark{} utilises {\sc Spark}, which allows for in-memory caching and hence performs 86\% faster than Hadoop (29 min). %7-fold speedup
 \variantSpark{} scales to data sizes that are not feasible to process using R or Python due their requirement to load the whole dataset into memory. 
-But even on the small benchmarking dataset, \variantSpark{}'s novel parallelisation approach is faster than traditional multithreading with 90\% speedup over R (42 min), and 96\% over Python (103 min). %10 fold %25-fold
+But even on the small benchmarking dataset, \variantSpark{}'s novel parallelisation approach is faster than traditional multithreading with 90\% speedup over R (42 min), and 91\% over Python (45 min). %10 fold %25-fold
 \variantSpark{} is also superior in performance and accuracy over the current state-of-the-art tool for individual ancestries determination, {\sc Admixture}.
 These benefits of speed, resource consumption and scalability allows \variantSpark{} to be the interface for applying other machine learning tools from MlLib to genomic data. 
 Utilising MLlib as well as Spark.ML will enable supervised machine learning applications to e.g. identify variants that jointly interact with phenotypes as well as include electronic health record in addition to the genomic feature vector to e.g. capture medical history as well as predispositions for diagnosis and treatment decisions. 
@@ -426,7 +426,7 @@ Utilising MLlib as well as Spark.ML will enable supervised machine learning appl
 \subsection*{Computational resources}
 We completed the Chromosome 22 comparisons on a virtual machine (VM) hosted on Microsoft Azure. This VM is an A7 Linux instance with 8 cores, 56GB
 memory running Ubuntu. 
-For the whole-genome clustering, we used our in-house Hadoop cluster with Hadoop 2.5.0, managed by cloudera's CDH 5. We use Spark 1.3.1. This 13 node
+For the whole-genome clustering, we used our in-house Hadoop cluster with Hadoop 2.5.0, managed by Cloudera's CDH 5. We use Spark 1.3.1. This 13 node
 cluster has a total of 416 cores and 1.22TB memory.
 
 
@@ -479,7 +479,7 @@ The primary key ensures that KVPs for each individual are distributed to the sam
 Now that the KVPs for each individual are physically located on the same hardware, the Reduce stage (step 2) can efficiently create a sparse vector for each individual from these KVPs. 
 
 \subsection*{R Implementation}
-We utilise {\sc readGT} from the {\sc VariantAnnotation} package for reading in the VCF file and extracting the genotype matrix.  
+We utilise {\sc readGT} from the {\sc VariantAnnotation} package for reading in the VCF file and extracting the genotype matrix.
 In the supplementary material we demonstrate that this approach is approximately one minute faster than using R's built-in {\sc read.table} function.
 
 As with our \variantSpark{} pre-processing, we convert the strings that represent each allele to a numeric value. 
