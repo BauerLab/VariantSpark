@@ -4,7 +4,7 @@ Adam pre-processing 768
 Adam binary-conversion 793
 Hadoop pre-processing 862
 R pre-processing 2070
-Python pre-processing 5520
+Python pre-processing 2055
 ADMIXTURE pre-processing 608
 VariantSpark clustering 80
 Adam clustering 112
