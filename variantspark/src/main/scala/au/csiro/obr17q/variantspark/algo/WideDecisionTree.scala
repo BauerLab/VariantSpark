@@ -83,18 +83,22 @@ class WideDecisionTree {
     
     
     def run(data: RDD[Vector], labels:Array[Int]):DecisionTreeNode = {
+      
+      val c = data.count()
+      val nvarFraction:Double  = Math.sqrt(c.toDouble)/c.toDouble
+      
       val indexedData = data.zipWithIndex()
         // what we need to do it so select variables for each      
         // sample a few variables.
         // indexes of elements included in current split
         val currentSet:Array[Int] = Range(0,data.first().size).toArray
-        buildSplit(indexedData,currentSet, labels) 
+        buildSplit(indexedData,currentSet, labels, nvarFraction) 
     } 
   
-    def buildSplit(indexedData: RDD[(Vector,Long)], currentSet:Array[Int], labels:Array[Int]):DecisionTreeNode = {
+    def buildSplit(indexedData: RDD[(Vector,Long)], currentSet:Array[Int], labels:Array[Int], nvarFraction:Double):DecisionTreeNode = {
         // for the current set find all candidate splits
         
-        val (giniReduction, varIndex, split, majorityLabel, leftSet,rightSet) = indexedData.sample(false, 0.3, (Math.random()*10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
+        val (giniReduction, varIndex, split, majorityLabel, leftSet,rightSet) = indexedData.sample(false, nvarFraction, (Math.random()*10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
           .map(WideDecisionTree.findSplit(currentSet, labels))
           .reduce((f1,f2) => if (f1._1 > f2._1) f1 else f2) // dumb way to use minimum
       
@@ -103,7 +107,8 @@ class WideDecisionTree {
          println("Gini reduction:" + giniReduction) 
           
          if (giniReduction > 0) {
-           DecisionTreeNode(varIndex, split, majorityLabel, giniReduction,buildSplit(indexedData,leftSet, labels),buildSplit(indexedData,rightSet, labels))
+           DecisionTreeNode(varIndex, split, majorityLabel, giniReduction,buildSplit(indexedData,leftSet, labels, nvarFraction)
+               ,buildSplit(indexedData,rightSet, labels, nvarFraction))
          } else {
            DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, null, null)           
          } 
