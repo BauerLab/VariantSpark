@@ -96,7 +96,7 @@ class WideDecisionTree {
         
         val (giniReduction, varIndex, split, majorityLabel, leftSet,rightSet) = indexedData.sample(false, 0.3, (Math.random()*10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
           .map(WideDecisionTree.findSplit(currentSet, labels))
-          .reduce((f1,f2) => if (f1._1 < f2._1) f1 else f2) // dumb way to use minimum
+          .reduce((f1,f2) => if (f1._1 > f2._1) f1 else f2) // dumb way to use minimum
       
          // check if futher split is needed
         
