@@ -7,16 +7,20 @@ import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.linalg._
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.RandomForest
+import org.apache.spark.ml.classification.RandomForestClassifier
 import org.apache.spark.mllib.tree.configuration.Strategy
-
+import org.apache.spark.ml.Pipeline
 import scala.io.Source
+import org.apache.spark.sql.Row
+import org.apache.spark.ml.feature.{VectorIndexer, StringIndexer}
 
 /**
  * @author obr17q
  */
 object VcfForest extends SparkApp {
   conf.setAppName("VCF foresting")
-  
+
+  case class Record(individual: String, bmi: Double, label: String, features: Vector)
 
   
   def main(args:Array[String]) {
@@ -34,8 +38,8 @@ object VcfForest extends SparkApp {
      * 46 - Weight
      * 47 - Height
      */
-    //val PopFiles = Source.fromFile("data/nationwidechildrens.org_clinical_patient_coad.txt").getLines()
-    //val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, 3, '\t', "[Not Available]", 1, 2 )(WeightCol = 46, HeightCol = 47, SexCol = 6).returnSexMap())
+    val PopFiles = Source.fromFile("data/nationwidechildrens.org_clinical_patient_coad.txt").getLines()
+    val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, 3, '\t', "[Not Available]", IndividualIdCol = 1, PopulationCol = 2 )(WeightCol = 46, HeightCol = 47, SexCol = 6).returnBmiMap())
 
     
     /**
@@ -45,8 +49,8 @@ object VcfForest extends SparkApp {
      * 02 - Super Population
      * 03 - Gender
      */
-    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
-    val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 2 )(SexCol = 3).returnMap())
+    //val PopFiles = Source.fromFile("data/ALL.panel").getLines()
+    //val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 2 )(SexCol = 3).returnMap())
 
 
     val vcfObject = new VcfParser(VcfFiles, VariantCutoff, sc)
@@ -59,38 +63,33 @@ object VcfForest extends SparkApp {
 
     val IndividualVariants = FilteredAlleles
     .groupByKey //group by individual ID, i.e. get RDD of individuals
-    
-    //.map(p => (p._1.split('_')(0).substring(0,12), (p._1.split('_')(1), p._2))) // TCGA data
-    .map(p => (p._1, (p._1, p._2)))
-    .join(IndividualMeta.map(_.toPops)) //filter out individuals lacking required data 
+    .map(p => (p._1.split('_')(0).substring(0,12), (p._1.split('_')(1), p._2))) // TCGA data
+    //.map(p => (p._1, (p._1, p._2))) // 1000 data
+    .join(IndividualMeta.map(_.toBMI)) //filter out individuals lacking required data
     .map(h =>
-      
+      /*
       (h._1, h._2._1._1, h._2._2, LabeledPoint(if (h._2._2 =="EUR") 0
                   else if (h._2._2 =="AFR") 1 else if (h._2._2 =="AMR") 2
                   else if (h._2._2 =="EAS") 3
                   else -1, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ))) // Binary labels
-      /*
+
       (h._1, h._2._1._1, h._2._2, LabeledPoint(if (h._2._2 =="GBR") 0
                   else if (h._2._2 =="ASW") 1 else if (h._2._2 =="CHB") 2
                   else -1, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ))) // Binary labels
       */            
                   
-      //(h._1, h._2._1._1, h._2._2, LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ) )
+      (h._1, h._2._1._1, h._2._2, LabeledPoint(if (h._2._2 > 40) 2 else if (h._2._2 > 30) 1.0 else 0.0, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ) ))
           
-          
-          
-          
-          
-          
-          //if (h._2._2 == 1) LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ))
+
+          //if (h._2._2 == 1) LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, h._2._1._2._2.to[Seq] ))
           //else LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, Seq((1,1.0), (2,1.0)) ))
           
       
       )  // Continuous labels
-      
 
-      
-      
+
+
+
       
     //.filter(_._2 == "NORMAL")
     .cache
@@ -100,12 +99,55 @@ object VcfForest extends SparkApp {
     //.objectFile("reducedset", 100)
     
     //val DataA = ReducedFeatureSelectedSet.map(p => (p._1, p._2, p._3, LabeledPoint(p._3, p._4.features)))
-    
-    
 
 
-    
-    val splits = IndividualVariants.randomSplit(Array(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), seed)
+
+
+    val data = sqlContext.createDataFrame(IndividualVariants.map(p => Record(p._1, p._3, p._4.label.toString, p._4.features))).toDF
+
+    //val splits = IndividualVariants.randomSplit(Array(0.5, 0.5), seed)
+
+    val Array(trainingData, testData) = data.randomSplit(Array(0.5, 0.5), seed)
+
+    //val trainDf = sqlContext.createDataFrame(trainData.map(p => Record(p._1, p._4.label.toString, p._4.features))).toDF
+    //val testDf = sqlContext.createDataFrame(testData.map(p => Record(p._1, p._4.label.toString, p._4.features))).toDF
+
+
+
+
+    val labelIndexer = new StringIndexer()
+      .setInputCol("label")
+      .setOutputCol("indexedLabel")
+      .fit(data)
+
+    /*val featureIndexer = new VectorIndexer()
+      .setInputCol("features")
+      .setOutputCol("indexedFeatures")
+      .fit(data)*/
+
+
+
+    val rf = new RandomForestClassifier()
+      .setLabelCol("indexedLabel")
+      .setFeaturesCol("features")
+      .setMaxDepth(5)
+      .setNumTrees(25)
+      .setFeatureSubsetStrategy("log2")
+
+    val pipeline = new Pipeline()
+      .setStages(Array(labelIndexer, rf))
+
+    val model = pipeline.fit(trainingData)
+
+
+    model.transform(testData)
+      .select("individual", "label", "prediction", "bmi")
+      .collect()
+      .foreach(p => println("%s (%s) predicted %scorrectly. BMI: %s" format(p(0), p(1), if (p(1) == p(2)) "" else "in", p(3) )))
+
+
+
+    //val splits = IndividualVariants.randomSplit(Array(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), seed)
     
     //val (trainingData, testData) = (splits(0), splits(1))
     
@@ -115,10 +157,10 @@ object VcfForest extends SparkApp {
      * Print a count of healthy and obese individuals
      */
     
-    def isObese(i: Double) = i >= 30
-    def isMale(i: Double) = i == 1
-    println(IndividualVariants.count() + " individuals")
-    println("with " + NoOfAlleles + " alleles")
+    //def isObese(i: Double) = i >= 30
+    //def isMale(i: Double) = i == 1
+    //println(IndividualVariants.count() + " individuals")
+    //println("with " + NoOfAlleles + " alleles")
   
     
 
@@ -129,11 +171,11 @@ object VcfForest extends SparkApp {
      * For binary classification and regrssion
      */
     
-
+    /*
     val ClassificationStrategy = new Strategy(algo = org.apache.spark.mllib.tree.configuration.Algo.Classification,
                                 impurity = org.apache.spark.mllib.tree.impurity.Gini,
                                 maxDepth = args(2).toInt,
-                                numClasses = 4,
+                                numClasses = 3,
                                 maxBins = args(3).toInt,
                                 categoricalFeaturesInfo = Map[Int, Int](),
                                 maxMemoryInMB = 1024
@@ -146,12 +188,12 @@ object VcfForest extends SparkApp {
                                 categoricalFeaturesInfo = Map[Int, Int]()
                                )  
 
-
+  */
   /**
    * Stuff for binary classifier
    */
     
-    
+    /*
   val TestArray: Array[Double] = new Array(10)
   val RandArray: Array[Double] = new Array(10)
     
@@ -171,7 +213,12 @@ object VcfForest extends SparkApp {
       else            splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8))//4
 
     val testData = splits(a)
-      
+
+
+
+
+
+
     val model = RandomForest.trainClassifier(
                                              input=trainingData.map(_._4),
                                              ClassificationStrategy,
@@ -185,11 +232,7 @@ object VcfForest extends SparkApp {
     }.map(p => (p._1, p._2, p._3, p._4))
 
 
-    
-                      
-                                             
-                                             
-                                             
+    */
 
     /**
      * Stuff for regressor
@@ -212,7 +255,7 @@ object VcfForest extends SparkApp {
     
     //labelsAndPredictions.collect().foreach(println)
 
-    
+    /*
     println("Calculating metrics..")
     
     //// Adjusted Rand Index
@@ -266,7 +309,7 @@ object VcfForest extends SparkApp {
   
     println("Test errors: " + TestArray.mkString(", "))
     println("Adjusted Rand Indices: " + RandArray.mkString(", "))
-    
+    */
     
     /*
     val selector = new ChiSqSelector(50000)
