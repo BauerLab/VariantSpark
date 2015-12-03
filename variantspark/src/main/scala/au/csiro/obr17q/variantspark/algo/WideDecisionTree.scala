@@ -85,7 +85,7 @@ class WideDecisionTree {
     def run(data: RDD[Vector], labels:Array[Int]):DecisionTreeNode = {
       
       val c = data.count()
-      val nvarFraction:Double  = Math.sqrt(c.toDouble)/c.toDouble
+      val nvarFraction:Double  = 0.1 //Math.sqrt(c.toDouble)/c.toDouble
       
       val indexedData = data.zipWithIndex()
         // what we need to do it so select variables for each      
