@@ -17,7 +17,7 @@ object WideDecisionTree {
   
   def findSplit(currentSet:Array[Int], labels:Array[Int])(t:(Vector,Long)):(Double,Long,Int,Int, Array[Int], Array[Int]) = {
    
-    val v = t._1
+    val v = t._1.toArray
     val index:Long = t._2
     val labelsCount = labels.max+1
     
