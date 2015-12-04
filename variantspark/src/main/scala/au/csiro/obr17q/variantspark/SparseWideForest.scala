@@ -11,6 +11,7 @@ import java.io.File
 import java.io.FileReader
 import com.github.tototoshi.csv.CSVWriter
 import au.csiro.obr17q.variantspark.algo.WideDecisionTree
+import au.csiro.obr17q.variantspark.algo.WideRandomForest
 
 object SparseWideForest extends SparkApp {
   conf.setAppName("VCF cluster")
@@ -54,12 +55,13 @@ object SparseWideForest extends SparkApp {
      
     
     
-    val rf = new WideDecisionTree()
-    val result  = rf.run(data, labels)  
-    println("Result:")
-    println(result)
-    //val clusterAssignment = rf.predict(data, result)
-    //println(clusterAssignment)
+    val rf = new WideRandomForest()
+    val result  = rf.run(data,labels.toArray, 50)
+    //println(result)
+    //result.printout()
+    val variableImportnace = result.variableImportance
+    
+    variableImportnace.toSeq.sortBy(-_._2).take(50).foreach(println)
     
     
     //LoanUtils.withCloseable(CSVWriter.open(output)) { cswWriter =>
