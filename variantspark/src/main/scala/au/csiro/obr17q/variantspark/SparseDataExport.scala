@@ -13,7 +13,7 @@ import com.github.tototoshi.csv.CSVWriter
 import au.csiro.obr17q.variantspark.algo.WideDecisionTree
 import au.csiro.obr17q.variantspark.algo.WideRandomForest
 
-object SparseWideForest extends SparkApp {
+object SparseDataExport extends SparkApp {
   conf.setAppName("VCF cluster")
   def main(args:Array[String]) {
 
@@ -53,21 +53,9 @@ object SparseWideForest extends SparkApp {
         subjectToSuperPopId.getOrElse(subject, superPopToId.size.toLong).toInt
       }).toArray
      
-    
-    
-    val rf = new WideRandomForest()
-    val result  = rf.run(data,labels.toArray, 50)
-    //println(result)
-    result.printout()
-    val variableImportnace = result.variableImportance
-    
-    variableImportnace.toSeq.sortBy(-_._2).take(20).foreach(println)
-    
-    
-    //LoanUtils.withCloseable(CSVWriter.open(output)) { cswWriter =>
-    //  clusterAssignment.zipWithIndex.map{ case (cluster,index) => (indexSubjectMap(index), cluster)}
-    //    .foreach(t => cswWriter.writeRow(t.productIterator.toSeq))
-    //}
-  
+    LoanUtils.withCloseable(CSVWriter.open(output)) { cswWriter =>
+      cswWriter.writeRow(labels.toSeq)
+      data.collect().foreach { v => cswWriter.writeRow(v.toArray.map(_.toInt)) }
+    }
   } 
 }
