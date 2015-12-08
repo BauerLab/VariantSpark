@@ -1,0 +1,53 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Introduction}
+As of 2014, obesity effects more than 600 million individuals worldwide, a number which has doubled since 1980 (who2015). The WHO definition for obesity is a BMI of greater than or equal to 30.
+In addition to these individuals, 1.9 million adults are overweight.
+Although changes in lifestyle factors, such as diet, contribute to this rise in obesity (Binkley2000), as a multifactorial disease (Grundy1998), certain genetic variants may predispose individuals to obesity.
+
+Recently, Wheeler2013 identified 29 loci with evidence of association with obesity from an analysis of approximately 2 million SNPs.
+This is in addition to 52 other genetic loci identified by GWAS over the four years prior (Loos2012).
+However, with the relatively low coverage of GWAS compared to whole genome sequencing approaches, it's possible that GWAS studies may miss rare variants.
+With genome sequencing becoming more accessible, the number of SNPs and other variants in recent datasets is increasing. For example,
+the 1000 Genomes Project phase 3 dataset (Abecasis2012) contains more than 80 million variant sites.
+
+As the size of the data increases, and the dimensionality (number of variants) increases, so does the compute complexity.
+For this reason, we implemented MLlib, an interface between Variant Call Format (VCF) files and Spark.
+Unlike approaches in R and Python, MLlib can scale further and is faster on equivalent, smaller datasets.
+
+% What we do
+Using Spark's Machine learning library, `Spark ml', we build a Random Forest model based on The Cancer Genome Atlas (TCGA) data, with the aim to
+elucidate genetic variants associated with obesity.
+
+We choose Random Forests for reasons such as their robustness to noise ( Breiman2001) 
+
+
+
+
+%For example, individuals homozygous for risk alleles in in FTO,
+%a transcription factor for IRX3, weigh on average 3 kg more than those homozygous for non-risk alleles.
+
+%The decreasing cost of genome sequencing means we have more data 
+
+
+
+
+%\subsection{dfh}
+
+
+
+\end{document}  
