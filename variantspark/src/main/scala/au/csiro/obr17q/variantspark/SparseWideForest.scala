@@ -56,9 +56,9 @@ object SparseWideForest extends SparkApp {
     
     
     val rf = new WideRandomForest()
-    val result  = rf.run(data,labels.toArray, 50)
+    val result  = rf.run(data,labels.toArray, 100)
     //println(result)
-    result.printout()
+    //result.printout()
     val variableImportnace = result.variableImportance
     
     variableImportnace.toSeq.sortBy(-_._2).take(20).foreach(println)

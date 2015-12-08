@@ -28,7 +28,7 @@ object WideDecisionTree {
     if (total == 0.0) 0.0 else 1 - counts.map(s => sqr(s / total)).sum
   }
 
-  def findSplit(currentSet: Array[Int], labels: Array[Int])(t: (Vector, Long)): (Double, Long, Int, Int, Array[Int], Array[Int]) = {
+  def findSplit(currentSet: Array[Int], labels: Array[Int])(t: (Vector, Long)): (Double, Double, Long, Int, Int, Array[Int], Array[Int]) = {
 
     val v = t._1.toArray
     val index: Long = t._2
@@ -58,19 +58,19 @@ object WideDecisionTree {
     }.min
     // calculat the best ginit split
     // actually also need to return new subsplits
-    (totalGini - splitGini, index, s, majorityLabel, currentSet.filter(i => v(i) <= s), currentSet.filter(i => v(i) > s))
+    (totalGini - splitGini, totalGini, index, s, majorityLabel, currentSet.filter(i => v(i) <= s), currentSet.filter(i => v(i) > s))
   }
 }
 
 case class DecisionTreeNode(variableIndex: Long, splitPoint: Int, majorityLabel: Int,
-    impurityReduction: Double, size: Int, left: DecisionTreeNode = null, right: DecisionTreeNode = null) {
+    impurityReduction: Double, nodeImpurity: Double, size: Int, left: DecisionTreeNode = null, right: DecisionTreeNode = null) {
 
   def isLeaf = (impurityReduction == 0)
 
   def printout(level: Int) {
     print(new String(Array.fill(level)(' ')))
     val nodeType = if (isLeaf) "leaf" else "split"
-    println(s"${nodeType}[${variableIndex}, ${splitPoint}, ${majorityLabel}, ${size}, ${impurityReduction}]")
+    println(s"${nodeType}[${variableIndex}, ${splitPoint}, ${majorityLabel}, ${size}, ${impurityReduction}, ${nodeImpurity}]")
     if (!isLeaf) {
       left.printout(level + 1)
       right.printout(level + 1)
@@ -79,7 +79,8 @@ case class DecisionTreeNode(variableIndex: Long, splitPoint: Int, majorityLabel:
 
   def countImportance(accumulations: Long2DoubleOpenHashMap, totalSize:Int) {
     if (!isLeaf) {
-      accumulations.addTo(variableIndex, impurityReduction)//*size/totalSize.toDouble)
+      
+      accumulations.addTo(variableIndex, (size*nodeImpurity - (left.size*left.nodeImpurity + right.size*right.nodeImpurity))/totalSize.toDouble)
       left.countImportance(accumulations, totalSize)
       right.countImportance(accumulations, totalSize)
     }
@@ -148,7 +149,7 @@ class WideDecisionTree {
   def buildSplit(indexedData: RDD[(Vector, Long)], currentSet: Array[Int], labels: Array[Int], nvarFraction: Double): DecisionTreeNode = {
     // for the current set find all candidate splits
 
-    val (giniReduction, varIndex, split, majorityLabel, leftSet, rightSet) = indexedData.sample(false, nvarFraction, (Math.random() * 10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
+    val (giniReduction, totalGini, varIndex, split, majorityLabel, leftSet, rightSet) = indexedData.sample(false, nvarFraction, (Math.random() * 10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
       .map(WideDecisionTree.findSplit(currentSet, labels))
       .reduce((f1, f2) => if (f1._1 > f2._1) f1 else f2) // dumb way to use minimum
 
@@ -157,9 +158,9 @@ class WideDecisionTree {
     //println("Gini reduction:" + giniReduction) 
 
     if (giniReduction > 0) {
-      DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, currentSet.length, buildSplit(indexedData, leftSet, labels, nvarFraction), buildSplit(indexedData, rightSet, labels, nvarFraction))
+      DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length, buildSplit(indexedData, leftSet, labels, nvarFraction), buildSplit(indexedData, rightSet, labels, nvarFraction))
     } else {
-      DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, currentSet.length, null, null)
+      DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length, null, null)
     }
   }
 }
