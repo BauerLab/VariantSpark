@@ -12,4 +12,5 @@ spark-submit --class au.csiro.obr17q.variantspark.SparseWideForest\
       --driver-memory 8G \
       variantspark/target/variantspark-0.0.1-SNAPSHOT-all.jar \
       $input_file \
-      /flush2/szu004/variant/forrest.csv
+      /flush2/szu004/variant/forrest.csv \
+      100
