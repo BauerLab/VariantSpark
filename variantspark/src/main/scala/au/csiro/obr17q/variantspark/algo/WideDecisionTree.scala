@@ -2,13 +2,18 @@ package au.csiro.obr17q.variantspark.algo
 
 import scala.Range
 import scala.collection.JavaConversions.asScalaSet
-
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
-
 import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap
+import org.apache.spark.mllib.linalg.DenseVector
+import org.apache.spark.mllib.linalg.SparseVector
+import scala.collection.mutable.MutableList
+import test.Utils
+
+
+
 
 object WideDecisionTree {
 
@@ -28,37 +33,85 @@ object WideDecisionTree {
     if (total == 0.0) 0.0 else 1 - counts.map(s => sqr(s / total)).sum
   }
 
-  def findSplit(currentSet: Array[Int], labels: Array[Int])(t: (Vector, Long)): (Double, Double, Long, Int, Int, Array[Int], Array[Int]) = {
-
-    val v = t._1.toArray
-    val index: Long = t._2
-    val labelsCount = labels.max + 1
-
-    val labelCounts = Array.fill(labelsCount)(0)
+  def giniImpurity(currentSet: Array[Int], labels: Array[Int], labelCount:Int):(Double,Int) = {
+    val labelCounts = Array.fill(labelCount)(0)
     currentSet.foreach(i => labelCounts(labels(i)) += 1)
-    val totalGini = giniImprity(labelCounts)
+    (giniImprity(labelCounts), labelCounts.zipWithIndex.max._2)
+  }
+  
+  class SparseVectorSequentialAccessor(val sv:SparseVector) {
+    var index = 0
+    def apply(i:Int):Double = {
+      while(index < sv.indices.length && sv.indices(index) < i) { 
+        index+=1
+      }
+      if (index < sv.indices.length && sv.indices(index) ==i ) sv.values(index) else 0.0  
+    }
+    
+  }
+  
+  def mergeForEeach(currentSet: Array[Int], v:Vector)(f:(Int,Double)=>Unit)  {
+    // assumes currentSet is sorted
+    // for dense vector
+    v match {
+      case dv:DenseVector => currentSet.foreach(i=> f(i,dv.values(i))) 
+      case sv:SparseVector => {
+        val accessor = new SparseVectorSequentialAccessor(sv)
+        currentSet.foreach(i=> f(i,accessor(i)))
+      }
+    }
+  }
+  
+  
+  def findSplitInPartition(currentSet: Array[Int], labels: Array[Int], totalGini:Double)
+      (partition:Iterator[(Vector,Long)]):Iterator[(Double, Long, Int, Array[Int], Array[Int])] = {
+        
+    
+    //println("Processin parition")
+    var bestData:Array[Double]= null
+    var bestImpurity:Double = 2.0
+    var bestVarIndex:Long = -1
+    var bestSplit:Int = -1
 
-    // calculat the actual information gain for each split
-    val majorityLabel = labelCounts.zipWithIndex.max._2
+    val labelsCount = labels.max + 1
+    // early exit (if we haver already found a 0 impurity split there is not need to continue looking)
+    while(bestImpurity > 0.0 &&  partition.hasNext) {    
+      val (vector,varIndex) = partition.next()
+      val data = vector.toArray
+      
+      //println(s"Processin var ${varIndex}")
+
+      
+      val (impurity, splitPoint) = findSplit(currentSet: Array[Int], labels: Array[Int], data:Array[Double], labelsCount)
+      if (impurity < bestImpurity) {
+        bestData = data
+        bestImpurity = impurity
+        bestVarIndex = varIndex
+        bestSplit = splitPoint      
+      }
+    }
+    val result:Option[(Double, Long, Int, Array[Int], Array[Int])] = 
+      if (bestData != null) Some((totalGini - bestImpurity,bestVarIndex, bestSplit, currentSet.filter(i =>  bestData(i)<= bestSplit), 
+        currentSet.filter(i =>  bestData(i)> bestSplit))) else None
+    result.toIterator
+  }
+  
+  def findSplit(currentSet: Array[Int], labels: Array[Int], data:Array[Double], labelsCount:Int): (Double,Int) = {
 
     // now this wouild be done fastest with a contingency table but with 3 values
     // lets to a simple approach first
 
     //assuming values are 0, 1, 2 there are two possible splits
     // left side split x<=i
-    val (splitGini, s) = Range(0, 2).map { s =>
+    Range(0, 2).map { s =>
       val leftCount = Array.fill(labelsCount)(0)
       val rightCount = Array.fill(labelsCount)(0)
-      currentSet.foreach(i => if (v(i) <= s) leftCount(labels(i)) += 1 else rightCount(labels(i)) += 1)
-
+      currentSet.foreach {i => if ( data(i)<= s) leftCount(labels(i)) += 1 else rightCount(labels(i)) += 1}
       val leftItems = leftCount.sum
       val rightItem = rightCount.sum
       val splitGini = (giniImprity(leftCount) * leftItems.toDouble + giniImprity(rightCount) * rightItem.toDouble) / (leftItems + rightItem)
       (splitGini, s)
-    }.min
-    // calculat the best ginit split
-    // actually also need to return new subsplits
-    (totalGini - splitGini, totalGini, index, s, majorityLabel, currentSet.filter(i => v(i) <= s), currentSet.filter(i => v(i) > s))
+    }.min    
   }
 }
 
@@ -143,14 +196,21 @@ class WideDecisionTree {
     // what we need to do it so select variables for each      
     // sample a few variables.
     // indexes of elements included in current split
+    // we need to sort the current set
     new WideDecisionTreeModel(buildSplit(indexedData, currentSet, labels, nvarFraction))
   }
 
   def buildSplit(indexedData: RDD[(Vector, Long)], currentSet: Array[Int], labels: Array[Int], nvarFraction: Double): DecisionTreeNode = {
     // for the current set find all candidate splits
 
-    val (giniReduction, totalGini, varIndex, split, majorityLabel, leftSet, rightSet) = indexedData.sample(false, nvarFraction, (Math.random() * 10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
-      .map(WideDecisionTree.findSplit(currentSet, labels))
+    //println(s"Splitting: ${currentSet.toList}")
+    
+    val labelsCount = labels.max + 1
+    val (totalGini, majorityLabel) = WideDecisionTree.giniImpurity(currentSet, labels, labelsCount)
+    
+    val (giniReduction, varIndex, split, leftSet, rightSet) = indexedData
+      .sample(false, nvarFraction, (Math.random() * 10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
+      .mapPartitions(WideDecisionTree.findSplitInPartition(currentSet, labels, totalGini))
       .reduce((f1, f2) => if (f1._1 > f2._1) f1 else f2) // dumb way to use minimum
 
     // check if futher split is needed
@@ -158,7 +218,9 @@ class WideDecisionTree {
     //println("Gini reduction:" + giniReduction) 
 
     if (giniReduction > 0) {
-      DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length, buildSplit(indexedData, leftSet, labels, nvarFraction), buildSplit(indexedData, rightSet, labels, nvarFraction))
+      DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length,
+          buildSplit(indexedData, leftSet, labels, nvarFraction),
+          buildSplit(indexedData, rightSet, labels, nvarFraction))
     } else {
       DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length, null, null)
     }
