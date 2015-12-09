@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap
 import org.apache.spark.mllib.linalg.DenseVector
 import org.apache.spark.mllib.linalg.SparseVector
 import scala.collection.mutable.MutableList
+import org.apache.spark.broadcast.Broadcast
 
 
 
@@ -62,9 +63,11 @@ object WideDecisionTree {
   }
   
   
-  def findSplitInPartition(currentSet: Array[Int], labels: Array[Int], totalGini:Double)
+  def findSplitInPartition(br_currentSet: Broadcast[Array[Int]], br_labels: Broadcast[Array[Int]], totalGini:Double)
       (partition:Iterator[(Vector,Long)]):Iterator[(Double, Long, Int, Array[Int], Array[Int])] = {
         
+    val currentSet = br_currentSet.value
+    val labels = br_labels.value
     
     //println("Processin parition")
     var bestData:Array[Double]= null
@@ -185,41 +188,47 @@ class WideDecisionTreeModel(val rootNode: DecisionTreeNode) {
 }
 
 class WideDecisionTree {
-  def run(data: RDD[Vector], labels: Array[Int]): WideDecisionTreeModel = run(data, labels, Range(0, data.first().size).toArray)
-  def run(data: RDD[Vector], labels: Array[Int], currentSet: Array[Int]): WideDecisionTreeModel = {
+  def run(data: RDD[Vector], labels: Array[Int]): WideDecisionTreeModel = run(data.zipWithIndex(), labels, Range(0, data.first().size).toArray, 0.3)
+  def run(data: RDD[(Vector, Long)], labels: Array[Int], currentSet: Array[Int],nvarFraction: Double): WideDecisionTreeModel = {
 
     val c = data.count()
-    val nvarFraction: Double = 0.3 //Math.sqrt(c.toDouble)/c.toDouble
 
-    val indexedData = data.zipWithIndex()
+    val indexedData = data
     // what we need to do it so select variables for each      
     // sample a few variables.
     // indexes of elements included in current split
     // we need to sort the current set
-    new WideDecisionTreeModel(buildSplit(indexedData, currentSet, labels, nvarFraction))
+    
+    val br_labels = data.context.broadcast(labels)
+    val tree = new WideDecisionTreeModel(buildSplit(indexedData, currentSet, br_labels, nvarFraction))
+    br_labels.destroy()
+    tree
   }
 
-  def buildSplit(indexedData: RDD[(Vector, Long)], currentSet: Array[Int], labels: Array[Int], nvarFraction: Double): DecisionTreeNode = {
+  def buildSplit(indexedData: RDD[(Vector, Long)], currentSet: Array[Int], br_labels: Broadcast[Array[Int]], nvarFraction: Double): DecisionTreeNode = {
     // for the current set find all candidate splits
 
     //println(s"Splitting: ${currentSet.toList}")
     
-    val labelsCount = labels.max + 1
-    val (totalGini, majorityLabel) = WideDecisionTree.giniImpurity(currentSet, labels, labelsCount)
+    
+    val br_curretSet =  indexedData.context.broadcast(currentSet)
+    
+    val labelsCount = br_labels.value.max + 1
+    val (totalGini, majorityLabel) = WideDecisionTree.giniImpurity(currentSet, br_labels.value, labelsCount)
     
     val (giniReduction, varIndex, split, leftSet, rightSet) = indexedData
       .sample(false, nvarFraction, (Math.random() * 10000).toLong) // sample the variables (should be sqrt(n)/n for classification)
-      .mapPartitions(WideDecisionTree.findSplitInPartition(currentSet, labels, totalGini))
+      .mapPartitions(WideDecisionTree.findSplitInPartition(br_curretSet, br_labels, totalGini))
       .reduce((f1, f2) => if (f1._1 > f2._1) f1 else f2) // dumb way to use minimum
 
     // check if futher split is needed
-
+    br_curretSet.destroy()
     //println("Gini reduction:" + giniReduction) 
 
     if (giniReduction > 0) {
       DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length,
-          buildSplit(indexedData, leftSet, labels, nvarFraction),
-          buildSplit(indexedData, rightSet, labels, nvarFraction))
+          buildSplit(indexedData, leftSet, br_labels, nvarFraction),
+          buildSplit(indexedData, rightSet, br_labels, nvarFraction))
     } else {
       DecisionTreeNode(varIndex, split, majorityLabel, giniReduction, totalGini, currentSet.length, null, null)
     }

@@ -47,19 +47,24 @@ case class WideRandomForestModel(trees: List[WideDecisionTreeModel], val labelCo
 }
 
 case class RandomForestParams(
-    val oob:Boolean = true
+    val oob:Boolean = true,
+    val nTryFraction:Double =  Double.NaN
 )
 
 class WideRandomForest {
-  def run(data: RDD[Vector], labels: Array[Int], ntrees: Int, params:RandomForestParams = RandomForestParams()): WideRandomForestModel = {
+  def run(data: RDD[(Vector, Long)], labels: Array[Int], ntrees: Int, params:RandomForestParams = RandomForestParams()): WideRandomForestModel = {
     // subsample 
     val dims = labels.length
     val labelCount = labels.max + 1
     val oobVotes = Array.fill(dims)(Array.fill(labelCount)(0))
+    
+    val ntryFraction = if (params.nTryFraction.isNaN() ) Math.sqrt(dims.toDouble)/dims.toDouble else params.nTryFraction
+    println(s"RF: Using ntryfraction: ${ntryFraction}")
+    
     val trees = Range(0, ntrees).map { i =>
       println(s"Building tree: ${i}")
       val currentSample = for (i <- 0 until dims) yield (Math.random() * dims).toInt // sample with replacemnt
-      val tree = new WideDecisionTree().run(data, labels, currentSample.toArray)
+      val tree = new WideDecisionTree().run(data, labels, currentSample.toArray, ntryFraction)
       val error = if (params.oob) {
         // check which indexes are out of bag
         val inBag = currentSample.distinct.toSet // 
@@ -68,7 +73,7 @@ class WideRandomForest {
         // tree.predict() on projected data
         // looks like I actually need to get the reversed set anyway
         val oobIndexes = Range(0,dims).toSet.diff(inBag)
-        val predictions = tree.predict(data.map(WideDecisionTree.projectVector(oobIndexes,false)))
+        val predictions = tree.predict(data.map(_._1).map(WideDecisionTree.projectVector(oobIndexes,false)))
         val indexs = oobIndexes.toSeq.sorted
         predictions.zip(indexs).foreach{ case (v, i) => oobVotes(i)(v)+=1}
         Metrics.classificatoinError(labels, oobVotes.map(_.zipWithIndex.max._2))

@@ -1,7 +1,7 @@
-Run rf on a small saple of genom
+Run rf on a small sample of genom
 ========================================================
 
-Run rf on a small saple of genom
+Run rf on a small small sample of genom (Categories are superpopulations)
 
 ```{r}
 library(randomForest)

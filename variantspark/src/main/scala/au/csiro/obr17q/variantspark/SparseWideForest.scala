@@ -29,7 +29,8 @@ object SparseWideForest extends SparkApp {
     val inputFiles = args(0)
     val output = args(1)
     val ntree = args(2).toInt
-    
+    val ntryfraction = if (args.length > 3) args(3).toDouble else Double.NaN
+        
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     val sparseVariat = sqlContext.parquetFile(inputFiles)    
@@ -70,7 +71,7 @@ object SparseWideForest extends SparkApp {
    }
    
    
-   val data = 
+   val vectorData = 
       sparseVariat.rdd      
         .map{r=> 
           val (size, indexes,values) = (r.getInt(1),r.getSeq[Int](2).toArray, r.getSeq[Double](3))
@@ -79,14 +80,17 @@ object SparseWideForest extends SparkApp {
           indexes.filter(i => allLabels(i) < unknownLabel).map(i => i - indexCorrections(i)).toArray,
           values.zipWithIndex.filter({ case(v,i) => allLabels(indexes(i)) < unknownLabel }).map(_._1).toArray)
          }
-    val test = data.cache().count()
+   
+   
+    val data = vectorData.zipWithIndex().cache()
+    val test = data.count()
     println(test)    
     
     val labels = allLabels.filter(_ < unknownLabel)
     
     val startTime = System.currentTimeMillis()
     val rf = new WideRandomForest()
-    val result  = rf.run(data,labels.toArray, ntree, RandomForestParams(oob=true))
+    val result  = rf.run(data,labels.toArray, ntree, RandomForestParams(oob=true, nTryFraction = ntryfraction))
     //println(result)
     val runTime = System.currentTimeMillis() - startTime
     println(s"Run time: ${runTime}")

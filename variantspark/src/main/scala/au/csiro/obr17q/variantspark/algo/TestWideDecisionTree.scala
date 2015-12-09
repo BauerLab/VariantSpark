@@ -24,13 +24,15 @@ object TestWideDecisionTree extends SparkApp {
     val clusterAssignment = Range(0,samples).map(i => Math.floor(Math.random()*centersNo).toInt).toList
     println(clusterAssignment)
     
-    val data:RDD[Vector] = centers.zipWithIndex().map{ case (v,i) =>
+    val vectorData:RDD[Vector] = centers.zipWithIndex().map{ case (v,i) =>
       if (i< importantDims) Vectors.dense(clusterAssignment.map(c =>
         ((v(c).toInt + (Math.random()*1.3).toInt) % centersNo).toDouble).toArray)
       else 
         Vectors.dense(Array.fill(samples)((Math.random()*3).toInt.toDouble))
     }
     
+    
+    val data = vectorData.zipWithIndex().cache()
     val testLabels = Range(0,samples).map(i => Math.floor(Math.random()*centersNo).toInt).toList
     val testData:RDD[Vector] = centers.zipWithIndex().map{ case (v,i) =>
       if (i< importantDims) Vectors.dense(testLabels.map(c =>
@@ -39,7 +41,7 @@ object TestWideDecisionTree extends SparkApp {
         Vectors.dense(Array.fill(samples)((Math.random()*3).toInt.toDouble))
     }    
     
-    val test = data.cache().count()
+    val test = data.count()
     println("Records to process: "+ test)
     
     val rf = new WideRandomForest()
@@ -47,7 +49,7 @@ object TestWideDecisionTree extends SparkApp {
     //println(result)
     //result.printout()
     val variableImportnace = result.variableImportance
-    println(result.predict(data).toList)    
+    println(result.predict(data.map(_._1)).toList)    
     variableImportnace.toSeq.sortBy(-_._2).take(50).foreach(println)
     
     val testPredict = result.predict(testData)
