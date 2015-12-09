@@ -43,6 +43,15 @@ case class WideRandomForestModel(trees: List[WideDecisionTreeModel], val labelCo
     // now for each sample find the label with the highest count
     votes.map(_.zipWithIndex.max._2)
   }
+
+  def predictIndexed(data: RDD[(Vector,Long)]): Array[Int] = {
+    val sampleCount = data.first._1.size
+    // for classification we just do majority vote
+    val votes = Array.fill(sampleCount)(Array.fill(labelCount)(0))
+    trees.map(_.predictIndexed(data)).foreach { x => x.zipWithIndex.foreach{ case (v, i) => votes(i)(v)+=1}} // this is each tree vote for eeach sample
+    // now for each sample find the label with the highest count
+    votes.map(_.zipWithIndex.max._2)
+  }
   
 }
 
@@ -73,7 +82,7 @@ class WideRandomForest {
         // tree.predict() on projected data
         // looks like I actually need to get the reversed set anyway
         val oobIndexes = Range(0,dims).toSet.diff(inBag)
-        val predictions = tree.predict(data.map(_._1).map(WideDecisionTree.projectVector(oobIndexes,false)))
+        val predictions = tree.predictIndexed(data.map( t => (WideDecisionTree.projectVector(oobIndexes,false)(t._1), t._2)))
         val indexs = oobIndexes.toSeq.sorted
         predictions.zip(indexs).foreach{ case (v, i) => oobVotes(i)(v)+=1}
         Metrics.classificatoinError(labels, oobVotes.map(_.zipWithIndex.max._2))

@@ -145,7 +145,9 @@ case class DecisionTreeNode(variableIndex: Long, splitPoint: Int, majorityLabel:
 
 class WideDecisionTreeModel(val rootNode: DecisionTreeNode) {
 
-  def predict(data: RDD[Vector]): Array[Int] = {
+    def predict(data: RDD[Vector]): Array[Int] = predictIndexed(data.zipWithIndex())
+
+    def predictIndexed(data: RDD[(Vector,Long)]): Array[Int] = {
     // this is a bit tricky but say lets' collect all the values neeed to resolve the thre
 
     //map the tree into a set of indexes
@@ -157,9 +159,9 @@ class WideDecisionTreeModel(val rootNode: DecisionTreeNode) {
 
     val indexes = mapTrees(rootNode).toSet
     // now collect values of selected index
-    val points = data.zipWithIndex.filter { case (v, i) => indexes.contains(i) }.map(_.swap).collectAsMap()
+    val points = data.filter { case (v, i) => indexes.contains(i) }.map(_.swap).collectAsMap()
 
-    val tmp = Array.fill(data.first().size)(rootNode)
+    val tmp = Array.fill(data.first()._1.size)(rootNode)
     while (tmp.exists { x => x.impurityReduction > 0 }) {
       Range(0, tmp.length).foreach { i =>
         val tn = tmp(i)
