@@ -158,10 +158,12 @@ class WideDecisionTreeModel(val rootNode: DecisionTreeNode) {
     }
 
     val indexes = mapTrees(rootNode).toSet
+    println(s"Collecting data: ${indexes.size}")
     val br_indexes = data.context.broadcast(indexes)
     // now collect values of selected index
-    val points = data.filter { case (v, i) => br_indexes.value.contains(i) }.map(_.swap).collectAsMap()
+    val pointsAsList = data.filter { case (v, i) => br_indexes.value.contains(i) }.collect()
     br_indexes.destroy()
+    val points = pointsAsList.map(_.swap).toMap
     
     val tmp = Array.fill(data.first()._1.size)(rootNode)
     while (tmp.exists { x => x.impurityReduction > 0 }) {
