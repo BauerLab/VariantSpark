@@ -13,4 +13,4 @@ spark-submit --class au.csiro.obr17q.variantspark.SparseWideForest\
       variantspark/target/variantspark-0.0.1-SNAPSHOT-all.jar \
       $input_file \
       /flush2/szu004/variant/forrest.csv \
-      100
+      2 
