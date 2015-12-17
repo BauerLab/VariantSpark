@@ -16,7 +16,7 @@ trait SparkApp {
   .set("spark.driver.maxResultSize","2048")
   //.set("spark.default.parallelism", "256")
   lazy val masterUrl =  if (System.getenv("MASTER") != null) System.getenv("MASTER") else "yarn-client"
-  lazy val sc = { println("MASTER: " + masterUrl) ; new SparkContext()}
+  lazy val sc = { println("MASTER: " + masterUrl) ; new SparkContext(conf)}
   lazy val sqlContext = new org.apache.spark.sql.SQLContext(sc)
   //lazy val ac = new ADAMContext(sc)
 }
