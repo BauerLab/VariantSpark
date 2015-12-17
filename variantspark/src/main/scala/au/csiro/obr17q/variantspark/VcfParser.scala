@@ -35,9 +35,9 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
   /**
    * Array of elements for each line in the VCF file
    * Array elements are zipped with the VCF heading
-   * AllVariants: RDD[(VariantID, Array[(IndividualID, Variant)])]
+   * AllVariants: RDD[(VariantID, chr-pos, Array[(IndividualID, Variant)])]
    */
-  private val VcfLineRdd : RDD[(Long, Array[(String, Double)])] = {
+  private val VcfLineRdd : RDD[(Long, String, Array[(String, Double)])] = {
     val VariantCutoff = this.VariantCutoff
     val NotAVariant = this.NotAVariant
     val Headings = getHeadings(VcfFilesRDD)
@@ -51,7 +51,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
       } )
     } )
     .map( line => (
-        "%s-%s".format(line(0)._1, line(1)._1 ),
+        "%s:%s".format(line(0)._1, line(1)._1 ),
         line.filter(v => !(NotAVariant contains v._2)) // Filter out the metadata tuples
         .map(v => (v._2, variantDist(v._1, 0))) // Convert variant String to Double
         .filter(v => v._2 != 0) //Filter out zero variants to make dataset sparse
@@ -60,7 +60,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
     .filter(h => h._2.length > VariantCutoff) // Filter out 'rare' variants
     /** Add additional filters here to apply to all variants at each allele. **/
     .zipWithIndex()
-    .map(h => (h._2, h._1._2))
+    .map(h => (h._2, h._1._1,  h._1._2))
   }
 
 
@@ -71,12 +71,17 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
     VcfLineRdd.count().toInt
 
 
+  def alleleTuples : RDD[(Int, String)] = {
+    VcfLineRdd
+    .map(h => (h._1.toInt, h._2))
+  }
+
   def individualTuples : RDD[(String, (Int, Double))] = {
     VcfLineRdd
-    .flatMap( (h) => {
-      h._2
-      .map( i => ( i._1, (h._1.toInt, i._2) ) )
-    })
-  }
-  
+      .map(h => (h._1, h._3))
+      .flatMap( (h) => {
+        h._2
+          .map( i => ( i._1, (h._1.toInt, i._2) ) )
+        })
+    }
 }

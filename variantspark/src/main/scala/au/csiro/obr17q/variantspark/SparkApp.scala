@@ -6,8 +6,8 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 trait SparkApp {
   def defaultMasterUrl = "yarn-client"
-  Logger.getLogger("org").setLevel(Level.OFF)
-  Logger.getLogger("akka").setLevel(Level.OFF)
+  //Logger.getLogger("org").setLevel(Level.OFF)
+  //Logger.getLogger("akka").setLevel(Level.OFF)
   
   lazy val conf = new SparkConf()
   //.set("spark.shuffle.memoryFraction", "0.2")
