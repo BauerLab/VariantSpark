@@ -222,6 +222,28 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta er
 \linenumbers
 
 \section*{Introduction}
+
+
+Important because:
+
+
+Computational tools such as Apache Spark provide a framework for designing and implementing complex analyses.
+
+In addition of Spark ML, provides popular machine learning libraries. It includes supervised approaches such as Decision trees, and the ensemble Random Forests, as well as unsupervised approaches such as k-means clustering.
+
+We previously demonstrated the versatility and scalability of Spark by developing VariantSpark, a framework to allow users to apply Spark and Spark ML's algorithms to VCF files.
+
+Although we successfully clustered the 2500 individuals from the 1000 Genomes Project phase 3 dataset based variants from the 22 autosomes, this task approached the limits of our cluster.
+
+Although our VCF pre-processing phase succeeds with a minimal resource requirement (3GB per executor) the memory required for k-means clustering skyrockets, requiring 24GB per executor to cluster the entire genome. 
+
+The reason for this can be attributed to the "curse of dimensionality". Spark ML is designed to process large numbers of samples rather than a large number of dimensions. As a result, data is partitioned along sample boundaries, with entire samples distributed to worker nodes.
+As the sample size grows, Spark can simple schedule more jobs to run to cope with the additional samples.
+
+However with the 1000 Genomes Project data, the dimensionality far exceeds the number of samples. This limits the number of jobs that Spark can create, and instead forces it to create fewer, larger jobs.
+
+ 
+
 Lorem ipsum dolor sit~\cite{bib1} amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam Eq.~(\ref{eq:schemeP}) sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id.~\cite{bib2} Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
 
 \begin{equation}\label{eq:schemeP} 
