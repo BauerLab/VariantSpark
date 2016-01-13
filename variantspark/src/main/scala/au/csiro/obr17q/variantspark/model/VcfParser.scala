@@ -1,15 +1,20 @@
-package au.csiro.obr17q.variantspark
+package au.csiro.obr17q.variantspark.model
 
 import au.com.bytecode.opencsv.CSVParser
 import au.csiro.obr17q.variantspark.CommonFunctions.variantDist
-import org.apache.spark.rdd.RDD
+import au.csiro.obr17q.variantspark.IndividualMap
+import au.csiro.obr17q.variantspark.VcfForest._
 import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.linalg._
 
 /**
  * @author obr17q
  */
-class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: SparkContext) extends java.io.Serializable {
 
+private case class VcfRecord(individual: String, sampleType: String, bmi: Double, preLabel: String, features: Vector)
+
+class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val IndividualMeta: RDD[IndividualMap], val sc: SparkContext) extends scala.Serializable {
 
   private val NotAVariant = "#CHROM" :: "POS" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
 
@@ -23,12 +28,12 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
     */
   private def getHeadings(VcfFiles: RDD[String]) : List[String] = {
     VcfFiles
-      .filter( _.startsWith("#CHROM") )
+      .filter(_.startsWith("#CHROM"))
       .map(
         line => {
           val parser = new CSVParser('\t')
           parser.parseLine(line)
-        } ).map(e => List(e:_*)).first()
+        } ).map(e => List(e:_*)).first
   }
 
 
@@ -42,7 +47,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
     val NotAVariant = this.NotAVariant
     val Headings = getHeadings(VcfFilesRDD)
     VcfFilesRDD
-    .filter( !_.startsWith("#") )
+    .filter(!_.startsWith("#"))
     .mapPartitions( lines => {
       val parser = new CSVParser('\t')
       lines.map( line => {
@@ -59,21 +64,41 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: Spark
     ))
     .filter(h => h._2.length > VariantCutoff) // Filter out 'rare' variants
     /** Add additional filters here to apply to all variants at each allele. **/
-    .zipWithIndex()
+    .zipWithIndex
     .map(h => (h._2, h._1._1,  h._1._2))
   }
+
+
+  val data = sqlContext
+    .createDataFrame {
+      individualTuples
+        .groupByKey //group by individual ID, i.e. get RDD of individuals
+        .map(p => (p._1.split('_')(0).substring(0, 12), (p._1.split('_')(1), p._2))) // Split the TCGA key to get ID & type
+        .filter(_._2._1 == "NORMAL")
+        //.map(p => (p._1, (p._1, p._2))) // 1000 data
+        .join(IndividualMeta.map(_.toBMI)) //filter out individuals lacking required data
+        .map(h =>
+        VcfRecord(
+            individual = h._1,
+            sampleType = h._2._1._1,
+            bmi = h._2._2,
+            preLabel = if (h._2._2 > 40) "obese" else if (h._2._2 > 30) "overweight" else "healthy",
+            features = Vectors.sparse(variantCount, h._2._1._2.to[Seq]))
+      )
+    }
+
 
 
   /**
     * Number of variants in the file
     */
-  val variantCount : Int =
-    VcfLineRdd.count().toInt
+  def variantCount : Int =
+    VcfLineRdd.count.toInt
 
 
-  def alleleTuples : RDD[(Int, String)] = {
+  def alleleTuples : RDD[(String, Int)] = {
     VcfLineRdd
-    .map(h => (h._1.toInt, h._2))
+    .map(h => (h._2, h._1.toInt))
   }
 
   def individualTuples : RDD[(String, (Int, Double))] = {
