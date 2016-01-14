@@ -3,6 +3,7 @@ package au.csiro.obr17q.variantspark
 import java.util.Date
 
 import au.csiro.obr17q.variantspark.CommonFunctions._
+import au.csiro.obr17q.variantspark.model.VcfParser
 import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.linalg.{Vectors}
@@ -31,7 +32,7 @@ object VcfLogRegression extends SparkApp {
     //val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 2 )(SexCol = 3).returnMap())
 
     
-    val vcfObject = new VcfParser(args(0), VariantCutoff, sc)
+    val vcfObject = new VcfParser(args(0), VariantCutoff, IndividualMeta, sc)
 
     val NoOfAlleles = vcfObject.variantCount
 
