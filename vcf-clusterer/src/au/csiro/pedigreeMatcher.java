@@ -3,11 +3,16 @@ package au.csiro;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 public class pedigreeMatcher {
 	HashMap<String, String[]> hm = new HashMap<String, String[]>();
@@ -22,33 +27,40 @@ public class pedigreeMatcher {
 		}
 		ins.close();
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	//Why??
-	public void printPedigree() {
-		Iterator i = hm.entrySet().iterator();
-		while(i.hasNext()) {
-	         Map.Entry me = (Map.Entry)i.next();
-	         System.out.print(me.getKey() + ": ");
-	         for (String s:(String[])me.getValue()) {
-	        	 System.out.print(s+ " ");
-	         }
-	         System.out.print("\n");
-	      }
+
+	public enum Phase1Pops {
+		EAS("JPT", "CHB", "CHS"), SAS(), EUR("CEU", "TSI", "FIN", "GBR", "IBS"), 
+		AFR("YRI", "LWK", "ASW"), AMR("MXL", "PUR", "CLM");
+		private final List<String> values;
+		Phase1Pops(String ...values) {
+			this.values = Arrays.asList(values);
+		}
+	    public List<String> getValues() {
+	        return values;
+	    }
 	}
-	
-	public void findMatches(String clusteredPoints) throws IOException {
-		BufferedWriter w = new BufferedWriter(new FileWriter("populations.txt"));
-		BufferedReader ins =
-				new BufferedReader(new FileReader(clusteredPoints));
+	public enum Phase3Pops {
+		EAS("CHB", "JPT", "CHS", "CDX", "KHV"),	SAS("GIH", "PJL", "BEB", "STU", "ITU"),	EUR("CEU", "TSI", "FIN", "GBR", "IBS"), 
+		AFR("YRI", "LWK", "GWD", "MSL", "ESN", "ASW", "ACB"), AMR("MXL", "PUR", "CLM", "PEL");
+		private final List<String> values;
+		Phase3Pops(String ...values) {
+			this.values = Arrays.asList(values);
+		}
+	    public List<String> getValues() {
+	        return values;
+	    }
+	}
+	public void findMatches(Configuration conf, String jobID) throws IOException {
+		FileSystem fs = FileSystem.get(conf);
+	    Path popPt=new Path(jobID + "/populations.txt");
+	    Path resPt=new Path(jobID + "/resultFileCluster.txt");
+		BufferedWriter w =
+				new BufferedWriter(new OutputStreamWriter(fs.create(popPt, true)));
+		BufferedReader r =
+				new BufferedReader(new InputStreamReader(fs.open(resPt)));
+				
 		String line = null;
-		while ((line = ins.readLine()) != null) {
+		while ((line = r.readLine()) != null) {
 			String[] samples = line.split(": ");
 			w.write(line.split(":")[1] + ": ");
 			String[] sampleArray = samples[2].split(",");
@@ -58,49 +70,61 @@ public class pedigreeMatcher {
 			w.write("\n");
 		}
 		w.close();
-		ins.close();
+		r.close();
 	}
-	
-	public void adjRandIndex(String clusteredPoints) throws IOException {
-		Iterator i = hm.entrySet().iterator();
+
+	public void adjRandIndex(Configuration conf, String jobID, String phase) throws IOException {
+		FileSystem fs = FileSystem.get(conf);
 		String truth = "truth=[";
 		String clust = "clust=[";
 		
-		
-		BufferedReader ins =
-				new BufferedReader(new FileReader("populations.txt"));
+	    Path pt=new Path(jobID + "/populations.txt");
+	    BufferedReader ins=new BufferedReader(new InputStreamReader(fs.open(pt)));
 		String line = null;
 		int clusterId = 0;
+		
+
+
+		
+		
 		while ((line = ins.readLine()) != null) {
 			
 			String[] samples = line.split(":");
 			String[] sampleArray = samples[1].split(",");
-			
+			Phase3Pops superPop = null;        
 			for (String s:sampleArray){
-				if (s.contains("CHB")|s.contains("JPT")|s.contains("CHS")|s.contains("CDX")|s.contains("KHV")|s.contains("EAS")) {
+				
+			    for (Phase3Pops pop : Phase3Pops.values()) {
+			        if (pop.getValues().contains(s.trim())) {
+			            superPop = pop;
+			        }
+			    }
+			    
+				switch (superPop) {
+				case EAS:
 					truth += 0+",";
 					clust += clusterId+",";
-					
-				} else if (s.contains("CEU")|s.contains("TSI")|s.contains("FIN")|s.contains("GBR")|s.contains("IBS")|s.contains("EUR")) {
+					break;
+				case SAS:
 					truth += 1+",";
 					clust += clusterId+",";
-					
-				} else if (s.contains("YRI")|s.contains("LWK")|s.contains("GWD")|s.contains("MSL")|s.contains("ESN")|s.contains("ASW")|s.contains("ACB")|s.contains("AFR")) {
+					break;
+				case EUR:
 					truth += 2+",";
 					clust += clusterId+",";
-					
-				} else if (s.contains("MXL")|s.contains("PUR")|s.contains("CLM")|s.contains("PEL")|s.contains("AMR")) {
+					break;
+				case AFR:
 					truth += 3+",";
 					clust += clusterId+",";
-					
-				} else if (s.contains("GIH")|s.contains("PJL")|s.contains("BEB")|s.contains("STU")|s.contains("ITU")|s.contains("SAS")) {
+					break;
+				case AMR:
 					truth += 4+",";
 					clust += clusterId+",";
-					
-				} else {
-					System.out.println("Unknown population: " + s);
-				}
-				
+					break;
+				default:
+					System.out.println("Other");
+					break;
+				}	
 				
 				
 			}
