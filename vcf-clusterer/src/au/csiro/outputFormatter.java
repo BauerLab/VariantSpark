@@ -2,7 +2,7 @@ package au.csiro;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
@@ -15,26 +15,37 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.mahout.clustering.Cluster;
+import org.apache.hadoop.io.SequenceFile.Reader;
 import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable;
-import org.apache.mahout.clustering.classify.WeightedVectorWritable;
 import org.apache.mahout.math.NamedVector;
 
 public class outputFormatter {
-	String outputFile = "resultFileCluster.txt";
 	LinkedHashMap<String,String> mpIdData = new LinkedHashMap<String, String>();
 	
-	public void fileRead(Configuration conf, String path, String namesFile) {
-		System.out.println("Writing summary to "+ outputFile + "...");
+	public void fileRead(Configuration conf, String jobId, String namesFile) {
+		
+		
+		
+		
+		
+		System.out.println("Writing summary to "+ jobId + "/resultFileCluster.txt...");
 		try {
 			FileSystem fs = FileSystem.get(conf);
-			Path inPath = new Path(path);
+			
+			Path pt = new Path(jobId + "/resultFileCluster.txt");
+			BufferedWriter out =
+					new BufferedWriter(new OutputStreamWriter(fs.create(pt, true)));
+
+			Path inPath = new Path(jobId + "/output/clusteredPoints");
 			FileStatus[] status = fs.listStatus(inPath);
 			
 			IntWritable key = new IntWritable();
 			WeightedPropertyVectorWritable value = new WeightedPropertyVectorWritable();
 			
-			String content = new Scanner(new File(namesFile)).useDelimiter("\\Z").next();
+			Scanner scan = new Scanner(new File(namesFile));
+			String content = scan.useDelimiter("\\Z").next();
+			scan.close();
+			
 			String[] sampleNames = content.split(",");
 			
 			System.out.println("Number of individuals: " + sampleNames.length);
@@ -47,7 +58,7 @@ public class outputFormatter {
 					continue;
 				}
 				System.out.println(newPath);
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs, newPath, conf);
+				SequenceFile.Reader reader = new SequenceFile.Reader(conf, Reader.file(newPath));
 				while (reader.next(key, value)) {
 					NamedVector vect = (NamedVector) value.getVector();
 					
@@ -67,8 +78,9 @@ public class outputFormatter {
 				}
 				reader.close();
 			}
-			FileWriter f1 = new FileWriter(outputFile,true);
-			BufferedWriter out = new BufferedWriter(f1);
+	
+			
+			
 			for(Map.Entry<String, String> entry : mpIdData.entrySet()) {
 				out.write("Cluster Id : " + entry.getKey());
 				out.write("-------> Samples : " + entry.getValue());
