@@ -7,6 +7,7 @@ import au.csiro.obr17q.variantspark.VcfForest._
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.linalg._
+import model.FlatVariant
 
 /**
  * @author obr17q
@@ -101,6 +102,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
     .map(h => (h._2, h._1.toInt))
   }
 
+/*
   def individualTuples : RDD[(String, (Int, Double))] = {
     VcfLineRdd
       .map(h => (h._1, h._3))
@@ -109,4 +111,13 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
           .map( i => ( i._1, (h._1.toInt, i._2) ) )
         })
     }
+*/
+  
+  def individualVariants : RDD[FlatVariant] = {
+    VcfLineRdd
+    .flatMap( (h) => {
+      h._2
+      .map( i => FlatVariant( i._1, h._1.toInt, i._2))
+    })
+  }
 }

@@ -1,0 +1,35 @@
+Run rf on a small sample of genom
+========================================================
+
+Run rf on a small small sample of genom (Categories are superpopulations)
+
+```{r}
+library(randomForest)
+data <-read.table('wide-data.csv',header=FALSE, sep=",")
+
+X <- t(data[-1,])
+y <- as.factor(t(data[1,]))
+
+model <-randomForest(X,y,ntree=100, importance=TRUE)
+```
+
+Plot OOB error rates
+
+```{r fig.width=7, fig.height=6}
+plot(model)
+```
+
+```{r}
+model$err.rate[90:100,]
+```
+
+
+
+
+Plot variable importance
+
+```{r fig.width=10, fig.height=7}
+varImpPlot(model)
+```
+
+
