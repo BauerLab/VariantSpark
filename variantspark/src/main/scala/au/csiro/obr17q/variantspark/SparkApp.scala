@@ -11,7 +11,7 @@ trait SparkApp {
   Logger.getLogger("akka").setLevel(Level.OFF)
   
   lazy val conf = new SparkConf()
-    .setMaster("local")
+    //.setMaster("local")
     //.set("spark.shuffle.memoryFraction", "0.2")
     //.set("spark.storage.memoryFraction", "0.4")
     //.set("spark.yarn.executor.memoryOverhead", "2048")
