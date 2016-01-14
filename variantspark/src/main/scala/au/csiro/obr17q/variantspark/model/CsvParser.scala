@@ -79,21 +79,20 @@ class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: Spark
             features = Vectors.sparse(variantCount, p._2._1.to[Seq])))
     }.toDF
 
-
-    var printData = {
-      val variantCount = this.variantCount
-      val alleleTuples = this.alleleTuples
-      val IndividualMetaData = this.IndividualMetaData
-      CsvLineRDD
-        .map(line => ((line(10), line(7)), 1))
-        .reduceByKey(_ + _)
-        .map(p => (p._1._2, (p._1._1, p._2.toDouble)))
-        .join(alleleTuples)
-        .map(p => (p._2._1._1, (p._2._2, p._2._1._2)))
-        .groupByKey
-        .join(IndividualMetaData)
-        .map(p => ( p._1, p._2._2._1, p._2._2._2, Vectors.sparse(variantCount, p._2._1.to[Seq] ).toArray))
-    }
+  var printData = {
+    val variantCount = this.variantCount
+    val alleleTuples = this.alleleTuples
+    val IndividualMetaData = this.IndividualMetaData
+    CsvLineRDD
+      .map(line => ((line(10), line(7)), 1))
+      .reduceByKey(_ + _)
+      .map(p => (p._1._2, (p._1._1, p._2.toDouble)))
+      .join(alleleTuples)
+      .map(p => (p._2._1._1, (p._2._2, p._2._1._2)))
+      .groupByKey
+      .join(IndividualMetaData)
+      .map(p => ( p._1, p._2._2._1, p._2._2._2, Vectors.sparse(variantCount, p._2._1.to[Seq] ).toArray))
+  }
 
 
 

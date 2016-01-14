@@ -1,11 +1,8 @@
 package au.csiro.obr17q.variantspark
 
-import au.csiro.obr17q.variantspark.CommonFunctions._
 import au.csiro.obr17q.variantspark.model.VcfParser
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.classification.RandomForestClassifier
 import org.apache.spark.ml.feature.StringIndexer
-import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.rdd.RDD
 import org.apache.spark.ml.clustering.KMeans
 

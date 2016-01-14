@@ -39,7 +39,7 @@ object VcfForest extends SparkApp {
     val labelName = "bmi_cat"
     val maxDepth = Array(5, 10)
     //val maxDepth = Array(5)
-    val maxBins = Array(20, 40)
+    val maxBins = Array(20)
     //val maxBins = Array(10)
 
 
@@ -154,83 +154,33 @@ object VcfForest extends SparkApp {
 
 
 
-    //val Array(trainingData0, testData0) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData1, testData1) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData2, testData2) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData3, testData3) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData4, testData4) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData5, testData5) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData6, testData6) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData7, testData7) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData8, testData8) = data.randomSplit(Array(0.8, 0.2))
-    //val Array(trainingData9, testData9) = data.randomSplit(Array(0.8, 0.2))
+    //val Array(trainingData, testData) = data.randomSplit(Array(0.8, 0.2))
 
-    val filteredAlleleTuples0 = modelFit(data)
-    val filteredAlleleTuples1 = modelFit(data)
-    val filteredAlleleTuples2 = modelFit(data)
-    val filteredAlleleTuples3 = modelFit(data)
-    val filteredAlleleTuples4 = modelFit(data)
-    /*val filteredAlleleTuples5 = modelFit(data)
-    val filteredAlleleTuples6 = modelFit(data)
-    val filteredAlleleTuples7 = modelFit(data)
-    val filteredAlleleTuples8 = modelFit(data)
-    val filteredAlleleTuples9 = modelFit(data)
-    val filteredAlleleTuples10 = modelFit(data)
-    val filteredAlleleTuples11 = modelFit(data)
-    val filteredAlleleTuples12 = modelFit(data)
-    val filteredAlleleTuples13 = modelFit(data)
-    val filteredAlleleTuples14 = modelFit(data)
-    val filteredAlleleTuples15 = modelFit(data)
-    val filteredAlleleTuples16 = modelFit(data)
-    val filteredAlleleTuples17 = modelFit(data)
-    val filteredAlleleTuples18 = modelFit(data)
-    val filteredAlleleTuples19 = modelFit(data)
-    val filteredAlleleTuples20 = modelFit(data)
-    val filteredAlleleTuples21 = modelFit(data)
-    val filteredAlleleTuples22 = modelFit(data)
-    val filteredAlleleTuples23 = modelFit(data)
-    val filteredAlleleTuples24 = modelFit(data)
-    val filteredAlleleTuples25 = modelFit(data)
-    val filteredAlleleTuples26 = modelFit(data)
-    val filteredAlleleTuples27 = modelFit(data)
-    val filteredAlleleTuples28 = modelFit(data)
-    val filteredAlleleTuples29 = modelFit(data)
-    val filteredAlleleTuples30 = modelFit(data)
-    val filteredAlleleTuples31 = modelFit(data)
-    val filteredAlleleTuples32 = modelFit(data)
-    val filteredAlleleTuples33 = modelFit(data)
-    val filteredAlleleTuples34 = modelFit(data)
-    val filteredAlleleTuples35 = modelFit(data)
-    val filteredAlleleTuples36 = modelFit(data)
-    val filteredAlleleTuples37 = modelFit(data)
-    val filteredAlleleTuples38 = modelFit(data)
-    val filteredAlleleTuples39 = modelFit(data)
-    val filteredAlleleTuples40 = modelFit(data)
-    val filteredAlleleTuples41 = modelFit(data)
-    val filteredAlleleTuples42 = modelFit(data)
-    val filteredAlleleTuples43 = modelFit(data)
-    val filteredAlleleTuples44 = modelFit(data)
-    val filteredAlleleTuples45 = modelFit(data)
-    val filteredAlleleTuples46 = modelFit(data)
-    val filteredAlleleTuples47 = modelFit(data)
-    val filteredAlleleTuples48 = modelFit(data)
-    val filteredAlleleTuples49 = modelFit(data)*/
 
-    //val filteredAlleleTuples9 = modelFit(trainingData9)
+    val f0, f1, f2, f3, f4 = modelFit(data)
+    //val f5, f6, f7, f8, f9 = modelFit(data)
+    //val f10, f11, f12, f13, f14 = modelFit(data)
+    //val f15, f16, f17, f18, f19 = modelFit(data)
+    //val f20, f21, f22, f23, f24 = modelFit(data)
+    //val f25, f26, f27, f28, f29 = modelFit(data)
+    //val f30, f31, f32, f33, f34 = modelFit(data)
+    //val f35, f36, f37, f38, f39 = modelFit(data)
+    //val f40, f41, f42, f43, f44 = modelFit(data)
+    //val f45, f46, f47, f48, f49 = modelFit(data)
+
 
     //(19:16422392, 0.002136421712119211) (19:16422392, 0.004436421712119211)
     // (2, 19:16422392, 0.006)
-    val allOfThem = (filteredAlleleTuples0 union filteredAlleleTuples1 union filteredAlleleTuples2 union filteredAlleleTuples3 union filteredAlleleTuples4) /* union
-                     filteredAlleleTuples5 union filteredAlleleTuples6 union filteredAlleleTuples7 union filteredAlleleTuples8 union filteredAlleleTuples9 union
-                     filteredAlleleTuples10 union filteredAlleleTuples11 union filteredAlleleTuples12 union filteredAlleleTuples13 union filteredAlleleTuples14 union
-                     filteredAlleleTuples15 union filteredAlleleTuples16 union filteredAlleleTuples17 union filteredAlleleTuples18 union filteredAlleleTuples19 union
-                     filteredAlleleTuples20 union filteredAlleleTuples21 union filteredAlleleTuples22 union filteredAlleleTuples23 union filteredAlleleTuples24 union
-                     filteredAlleleTuples25 union filteredAlleleTuples26 union filteredAlleleTuples27 union filteredAlleleTuples28 union filteredAlleleTuples29 union
-                     filteredAlleleTuples30 union filteredAlleleTuples31 union filteredAlleleTuples32 union filteredAlleleTuples33 union filteredAlleleTuples34 union
-                     filteredAlleleTuples35 union filteredAlleleTuples36 union filteredAlleleTuples37 union filteredAlleleTuples38 union filteredAlleleTuples39 union
-                     filteredAlleleTuples40 union filteredAlleleTuples41 union filteredAlleleTuples42 union filteredAlleleTuples43 union filteredAlleleTuples44 union
-                     filteredAlleleTuples45 union filteredAlleleTuples46 union filteredAlleleTuples47 union filteredAlleleTuples48 union filteredAlleleTuples49 )*/
-    //val allOfThem = (filteredAlleleTuples0  union filteredAlleleTuples1)
+    val allOfThem = (f0 union f1 union f2 union f3 union f4) /* union
+                     f5 union f6 union f7 union f8 union f9 union
+                     f10 union f11 union f12 union f13 union f14 union
+                     f15 union f16 union f17 union f18 union f19 union
+                     f20 union f21 union f22 union f23 union f24 union
+                     f25 union f26 union f27 union f28 union f29 union
+                     f30 union f31 union f32 union f33 union f34 union
+                     f35 union f36 union f37 union f38 union f39 union
+                     f40 union f41 union f42 union f43 union f44 union
+                     f45 union f46 union f47 union f48 union f49 )*/
       .aggregateByKey((0, "", 0.0))((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
 
 

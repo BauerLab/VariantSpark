@@ -60,9 +60,7 @@ object VcfSparseForest extends SparkApp {
       
     println(individualToSuperId)
       
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    val sparseVariat = sqlContext.parquetFile(inputFiles)    
+    val sparseVariat = sqlContext.read.parquet(inputFiles)
     
     val br_individualToSuperId = sc.broadcast(individualToSuperId)
     

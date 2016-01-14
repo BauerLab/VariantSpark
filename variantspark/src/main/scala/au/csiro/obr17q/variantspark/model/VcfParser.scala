@@ -7,13 +7,18 @@ import au.csiro.obr17q.variantspark.VcfForest._
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.linalg._
-import model.FlatVariant
 
 /**
  * @author obr17q
  */
 
-private case class VcfRecord(individual: String, sampleType: String, bmi: Double, preLabel: String, features: Vector)
+private case class VcfRecord(
+                              individual: String,
+                              sampleType: String,
+                              bmi: Double,
+                              preLabel: String,
+                              features: Vector
+                            )
 
 class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val IndividualMeta: RDD[IndividualMap], val sc: SparkContext) extends scala.Serializable {
 
@@ -102,7 +107,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
     .map(h => (h._2, h._1.toInt))
   }
 
-/*
+
   def individualTuples : RDD[(String, (Int, Double))] = {
     VcfLineRdd
       .map(h => (h._1, h._3))
@@ -111,12 +116,15 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
           .map( i => ( i._1, (h._1.toInt, i._2) ) )
         })
     }
-*/
-  
+
+
+
+
+
   def individualVariants : RDD[FlatVariant] = {
     VcfLineRdd
     .flatMap( (h) => {
-      h._2
+      h._3
       .map( i => FlatVariant( i._1, h._1.toInt, i._2))
     })
   }

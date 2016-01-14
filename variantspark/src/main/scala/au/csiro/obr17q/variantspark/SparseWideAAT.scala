@@ -39,9 +39,7 @@ object SparseWideAAT extends SparkApp {
     val inputFiles = args(0)
     val output = args(1)
     
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    val sparseVariat = sqlContext.parquetFile(inputFiles)    
+    val sparseVariat = sqlContext.read.parquet(inputFiles)
     println(sparseVariat.schema)
 
     

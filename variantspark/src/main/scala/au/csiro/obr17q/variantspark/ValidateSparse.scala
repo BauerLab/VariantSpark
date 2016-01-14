@@ -31,9 +31,8 @@ object ValidateSparse extends SparkApp {
     //val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
     //val Populations = sc.parallelize(new PopulationMap(PopFiles, 1, ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups))
 
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
-    val sparseVariat = sqlContext.parquetFile(inputFiles)    
+    val sparseVariat = sqlContext.read.parquet(inputFiles)
     println(sparseVariat.schema)
 
     

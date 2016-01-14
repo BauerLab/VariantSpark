@@ -25,9 +25,7 @@ object SparseWideClustering extends SparkApp {
     val iter = args(2).toInt
     val output = args(3)
     
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    val sparseVariat = sqlContext.parquetFile(inputFiles)    
+    val sparseVariat = sqlContext.read.parquet(inputFiles)
     println(sparseVariat.schema)
 
     

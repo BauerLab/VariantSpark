@@ -38,9 +38,8 @@ object FlatVariantToSparseByPosition extends SparkApp {
     val inputFiles = args(0)
     val output = args(1) 
     val chunks = args(2).toInt
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
-    val flatVariandDF = sqlContext.parquetFile(inputFiles)    
+    val flatVariandDF = sqlContext.read.parquet(inputFiles)
     println(flatVariandDF.schema)
     val subjectIds = flatVariandDF.select("subjectId").distinct().collect()
  
@@ -57,7 +56,7 @@ object FlatVariantToSparseByPosition extends SparkApp {
       .mapValues(i => Vectors.sparse(subjectsSize,i.to[Seq]).toSparse)
       .map {case (locusId, sparseVector) =>
         LocusSparseVariant(locusId, sparseVector.size, sparseVector.indices, sparseVector.values)}
-      .toDF().saveAsParquetFile(output)  
+      .toDF().write.parquet(output)
       
     // and also commit the dictionary
     LoanUtils.withCloseable(new CSVWriter(new FileWriter(new File(output, "_index.csv")))) { cvsWriter =>

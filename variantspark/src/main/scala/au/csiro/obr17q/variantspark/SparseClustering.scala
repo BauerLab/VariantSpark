@@ -35,9 +35,7 @@ object SparseClustering extends SparkApp {
     val pops = Populations.map(_.toPops).collectAsMap();
     println(pops)
     val pops_br = sc.broadcast(pops);
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    val sparseVariat = sqlContext.parquetFile(inputFiles)    
+    val sparseVariat = sqlContext.read.parquet(inputFiles)
     println(sparseVariat.schema)
 
     

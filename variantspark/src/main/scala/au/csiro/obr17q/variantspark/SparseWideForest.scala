@@ -31,10 +31,8 @@ object SparseWideForest extends SparkApp {
     val ntree = args(2).toInt
     val ntryfraction = if (args.length > 3) args(3).toDouble else Double.NaN
         
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
-    val sparseVariat = sqlContext.parquetFile(inputFiles)    
-    println(sparseVariat.schema)
+    val sparseVariant = sqlContext.read.parquet(inputFiles)
+    println(sparseVariant.schema)
 
    val indexSubjectMap = LoanUtils.withCloseable(CSVReader.open(new FileReader(new File(inputFiles, "_index.csv")))){
       csvReader =>
@@ -72,7 +70,7 @@ object SparseWideForest extends SparkApp {
    
    
    val vectorData = 
-      sparseVariat.rdd      
+      sparseVariant.rdd
         .map{r=> 
           val (size, indexes,values) = (r.getInt(1),r.getSeq[Int](2).toArray, r.getSeq[Double](3))
           val filteredIndexs = MutableList[Int]()

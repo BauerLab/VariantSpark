@@ -32,7 +32,6 @@ object FlatVariantToSparse extends SparkApp {
     val inputFiles = args(0)
     val output = args(1) 
     val chunks = args(2).toInt
-    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
     val flatVariandDF = sqlContext.parquetFile(inputFiles)    
     println(flatVariandDF.schema)
