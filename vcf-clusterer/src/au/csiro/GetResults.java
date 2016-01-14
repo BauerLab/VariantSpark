@@ -13,27 +13,35 @@ public class GetResults extends Configured implements Tool {
 		Configuration conf = this.getConf();
 		GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
 		String[] remainingArgs = optionParser.getRemainingArgs();
+		String phase = "phase1";
+		String sample_names = "data/phase3.txt";
+		String job_id = ".";
+		
 		int mode = 0;
+		
+		if (remainingArgs.length > 0) {
+			job_id = remainingArgs[0];
+		}
+		
 		if (remainingArgs.length > 1) {
 			mode = Integer.parseInt(remainingArgs[1]);
 		}
-		
-		String sample_names = "";
 		if (remainingArgs.length > 2) {
-			sample_names = "data/" + remainingArgs[2];
+			phase = remainingArgs[2];
+			sample_names = "data/" + phase;
 		}	
 		
 		//Writes clusters with their associated samples to "resultFileCluster.txt"
 		switch (mode) {
 		case 1:
-			sequenceToText(conf, remainingArgs[0], sample_names);
+			sequenceToText(conf, job_id, sample_names);
 			break;
 		case 2:
-			textToRandArray();
+			textToRandArray(conf, job_id, phase);
 			break;
 		default:
-			sequenceToText(conf, remainingArgs[0], sample_names);
-			textToRandArray();
+			sequenceToText(conf, job_id, sample_names);
+			textToRandArray(conf, job_id, phase);
 			break;		
 		}
 
@@ -64,13 +72,13 @@ public class GetResults extends Configured implements Tool {
 		of.fileRead(conf, input, sample_names);
 	}
 	
-	private static void textToRandArray() throws IOException {
+	private static void textToRandArray(Configuration conf, String jobId, String phase) throws IOException {
 		System.out.println("Printing arrays for ");
 		System.out.println("\n\n\n");
 		
 		pedigreeMatcher p = new pedigreeMatcher("data/integrated_call_samples.20130502.ALL.ped");
-		p.findMatches("resultFileCluster.txt");
-		p.adjRandIndex("resultFileCluster.txt");
+		p.findMatches(conf, jobId);
+		p.adjRandIndex(conf, jobId, phase);
 		
 		System.out.println("from sklearn import metrics");
 		System.out.println("metrics.adjusted_rand_score(truth, clust)");
