@@ -36,6 +36,7 @@ object VcfForest extends SparkApp {
     // "f1", "precision", "recall", "weightedPrecision", "weightedRecall"
     val metricName = "f1"
     val numFolds = 8
+    val numModels = 5
     val labelName = "bmi_cat"
     val maxDepth = Array(5, 10)
     //val maxDepth = Array(5)
@@ -157,37 +158,14 @@ object VcfForest extends SparkApp {
     //val Array(trainingData, testData) = data.randomSplit(Array(0.8, 0.2))
 
 
-    val f0, f1, f2, f3, f4 = modelFit(data)
-    //val f5, f6, f7, f8, f9 = modelFit(data)
-    //val f10, f11, f12, f13, f14 = modelFit(data)
-    //val f15, f16, f17, f18, f19 = modelFit(data)
-    //val f20, f21, f22, f23, f24 = modelFit(data)
-    //val f25, f26, f27, f28, f29 = modelFit(data)
-    //val f30, f31, f32, f33, f34 = modelFit(data)
-    //val f35, f36, f37, f38, f39 = modelFit(data)
-    //val f40, f41, f42, f43, f44 = modelFit(data)
-    //val f45, f46, f47, f48, f49 = modelFit(data)
+    val rfModels: Array[RDD[(Int, (String, Double))]] = Array.fill[RDD[(Int, (String, Double))]](numModels)(modelFit(data))
 
 
     //(19:16422392, 0.002136421712119211) (19:16422392, 0.004436421712119211)
     // (2, 19:16422392, 0.006)
-    val allOfThem = (f0 union f1 union f2 union f3 union f4) /* union
-                     f5 union f6 union f7 union f8 union f9 union
-                     f10 union f11 union f12 union f13 union f14 union
-                     f15 union f16 union f17 union f18 union f19 union
-                     f20 union f21 union f22 union f23 union f24 union
-                     f25 union f26 union f27 union f28 union f29 union
-                     f30 union f31 union f32 union f33 union f34 union
-                     f35 union f36 union f37 union f38 union f39 union
-                     f40 union f41 union f42 union f43 union f44 union
-                     f45 union f46 union f47 union f48 union f49 )*/
-      .aggregateByKey((0, "", 0.0))((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
-
-
-
-
-
-    allOfThem.map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
+    refArrayOps(rfModels).reduce(_ union _)
+      .aggregateByKey(0, "", 0.0)((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
+      .map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
 
 
 
