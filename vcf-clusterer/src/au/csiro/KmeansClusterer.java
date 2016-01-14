@@ -23,29 +23,33 @@ public class KmeansClusterer extends Configured implements Tool {
 	public KmeansClusterer() {}
 	
 	// Some variables     
-	public static String INPUT_DIRECTORY;
-	public static String INTERMEDIATE_DIRECTORY;
-	public static String OUTPUT_DIRECTORY;
-	public static int k;
-	public static int iter;
+	public static String INPUT_DIRECTORY = "transposed";
+	public static String INTERMEDIATE_DIRECTORY ="clusters";
+	public static String OUTPUT_DIRECTORY ="output";
+	public static int k = 7;
+	public static int iter = 20;
 	
 	public int run(String[] args) throws Exception {
 		Configuration conf = this.getConf();
 		GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
 		String[] remainingArgs = optionParser.getRemainingArgs();
 		FileSystem fs = FileSystem.get(conf);
-		INPUT_DIRECTORY = remainingArgs[0];	
-		INTERMEDIATE_DIRECTORY = remainingArgs[1];		
-		OUTPUT_DIRECTORY = remainingArgs[2];	
-		k = Integer.parseInt(remainingArgs[3]);
-		iter = Integer.parseInt(remainingArgs[6]);
+		if(remainingArgs.length > 0){
+			INPUT_DIRECTORY = remainingArgs[0] + "/transposed";
+			INTERMEDIATE_DIRECTORY = remainingArgs[0] + "/clusters";
+			OUTPUT_DIRECTORY = remainingArgs[0] +"/output";	
+			k = Integer.parseInt(remainingArgs[1]);
+			iter = Integer.parseInt(remainingArgs[4]);
+		}
 		conf.setInt("mapreduce.job.reduces", k);
 		conf.set("yarn.app.mapreduce.am.resource.mb", "4096");
-		conf.set("yarn.app.mapreduce.am.command-opts", "-Xmx3303M");
-		conf.set("mapreduce.map.memory.mb", "6144");
-		conf.set("mapreduce.reduce.memory.mb", "6144");
-		conf.set("mapreduce.map.java.opts", "-Xmx4954M");	
-		conf.set("mapreduce.reduce.java.opts", "-Xmx4954M");
+		conf.set("yarn.app.mapreduce.am.command-opts", "-Xmx3277M");
+		
+		conf.set("mapreduce.map.memory.mb","4096");
+		conf.set("mapreduce.map.java.opts", "-Xmx3276m");
+		conf.set("mapreduce.reduce.memory.mb", "4096");
+		conf.set("mapreduce.reduce.java.opts", "-Xmx3276m");
+		
 		conf.set("mapreduce.task.io.sort.mb","256");
 		conf.set("mapreduce.map.output.compress", "true");
 		conf.set("mapreduce.map.output.compress.codec","org.apache.hadoop.io.compress.SnappyCodec");
