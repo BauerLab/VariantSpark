@@ -91,7 +91,7 @@ public class VcfToSeq extends Configured implements Tool {
 
 			String[] itr = line.split("\\s+");
 			
-			int chrId = Integer.parseInt(itr[0]+"0000000")-10000000;
+			//int chrId = Integer.parseInt(itr[0]+"0000000")-10000000;
 			//location = chrId+ (int) (key.get()/10000);
 			location = (int) (key.get()/10000);
 
