@@ -24,7 +24,7 @@ import java.io.File
 object FlatVariantToSparseByPosition extends SparkApp {
   
   def map2Sparse(size:Int, map: Int2DoubleMap):SparseVector = {
-     val sorted = new Int2DoubleRBTreeMap(map);
+     val sorted = new Int2DoubleRBTreeMap(map)
      Vectors.sparse(size, sorted.keySet().toIntArray(), sorted.values().toDoubleArray()).toSparse
   }
   
@@ -59,8 +59,8 @@ object FlatVariantToSparseByPosition extends SparkApp {
       .toDF().write.parquet(output)
       
     // and also commit the dictionary
-    LoanUtils.withCloseable(new CSVWriter(new FileWriter(new File(output, "_index.csv")))) { cvsWriter =>
-        subjectToIndexMap.foreach(t => cvsWriter.writeRow(t.productIterator.toSeq))
+    LoanUtils.withCloseable(new CSVWriter(new FileWriter(new File(output, "_index.csv")))) { csvWriter =>
+        subjectToIndexMap.foreach(t => csvWriter.writeRow(t.productIterator.toSeq))
     }
   } 
 }

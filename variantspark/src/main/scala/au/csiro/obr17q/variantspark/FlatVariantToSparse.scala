@@ -18,7 +18,7 @@ import org.apache.spark.mllib.linalg.SparseVector
 object FlatVariantToSparse extends SparkApp {
   
   def map2Sparse(size:Int, map: Int2DoubleMap):SparseVector = {
-     val sorted = new Int2DoubleRBTreeMap(map);
+     val sorted = new Int2DoubleRBTreeMap(map)
      Vectors.sparse(size, sorted.keySet().toIntArray(), sorted.values().toDoubleArray()).toSparse
   }
   
@@ -33,7 +33,7 @@ object FlatVariantToSparse extends SparkApp {
     val output = args(1) 
     val chunks = args(2).toInt
     import sqlContext.implicits._
-    val flatVariandDF = sqlContext.parquetFile(inputFiles)    
+    val flatVariandDF = sqlContext.read.parquet(inputFiles)
     println(flatVariandDF.schema)
     
     
@@ -50,6 +50,6 @@ object FlatVariantToSparse extends SparkApp {
       .mapValues(i => map2Sparse(maxVariantIndex+1,i))
       .map {case (subjectId, sparseVector) =>
         SubjectSparseVariant(subjectId, sparseVector.size, sparseVector.indices, sparseVector.values)}
-      .toDF().saveAsParquetFile(output)  
+      .toDF().write.parquet(output)
   } 
 }
