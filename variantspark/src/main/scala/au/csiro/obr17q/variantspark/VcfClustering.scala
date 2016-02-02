@@ -48,7 +48,7 @@ object VcfClustering extends SparkApp {
 
     val PopFiles = Source.fromFile("data/ALL.panel").getLines()
     val IndividualMeta : RDD[IndividualMap] = sc.parallelize(new MetaDataParser(PopFiles, 1, '\t', "NA", 0, 1 ).returnMap(IncludeGroups, ExcludeGroups))
-    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc)
+    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
 
     val FilteredAlleles = vcfObject.individualTuples
 
