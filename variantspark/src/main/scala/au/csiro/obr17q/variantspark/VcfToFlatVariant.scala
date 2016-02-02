@@ -17,7 +17,7 @@ object VcfToFlatVariant extends SparkApp {
     val VariantCutoff = args(2).toInt
     val IndividualMeta: RDD[IndividualMap] = null
 
-    val vcfParser = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc)
+    val vcfParser = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
     //val NoOfAlleles = vcfParser.variantCount
     val FilteredAlleles:RDD[FlatVariant] = vcfParser.individualVariants
 

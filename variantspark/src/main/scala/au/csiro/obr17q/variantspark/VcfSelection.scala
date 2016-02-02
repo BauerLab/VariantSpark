@@ -29,7 +29,7 @@ object VcfSelection extends SparkApp {
     val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 1)(SexCol = 3, extra1 = 2).returnMap())
 
     
-    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc)
+    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
 
     val NoOfAlleles = vcfObject.variantCount
 
