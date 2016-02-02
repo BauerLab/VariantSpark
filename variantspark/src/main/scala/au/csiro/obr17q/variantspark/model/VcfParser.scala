@@ -3,28 +3,29 @@ package au.csiro.obr17q.variantspark.model
 import au.com.bytecode.opencsv.CSVParser
 import au.csiro.obr17q.variantspark.CommonFunctions.variantDist
 import au.csiro.obr17q.variantspark.IndividualMap
-import au.csiro.obr17q.variantspark.VcfForest._
 import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.linalg._
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SQLContext
 
 /**
  * @author obr17q
  */
 
-private case class VcfRecord(
-                              individual: String,
-                              sampleType: String,
-                              bmi: Double,
-                              preLabel: String,
-                              features: Vector
-                            )
+case class VcfRecord(
+                      individual: String,
+                      sampleType: String = null,
+                      bmi: Double = 0.0,
+                      population: String = null,
+                      superPopulation: String = null,
+                      features: Vector
+                    )
 
-class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val IndividualMeta: RDD[IndividualMap], val sc: SparkContext) extends scala.Serializable {
+class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val IndividualMeta: RDD[IndividualMap], val sc: SparkContext, val sqlContext: SQLContext) extends scala.Serializable {
 
-  private val NotAVariant = "#CHROM" :: "POS" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
+  val NotAVariant = "#CHROM" :: "POS" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
 
-  private val VcfFilesRDD = sc.textFile(VcfFileNames, 20)
+  val VcfFilesRDD = sc.textFile(VcfFileNames, 20)
 
 
   /**
@@ -32,7 +33,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
     * The heading from each column is stored as a String in a List.
     * List[String]
     */
-  private def getHeadings(VcfFiles: RDD[String]) : List[String] = {
+  def getHeadings(VcfFiles: RDD[String]) : List[String] = {
     VcfFiles
       .filter(_.startsWith("#CHROM"))
       .map(
@@ -46,7 +47,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
   /**
    * Array of elements for each line in the VCF file
    * Array elements are zipped with the VCF heading
-   * AllVariants: RDD[(VariantID, chr-pos, Array[(IndividualID, Variant)])]
+   * AllVariants: RDD[(VariantID, chr:pos, Array[(IndividualID, Variant)])]
    */
   private val VcfLineRdd : RDD[(Long, String, Array[(String, Double)])] = {
     val VariantCutoff = this.VariantCutoff
@@ -75,8 +76,10 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
   }
 
 
-  val data = sqlContext
+  def data = sqlContext
     .createDataFrame {
+      val variantCount = this.variantCount
+      println(variantCount)
       individualTuples
         .groupByKey //group by individual ID, i.e. get RDD of individuals
         .map(p => (p._1.split('_')(0).substring(0, 12), (p._1.split('_')(1), p._2))) // Split the TCGA key to get ID & type
@@ -85,23 +88,28 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
         .join(IndividualMeta.map(_.toBMI)) //filter out individuals lacking required data
         .map(h =>
         VcfRecord(
-            individual = h._1,
-            sampleType = h._2._1._1,
-            bmi = h._2._2,
-            preLabel = if (h._2._2 > 40) "obese" else if (h._2._2 > 30) "overweight" else "healthy",
-            features = Vectors.sparse(variantCount, h._2._1._2.to[Seq]))
-      )
+          individual = h._1,
+          sampleType = h._2._1._1,
+          bmi = h._2._2,
+          population = null,
+          features = Vectors.sparse(variantCount, h._2._1._2.to[Seq]))
+        )
     }
-
 
 
   /**
     * Number of variants in the file
     */
-  def variantCount : Int =
+  def variantCount : Int = {
     VcfLineRdd.count.toInt
+  }
 
-
+  /**
+    * Returns tuples of alleles with their uniqueIDs
+    * RDD[(chr-location, alleleID)]
+    *
+    * @return
+    */
   def alleleTuples : RDD[(String, Int)] = {
     VcfLineRdd
     .map(h => (h._2, h._1.toInt))
@@ -110,16 +118,17 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
 
   def individualTuples : RDD[(String, (Int, Double))] = {
     VcfLineRdd
-      .map(h => (h._1, h._3))
       .flatMap( (h) => {
-        h._2
+        h._3
           .map( i => ( i._1, (h._1.toInt, i._2) ) )
         })
     }
 
 
-
-
+  /**
+    * @return
+    * RDD[ FlatVariant(subjectId:String, variantIndex:Int, allele:Double)]
+    */
 
   def individualVariants : RDD[FlatVariant] = {
     VcfLineRdd
