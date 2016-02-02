@@ -3,7 +3,7 @@ package au.csiro.obr17q.variantspark
 /**
  * @author obr17q
  */
-case class IndividualMap (val IndividualId: String, val PopulationId: String, val SuperPopulationId: String = "")
+case class IndividualMap (IndividualId: String, PopulationId: String, SuperPopulationId: String = "")
 (val AdditionalOne: String = "", val AdditionalTwo: String = "", val AdditionalThree: String = "", val AdditionalFour: String = "")
 (val Weight: Double = 0, val Height: Double = 0, val BMI: Double = 0)
 (val Sex: Int = 0)
@@ -11,10 +11,10 @@ extends java.io.Serializable {
   
   def toTup = (PopulationId, (IndividualId, AdditionalOne, AdditionalTwo, AdditionalThree, AdditionalFour))
   def toMap = Map(PopulationId -> (IndividualId, AdditionalOne, AdditionalTwo, AdditionalThree, AdditionalFour))
-  def toIndo = (IndividualId, (PopulationId,SuperPopulationId))
-  def toPops = (IndividualId, (PopulationId))
-  def toBMI = (IndividualId, (BMI))
-  def toSex = (IndividualId, (Sex))
+  def toIndo = (IndividualId, (PopulationId, SuperPopulationId))
+  def toPops = (IndividualId, PopulationId)
+  def toBMI = (IndividualId, BMI)
+  def toSex = (IndividualId, Sex)
   def toIndoAll = (IndividualId, (PopulationId, SuperPopulationId, AdditionalOne, AdditionalTwo, AdditionalThree, AdditionalFour))
   
   
@@ -25,8 +25,8 @@ extends java.io.Serializable {
    * If the input arrays are empty, returns true.
    */
   def filterGroups(include:Array[String], exclude:Array[String]):Boolean = {
-    val to_include = if (include.size > 0 && include(0) != "") include.contains(PopulationId) else true
-    val to_exclude = if (exclude.size > 0 && exclude(0) != "") !exclude.contains(PopulationId) else true
-    if (to_include == false || to_exclude == false) false else true
+    val to_include = if (include.length > 0 && include(0) != "") include.contains(PopulationId) else true
+    val to_exclude = if (exclude.length > 0 && exclude(0) != "") !exclude.contains(PopulationId) else true
+    if (!to_include || !to_exclude) false else true
   }
 }
