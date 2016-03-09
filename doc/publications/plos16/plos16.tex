@@ -212,13 +212,6 @@ with the Lorem Ipsum Consortium\textsuperscript{\textpilcrow}
 \section*{Abstract}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
 
-
-% Please keep the Author Summary between 150 and 200 words
-% Use first person. PLOS ONE authors please skip this step. 
-% Author Summary not valid for PLOS ONE submissions.   
-\section*{Author Summary}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
-
 \linenumbers
 
 \section*{Introduction}
@@ -234,119 +227,101 @@ approximately 2500 individuals with up to 80 million variants. The uncompressed 
 types of data 
 
 
-To manage Developed by Apache, Hadoop is one platform for dealing with large data sets is 
-Platforms Fortunately computational tools such as Apache Spark are available as a framework for iteratively dealing with big data. 
-
+Developed by Apache, Hadoop is one platform for dealing with large data sets is 
+Platforms Fortunately computational tools such as Apache Spark are available as a framework for iteratively dealing with big data. Spark, based on Scala, allows for distributed applications that can scale to hundreds or thousands of nodes.
+A Spark application runs on a `driver' node, and this node divides and distributes work out to the many `worker' nodes.
 Spark also includes the machine learning (ML) library, Spark ML, providing popular machine learning libraries. Spark ML includes supervised approaches such as decision trees and the ensemble method, random forests, as well as
 unsupervised approaches such as k-means clustering.
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark, a framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework. Using VariantSpark,
 we successfully built a k-means model on the 2500 individuals from the 1000 Genomes Project, based on their genomic data. We also investigated classifying the samples using Random Forests. We chose random forests due to its
 ability to capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise overfitting and variance.
 
-However, we observe that Spark ML's random forests implementation isn't able to handle the 1000 Genomes data, and is unable to build a model. The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML
-is designed to process a huge number of samples with a modest dimensionality, the 1000 Genomes data instead contains a huge number of dimensions (features). As a result, the default random forests implementation is unable to partition the data into small-enough tasks
+However, we observe that Spark ML's random forests implementation isn't able to handle the 1000 Genomes data, and cannot build a model on the entire dataset. Although Spark ML can build a RF model on a subset of the data (chromosome 1~and~2),
+the time taken is excessive due to the huge amount of data being aggregated and processed by the single driver node during intermediate stages of building the model. This means that the work doesn't scale as while the driver is processing data, the worker nodes are lying unused.
+
+The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a huge number of samples with a modest dimensionality, the 1000 Genomes data
+instead contains a huge number of dimensions (features). As a result, the default random forests implementation is unable to partition the data into small-enough tasks
 for nodes on the computer cluster to handle.
 
-Therefore, we develop our own 'wide' version of these ML algorithms.
-Lorem ipsum dolor sit~\cite{bib1} amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam Eq.~(\ref{eq:schemeP}) sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id.~\cite{bib2} Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
+Therefore, we develop our own 'wide' version of these ML algorithms. Unlike the standard Apache implementation, these are able to easily process data with millions of dimensions without excessive resource requirements on the driver or worker nodes.
+Also, due to more efficient handling of high-dimensional data, equivalent jobs are likely to finish faster on wideML than Spark ML.
 
-\begin{equation}\label{eq:schemeP} 
-D_{coll} = \frac{D_f+\frac{[S]^2}{K_D S_T} D_S} {1+\frac{[S]^2}{K_D S_T}}, 
-D_{sm} = \frac{D_f+ \frac{[S]}{K_D} D_S}{1+\frac{[S]}{K_D}},
-\end{equation}
+
+%sit~\cite{bib1} Nullam Eq.~(\ref{eq:schemeP}) ~\cite{bib2}  Table~\ref{table1} CO\textsubscript{2}  see \nameref{S1_Text}.
+%\begin{equation}\label{eq:schemeP} 
+%D_{coll} = \frac{D_f+\frac{[S]^2}{K_D S_T} D_S} {1+\frac{[S]^2}{K_D S_T}}, 
+%D_{sm} = \frac{D_f+ \frac{[S]}{K_D} D_S}{1+\frac{[S]}{K_D}},
+%\end{equation}
+
 
 % You may title this section "Methods" or "Models". 
 % "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
 % authors may use "Analysis" 
-\section*{Materials and Methods}
-\subsection*{Etiam eget sapien nibh.}
+\section*{Methods}
+\subsection*{VariantSpark.}
+
+
 
 % For figure citations, please use "Fig." instead of "Figure".
-Nulla mi mi, Fig.~\ref{fig1} venenatis sed ipsum varius, volutpat euismod diam. Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at justo vitae nulla elementum commodo eu id massa. In vitae diam ac augue semper tincidunt eu ut eros. Fusce fringilla erat porttitor lectus cursus, \nameref{S1_Video} vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
-
-\begin{figure}[h]
-\caption{{\bf Figure Title first bold sentence Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}
-Figure Caption Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. A: Lorem ipsum dolor sit amet. B: Consectetur adipiscing elit.}
-\label{fig1}
-\end{figure}
-
-\begin{enumerate}
-\item{react}
-\item{diffuse free particles}
-\item{increment time by dt and go to 1}
-\end{enumerate}
+%Nulla mi mi, Fig.~\ref{fig1}  Fusce fringilla erat porttitor lectus cursus, \nameref{S1_Video} vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
+%\begin{figure}[h]
+%\caption{{\bf Figure Title first bold sentence Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}
+%Figure Caption Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. A: Lorem ipsum dolor sit amet. B: Consectetur adipiscing elit.}
+%\label{fig1}
+%\end{figure}
+%\begin{enumerate}
+%\item{react}
+%\item{diffuse free particles}
+%\item{increment time by dt and go to 1}
+%\end{enumerate}
 
 % Results and Discussion can be combined.
-\section*{Results}
-Nulla mi mi, venenatis sed ipsum varius, Table~\ref{table1} volutpat euismod diam. Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at justo vitae nulla elementum commodo eu id massa. In vitae diam ac augue semper tincidunt eu ut eros. Fusce fringilla erat porttitor lectus cursus, vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
-
-
-
-
-
-
-
-\subsection*{}
-To 
-
-
-
-
-\subsection*{CursedForest copes with the curse of dimensionality}
-To 
-
-
-
-\subsection*{CursedForest copes with the curse of dimensionality}
-To 
-
-
-
-
-
-
-\begin{table}[!ht]
-\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
-\caption{
-{\bf Table caption Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
-\hline
-\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-$cell1 row1$ & cell2 row 1 & cell3 row 1 & cell4 row 1 & cell5 row 1 & cell6 row 1 & cell7 row 1 & cell8 row 1\\ \hline
-$cell1 row2$ & cell2 row 2 & cell3 row 2 & cell4 row 2 & cell5 row 2 & cell6 row 2 & cell7 row 2 & cell8 row 2\\ \hline
-$cell1 row3$ & cell2 row 3 & cell3 row 3 & cell4 row 3 & cell5 row 3 & cell6 row 3 & cell7 row 3 & cell8 row 3\\ \hline
-\end{tabular}
-\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
-\end{flushleft}
-\label{table1}
-\end{adjustwidth}
-\end{table}
-
-
-
-\subsection*{\lorem\ and \ipsum\ Nunc blandit a tortor.}
-
-Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque. Quisque augue sem, tincidunt sit amet feugiat eget, ullamcorper sed velit. Sed non aliquet felis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris commodo justo ac dui pretium imperdiet. Sed suscipit iaculis mi at feugiat. 
-
-\subsection*{Sed ac quam id nisi malesuada congue.}
-
-Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam. Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at justo vitae nulla elementum commodo eu id massa. In vitae diam ac augue semper tincidunt eu ut eros. Fusce fringilla erat porttitor lectus cursus, vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
-
 % Please do not create a heading level below \subsection. For 3rd level headings, use \paragraph{}. 
-\subsection*{Subsection 1}
-Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam. Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at justo vitae nulla elementum commodo eu id massa. In vitae diam ac augue semper tincidunt eu ut eros. Fusce fringilla erat porttitor lectus cursus, vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
+\section*{Results and Discussion}
 
-\subsection*{Subsection 2}
-\paragraph{3rd Level Heading.} Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam. Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at justo vitae nulla elementum commodo eu id massa. In vitae diam ac augue semper tincidunt eu ut eros. Fusce fringilla erat porttitor lectus cursus, vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
 
-\section*{Discussion}
-Nulla mi mi, venenatis sed ipsum varius, Table~\ref{table1} volutpat euismod diam. Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at justo vitae nulla elementum commodo eu id massa. In vitae diam ac augue semper tincidunt eu ut eros. Fusce fringilla erat porttitor lectus cursus, vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
 
-\subsection*{\lorem\ and \ipsum\ Nunc blandit a tortor.}
+\subsection*{Machine learning with Spark ML}
+In this section we compare Apache's higher level machine learning library, Spark ML, with MLLib, the standard low-level library. From the results, we see that times are similar. 
 
-CO\textsubscript{2} Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque. Quisque augue sem, tincidunt sit amet feugiat eget, ullamcorper sed velit. 
+There are many practical benefits for using Spark ML with VariantSpark, with a selection of these benefits derived from the `pipeline' system Spark ML uses.
 
-Sed non aliquet felis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris commodo justo ac dui pretium imperdiet. Sed suscipit iaculis mi at feugiat. Ut neque ipsum, luctus id lacus ut, laoreet scelerisque urna. Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed. Nam condimentum sem eget mollis euismod. Nullam dui urna, gravida venenatis dui et, tincidunt sodales ex. Nunc est dui, sodales sed mauris nec, auctor sagittis leo. Aliquam tincidunt, ex in facilisis elementum, libero lectus luctus est, non vulputate nisl augue at dolor. For more information, see \nameref{S1_Text}.
+
+One benefit is that hyperparameter optimisation is built in. Although possible in 
+
+
+
+\subsection*{CursedForest copes with the curse of dimensionality}
+With Spark ML unable to cope with high-dimensional data, we develop a `wide' implementations of these ML algorithms. **technical stuff by Piotr here**
+These 
+
+
+
+\subsection*{Third section}
+
+
+
+\subsection*{Conclusion}
+
+
+
+%\begin{table}[!ht]
+%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+%\caption{
+%{\bf Table caption Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}}
+%\begin{tabular}{|l|l|l|l|l|l|l|l|}
+%\hline
+%\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
+%$cell1 row1$ & cell2 row 1 & cell3 row 1 & cell4 row 1 & cell5 row 1 & cell6 row 1 & cell7 row 1 & cell8 row 1\\ \hline
+%$cell1 row2$ & cell2 row 2 & cell3 row 2 & cell4 row 2 & cell5 row 2 & cell6 row 2 & cell7 row 2 & cell8 row 2\\ \hline
+%$cell1 row3$ & cell2 row 3 & cell3 row 3 & cell4 row 3 & cell5 row 3 & cell6 row 3 & cell7 row 3 & cell8 row 3\\ \hline
+%\end{tabular}
+%\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+%\end{flushleft}
+%\label{table1}
+%\end{adjustwidth}
+%\end{table}
+
 
 \section*{Supporting Information}
 
