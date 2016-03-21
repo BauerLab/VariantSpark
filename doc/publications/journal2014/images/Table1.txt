@@ -12,3 +12,5 @@ Hadoop clustering 872
 R clustering 472
 Python clustering 689
 ADMIXTURE clustering 499
+C pre-processing 262
+C clustering 3.8717e+03
