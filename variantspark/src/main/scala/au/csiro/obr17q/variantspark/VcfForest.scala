@@ -1,16 +1,19 @@
 package au.csiro.obr17q.variantspark
 
-import au.csiro.obr17q.variantspark.model.{ThousandGenomesVcfParser, CsvParser, VcfParser, ABetaParser}
+import au.csiro.obr17q.variantspark.model._
 import org.apache.spark.ml.classification.{RandomForestClassifier, RandomForestClassificationModel}
 import org.apache.spark.ml.regression.{RandomForestRegressor, RandomForestRegressionModel}
-import org.apache.spark.ml.{Pipeline, PipelineModel}
+import org.apache.spark.ml.{PipelineStage, Pipeline, PipelineModel}
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
-import org.apache.spark.ml.feature.{VectorIndexer, StringIndexer}
+import org.apache.spark.ml.feature.{IndexToString, VectorIndexer, StringIndexer}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.linalg._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.rdd.RDD
+import scala.collection.mutable.ListBuffer
 import scala.io._
+import scala.math._
 
 /**
   * @author obr17q
@@ -21,30 +24,41 @@ object VcfForest extends SparkApp {
 
   def main(args: Array[String]) {
 
-    val defaults = Array("/Users/obr17q/Desktop/coadread_mutations_bmi_filtered.csv","5","5","10","auto","0")
+    val defaults = Array("/Users/obr17q/Desktop/coadread_mutations_bmi_filtered.csv","5","5,10","10","auto","0","10", "100", "1000")
 
     //val seed = 3262362
 
     val VcfFiles = if (args.length > 0) args(0) else defaults(0)
-
     val NumTrees = if (args.length > 1) args(1).toInt else defaults(1).toInt
-    //val maxDepth = args(2).toInt
-
+    val maxDepth = if (args.length > 2) args(2).split(",").map(_.toInt) else defaults(2).split(",").map(_.toInt)
+    val maxBins = if (args.length > 3) args(3).split(",").map(_.toInt) else defaults(3).split(",").map(_.toInt)
     val FeatureSubsetStrategy = if (args.length > 4) args(4) else defaults(4)
     val VariantCutoff = if (args.length > 5) args(5).toInt else defaults(5).toInt
+    val numFolds = if (args.length > 6) args(6).toInt else defaults(6).toInt
 
 
+    //Feature Indexing stuff
+    val indexFeatures = false
+    val maxCategories = 4
+    val classification = false
+
+
+
+    val syntheticSamples = if (args.length > 7) args(7).toInt else defaults(7).toInt
+    val syntheticFeatures = if (args.length > 8) args(8).toInt else defaults(8).toInt
+    // Metric used for determining best cross-validation model
     // "f1", "precision", "recall", "weightedPrecision", "weightedRecall"
-    val metricName = "weightedPrecision"
+    val metricName = "f1"
 
-    val numFolds = 5
+    // Can be used for building many models
     val numModels = 1
-    val labelName = "aBeta"
-    //val maxDepth = Array(5, 10)
-    val maxDepth = Array(5)
-    val maxBins = Array(10)
-    //val maxBins = Array(10)
 
+    // Label from whatever parser (can be done better?)
+    val labelName = "simulationTwo"
+
+
+    val label = if (classification) "label" else labelName
+    val features = if (indexFeatures) "indexedFeatures" else "features"
 
     /**
       * TCGA settings
@@ -70,7 +84,10 @@ object VcfForest extends SparkApp {
 
     //val modObject = new ThousandGenomesVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
     //val modObject = new CsvParser(VcfFiles, VariantCutoff, sc, sqlContext)
-    val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
+    //val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
+    val modObject = new FakeDataParser(n = syntheticSamples, p = syntheticFeatures, sc, sqlContext)
+
+
 
 
     val data = modObject.data
@@ -81,39 +98,78 @@ object VcfForest extends SparkApp {
 
 
 
+    //val gender = modObject.feature("col5")
+    //val a = data.map(_.getAs[SparseVector](2)(gender+10)).distinct.count
+    //val a = data.map( row => (row.getAs[Double](labelName), row.getAs[Vector]("features").toArray)).take(5)
+    //val b = a(0)
+    //val c = a(1)
+    //println(b._2.length)
+    //println(b._1 - 10 * sin(10 * Pi * b._2.head))
+    //println(c._1 - 10 * sin(10 * Pi * c._2.head))
+
+
+
 
     val labelIndexer = new StringIndexer()
       .setInputCol(labelName)
       .setOutputCol("label")
       .fit(data)
 
-    //val featureIndexer = new VectorIndexer()
-    //  .setInputCol("preFeatures")
-    //  .setOutputCol("features")
-    //  .setMaxCategories(100)
-    //  .fit(data)
+
+
+
+    val featureIndexer = new VectorIndexer()
+      .setInputCol("features")
+      .setOutputCol("indexedFeatures")
+      .setMaxCategories(maxCategories)
+      .fit(data)
+
+
+    //Classification
 
     val rfClassifier = new RandomForestClassifier()
       .setLabelCol("label")
-      .setFeaturesCol("features")
+      .setFeaturesCol(features)
       .setNumTrees(NumTrees)
       .setFeatureSubsetStrategy(FeatureSubsetStrategy)
-      .setMaxBins(5)
-      .setMaxDepth(5)
+      .setImpurity("entropy")
 
-    //val rfRegressor = new RandomForestRegressor()
-    //  .setLabelCol("label")
-    //  .setFeaturesCol("features")
-    //  .setNumTrees(NumTrees)
-    //  .setFeatureSubsetStrategy(FeatureSubsetStrategy)
 
+    //Regression
+
+    val rfRegressor = new RandomForestRegressor()
+      .setLabelCol(labelName)
+      .setFeaturesCol(features)
+      .setNumTrees(NumTrees)
+      .setFeatureSubsetStrategy(FeatureSubsetStrategy)
+
+
+
+
+    // Convert indexed labels back to original labels.
+    val labelConverter = new IndexToString()
+      .setInputCol("prediction")
+      .setOutputCol("predictedLabel")
+      .setLabels(labelIndexer.labels)
+
+
+
+    val tasks = new ListBuffer[PipelineStage]()
+
+
+    if (classification) tasks += labelIndexer
+    //if (indexFeatures) tasks += featureIndexer
+    if (classification) tasks += rfClassifier else tasks += rfRegressor
+    if (classification) tasks += labelConverter
+    //Array(labelIndexer, featureIndexer, rfClassifier, labelConverter)
+
+    tasks.toList.indexOf(rfClassifier)
 
     val pipeline = new Pipeline()
-      .setStages(Array(labelIndexer, rfClassifier))
-      //.setStages(Array(rfClassifier))
+      .setStages(tasks.toArray)
 
     val evaluator = new MulticlassClassificationEvaluator()
-      .setLabelCol("label")
+      .setLabelCol(label)
       .setPredictionCol("prediction")
       .setMetricName(metricName)
 
@@ -129,17 +185,14 @@ object VcfForest extends SparkApp {
       .setNumFolds(numFolds)
 
 
-
-
-
     /**
       * Prints predictions and probabilities from fitted DF.
       */
     def printPredictions(df: DataFrame) = {
       println("Predictions:")
       df.collect
-        .foreach { case Row(individual: String, aBeta: String, label: Double, prediction: Double) =>
-          println(s"($individual, $aBeta)", label==prediction)
+        .foreach { case Row(individual: String, aBeta: Double, label: Double, prediction: Double) =>
+          println(s"($individual, $aBeta)", prediction, label==prediction)
         }
     }
 
@@ -151,10 +204,10 @@ object VcfForest extends SparkApp {
       val importantFeatures = rf.featureImportances
       val featureTuples = sc.parallelize(modObject.featureTuples)
       featureTuples
-        .filter(p => importantFeatures(p._2) > 0.002)
         .map(p => (p._2, (p._1, importantFeatures(p._2))))
-        .sortBy(_._2._2)
-        .collect.foreach(println)
+        .sortBy(_._2._2, false)
+        .take(50)
+        .foreach(println)
     }
 
 
@@ -167,25 +220,26 @@ object VcfForest extends SparkApp {
       val forestModel = cvModel
         .bestModel
         .asInstanceOf[PipelineModel]
-        .stages(1)
+        .stages(tasks.toList.indexOf(rfClassifier))
         .asInstanceOf[RandomForestClassificationModel]
+          //.asInstanceOf[RandomForestRegressionModel]
 
       // Get the size of the test DataFrame
       val total: Int = testDF.count.toInt
 
       // Make predictions on the test DataFrame
-      val predictions: DataFrame = cvModel.transform(testDF).select("individual", "aBeta", "label", "prediction")
+      val predictions: DataFrame = cvModel.transform(testDF).select("individual", label, label, "prediction")
 
       // Get RDD of predictions and labels
-      val predictionsAndLabels = predictions.select("prediction", "label")
+      val predictionsAndLabels = predictions.select("prediction", label)
         .map(row => (row.getDouble(0), row.getDouble(1)))
 
       // Get metrics from above RDD
       val metrics = new MulticlassMetrics(predictionsAndLabels)
 
       // Print metrics/predictions/features/etc.
-      printPredictions(predictions)
       printFeatures(forestModel)
+      printPredictions(predictions)
       println(metrics.confusionMatrix)
       println("Samples", total)
       println("Correct", (metrics.precision*total).toInt)
