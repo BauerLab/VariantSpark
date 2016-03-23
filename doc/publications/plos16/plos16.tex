@@ -159,7 +159,7 @@
 % Please capitalize all terms in the title except conjunctions, prepositions, and articles.
 \begin{flushleft}
 {\Large
-\textbf\newline{Cursed Forest - A random forest implementation for 'big' and 'wide' data}
+\textbf\newline{Cursed Forest - A random forest implementation for `big' and `wide' data}
 }
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
@@ -220,9 +220,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta er
 
 \section*{Introduction}
 
-The digital revolution or 'datafication' sees a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}. 
+The digital revolution or `datafication' sees a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}. 
 These dataset not only grow vertically by capturing more and more events but also horizontally by capturing more information about these events.
-The challenge of big and 'wide' data is especially pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3 billion basepairs of the human genome. 
+The challenge of big and `wide' data is especially pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3 billion basepairs of the human genome. 
 While a large fraction of this data is identical between individuals, identifying the relevant and disease specific differences is the focus of complex trait analysis [citation]. 
 
 For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012}, denoting the differences between individuals. 
@@ -251,8 +251,8 @@ Using VariantSpark, we successfully built a k-means model on the full 2500x80Mil
 
 While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is supervised learning, i.e. given a phenotype of clinical label determine the most associated features. 
 One of the simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a linear combination of the feature variables.
-Processing the 'wide' genomic data poses difficulties for machine learning applications as having more features than samples causes the model to not generalise well and overfit the data. 
-This is known as the 'curse of dimensionality'~\cite{Bauer2014}. 
+Processing the `wide' genomic data poses difficulties for machine learning applications as having more features than samples causes the model to not generalise well and overfit the data. 
+This is known as the `curse of dimensionality'~\cite{Bauer2014}. 
 Random Forests (RF) as an ensemble of weak learners overcomes this issue and is hence ideally suited to this application. 
 Furthermore, RF are able to capture interactions between features, which is of importance for modelling complex polygenic diseases.
 
@@ -261,7 +261,7 @@ Furthermore, RF are able to capture interactions between features, which is of i
 %We chose random forests due to its
 %ability to capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise overfitting and variance.
 
-However, we observe that Spark's standard RF implementation is not able to handle the extremely 'wide' genomic data as it was developed for large number of samples with only modest dimensionality. 
+However, we observe that Spark's standard RF implementation is not able to handle the extremely `wide' genomic data as it was developed for large number of samples with only modest dimensionality. 
 Although Spark ML can build a RF model on a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}). 
 This unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets.
 
@@ -269,7 +269,7 @@ This unbalanced work load where the driver node becomes the bottleneck and worke
 %instead contains a huge number of dimensions (features). As a result, the default random forests implementation is unable to partition the data into small-enough tasks
 %for nodes on the computer cluster to handle.
 
-We therefore we developed CursedForest a Spark-based random forest algorithm able to process big and 'wide' data. Unlike the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without excessive resource requirements on the driver or worker nodes.
+We therefore we developed CursedForest a Spark-based random forest algorithm able to process big and `wide' data. Unlike the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without excessive resource requirements on the driver or worker nodes.
 %Also, due to more efficient handling of high-dimensional data, equivalent jobs are likely to finish faster on wideML than Spark ML.
 In the fist section we 
 
