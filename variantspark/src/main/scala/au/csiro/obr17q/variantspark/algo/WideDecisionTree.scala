@@ -19,16 +19,16 @@ object WideDecisionTree {
 
   def projectVector(indexSet: Set[Int], invert: Boolean = false)(v: Vector): Vector = {
     val a = v.toArray
-    Vectors.dense((for (i <- 0 until a.length if (indexSet.contains(i) == !invert)) yield a(i)).toArray)
+    Vectors.dense((for (i <- a.indices if indexSet.contains(i) == !invert) yield a(i)).toArray)
   }
 
   def projectArray(indexSet: Set[Int], invert: Boolean = false)(a: Array[Int]): Array[Int] = {
-    (for (i <- 0 until a.length if (indexSet.contains(i) == !invert)) yield a(i)).toArray
+    (for (i <- a.indices if indexSet.contains(i) == !invert) yield a(i)).toArray
   }
 
   def sqr(x: Double) = x * x
 
-  def giniImprity(counts: Array[Int]): Double = {
+  def giniImpurity(counts: Array[Int]): Double = {
     val total = counts.sum.toDouble
     if (total == 0.0) 0.0 else 1 - counts.map(s => sqr(s / total)).sum
   }
@@ -36,7 +36,7 @@ object WideDecisionTree {
   def giniImpurity(currentSet: Array[Int], labels: Array[Int], labelCount:Int):(Double,Int) = {
     val labelCounts = Array.fill(labelCount)(0)
     currentSet.foreach(i => labelCounts(labels(i)) += 1)
-    (giniImprity(labelCounts), labelCounts.zipWithIndex.max._2)
+    (giniImpurity(labelCounts), labelCounts.zipWithIndex.max._2)
   }
   
   class SparseVectorSequentialAccessor(val sv:SparseVector) {
@@ -45,9 +45,9 @@ object WideDecisionTree {
       while(index < sv.indices.length && sv.indices(index) < i) { 
         index+=1
       }
-      if (index < sv.indices.length && sv.indices(index) ==i ) sv.values(index) else 0.0  
+      if (index < sv.indices.length && sv.indices(index) ==i ) sv.values(index) else 0.0
     }
-    
+
   }
   
   def mergeForEeach(currentSet: Array[Int], v:Vector)(f:(Int,Double)=>Unit)  {
@@ -64,60 +64,61 @@ object WideDecisionTree {
   
   
   def findSplitInPartition(br_currentSet: Broadcast[Array[Int]], br_labels: Broadcast[Array[Int]], totalGini:Double)
-      (partition:Iterator[(Vector,Long)]):Iterator[(Double, Long, Int, Array[Int], Array[Int])] = {
+      (partition:Iterator[(Vector,Long)]):Iterator[(Double, Long, Double, Array[Int], Array[Int])] = {
         
     val currentSet = br_currentSet.value
     val labels = br_labels.value
     
-    //println("Processin parition")
+    //println("Processing partition")
     var bestData:Array[Double]= null
     var bestImpurity:Double = 2.0
     var bestVarIndex:Long = -1
-    var bestSplit:Int = -1
+    var bestSplit:Double = -1
 
     val labelsCount = labels.max + 1
     // early exit (if we haver already found a 0 impurity split there is not need to continue looking)
-    while(bestImpurity > 0.0 &&  partition.hasNext) {    
+    while(bestImpurity > 0.0 &&  partition.hasNext) {
       val (vector,varIndex) = partition.next()
       val data = vector.toArray
-      
+
       //println(s"Processin var ${varIndex}")
 
-      
+
       val (impurity, splitPoint) = findSplit(currentSet: Array[Int], labels: Array[Int], data:Array[Double], labelsCount)
       if (impurity < bestImpurity) {
         bestData = data
         bestImpurity = impurity
         bestVarIndex = varIndex
-        bestSplit = splitPoint      
+        bestSplit = splitPoint
       }
     }
-    val result:Option[(Double, Long, Int, Array[Int], Array[Int])] = 
-      if (bestData != null) Some((totalGini - bestImpurity,bestVarIndex, bestSplit, currentSet.filter(i =>  bestData(i)<= bestSplit), 
+    val result:Option[(Double, Long, Double, Array[Int], Array[Int])] =
+      if (bestData != null) Some((totalGini - bestImpurity,bestVarIndex, bestSplit, currentSet.filter(i =>  bestData(i)<= bestSplit),
         currentSet.filter(i =>  bestData(i)> bestSplit))) else None
     result.toIterator
   }
   
-  def findSplit(currentSet: Array[Int], labels: Array[Int], data:Array[Double], labelsCount:Int): (Double,Int) = {
+  def findSplit(currentSet: Array[Int], labels: Array[Int], data:Array[Double], labelsCount:Int): (Double, Double) = {
 
     // now this wouild be done fastest with a contingency table but with 3 values
     // lets to a simple approach first
 
     //assuming values are 0, 1, 2 there are two possible splits
     // left side split x<=i
-    Range(0, 2).map { s =>
+    val possibleSplits = -5.0 to 5.0 by 0.1
+    possibleSplits.map { s =>
       val leftCount = Array.fill(labelsCount)(0)
       val rightCount = Array.fill(labelsCount)(0)
       currentSet.foreach {i => if ( data(i)<= s) leftCount(labels(i)) += 1 else rightCount(labels(i)) += 1}
       val leftItems = leftCount.sum
-      val rightItem = rightCount.sum
-      val splitGini = (giniImprity(leftCount) * leftItems.toDouble + giniImprity(rightCount) * rightItem.toDouble) / (leftItems + rightItem)
+      val rightItems = rightCount.sum
+      val splitGini = (giniImpurity(leftCount) * leftItems.toDouble + giniImpurity(rightCount) * rightItems.toDouble) / (leftItems + rightItems)
       (splitGini, s)
-    }.min    
+    }.min
   }
 }
 
-case class DecisionTreeNode(variableIndex: Long, splitPoint: Int, majorityLabel: Int,
+case class DecisionTreeNode(variableIndex: Long, splitPoint: Double, majorityLabel: Int,
     impurityReduction: Double, nodeImpurity: Double, size: Int, left: DecisionTreeNode = null, right: DecisionTreeNode = null) {
 
   def isLeaf = (impurityReduction == 0)
@@ -167,7 +168,7 @@ class WideDecisionTreeModel(val rootNode: DecisionTreeNode) {
     
     val tmp = Array.fill(data.first()._1.size)(rootNode)
     while (tmp.exists { x => x.impurityReduction > 0 }) {
-      Range(0, tmp.length).foreach { i =>
+      tmp.indices.foreach { i =>
         val tn = tmp(i)
         if (!tn.impurityReduction.isNaN() && tn.right != null && tn.left != null) {
           tmp(i) = if (points(tn.variableIndex)(i) <= tn.splitPoint) tn.left else tn.right
