@@ -2,7 +2,7 @@ package au.csiro.obr17q.variantspark
 
 import org.apache.spark.rdd.RDD
 import au.csiro.obr17q.variantspark.model.FlatVariant
-import au.csiro.obr17q.variantspark.model.VcfParser
+import au.csiro.obr17q.variantspark.model._
 import scala.io._
 
 object VcfToFlatVariant extends SparkApp {
@@ -18,6 +18,8 @@ object VcfToFlatVariant extends SparkApp {
     val IndividualMeta: RDD[IndividualMap] = null
 
     val vcfParser = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
+    //val vcfParser = new ABetaParser(VcfFiles, sc, sqlContext)
+
     //val NoOfAlleles = vcfParser.variantCount
     val FilteredAlleles:RDD[FlatVariant] = vcfParser.individualVariants
 
