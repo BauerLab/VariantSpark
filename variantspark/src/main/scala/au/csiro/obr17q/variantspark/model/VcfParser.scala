@@ -23,7 +23,7 @@ case class VcfRecord(
 
 class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val IndividualMeta: RDD[IndividualMap], val sc: SparkContext, val sqlContext: SQLContext) extends scala.Serializable {
 
-  val NotAVariant = "#CHROM" :: "POS" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
+  val NotAVariant = "#CHROM" :: "POS" :: "ID" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
 
   val VcfFilesRDD = sc.textFile(VcfFileNames, 20)
 
@@ -53,6 +53,8 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
     val VariantCutoff = this.VariantCutoff
     val NotAVariant = this.NotAVariant
     val Headings = getHeadings(VcfFilesRDD)
+    println(s"Individuals: ${Headings.length - 9}")
+
     VcfFilesRDD
     .filter(!_.startsWith("#"))
     .mapPartitions( lines => {
@@ -79,7 +81,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
   def data = sqlContext
     .createDataFrame {
       val variantCount = this.variantCount
-      println(variantCount)
+      println(s"Variants: $variantCount")
       individualTuples
         .groupByKey //group by individual ID, i.e. get RDD of individuals
         .map(p => (p._1.split('_')(0).substring(0, 12), (p._1.split('_')(1), p._2))) // Split the TCGA key to get ID & type
@@ -132,7 +134,7 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
 
   def individualVariants : RDD[FlatVariant] = {
     VcfLineRdd
-    .flatMap( (h) => {
+    .flatMap( h => {
       h._3
       .map( i => FlatVariant( i._1, h._1.toInt, i._2))
     })
