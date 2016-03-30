@@ -10,7 +10,7 @@ import org.apache.spark.sql.SQLContext
   * Created by obr17q on 5/01/2016.
   */
 
-private case class ABetaRecord(individual: String, aBeta: String, features: Vector)
+private case class ABetaRecord(individual: String, aBeta: Double, features: Vector)
 
 class ABetaParser (val CsvFileNames: String, val sc: SparkContext, val sqlContext: SQLContext) extends scala.Serializable {
 
@@ -37,7 +37,8 @@ class ABetaParser (val CsvFileNames: String, val sc: SparkContext, val sqlContex
 
 
   /**
-    * RDD of an line Arrays
+    * @return
+    * RDD[ Array(column1:String, column2:String, ..., columnN:String)]
     */
   private def CsvLineRDD: RDD[Array[String]] = {
     CsvFilesRDD
@@ -52,9 +53,9 @@ class ABetaParser (val CsvFileNames: String, val sc: SparkContext, val sqlContex
 
   /**
     * RDD of Variant IDs zipped with a unique index.
-    * RDD[(Variant, VariantIndex)]
+    * @return
+    * RDD[(Variant:String, VariantIndex:Int)]
     * RDD[(PGM1, 1221)]
-    * count = noOfGenes
     */
   def featureTuples: List[(String, Int)] = {
     //val NotAVariant = this.NotAVariant
@@ -64,15 +65,28 @@ class ABetaParser (val CsvFileNames: String, val sc: SparkContext, val sqlContex
   }
 
   /**
-    * RDD[(IndividualID, (BMI, BMI_CAT, MSI_STATUS))]
-    * RDD[(TCGA-CA-6717, (30.25, "obese", 2))]
+    * RDD[(IndividualID:String, abStatus:Int))]
     * count = noOfIndividuals
     */
-  private def IndividualMetaData: RDD[(String, (Double, String, String))] = {
+  def IndividualMetaData: RDD[(String, Int)] = {
     CsvLineRDD
-      .map(line => (line(10), (line(27).toDouble, line(28), line(23))))
+      .map(line => (line(0), line(1).toDouble.toInt))
       .distinct
   }
+
+  /**
+    * @return
+    * RDD[ FlatVariant(subjectId:String, variantIndex:Int, allele:Double)]
+    */
+
+  def individualVariants: RDD[FlatVariant] = {
+    val featureTuples = this.featureTuples
+    CsvLineRDD
+      .map(p => (p(0), p.drop(2).zip(featureTuples)))
+      .flatMap(p => p._2.map(q => FlatVariant(p._1, q._2._2, q._1.toDouble)))
+  }
+
+
 
   val data = sqlContext
     .createDataFrame {
@@ -83,7 +97,7 @@ class ABetaParser (val CsvFileNames: String, val sc: SparkContext, val sqlContex
         .map(p =>
           ABetaRecord(
             individual = p._1,
-            aBeta = p._2,
+            aBeta = p._2.toDouble.round,
             features = Vectors.sparse(featureCount, p._3)
           )
         )

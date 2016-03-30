@@ -1,10 +1,10 @@
 package au.csiro.obr17q.variantspark.model
 
 import au.com.bytecode.opencsv.CSVParser
-import au.csiro.obr17q.variantspark.VcfForest._
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg._
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SQLContext
 
 /**
   * Created by obr17q on 5/01/2016.
@@ -12,7 +12,7 @@ import org.apache.spark.rdd.RDD
 
 private case class CsvRecord(individual: String, sampleType: String, bmi: Double, msi_status: String, bmi_cat: String, features: Vector)
 
-class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: SparkContext) extends scala.Serializable {
+class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: SparkContext, val sqlContext: SQLContext) extends scala.Serializable {
 
   private val CsvFilesRDD = sc.textFile(CsvFileNames, 5)
 
@@ -36,12 +36,12 @@ class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: Spark
     * RDD[(PGM1, 1221)]
     * count = noOfGenes
     */
-  def alleleTuples: RDD[(String, Int)] = {
+  def featureTuples: List[(String, Int)] = {
     CsvLineRDD
       .map(line => line(7))
       .distinct
       .zipWithIndex
-      .map(p => (p._1, p._2.toInt))
+      .map(p => (p._1, p._2.toInt)).collect.toList
   }
 
   /**
@@ -58,13 +58,13 @@ class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: Spark
   val data = sqlContext
     .createDataFrame {
       val variantCount = this.variantCount
-      val alleleTuples = this.alleleTuples
+      val featureTuples = this.featureTuples
       val IndividualMetaData = this.IndividualMetaData
       CsvLineRDD
         .map(line => ((line(10), line(7)), 1))
         .reduceByKey(_ + _)
         .map(p => (p._1._2, (p._1._1, p._2.toDouble)))
-        .join(alleleTuples)
+        .join(sc.parallelize(featureTuples))
         .map(p => (p._2._1._1, (p._2._2, p._2._1._2)))
         .groupByKey
         .join(IndividualMetaData)
@@ -76,7 +76,9 @@ class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: Spark
             bmi = p._2._2._1,
             msi_status = p._2._2._3,
             bmi_cat = p._2._2._2,
-            features = Vectors.sparse(variantCount, p._2._1.to[Seq])))
+            features = Vectors.sparse(variantCount, p._2._1.to[Seq])
+          )
+        )
     }.toDF
 
 
@@ -84,6 +86,6 @@ class CsvParser (val CsvFileNames: String, val VariantCutoff: Int, val sc: Spark
     * Number of variants in the file
     */
   private def variantCount : Int = {
-    alleleTuples.count.toInt
+    featureTuples.size
   }
 }
