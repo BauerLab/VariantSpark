@@ -21,8 +21,8 @@ case class WideRandomForestModel(trees: List[WideDecisionTreeModel], val labelCo
 
   def variableImportance: Map[Long, Double] = {
     // average by all trees
-    val accumulations = new Long2DoubleOpenHashMap();
-    val counts = new Long2IntOpenHashMap();
+    val accumulations = new Long2DoubleOpenHashMap()
+    val counts = new Long2IntOpenHashMap()
     trees.foreach { t =>
       val treeImportnace = t.variableImportanceAsFastMap
       //println(treeImportnace.toMap)
@@ -56,23 +56,28 @@ case class WideRandomForestModel(trees: List[WideDecisionTreeModel], val labelCo
 }
 
 case class RandomForestParams(
-    val oob:Boolean = true,
-    val nTryFraction:Double =  Double.NaN
+    oob:Boolean = true,
+    nTryFraction:Double =  Double.NaN
 )
 
 class WideRandomForest {
   def run(data: RDD[(Vector, Long)], labels: Array[Int], ntrees: Int, params:RandomForestParams = RandomForestParams()): WideRandomForestModel = {
-    // subsample 
+    // subsample
+    //dims seems to be the number of samples, not number of dimensions?
     val dims = labels.length
+    val features = data.count().toInt
+
     val labelCount = labels.max + 1
     val oobVotes = Array.fill(dims)(Array.fill(labelCount)(0))
-    
-    val ntryFraction = if (params.nTryFraction.isNaN() ) Math.sqrt(dims.toDouble)/dims.toDouble else params.nTryFraction
-    println(s"RF: Using ntryfraction: ${ntryFraction}")
-    
-    val trees = Range(0, ntrees).map { i =>
-      println(s"Building tree: ${i}")
-      val currentSample = for (i <- 0 until dims) yield (Math.random() * dims).toInt // sample with replacemnt
+    println(features.toDouble)
+    val ntryFraction = if (params.nTryFraction.isNaN ) Math.sqrt(features.toDouble)/features.toDouble else params.nTryFraction
+    println(s"RF: Using ntryfraction: $ntryFraction")
+    println(s"RF: i.e. trying ${(features * ntryFraction).toInt} features per split")
+
+    val trees = Range(0, ntrees).map { p =>
+      println(s"Building tree: $p")
+      //val currentSample = for (i <- 0 until dims) yield (Math.random * dims).toInt // sample with replacement
+      val currentSample = IndexedSeq.fill(dims)((Math.random * dims).toInt) // sample with replacement
       val tree = new WideDecisionTree().run(data, labels, currentSample.toArray, ntryFraction)
       val error = if (params.oob) {
         // check which indexes are out of bag
@@ -82,22 +87,18 @@ class WideRandomForest {
         // tree.predict() on projected data
         // looks like I actually need to get the reversed set anyway
         val oobIndexes = Range(0,dims).toSet.diff(inBag)
-        val predictions = tree.predictIndexed(data.map( t => (WideDecisionTree.projectVector(oobIndexes,false)(t._1), t._2)))
-        val indexs = oobIndexes.toSeq.sorted
-        predictions.zip(indexs).foreach{ case (v, i) => oobVotes(i)(v)+=1}
+        val predictions = tree.predictIndexed(data.map( t => (WideDecisionTree.projectVector(oobIndexes, invert = false)(t._1), t._2)))
+        val indexes = oobIndexes.toSeq.sorted
+        predictions.zip(indexes).foreach{ case(v, i) => oobVotes(i)(v) += 1}
         Metrics.classificatoinError(labels, oobVotes.map(_.zipWithIndex.max._2))
       } else {
         Double.NaN
       }
-      println(s"Tree error: ${error}")
+      println(s"Tree error: $error")
       (tree, error)
     }
     val error = trees.map(_._2).sum.toDouble / ntrees
-    println(s"Error: ${error}")
+    println(s"Error: $error")
     WideRandomForestModel(trees.map(_._1).toList, labelCount)
   }
 }
-
-
-
-
