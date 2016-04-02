@@ -274,10 +274,66 @@ We therefore we developed CursedForest a Spark-based random forest algorithm abl
 In the first section we 
 
 
+\section*{Variable Selection Using Random Forests}
+
+
+
+\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on the cardinality of
+the set $S$ of  ``strong predictors'' rather than on the number of variables $p$. That is, given a function $y=f(S)$
+depending on a set of variables $S$, a random forest will converge to the true function $y$ with a rate that depends on
+the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small compared to the total
+number of variables, then the rate of convergence will be quicker. 
+
+In a number of simulations (reproduced from \cite{Genuer.et.al.2010}) we see evidence that random forests can recover
+the variables defining a functional relationship in the presence of a substantial number of noise variables. See the
+supplementary information for full details. It is apparently that some of the model parameters, such
+as \texttt{mtry} -- the number of randomly selected variables considered as potential splits at each node, have to be altered
+from their default value when there are a large number of predictors.  
+
+
+It is likely that in the genomic setting, variables will have a monotonic influence on the outcome. 
+We have taken \cite{Genuer.et.al.2010}'s tree function example and extended it to a much larger number of noise variables.
+The function, shown in figure  \ref{figure:tree_function.png}, is 
+defined on the first 5 predictor variables. We have added Gaussian noise to the function (figure \ref{figure:noisy_tree_function.png})
+and extended the size of the training data set from $n=100 \times p=1000$ to $n=100 \times  p=1000000$.
+The random forest model recovers variables 1 and 4 as the two
+most important variables (out of 1000000). It fails to uncover the other 3 variables, $\{2,3,5\}$.
+
+It would appear that even in setting with an extremely large number of noise variables, it may be possible to recover
+the significant varaiables if the functional relationship is simple.
+
+
+\begin{figure}[tbhp]
+ \includegraphics[totalheight=9cm]{./figs/tree_function.png}
+ \captionof{figure}{The tree function.}
+  \label{figure:tree_function.png}
+\end{figure}
+
+
+\begin{figure}[tbhp]
+ \includegraphics[totalheight=8cm]{./figs/noisy_tree_function.png}
+ \captionof{figure}{A plot of the ordered $y$ variable for the tree example, and the $y$ variable with added Gaussian
+   noise (in red).}
+  \label{figure:noisy_tree_function.png}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
 % You may title this section "Methods" or "Models". 
 % "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
 % authors may use "Analysis" 
 \section*{Methods}
+
+
+
+
 \subsection*{VariantSpark.}
 
 
@@ -397,16 +453,8 @@ Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et m
 % style file and paste the contents of your .bbl file
 % here.
 % 
-\begin{thebibliography}{10}
-\bibitem{bib1}
-Devaraju P, Gulati R, Antony PT, Mithun CB, Negi VS. Susceptibility to SLE in South Indian Tamils may be influenced by genetic selection pressure on TLR2 and TLR9 genes. Mol Immunol. 2014 Nov 22. pii: S0161-5890(14)00313-7. doi: 10.1016/j.molimm.2014.11.005
 
-\bibitem{bib2}
-Huynen MMTE, Martens P, Hilderlink HBM. The health impacts of globalisation: a conceptual framework. Global Health. 2005;1: 14. Available: http://www.globalizationandhealth.com/content/1/1/14.
-
-\end{thebibliography}
-
-
+\bibliography{./CursedForest.bib}
 
 \end{document}
 
