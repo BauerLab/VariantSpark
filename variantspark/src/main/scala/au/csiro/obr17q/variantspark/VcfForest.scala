@@ -44,7 +44,7 @@ object VcfForest extends SparkApp {
       s"MaxBins=[${maxBins.head}], " +
       s"nTry=$FeatureSubsetStrategy")
 
-    println(s"Running ${if (classification) "classification" else "regression"} using label=\"$labelName\"")
+    println(s"Running ${if (classification) "classification" else "regression"} using label=$labelName")
 
     //Feature Indexing stuff
     val indexFeatures = false
