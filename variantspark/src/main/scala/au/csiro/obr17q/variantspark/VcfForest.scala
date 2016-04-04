@@ -1,16 +1,17 @@
 package au.csiro.obr17q.variantspark
 
 import au.csiro.obr17q.variantspark.model._
-import org.apache.spark.ml.classification.{RandomForestClassifier, RandomForestClassificationModel}
-import org.apache.spark.ml.regression.{RandomForestRegressor, RandomForestRegressionModel}
-import org.apache.spark.ml.{PipelineStage, Pipeline, PipelineModel}
+import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
+import org.apache.spark.ml.regression.{RandomForestRegressionModel, RandomForestRegressor}
+import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
-import org.apache.spark.ml.feature.{IndexToString, VectorIndexer, StringIndexer}
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.linalg._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.rdd.RDD
+
 import scala.collection.mutable.ListBuffer
 import scala.io._
 import scala.math._
@@ -24,7 +25,7 @@ object VcfForest extends SparkApp {
 
   def main(args: Array[String]) {
 
-    val defaults = Array("/Users/obr17q/Desktop/coadread_mutations_bmi_filtered.csv","5","5,10","10","auto","0","10", "100", "1000")
+    val defaults = Array("/Users/obr17q/Desktop/coadread_mutations_bmi_filtered.csv","5","5,10","10","auto","false","simulationTwo","0","10", "100","1000")
 
     //val seed = 3262362
 
@@ -33,15 +34,21 @@ object VcfForest extends SparkApp {
     val maxDepth = if (args.length > 2) args(2).split(",").map(_.toInt) else defaults(2).split(",").map(_.toInt)
     val maxBins = if (args.length > 3) args(3).split(",").map(_.toInt) else defaults(3).split(",").map(_.toInt)
     val FeatureSubsetStrategy = if (args.length > 4) args(4) else defaults(4)
-    val VariantCutoff = if (args.length > 5) args(5).toInt else defaults(5).toInt
-    val numFolds = if (args.length > 6) args(6).toInt else defaults(6).toInt
+    val classification = if (args.length > 5) args(5).toBoolean else defaults(5).toBoolean
+    val labelName = if (args.length > 6) args(6) else defaults(6)
+    val VariantCutoff = if (args.length > 7) args(7).toInt else defaults(7).toInt
+    val numFolds = if (args.length > 8) args(8).toInt else defaults(8).toInt
 
+    println(s"Parameters: Trees=$NumTrees, " +
+      s"MaxDepth(s)=[${maxDepth.head}], " +
+      s"MaxBins=[${maxBins.head}], " +
+      s"nTry=$FeatureSubsetStrategy")
+
+    println(s"Running ${if (classification) "classification" else "regression"} using label=\"$labelName\"")
 
     //Feature Indexing stuff
     val indexFeatures = false
-    val maxCategories = 4
-    val classification = false
-
+    val maxCategories = 10
 
 
     val syntheticSamples = if (args.length > 7) args(7).toInt else defaults(7).toInt
@@ -53,8 +60,17 @@ object VcfForest extends SparkApp {
     // Can be used for building many models
     val numModels = 1
 
-    // Label from whatever parser (can be done better?)
-    val labelName = "simulationTwo"
+
+
+
+    //val modObject = new ThousandGenomesVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
+    val modObject = new CsvParser(VcfFiles, VariantCutoff, sc, sqlContext)
+    //val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
+    //val modObject = new FakeDataParser(samples = syntheticSamples, dims = syntheticFeatures, save = false, sc, sqlContext)
+
+
+
+
 
 
     val label = if (classification) "label" else labelName
@@ -67,8 +83,12 @@ object VcfForest extends SparkApp {
       * 46 - Weight
       * 47 - Height
       */
-    //val PopFiles = Source.fromFile("data/nationwidechildrens.org_clinical_patient_coad.txt").getLines()
-    //val IndividualMeta : RDD[IndividualMap] = sc.parallelize(new MetaDataParser(PopFiles, 3, '\t', "[Not Available]", IndividualIdCol = 1, PopulationCol = 2)(WeightCol = 46, HeightCol = 47, SexCol = 6).returnBmiMap())
+    //val PopFiles = "data/nationwidechildrens.org_clinical_patient_coad.txt"
+    //val IndividualMeta : RDD[IndividualMap] = sc.parallelize(
+    //  new MetaDataParser
+    //  (Source.fromFile(PopFiles).getLines(), HeaderLines = 3, '\t', "[Not Available]", IndividualIdCol = 1, PopulationCol = 2)
+    //  (WeightCol = 46, HeightCol = 47, SexCol = 6).returnBmiMap()
+    //)
 
 
     /**
@@ -78,22 +98,23 @@ object VcfForest extends SparkApp {
       * 02 - Super Population
       * 03 - Gender
       */
-    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
-    val IndividualMeta : RDD[IndividualMap] = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 1 )(SexCol = 3, SuperPopulationCol = 2).returnMap())
-
-
-    //val modObject = new ThousandGenomesVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
-    //val modObject = new CsvParser(VcfFiles, VariantCutoff, sc, sqlContext)
-    //val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
-    val modObject = new FakeDataParser(n = syntheticSamples, p = syntheticFeatures, sc, sqlContext)
-
+    //val PopFiles = "data/ALL.panel"
+    //lazy val IndividualMeta : RDD[IndividualMap] = sc.parallelize(
+    //  new MetaDataParser
+    //  (Source.fromFile(PopFiles).getLines(), HeaderLines = 1, '\t', "", IndividualIdCol = 0, PopulationCol = 1 )
+    //  (SexCol = 3, SuperPopulationCol = 2).returnMap()
+    //)
 
 
 
     val data = modObject.data
-    val Array(trainingData, testData) = data.randomSplit(Array(0.6, 0.4))
-    val total = data.count
-    println("Samples", total)
+
+    //modObject.saveAs("100x1000.csv")
+
+    val Array(trainingData, testData) = data.randomSplit(Array(0.8, 0.2))
+    val testSize: Int = testData.count.toInt
+    println(s"Samples: ${data.count}")
+    println(s"Testset: $testSize")
 
 
 
@@ -132,7 +153,7 @@ object VcfForest extends SparkApp {
       .setFeaturesCol(features)
       .setNumTrees(NumTrees)
       .setFeatureSubsetStrategy(FeatureSubsetStrategy)
-      .setImpurity("entropy")
+      //.setImpurity("entropy")
 
 
     //Regression
@@ -158,12 +179,13 @@ object VcfForest extends SparkApp {
 
 
     if (classification) tasks += labelIndexer
-    //if (indexFeatures) tasks += featureIndexer
+    if (indexFeatures) tasks += featureIndexer
     if (classification) tasks += rfClassifier else tasks += rfRegressor
     if (classification) tasks += labelConverter
     //Array(labelIndexer, featureIndexer, rfClassifier, labelConverter)
 
-    tasks.toList.indexOf(rfClassifier)
+    // The index of the Random Forest classifier or regressor
+    val rfIndex = Array(tasks.toList.indexOf(rfClassifier),tasks.toList.indexOf(rfRegressor)).filter(_ != -1).head
 
     val pipeline = new Pipeline()
       .setStages(tasks.toArray)
@@ -192,7 +214,7 @@ object VcfForest extends SparkApp {
       println("Predictions:")
       df.collect
         .foreach { case Row(individual: String, aBeta: Double, label: Double, prediction: Double) =>
-          println(s"($individual, $aBeta)", prediction, label==prediction)
+          println(s"($individual, $aBeta)", prediction, label == prediction)
         }
     }
 
@@ -205,27 +227,24 @@ object VcfForest extends SparkApp {
       val featureTuples = sc.parallelize(modObject.featureTuples)
       featureTuples
         .map(p => (p._2, (p._1, importantFeatures(p._2))))
-        .sortBy(_._2._2, false)
+        .sortBy(_._2._2, ascending = false)
         .take(50)
         .foreach(println)
     }
-
-
 
     def modelFit(trainDF: DataFrame, testDF: DataFrame) = {
       // Build the cross-validated model
       val cvModel = cv.fit(trainDF)
 
+
       // Pull out the best Random Forest model
-      val forestModel = cvModel
+      val untypedForestModel = cvModel
         .bestModel
         .asInstanceOf[PipelineModel]
-        .stages(tasks.toList.indexOf(rfClassifier))
-        .asInstanceOf[RandomForestClassificationModel]
-          //.asInstanceOf[RandomForestRegressionModel]
+        .stages(rfIndex)
 
-      // Get the size of the test DataFrame
-      val total: Int = testDF.count.toInt
+
+
 
       // Make predictions on the test DataFrame
       val predictions: DataFrame = cvModel.transform(testDF).select("individual", label, label, "prediction")
@@ -238,13 +257,23 @@ object VcfForest extends SparkApp {
       val metrics = new MulticlassMetrics(predictionsAndLabels)
 
       // Print metrics/predictions/features/etc.
-      printFeatures(forestModel)
+      //printFeatures(forestModel)
       printPredictions(predictions)
       println(metrics.confusionMatrix)
-      println("Samples", total)
-      println("Correct", (metrics.precision*total).toInt)
-      println("Precision", metrics.precision)
-      println("Recall", metrics.recall)
+      println(s"Samples: $testSize")
+      println(s"Correct: ${(metrics.precision*testSize).toInt}")
+      println(s"Precision: ${metrics.precision}")
+      println(s"Recall: ${metrics.recall}")
+
+
+      val importantFeatures = if (classification)
+        untypedForestModel.asInstanceOf[RandomForestClassificationModel].featureImportances
+        else untypedForestModel.asInstanceOf[RandomForestRegressionModel].featureImportances
+
+      val featureTuples = sc.parallelize(modObject.featureTuples)
+      featureTuples
+        .map(p => (p._2, (p._1, importantFeatures(p._2))))
+        .sortBy(_._2._2, ascending = false).filter(_._2._2 > 0.005)
     }
 
 
@@ -252,7 +281,7 @@ object VcfForest extends SparkApp {
 
 
 
-    modelFit(trainingData, testData)
+    //modelFit(data, data)
 
 
 
@@ -264,10 +293,10 @@ object VcfForest extends SparkApp {
     /**
       * Creates n models, gets the feature importances and counts their ocurences.
       */
-    //Array.fill[RDD[(Int, (String, Double))]](numModels)(modelFit(data))
-    //  .reduce(_ union _)
-    //  .aggregateByKey(0, "", 0.0)((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
-    // .map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
+    Array.fill[RDD[(Int, (String, Double))]](numModels)(modelFit(data, data))
+      .reduce(_ union _)
+      .aggregateByKey(0, "", 0.0)((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
+     .map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
 
 
 
