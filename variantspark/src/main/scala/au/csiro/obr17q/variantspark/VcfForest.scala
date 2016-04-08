@@ -5,7 +5,7 @@ import org.apache.spark.ml.classification.{RandomForestClassificationModel, Rand
 import org.apache.spark.ml.regression.{RandomForestRegressionModel, RandomForestRegressor}
 import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
-import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.evaluation.{MulticlassClassificationEvaluator, RegressionEvaluator}
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.linalg._
@@ -47,7 +47,7 @@ object VcfForest extends SparkApp {
     println(s"Running ${if (classification) "classification" else "regression"} using label=$labelName")
 
     //Feature Indexing stuff
-    val indexFeatures = false
+    val indexFeatures = true
     val maxCategories = 10
 
 
@@ -55,22 +55,10 @@ object VcfForest extends SparkApp {
     val syntheticFeatures = if (args.length > 8) args(8).toInt else defaults(8).toInt
     // Metric used for determining best cross-validation model
     // "f1", "precision", "recall", "weightedPrecision", "weightedRecall"
-    val metricName = "f1"
+    val metricName = "mse"
 
     // Can be used for building many models
     val numModels = 1
-
-
-
-
-    //val modObject = new ThousandGenomesVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
-    val modObject = new CsvParser(VcfFiles, VariantCutoff, sc, sqlContext)
-    //val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
-    //val modObject = new FakeDataParser(samples = syntheticSamples, dims = syntheticFeatures, save = false, sc, sqlContext)
-
-
-
-
 
 
     val label = if (classification) "label" else labelName
@@ -106,8 +94,13 @@ object VcfForest extends SparkApp {
     //)
 
 
+    //val modObject = new ThousandGenomesVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
+    val modObject = new CsvParser(VcfFiles, VariantCutoff, sc, sqlContext)
+    //val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
+    //val modObject = new FakeDataParser(samples = syntheticSamples, dims = syntheticFeatures, save = false, sc, sqlContext)
 
-    val data = modObject.data
+
+    val data = modObject.data.cache
 
     //modObject.saveAs("100x1000.csv")
 
@@ -163,7 +156,7 @@ object VcfForest extends SparkApp {
       .setFeaturesCol(features)
       .setNumTrees(NumTrees)
       .setFeatureSubsetStrategy(FeatureSubsetStrategy)
-
+      //.setImpurity("entropy")
 
 
 
@@ -190,10 +183,15 @@ object VcfForest extends SparkApp {
     val pipeline = new Pipeline()
       .setStages(tasks.toArray)
 
-    val evaluator = new MulticlassClassificationEvaluator()
+    val regressionEvaluator = new RegressionEvaluator()
       .setLabelCol(label)
       .setPredictionCol("prediction")
       .setMetricName(metricName)
+
+    //val classificationEvaluator = new MulticlassClassificationEvaluator()
+    //  .setLabelCol(label)
+    //  .setPredictionCol("prediction")
+    //  .setMetricName(metricName)
 
     val paramGrid = new ParamGridBuilder()
       .addGrid(rfClassifier.maxDepth, maxDepth)
@@ -202,7 +200,7 @@ object VcfForest extends SparkApp {
 
     val cv = new CrossValidator()
       .setEstimator(pipeline)
-      .setEvaluator(evaluator)
+      .setEvaluator(regressionEvaluator)
       .setEstimatorParamMaps(paramGrid)
       .setNumFolds(numFolds)
 
@@ -221,12 +219,11 @@ object VcfForest extends SparkApp {
     /**
       * Prints important features from given model.
       */
-    def printFeatures(rf: RandomForestClassificationModel) = {
+    def printFeatures(rf: Vector) = {
       println("Important features:")
-      val importantFeatures = rf.featureImportances
       val featureTuples = sc.parallelize(modObject.featureTuples)
       featureTuples
-        .map(p => (p._2, (p._1, importantFeatures(p._2))))
+        .map(p => (p._2, (p._1, rf(p._2))))
         .sortBy(_._2._2, ascending = false)
         .take(50)
         .foreach(println)
@@ -257,7 +254,6 @@ object VcfForest extends SparkApp {
       val metrics = new MulticlassMetrics(predictionsAndLabels)
 
       // Print metrics/predictions/features/etc.
-      //printFeatures(forestModel)
       printPredictions(predictions)
       println(metrics.confusionMatrix)
       println(s"Samples: $testSize")
@@ -270,10 +266,14 @@ object VcfForest extends SparkApp {
         untypedForestModel.asInstanceOf[RandomForestClassificationModel].featureImportances
         else untypedForestModel.asInstanceOf[RandomForestRegressionModel].featureImportances
 
-      val featureTuples = sc.parallelize(modObject.featureTuples)
-      featureTuples
-        .map(p => (p._2, (p._1, importantFeatures(p._2))))
-        .sortBy(_._2._2, ascending = false).filter(_._2._2 > 0.005)
+      //val featureTuples = sc.parallelize(modObject.featureTuples)
+      //featureTuples
+      //  .map(p => (p._2, (p._1, importantFeatures(p._2))))
+      //  .sortBy(_._2._2, ascending = false).take(50)
+
+      printFeatures(importantFeatures)
+
+
     }
 
 
@@ -281,7 +281,7 @@ object VcfForest extends SparkApp {
 
 
 
-    //modelFit(data, data)
+    modelFit(data, data)
 
 
 
@@ -293,10 +293,10 @@ object VcfForest extends SparkApp {
     /**
       * Creates n models, gets the feature importances and counts their ocurences.
       */
-    Array.fill[RDD[(Int, (String, Double))]](numModels)(modelFit(data, data))
-      .reduce(_ union _)
-      .aggregateByKey(0, "", 0.0)((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
-     .map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
+    //Array.fill[RDD[(Int, (String, Double))]](numModels)(modelFit(data, data))
+    //  .reduce(_ union _)
+    //  .aggregateByKey(0, "", 0.0)((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
+    // .map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
 
 
 
