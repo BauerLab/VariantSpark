@@ -7,7 +7,7 @@ import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.ml.evaluation.{MulticlassClassificationEvaluator, RegressionEvaluator}
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.evaluation.{MulticlassMetrics, RegressionMetrics}
 import org.apache.spark.mllib.linalg._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.rdd.RDD
@@ -105,11 +105,6 @@ object VcfForest extends SparkApp {
     //modObject.saveAs("100x1000.csv")
 
     val Array(trainingData, testData) = data.randomSplit(Array(0.8, 0.2))
-    val testSize: Int = testData.count.toInt
-    println(s"Samples: ${data.count}")
-    println(s"Testset: $testSize")
-
-
 
 
     //val gender = modObject.feature("col5")
@@ -198,11 +193,11 @@ object VcfForest extends SparkApp {
       .addGrid(rfClassifier.maxBins, maxBins)
       .build
 
-    val cv = new CrossValidator()
-      .setEstimator(pipeline)
-      .setEvaluator(regressionEvaluator)
-      .setEstimatorParamMaps(paramGrid)
-      .setNumFolds(numFolds)
+    //val cv = new CrossValidator()
+    //  .setEstimator(pipeline)
+    //  .setEvaluator(regressionEvaluator)
+    //  .setEstimatorParamMaps(paramGrid)
+    //  .setNumFolds(numFolds)
 
 
     /**
@@ -225,19 +220,25 @@ object VcfForest extends SparkApp {
       featureTuples
         .map(p => (p._2, (p._1, rf(p._2))))
         .sortBy(_._2._2, ascending = false)
-        .take(50)
+        .take(100)
         .foreach(println)
     }
 
     def modelFit(trainDF: DataFrame, testDF: DataFrame) = {
+
+      val testSize: Int = testDF.count.toInt
+      println(s"Total samples: ${data.count}")
+      println(s"Testset: $testSize")
+
+
       // Build the cross-validated model
-      val cvModel = cv.fit(trainDF)
+      val cvModel = pipeline.fit(trainDF)
 
 
       // Pull out the best Random Forest model
       val untypedForestModel = cvModel
-        .bestModel
-        .asInstanceOf[PipelineModel]
+        //.bestModel
+        //.asInstanceOf[PipelineModel]
         .stages(rfIndex)
 
 
@@ -251,15 +252,16 @@ object VcfForest extends SparkApp {
         .map(row => (row.getDouble(0), row.getDouble(1)))
 
       // Get metrics from above RDD
-      val metrics = new MulticlassMetrics(predictionsAndLabels)
+      val metrics = new RegressionMetrics(predictionsAndLabels)
 
       // Print metrics/predictions/features/etc.
       printPredictions(predictions)
-      println(metrics.confusionMatrix)
+      //println(metrics.confusionMatrix)
       println(s"Samples: $testSize")
-      println(s"Correct: ${(metrics.precision*testSize).toInt}")
-      println(s"Precision: ${metrics.precision}")
-      println(s"Recall: ${metrics.recall}")
+      //println(s"Correct: ${(metrics.precision*testSize).toInt}")
+      println(s"MSE: ${metrics.meanSquaredError}")
+      println(s"MAE: ${metrics.meanAbsoluteError}")
+      println(s"R2: ${metrics.r2}")
 
 
       val importantFeatures = if (classification)
