@@ -110,6 +110,9 @@
 %\usepackage{setspace} 
 %\doublespacing
 
+
+\reversemarginpar
+
 % Text layout
 \raggedright
 \setlength{\parindent}{0.5cm}
@@ -213,63 +216,99 @@ Denis C. Bauer\textsuperscript{1,*}
 
 \end{flushleft}
 % Please keep the abstract below 300 words
+
+\section*{Notes}
+\begin{itemize}
+\item what are you guys editing this with?  what about some carrige
+  returns or line feeds or something!
+\item Are we going to use the TCGA data in this paper?
+\item are we going to run sparkML or Curesed forest on the extended
+  simulation data \cite[]{Genuer.et.al.2010}? Has Aidan done this already?
+\end{itemize}
+
+
 \section*{Abstract}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida
+pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend
+volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium
+diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim
+ultrices, ultrices elit pulvinar, volutpat risus.
 
 \linenumbers
 
 \section*{Introduction}
 
-The digital revolution or `datafication' sees a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}. 
-These dataset not only grow vertically by capturing more and more events but also horizontally by capturing more information about these events.
-The challenge of big and `wide' data is especially pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3 billion basepairs of the human genome. 
-While a large fraction of this data is identical between individuals, identifying the relevant and disease specific differences is the focus of complex trait analysis [citation]. 
+The digital revolution or `datafication' sees a dramatic increase in data collected about every aspect of   \marginpar{is seeing, will see}
+life~\cite{Loebbecke2015}.  These dataset not only grow vertically by capturing more and more events but also
+horizontally by capturing more information about these events.  The challenge of big and `wide' data is especially
+pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
+billion basepairs of the human genome.  While a large fraction of this data is identical between individuals, \marginpar{base-pairs}
+identifying the relevant and disease specific differences is the focus of complex trait analysis [citation].
 
-For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012}, denoting the differences between individuals. 
-This dataset consumes close to a terabyte of disk space.
-The richness of this data can be utilised in other datasets as well by filling in or ``imputing" the information at genomic positions previously unobserved due to the less detailed resolution of older array technology [citation about imputation]. 
-This means that the large number of samples for which genome-wide association (GWA) data is available~\cite{Welter2013} can be extended horizontally by imputing the previously unobserved genotypes. 
-This provides the potential to generate datasets of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern compute paradigms to deal with these challenges. 
+For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
+denoting the differences between individuals.  This dataset consumes close to a terabyte of disk space.  The richness of
+this data can be utilised in other datasets as well by filling in or ``imputing" the information at genomic positions
+previously unobserved due to the less detailed resolution of older array technology [citation about imputation].  This
+means that the large number of samples for which genome-wide association (GWA) data is available~\cite{Welter2013} can
+be extended horizontally by imputing the previously unobserved genotypes.  This provides the potential to generate
+datasets of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating
+modern compute paradigms to deal with these challenges.
 
-%WGS has proven itself in discovering rare variants [http://www.sciencedirect.com/science/article/pii/S2352396414000498] and diagnosing unknown genetic disorders [MATT MIGHT],
-%One challenge with analysing WGS data over, for example, traditional genome-wide association (GWA) data, is developing software and algorithms to deal with the huge amounts of data.
-%Although the sample size of WGS data-sets may be comparable to GWA, the dimensionality of the data may be many times larger. For example, the 1000 Genome data consists of
-%approximately 2500 individuals with up to 80 million variants. The uncompressed file sizes are close to a terabyte. Of course, it's not just genomic data that is rapidly growing. Many other
-%types of data 
-
-
-%Developed by Apache, Hadoop is one platform for dealing with large data sets is 
-%Platforms Fortunately computational tools such as Apache Spark are available as a framework for iteratively dealing with big data. 
-Distributing the compute tasks is one strategy to overcome this challenge and Apache Spark, based on Scala, allows for distributed applications to scale to hundreds or thousands of nodes.
-A Spark application runs on a `driver' node, and this node divides and distributes work out to the many `worker' nodes.
-Spark also includes the machine learning (ML) library, Spark ML, providing popular machine learning libraries. 
-Spark ML includes supervised approaches such as decision trees and the ensemble method, random forests, as well as unsupervised approaches such as k-means clustering.
-
-We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework. 
-Using VariantSpark, we successfully built a k-means model on the full 2500x80Million matrix to cluster individuals by their ethnicity achieving an Adjusted Rand Index ARI=0.84, with 1 perfect and -1 random clustering. 
+% WGS has proven itself in discovering rare variants
+% [http://www.sciencedirect.com/science/article/pii/S2352396414000498] and diagnosing unknown genetic disorders [MATT
+% MIGHT], One challenge with analysing WGS data over, for example, traditional genome-wide association (GWA) data, is
+% developing software and algorithms to deal with the huge amounts of data.  Although the sample size of WGS data-sets
+% may be comparable to GWA, the dimensionality of the data may be many times larger. For example, the 1000 Genome data
+% consists of approximately 2500 individuals with up to 80 million variants. The uncompressed file sizes are close to a
+% terabyte. Of course, it's not just genomic data that is rapidly growing. Many other types of data
 
 
-While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is supervised learning, i.e. given a phenotype of clinical label determine the most associated features. 
-One of the simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a linear combination of the feature variables.
-Processing the `wide' genomic data poses difficulties for machine learning applications as having more features $p$ than samples $n$ causes the model to not generalise well and overfit the data. 
-This is known as the `curse of dimensionality'~\cite{Bauer2014}. 
-Random Forests (RF) as an ensemble of weak learners overcomes this issue and is hence ideally suited to this application. 
-Furthermore, RF are able to capture interactions between features, which is of importance for modelling complex polygenic diseases.
+% Developed b Apache, Hadoop is one platform for dealing with large data sets is Platforms Fortunately computational
+% tools such as Apache Spark are available as a framework for iteratively dealing with big data.
+Distributing the compute tasks is one strategy to overcome this challenge. Apache Spark, based on Scala, allows for  
+\marginpar{is it based on scale or does it have a scale API?}
+distributed applications to scale to thousands of nodes.  A Spark application runs on a `driver' node, and
+this node divides and distributes work out to the many `worker' nodes.  Spark also includes the machine learning (ML)
+library, Spark ML, providing popular machine learning libraries.  Spark ML includes supervised approaches such as
+decision trees and the ensemble method, random forests, as well as unsupervised approaches such as k-means clustering.
+
+We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
+framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
+Using VariantSpark, we successfully built a k-means model on the full 2500x80Million matrix to cluster individuals by
+their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering  and -1 random clustering).
 
 
-%We also investigated classifying the samples using Random Forests. 
-%We chose random forests due to its
-%ability to capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise overfitting and variance.
+While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is
+supervised learning, i.e. given a phenotype of clinical label determine the most associated features.  One of the
+simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
+linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
+applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
+This is known as the `curse of dimensionality'~\cite{Bauer2014}.  Random Forests (RF) as an ensemble of weak learners 
+\marginpar{weak learners only in a certain sense. Originally ``weak learners'' was applied to decision stumps}
+overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
+between features, which is of importance for modelling complex polygenic diseases.
 
-However, we observe that Spark's standard RF implementation is not able to handle the extremely `wide' genomic data as it was developed for large number of samples with only modest dimensionality. 
-Although Spark ML can build a RF model on a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}). 
-This unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets.
 
-%The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a huge number of samples with a modest dimensionality, the 1000 Genomes data
-%instead contains a huge number of dimensions (features). As a result, the default random forests implementation is unable to partition the data into small-enough tasks
-%for nodes on the computer cluster to handle.
+% We also investigated classifying the samples using Random Forests.  We chose random forests due to its ability to
+% capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
+% independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise
+% overfitting and variance.
 
-We therefore we developed CursedForest a Spark-based random forest algorithm able to process big and `wide' data. Unlike the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without excessive resource requirements on the driver or worker nodes.
+However, we observe that Spark's standard RF implementation is not able to handle the extremely `wide' genomic data as
+it was developed for large number of samples with only modest dimensionality.  Although Spark ML can build a RF model on
+a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
+and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}).  This
+unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
+scaling to larger datasets.
+
+% The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a
+% huge number of samples with a modest dimensionality, the 1000 Genomes data instead contains a huge number of
+% dimensions (features). As a result, the default random forests implementation is unable to partition the data into
+% small-enough tasks for nodes on the computer cluster to handle.
+
+We therefore we developed CursedForest, a Spark-based random forest algorithm able to process big and `wide' data. Unlike
+the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
+excessive resource requirements on the driver or worker nodes.
 %Also, due to more efficient handling of high-dimensional data, equivalent jobs are likely to finish faster on wideML than Spark ML.
 In the first section we 
 
@@ -314,62 +353,67 @@ In the first section we
 
 \section*{Random Forests converges on wide data}
 
-As discussed in the Introduction, random forests are robust against overfitting and hence can generalise for datasets where $p > n$, however here we demonstrate that this holds true in extreme cases where $p \gg n$. 
+As discussed in the Introduction, random forests are robust against overfitting and hence can generalise for datasets
+where $p > n$, however here we demonstrate that this holds true in extreme cases where $p \gg n$.
 
-Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on the cardinality of
-the set $S$ of  ``strong predictors'' rather than on the number of variables $p$. That is, given a function $y=f(S)$
-depending on a set of variables $S$, a random forest will converge to the true function $y$ with a rate that depends on
-the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small compared to the total
-number of variables, then the rate of convergence will be quicker. 
+Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
+the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
+function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
+rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
+compared to the total number of variables, then the rate of convergence will be quicker.
+\marginpar{say something about the rate of convergence}
 
-To test this empirically we adapt the simulations developed by Genuer {\it et al.}~\cite{Genuer.et.al.2010} to include a much larger feature vector $p$ per sample.  
-The function, shown in Figure  \ref{figure:synth}a, is 
-defined on the first 5 predictor variables. We have added Gaussian noise to the function (Figure \ref{figure:synth}b)
-and extended the size of the training data set from $n=100 \times p=1000$ to $n=100 \times  p=1000000$.
+To test this empirically we adapt the simulations developed by Genuer {\it et al.}~\cite{Genuer.et.al.2010} to include a
+much larger feature vector $p$ per sample.  The function, shown in Figure \ref{figure:synth}a, is defined on the first 5
+predictor variables. We have added Gaussian noise to the function (Figure \ref{figure:synth}b) and extended the size of
+the training data set from $n=100 \times p=1000$ to $p=1000000$.
 %TODO recovers 2 out of 5 ? I think you need to spell out why this is a good demonstrator that RF can deal with such a large number of features...
 %TODO also how is the added noise playing into this ?
 The random forest model recovers variables 1 and 4 as the two
 most important variables (out of 1000000). It fails to uncover the other 3 variables, $\{2,3,5\}$.
 
-% Important ?
-%In a number of simulations (reproduced from \cite{Genuer.et.al.2010}) we see evidence that random forests can recover
-%the variables defining a functional relationship in the presence of a substantial number of noise variables. See the
-%supplementary information for full details. It is apparently that some of the model parameters, such
-%as \texttt{mtry} -- the number of randomly selected variables considered as potential splits at each node, have to be altered
-%from their default value when there are a large number of predictors.  
+% Important ?  In a number of simulations (reproduced from \cite{Genuer.et.al.2010}) we see evidence that random forests
+% can recover the variables defining a functional relationship in the presence of a substantial number of noise
+% variables. See the supplementary information for full details. It is apparently that some of the model parameters,
+% such as \texttt{mtry} -- the number of randomly selected variables considered as potential splits at each node, have
+% to be altered from their default value when there are a large number of predictors.
 
-%It is likely that in the genomic setting, variables will have a monotonic influence on the outcome. 
-%We have taken \cite{Genuer.et.al.2010}'s tree function example and extended it to a much larger number of noise variables.
-%The function, shown in figure  \ref{figure:tree_function.png}, is 
-%defined on the first 5 predictor variables. We have added Gaussian noise to the function (figure \ref{figure:noisy_tree_function.png})
-%and extended the size of the training data set from $n=100 \times p=1000$ to $n=100 \times  p=1000000$.
-%The random forest model recovers variables 1 and 4 as the two
-%most important variables (out of 1000000). It fails to uncover the other 3 variables, $\{2,3,5\}$.
+% It is likely that in the genomic setting, variables will have a monotonic influence on the outcome.  We have taken
+% \cite{Genuer.et.al.2010}'s tree function example and extended it to a much larger number of noise variables.  The
+% function, shown in figure \ref{figure:tree_function.png}, is defined on the first 5 predictor variables. We have added
+% Gaussian noise to the function (figure \ref{figure:noisy_tree_function.png}) and extended the size of the training
+% data set from $n=100 \times p=1000$ to $n=100 \times p=1000000$.  The random forest model recovers variables 1 and 4
+% as the two most important variables (out of 1000000). It fails to uncover the other 3 variables, $\{2,3,5\}$.
 
-%It would appear that even in setting with an extremely large number of noise variables, it may be possible to recover
-%the significant varaiables if the functional relationship is simple.
+% It would appear that even in setting with an extremely large number of noise variables, it may be possible to recover
+% the significant varaiables if the functional relationship is simple.
 
 
-%TODO can you make the caption more descriptive, e.g. what are the splits in the three and what are the numbers; similarly for b) there are 100 samples (can you name the index axis samples) and why are there 9 targets (y) ?  
+% TODO can you make the caption more descriptive, e.g. what are the splits in the three and what are the numbers;
+% similarly for b) there are 100 samples (can you name the index axis samples) and why are there 9 targets (y) ?
+
 \begin{figure}[tbhp]
 \begin{tabular}{ll}
 a)& b)\\
  \includegraphics[totalheight=6cm]{./figs/tree_function.png}&
   \includegraphics[totalheight=6cm]{./figs/noisy_tree_function.png}
  \end{tabular}
- \captionof{figure}{{\bf Synthetic data demonstrating RF's capability to cope with $p \gg n$.} {\bf a)} The tree function, where each split means XXXX. {\bf b)} A plot of the ordered $y$ variable for the tree example, and the $y$ variable with added Gaussian
-   noise (in red).}
+ \captionof{figure}{{\bf Synthetic data demonstrating RF's capability to cope with $p \gg n$.} {\bf a)} The tree
+   function, where each split means XXXX. {\bf b)} A plot of the ordered $y$ variable for the tree example, and the $y$
+   variable with added Gaussian noise (in red).}
   \label{figure:synth}
 \end{figure}
 
 
 \subsection*{CursedForest processes genome wide variant data}
 \label{comp}
-Spark ML vs CursedForest vs Kmeans vs LR on small and full version (where applicable) of 1000G (performance and time/mem)
+Spark ML vs CursedForest vs Kmeans vs LR on small and full version (where applicable) of 1000G (performance and
+time/mem)
 
-%In this section we compare Apache's higher level machine learning library, Spark ML, with MLLib, the standard low-level library. From the results, we see that times are similar. 
-%There are many practical benefits for using Spark ML with VariantSpark, with a selection of these benefits derived from the `pipeline' system Spark ML uses.
-%One benefit is that hyperparameter optimisation is built in. Although possible in 
+% In this section we compare Apache's higher level machine learning library, Spark ML, with MLLib, the standard
+% low-level library. From the results, we see that times are similar.  There are many practical benefits for using Spark
+% ML with VariantSpark, with a selection of these benefits derived from the `pipeline' system Spark ML uses.  One
+% benefit is that hyperparameter optimisation is built in. Although possible in
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
@@ -395,7 +439,9 @@ XX\% & CursedForest & &  &\\ \hline
           &  LR & - & - & - \\ \hline
           & kmeans(Spark ML) & & & \\ \hline
 \end{tabular}
-\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+\begin{flushleft} 
+  Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus
+  tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
 \end{flushleft}
 \label{table1}
 %\end{adjustwidth}
@@ -405,7 +451,7 @@ XX\% & CursedForest & &  &\\ \hline
 
 
 
-\subsection*{Random forest is sensitive to tree depht}
+\subsection*{Random forest is sensitive to tree depth}
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
@@ -418,7 +464,9 @@ XX\% & CursedForest & &  &\\ \hline
 \hline
 &&&&&\\ \hline
 \end{tabular}
-\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+\begin{flushleft} 
+  Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus
+  tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
 \end{flushleft}
 \label{table2}
 %\end{adjustwidth}
