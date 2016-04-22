@@ -451,7 +451,39 @@ XX\% & CursedForest & &  &\\ \hline
 
 
 
-\subsection*{Random forest is sensitive to tree depth}
+\subsection*{Parameter settings}
+\marginpar{ was''Random forest is sensitive to tree depth''}
+In this setting, variable selection in very high dimensions, we nned to consider the parameter setting for the RF
+algorithm. 
+
+I will use the R terms from the package RandomForests whcih incoporates the original Fortran code by Brieman and
+Cutler. We consider the parameters:
+\begin{itemize}
+\item \texttt{max_depth} the size (complexity) of the individual trees
+\item \texttt{ntree} the number of trees 
+\item \texttt{mtry} --  the number of variables considered at each split (if \texttt{mtry}=$p$, we have a boosted decison
+  tree model \marginpar{is this right?}
+\end{itemize}
+
+We note that it is possible for a RF model to have a very poor fit, and be useless for prediction, and still have a 
+useful ranking of variable importance.
+
+\subsection*{decision trees }
+\begin{itemize}
+\item benefits os a decision tree
+  \begin{itemize}
+  \item invariant to scale of the input data
+  \item handles categorical and real valued inputs 
+  \item can handle missing values 
+  \item insensitive to useless predictors
+  \end{itemize}
+\item benefits of random forests
+  \begin{itemize}
+  \item variable importance 
+  \item inherits the qualities of tree models
+  \end{itemize}
+\end{itemize}
+
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
