@@ -219,10 +219,10 @@ Denis C. Bauer\textsuperscript{1,*}
 
 \section*{Notes}
 \begin{itemize}
-\item what are you guys editing this with?  what about some carrige
+\item what are you guys editing this with?  what about some carriage
   returns or line feeds or something!
 \item Are we going to use the TCGA data in this paper?
-\item are we going to run sparkML or Curesed forest on the extended
+\item are we going to run sparkML or Cursed forest on the extended
   simulation data \cite[]{Genuer.et.al.2010}? Has Aidan done this already?
 \end{itemize}
 
@@ -459,7 +459,14 @@ algorithm.
 I will use the R terms from the package RandomForests whcih incoporates the original Fortran code by Brieman and
 Cutler. We consider the parameters:
 \begin{itemize}
-\item \texttt{max_depth} the size (complexity) of the individual trees
+\item the size and complexity of the individual trees is controlled in RandomForests by setting \texttt{nodesize}, the
+  minimum size of terminal nodes. It is controlled in Spark.ML by setting \texttt{maxDepth}, the maximum depth of each
+  tree in the forest. The SparkML documentation somewhat unhelpfully sets \texttt{maxDepth=4} in their classification
+  example\footnote{the documentation is available at \url{http://spark.apache.org/docs/latest/mllib-ensembles.html} }.
+  In the ATCG example the RF code produced trees with depths of 30+. We note that Random forests are a way of averaging
+  multiple deep decision trees, trained on different parts of the same training set, with the goal of reducing the
+  variance. \url{https://en.wikipedia.org/wiki/Random_forest} and refs therein.  
+\marginpar{are we including this  example?  Supplementary info?}
 \item \texttt{ntree} the number of trees 
 \item \texttt{mtry} --  the number of variables considered at each split (if \texttt{mtry}=$p$, we have a boosted decison
   tree model \marginpar{is this right?}
