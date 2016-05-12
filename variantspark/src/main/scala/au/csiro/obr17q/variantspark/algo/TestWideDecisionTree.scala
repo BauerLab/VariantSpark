@@ -5,6 +5,7 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 import au.csiro.obr17q.variantspark.metrics.Metrics
+import au.csiro.obr17q.variantspark.utils.Splits
 
 object TestWideDecisionTree extends SparkApp {
   conf.setAppName("VCF cluster")
@@ -31,8 +32,20 @@ object TestWideDecisionTree extends SparkApp {
         Vectors.dense(Array.fill(samples)((Math.random()*3).toInt.toDouble))
     }
     
+    val labels = clusterAssignment.toArray
     
-    val data = vectorData.zipWithIndex().cache()
+    val (trainSetProj, testSetProj) = Splits.splitRDD(vectorData, 0.8)
+    
+    
+    
+    
+    val trainSetWithIndex = trainSetProj(vectorData).zipWithIndex().cache()
+    val trainLables = trainSetProj.projectArray(labels)
+
+    val testSet = testSetProj(vectorData).cache()
+    val testLables = testSetProj.projectArray(labels)
+
+/*    
     val testLabels = Range(0,samples).map(i => Math.floor(Math.random()*centersNo).toInt).toList
     val testData:RDD[Vector] = centers.zipWithIndex().map{ case (v,i) =>
       if (i< importantDims) Vectors.dense(testLabels.map(c =>
@@ -43,19 +56,17 @@ object TestWideDecisionTree extends SparkApp {
     
     val test = data.count()
     println("Records to process: "+ test)
-    
+*/    
     val rf = new WideRandomForest()
-    val result  = rf.run(data, clusterAssignment.toArray, 100)
+    val result  = rf.run(trainSetWithIndex, trainLables, 20)
     //println(result)
     //result.printout()
     val variableImportnace = result.variableImportance
-    println(result.predict(data.map(_._1)).toList)    
+    println(result.predict(testSet).toList)    
     variableImportnace.toSeq.sortBy(-_._2).take(50).foreach(println)
     
-    val testPredict = result.predict(testData)
-    val testError = Metrics.classificatoinError(testLabels.toArray,testPredict)
+    val testPredict = result.predict(testSet)
+    val testError = Metrics.classificatoinError(testLables,testPredict)
     println(s"Test error: ${testError}")
-    
-    
   }
 }

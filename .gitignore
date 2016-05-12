@@ -35,3 +35,6 @@ data
 .classpath
 .settings
 .cache
+.cache-main
+.cache-test
+
