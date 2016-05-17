@@ -5,7 +5,9 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 import au.csiro.obr17q.variantspark.metrics.Metrics
-import au.csiro.obr17q.variantspark.utils.Splits
+import au.csiro.obr17q.variantspark.utils.Projector
+import au.csiro.obr17q.variantspark.utils.VectorRDDFunction._
+import au.csiro.obr17q.variantspark.utils.CV
 
 object TestWideDecisionTree extends SparkApp {
   conf.setAppName("VCF cluster")
@@ -34,15 +36,15 @@ object TestWideDecisionTree extends SparkApp {
     
     val labels = clusterAssignment.toArray
     
-    val (trainSetProj, testSetProj) = Splits.splitRDD(vectorData, 0.8)
+    val (trainSetProj, testSetProj) = Projector.splitRDD(vectorData, 0.8)
     
     
     
     
-    val trainSetWithIndex = trainSetProj(vectorData).zipWithIndex().cache()
+    val trainSetWithIndex = vectorData.project(trainSetProj).zipWithIndex().cache()
     val trainLables = trainSetProj.projectArray(labels)
 
-    val testSet = testSetProj(vectorData).cache()
+    val testSet = vectorData.project(testSetProj).cache()
     val testLables = testSetProj.projectArray(labels)
 
 /*    
@@ -68,5 +70,23 @@ object TestWideDecisionTree extends SparkApp {
     val testPredict = result.predict(testSet)
     val testError = Metrics.classificatoinError(testLables,testPredict)
     println(s"Test error: ${testError}")
+  
+   // now try cross validatio
+   val cvResult = CV.evaluate(Projector.rddFolds(vectorData, 3)) { fold =>
+      val trainSetWithIndex = vectorData.project(fold.inverted).zipWithIndex().cache()
+      val trainLables = fold.inverted.projectArray(labels)
+
+      val testSet = vectorData.project(fold).cache()
+      val testLables = fold.projectArray(labels)   
+     
+      val rf = new WideRandomForest()
+      val result  = rf.run(trainSetWithIndex, trainLables, 20)
+      val testPredict = result.predict(testSet)
+      val testError = Metrics.classificatoinError(testLables,testPredict)
+      testError
+    }
+    
+    println(s"CV error: ${cvResult}")
+  
   }
 }
