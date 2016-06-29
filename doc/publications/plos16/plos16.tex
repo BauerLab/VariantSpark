@@ -274,7 +274,8 @@ decision trees and the ensemble method, random forests, as well as unsupervised 
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
-Using VariantSpark, we successfully built a k-means model on the full 2500x80Million matrix to cluster individuals by
+Using VariantSpark, we successfully built a k-means model on the full
+$2500 \times 80$ million matrix to cluster individuals by
 their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering  and -1 random clustering).
 
 
@@ -283,8 +284,10 @@ supervised learning, i.e. given a phenotype of clinical label determine the most
 simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
 linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
-This is known as the `curse of dimensionality'~\cite{Bauer2014}.  Random Forests (RF) as an ensemble of weak learners 
-\marginpar{weak learners only in a certain sense. Originally ``weak learners'' was applied to decision stumps}
+This is known as the `curse of dimensionality'~\cite{Bauer2014}.  Random Forests~\cite{Breiman.2001} (RF) as an ensemble of weak learners 
+\marginpar{weak learners only in a misuse of the term. ``weak learners'' was applied to decision stumps}
+%http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
+%http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
 overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
 between features, which is of importance for modelling complex polygenic diseases.
 
@@ -306,7 +309,7 @@ scaling to larger datasets.
 % dimensions (features). As a result, the default random forests implementation is unable to partition the data into
 % small-enough tasks for nodes on the computer cluster to handle.
 
-We therefore we developed CursedForest, a Spark-based random forest algorithm able to process big and `wide' data. Unlike
+We therefore developed CursedForest, a Spark-based random forest algorithm able to process big and `wide' data. Unlike
 the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
 excessive resource requirements on the driver or worker nodes.
 %Also, due to more efficient handling of high-dimensional data, equivalent jobs are likely to finish faster on wideML than Spark ML.
@@ -353,8 +356,9 @@ In the first section we
 
 \section*{Random Forests converges on wide data}
 
-As discussed in the Introduction, random forests are robust against overfitting and hence can generalise for datasets
-where $p > n$, however here we demonstrate that this holds true in extreme cases where $p \gg n$.
+As discussed in the Introduction, random forests are robust against overfitting
+\marginpar{strong claim -- see disussion in Segal 2004, perhaps}
+and hence can generalise for datasets where $p > n$, however here we demonstrate that this holds true in extreme cases where $p \gg n$.
 
 Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
