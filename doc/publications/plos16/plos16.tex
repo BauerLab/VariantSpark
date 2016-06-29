@@ -284,7 +284,33 @@ supervised learning, i.e. given a phenotype of clinical label determine the most
 simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
 linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
-This is known as the `curse of dimensionality'~\cite{Bauer2014}.  Random Forests~\cite{Breiman.2001} (RF) as an ensemble of weak learners 
+This is known as the `curse of dimensionality'~\cite{Bauer2014}.  Random Forests~\cite{Breiman.2001} (RF) 
+apply the technique of bootstrap aggregation or bagging to decision trees. The training set is randomly sampled $B$
+times with replacement. A tree is grown on each of these $B$ samples and the results are combined
+\begin{equation*}
+{\bar {h}}={\frac {1}{B}}\sum _{b=1}^{B} h(x;\theta_b)
+\end{equation*}
+
+Let $PE_f$ be the predicton error for the forest. Then
+\begin{equation*}
+PE_f \leq \hat{\rho} PR_b
+\end{equation*}
+where $\hat{\rho}$ is the weighted correlation of the residuals $Y-  h(X;\theta)$ and $Y-  h(X;\theta^\prime)$
+for independent $\theta,  \theta^\prime $
+
+So what is required for  accurate random forest regression is low correlation between residuals of differing tree members of
+the forest, and (ii) low prediction error for the individual trees. 
+
+The strategy employed to achieve these ends is as follows:
+1. To keep individual error low, grow trees to maximum depth.
+To keep residual correlation low randomize via
+a) Grow each tree on a bootstrap sample from the training data.
+b) Specify the number of covariates. At each node of every tree
+select covariates and pick the best split of that node based on these
+covariates.\cite{Segal.2004}
+
+
+
 \marginpar{weak learners only in a misuse of the term. ``weak learners'' was applied to decision stumps}
 %http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
 %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
@@ -450,6 +476,46 @@ XX\% & CursedForest & &  &\\ \hline
 \label{table1}
 %\end{adjustwidth}
 \end{table}
+
+
+\begin{table}
+\begin{minipage}{\textwidth}
+\begin{center}
+\begin{tabular}{|p{4.2cm}|l|l|l|l|l|l|l|}
+\hline
+\bf{Genome }  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
+\hline
+ chr 22 - phase1 (2.1GB)  &  RF (R)\footnote{10 nodes, 500 trees, dpas03} 
+                                   &  0.456 & 2.89 & 18GB \\ \hline
+\end{tabular}
+\medskip
+\begin{flushleft} 
+\caption{some R results on smaller data sets.}
+\label{table:model_outputs}
+\end{flushleft}
+\end{center}
+%\end{sidewaystable}
+\end{minipage}
+\end{table}
+
+
+
+
+% \begin
+% \begin{table}[!ht]
+% \caption{
+% {\bf Performance comparison between the different Machine Learning algorithms.}}
+% \begin{tabular}{|p{4.2cm}|l|l|l|l|l|l|l|}
+% \hline
+% \bf{Genome }  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
+% \hline
+%  chr 22 - phase1 (2.1GB)  &  RF (R) &  0.456 & 2.89 & 18GB \\ \hline
+% \end{tabular}
+% \begin{flushleft} 
+% \end{flushleft}
+% \label{table1}
+% %\end{adjustwidth}
+% \end{table}
 
 
 
