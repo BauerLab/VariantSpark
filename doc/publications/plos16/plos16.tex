@@ -284,7 +284,55 @@ supervised learning, i.e. given a phenotype of clinical label determine the most
 simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
 linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
-This is known as the `curse of dimensionality'~\cite{Bauer2014}.  Random Forests~\cite{Breiman.2001} (RF) 
+This is known as the `curse of dimensionality'~\cite{Bauer2014}.  
+
+
+A random forest is an ensemble  of decision $h(x; \theta_b) b=1, \ldots, B$ where
+$x$ is the covariate vector of length $p$ with associated
+random vector $X$ and the $\theta_b$ are i.i.d. random vectors. 
+The training  data is independently drawn from the joint distribution of $(X,Y)
+and comprises $n$  $(p+1)$-tuples (x_1,y_1),\ldots, (x_n,y_n)$.
+For regression, the random forest prediction is the unweighted average over
+the collection: $\bar{h}(x)=\dfrac{1}{K}\Sigma_{k=1}^K h(x; \theta_k)$.
+
+The average prediction error for an individual tree $h(X; \theta)$ as
+\begin{equation}
+PE_t E_\theta E_{X,Y} (Y-h(X; \theta))^2
+\end{equation}
+Assume that for all  $\theta$ the tree is unbiased, i.e., $EY=E_Xh(X; \theta)$. Then
+\begin{equation}
+PE_f = \rho PE_t
+\end{equation}
+where $\rho$ is the weighted correlation between residuals
+$(Y-h(X;\theta)$ and  $(Y-h(X;\theta))$
+for independent $\theta, theta^\prime$.
+The inequality (3) pinpoints what is required for accurate random forest regression:
+(i) low correlation between residuals of differing tree members of
+the forest, and (ii) low prediction error for the individual trees. Further, the
+random forest will, in expectation, decrease the individual tree error, $PE_t$ , by
+the factor $\rho$. Accordingly, the randomization injected strives for low correlation.
+The strategy employed to achieve these ends is as follows:
+1. To keep individual error low, grow trees to maximum depth.
+bench.rf.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Random Forests~\cite{Breiman.2001} (RF) 
 apply the technique of bootstrap aggregation or bagging to decision trees. The training set is randomly sampled $B$
 times with replacement. A tree is grown on each of these $B$ samples and the results are combined
 \begin{equation*}
