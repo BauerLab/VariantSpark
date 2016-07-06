@@ -72,7 +72,8 @@
 %
 % % % % % % % % % % % % % % % % % % % % % % % %
 
-\documentclass[10pt,letterpaper]{article}
+\documentclass[10pt,a4paper]{article}  %was \documentclass[10pt,letterpaper]{article}
+
 \usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
 
 % Use adjustwidth environment to exceed column width (see example table in text)
@@ -110,8 +111,11 @@
 %\usepackage{setspace} 
 %\doublespacing
 
-
+\let\oldmarginpar\marginpar
+\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%hv
+{\raggedright\footnotesize #1}}
 \reversemarginpar
+\setlength{\marginparwidth}{5cm}
 
 % Text layout
 \raggedright
@@ -224,6 +228,18 @@ Denis C. Bauer\textsuperscript{1,*}
 \item Are we going to use the TCGA data in this paper?
 \item are we going to run sparkML or Cursed forest on the extended
   simulation data \cite[]{Genuer.et.al.2010}? Has Aidan done this already?
+\item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
+  \ref{table:smaller_data}
+\item check Piotr's simulation
+\item run an argument as follows:
+  \begin{itemize}
+  \item variable  selection may succeed where accurate prediction does not
+  \item consider  \cite{Segal.2004} examples
+  \item  perhaps we argue that in the case where the relationship of $X$ and $y$ takes a particular form we can recover
+    the reltionship for very large $p$p
+  \end{itemize}
+\item \cite{Tuv.et.al.2009} feature selection via adding permuted variables. Do we want to consider this?
+\item chek out varSelRF
 \end{itemize}
 
 
@@ -285,91 +301,75 @@ simplest supervised machine learning methods is logistic regression (LR), which 
 linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
 This is known as the `curse of dimensionality'~\cite{Bauer2014}.  
+\marginpar{is this the reference we want for the `curse of dimensionality'}
 
+\subsection*{RF}  
 
-A random forest is an ensemble  of decision $h(x; \theta_b) b=1, \ldots, B$ where
-$x$ is the covariate vector of length $p$ with associated
-random vector $X$ and the $\theta_b$ are i.i.d. random vectors. 
-The training  data is independently drawn from the joint distribution of $(X,Y)
-and comprises $n$  $(p+1)$-tuples (x_1,y_1),\ldots, (x_n,y_n)$.
-For regression, the random forest prediction is the unweighted average over
-the collection: $\bar{h}(x)=\dfrac{1}{K}\Sigma_{k=1}^K h(x; \theta_k)$.
+Random Forests~\cite{Breiman.2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
+data is independently drawn from the joint distribution of $(X,Y)$ and comprises $n$ $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$.
+$X$ and $\theta_b$ for $b=1,\ldots,B$ are i.i.d. random vectors and a tree is grown on each of these $\theta_b$  samples 
+($X$ is randomly sampled $B$ times with replacement and a tree is grown on each of these $B$ samples). 
 
-The average prediction error for an individual tree $h(X; \theta)$ as
-\begin{equation}
-PE_t E_\theta E_{X,Y} (Y-h(X; \theta))^2
-\end{equation}
-Assume that for all  $\theta$ the tree is unbiased, i.e., $EY=E_Xh(X; \theta)$. Then
-\begin{equation}
-PE_f = \rho PE_t
-\end{equation}
-where $\rho$ is the weighted correlation between residuals
-$(Y-h(X;\theta)$ and  $(Y-h(X;\theta))$
-for independent $\theta, theta^\prime$.
-The inequality (3) pinpoints what is required for accurate random forest regression:
-(i) low correlation between residuals of differing tree members of
-the forest, and (ii) low prediction error for the individual trees. Further, the
-random forest will, in expectation, decrease the individual tree error, $PE_t$ , by
-the factor $\rho$. Accordingly, the randomization injected strives for low correlation.
-The strategy employed to achieve these ends is as follows:
-1. To keep individual error low, grow trees to maximum depth.
-bench.rf.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Random Forests~\cite{Breiman.2001} (RF) 
-apply the technique of bootstrap aggregation or bagging to decision trees. The training set is randomly sampled $B$
-times with replacement. A tree is grown on each of these $B$ samples and the results are combined
+The results are combined in an appropriate way, i.e. for a regression problem,
 \begin{equation*}
-{\bar {h}}={\frac {1}{B}}\sum _{b=1}^{B} h(x;\theta_b)
+{\bar {h}}={\frac {1}{B}}\sum _{b=1}^{B} h(x;\theta_b).
 \end{equation*}
-
-Let $PE_f$ be the predicton error for the forest. Then
-\begin{equation*}
-PE_f \leq \hat{\rho} PR_b
-\end{equation*}
-where $\hat{\rho}$ is the weighted correlation of the residuals $Y-  h(X;\theta)$ and $Y-  h(X;\theta^\prime)$
-for independent $\theta,  \theta^\prime $
-
-So what is required for  accurate random forest regression is low correlation between residuals of differing tree members of
-the forest, and (ii) low prediction error for the individual trees. 
-
-The strategy employed to achieve these ends is as follows:
-1. To keep individual error low, grow trees to maximum depth.
-To keep residual correlation low randomize via
-a) Grow each tree on a bootstrap sample from the training data.
-b) Specify the number of covariates. At each node of every tree
-select covariates and pick the best split of that node based on these
-covariates.\cite{Segal.2004}
+%where $x$ is the covariate vector of length $p$
+%with associated random vector $X$ and the $\theta_b$ are i.i.d. random vectors.
 
 
+
+
+The average prediction error for an individual tree $h(X; \theta)$ is
+\begin{equation}
+PE_t = E_\theta E_{X,Y} (Y-h(X; \theta))^2.
+\end{equation}
+Assume that, for all  $\theta$, the tree is unbiased, i.e., $EY= E_X h(X; \theta)$. Then
+\begin{equation}
+PE_f \leq \rho PE_t
+\end{equation}
+where $\rho$ is the weighted correlation between residuals $(Y-h(X;\theta))$ and $(Y-h(X;\theta^\prime))$ for independent $\theta,
+\theta^\prime$.  
+So what is required for  accurate random forest regression is (i) low correlation between residuals of differing tree in
+the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}.
+
+\subsection*{benefits of RF}  
 
 \marginpar{weak learners only in a misuse of the term. ``weak learners'' was applied to decision stumps}
 %http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
 %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
-overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
-between features, which is of importance for modelling complex polygenic diseases.
+%overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
+%between features, which is of importance for modelling complex polygenic diseases.
 
 
 % We also investigated classifying the samples using Random Forests.  We chose random forests due to its ability to
 % capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
 % independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise
 % overfitting and variance.
+Decision trees have a number of desirable features, they:
+\begin{itemize}
+  \item are scale invariant;
+  \item can handle categorical and real valued inputs;
+  \item can handle missing values;
+  \item are insensitive to useless predictors;
+  \item are able to capture interactions between features (which is of importance for modelling complex polygenic diseases).
+  \end{itemize}
+However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
+lead to a very different model. 
+\marginpar{a potential problem  with tree models is the tendencey to split on categorical variables with a high number of
+  levels, even when better splits are available}
+Random forests are a variance reduction technique. They take a tree models which have a low bias but a high variance and
+by combining them reduce the variance. The prediction error is the sum of the variance and the bias squared. 
+
+The benefits of random forests models are
+  \begin{itemize}
+  \item they give an out-of-bag estimate of model accurace;
+  \item they provide a measure of variable importance;
+  \item they inherit many of the qualities of tree models.
+\marginpar{but not the handling of missing velues via surrogate variables. This would be difficult as the trees as split
+  on random subsets of variables}
+  \end{itemize}
+
 
 However, we observe that Spark's standard RF implementation is not able to handle the extremely `wide' genomic data as
 it was developed for large number of samples with only modest dimensionality.  Although Spark ML can build a RF model on
@@ -430,9 +430,15 @@ In the first section we
 
 \section*{Random Forests converges on wide data}
 
-As discussed in the Introduction, random forests are robust against overfitting
-\marginpar{strong claim -- see disussion in Segal 2004, perhaps}
-and hence can generalise for datasets where $p > n$, however here we demonstrate that this holds true in extreme cases where $p \gg n$.
+As discussed in the Introduction,
+\marginpar{I think this has been removed from the introduction}
+random forests are resistent against overfitting.
+However it is not true that they will not overfit; see \cite{Segal.2004} where examples of RF overfitting are given 
+\marginpar{discuss these examples}
+
+Subject to certain conditions, RF will not overfit even in the  $p > n$ case. 
+Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
+
 
 Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
@@ -539,7 +545,7 @@ XX\% & CursedForest & &  &\\ \hline
 \medskip
 \begin{flushleft} 
 \caption{some R results on smaller data sets.}
-\label{table:model_outputs}
+\label{table:smaller_data}
 \end{flushleft}
 \end{center}
 %\end{sidewaystable}
@@ -593,21 +599,6 @@ Cutler. We consider the parameters:
 We note that it is possible for a RF model to have a very poor fit, and be useless for prediction, and still have a 
 useful ranking of variable importance.
 
-\subsection*{decision trees }
-\begin{itemize}
-\item benefits os a decision tree
-  \begin{itemize}
-  \item invariant to scale of the input data
-  \item handles categorical and real valued inputs 
-  \item can handle missing values 
-  \item insensitive to useless predictors
-  \end{itemize}
-\item benefits of random forests
-  \begin{itemize}
-  \item variable importance 
-  \item inherits the qualities of tree models
-  \end{itemize}
-\end{itemize}
 
 
 \begin{table}[!ht]
