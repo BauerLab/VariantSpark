@@ -1,12 +1,5 @@
 % Template for PLoS
-% Version 3.1 February 2015
-%
-% To compile to pdf, run:
-% latex plos.template
-% bibtex plos.template
-% latex plos.template
-% latex plos.template
-% dvipdf plos.template
+% Version 3.3 June 2016
 %
 % % % % % % % % % % % % % % % % % % % % % %
 %
@@ -20,15 +13,18 @@
 % % % % % % % % % % % % % % % % % % % % % % % 
 %
 % Once your paper is accepted for publication, 
-% PLEASE REMOVE ALL TRACKED CHANGES in this file and leave only
-% the final text of your manuscript.
+% PLEASE REMOVE ALL TRACKED CHANGES in this file 
+% and leave only the final text of your manuscript. 
+% PLOS recommends the use of latexdiff to track changes during review, as this will help to maintain a clean tex file.
+% Visit https://www.ctan.org/pkg/latexdiff?lang=en for info or contact us at latex@plos.org.
+%
 %
 % There are no restrictions on package use within the LaTeX files except that 
 % no packages listed in the template may be deleted.
 %
 % Please do not include colors or graphics in the text.
 %
-% Please do not create a heading level below \subsection. For 3rd level headings, use \paragraph{}.
+% The manuscript LaTeX source should be contained within a single file (do not use \input, \externaldocument, or similar commands).
 %
 % % % % % % % % % % % % % % % % % % % % % % %
 %
@@ -40,14 +36,14 @@
 % - Figures should be uploaded separately from your manuscript file. 
 % - Figures generated using LaTeX should be extracted and removed from the PDF before submission. 
 % - Figures containing multiple panels/subfigures must be combined into one image file before submission.
-% For figure citations, please use "Fig." instead of "Figure".
-% See http://www.plosone.org/static/figureGuidelines for PLOS figure guidelines.
+% For figure citations, please use "Fig" instead of "Figure".
+% See http://journals.plos.org/plosone/s/figures for PLOS figure guidelines.
 %
 % Tables should be cell-based and may not contain:
-% - tabs/spacing/line breaks within cells to alter layout or alignment
-% - vertically-merged cells (no tabular environments within tabular environments, do not use \multirow)
-% - colors, shading, or graphic objects
-% See http://www.plosone.org/static/figureGuidelines#tables for table guidelines.
+% - spacing/line breaks within cells to alter layout or alignment
+% - do not nest tabular environments (no tabular environments within tabular environments)
+% - no graphics or colored text (cell background color/shading OK)
+% See http://journals.plos.org/plosone/s/tables for table guidelines.
 %
 % For tables that exceed the width of the text column, use the adjustwidth environment as illustrated in the example table in text below.
 %
@@ -56,15 +52,19 @@
 % -- EQUATIONS, MATH SYMBOLS, SUBSCRIPTS, AND SUPERSCRIPTS
 %
 % IMPORTANT
-% Below are a few tips to help format your equations and other special characters according to our specifications. For more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at http://www.plosone.org/static/latexGuidelines
+% Below are a few tips to help format your equations and other special characters according to our specifications. For more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at http://journals.plos.org/plosone/s/latex
 %
-% Please be sure to include all portions of an equation in the math environment.
+% For inline equations, please be sure to include all portions of an equation in the math environment.  For example, x$^2$ is incorrect; this should be formatted as $x^2$ (or $\mathrm{x}^2$ if the romanized font is desired).
 %
-% Do not include text that is not math in the math environment. For example, CO2 will be CO\textsubscript{2}.
+% Do not include text that is not math in the math environment. For example, CO2 should be written as CO\textsubscript{2} instead of CO$_2$.
 %
 % Please add line breaks to long display equations when possible in order to fit size of the column. 
 %
 % For inline equations, please do not include punctuation (commas, etc) within the math environment unless this is part of the equation.
+%
+% When adding superscript or subscripts outside of brackets/braces, please group using {}.  For example, change "[U(D,E,\gamma)]^2" to "{[U(D,E,\gamma)]}^2". 
+%
+% Do not use \cal for caligraphic font.  Instead, use \mathcal{}
 %
 % % % % % % % % % % % % % % % % % % % % % % % % 
 %
@@ -72,24 +72,20 @@
 %
 % % % % % % % % % % % % % % % % % % % % % % % %
 
-\documentclass[10pt,a4paper]{article}  %was \documentclass[10pt,letterpaper]{article}
-
+\documentclass[10pt,letterpaper]{article}
 \usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amssymb}
 
 % Use adjustwidth environment to exceed column width (see example table in text)
 \usepackage{changepage}
 
 % Use Unicode characters when possible
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 
 % textcomp package and marvosym package for additional characters
 \usepackage{textcomp,marvosym}
-
-% fixltx2e package for \textsubscript
-\usepackage{fixltx2e}
-
-% amsmath and amssymb packages, useful for mathematical formulas and symbols
-\usepackage{amsmath,amssymb}
 
 % cite package, to clean up citations in the main text. Do not remove.
 \usepackage{cite}
@@ -104,18 +100,33 @@
 \usepackage{microtype}
 \DisableLigatures[f]{encoding = *, family = * }
 
-% rotating package for sideways tables
-\usepackage{rotating}
+% color can be used to apply background shading to table cells only
+\usepackage[table]{xcolor}
+
+% array package and thick rules for tables
+\usepackage{array}
+
+% create "+" rule type for thick vertical lines
+\newcolumntype{+}{!{\vrule width 2pt}}
+
+% create \thickcline for thick horizontal lines of variable length
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+
+% \thickhline command for thick horizontal lines that span the table
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
 
 % Remove comment for double spacing
 %\usepackage{setspace} 
 %\doublespacing
-
-\let\oldmarginpar\marginpar
-\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%hv
-{\raggedright\footnotesize #1}}
-\reversemarginpar
-\setlength{\marginparwidth}{5cm}
 
 % Text layout
 \raggedright
@@ -126,6 +137,7 @@
 % Bold the 'Figure #' in the caption and separate it from the title/caption with a period
 % Captions will be left justified
 \usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
 
 % Use the PLoS provided BiBTeX style
 \bibliographystyle{plos2015}
@@ -144,7 +156,8 @@
 \pagestyle{myheadings}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\includegraphics[width=2.0in]{PLOS-submission}}
+\setlength{\headheight}{27.023pt}
+\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
 \rfoot{\thepage/\pageref{LastPage}}
 \renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
 \fancyheadoffset[L]{2.25in}
@@ -158,15 +171,16 @@
 
 %% END MACROS SECTION
 
+\usepackage{multirow}
 
 \begin{document}
-\vspace*{0.35in}
+\vspace*{0.2in}
 
 % Title must be 250 characters or less.
 % Please capitalize all terms in the title except conjunctions, prepositions, and articles.
 \begin{flushleft}
 {\Large
-\textbf\newline{Cursed Forest - A random forest implementation for `big' and `wide' data}
+\textbf\newline{Cursed Forest - A random forest implementation for `big' and `wide' data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
 }
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
@@ -229,7 +243,7 @@ Denis C. Bauer\textsuperscript{1,*}
 \item are we going to run sparkML or Cursed forest on the extended
   simulation data \cite[]{Genuer.et.al.2010}? Has Aidan done this already?
 \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
-  \ref{table:smaller_data}
+  \ref{table:smaller_data} -- On it, Aidan
 \item check Piotr's simulation
 \item run an argument as follows:
   \begin{itemize}
@@ -244,11 +258,7 @@ Denis C. Bauer\textsuperscript{1,*}
 
 
 \section*{Abstract}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida
-pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend
-volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium
-diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim
-ultrices, ultrices elit pulvinar, volutpat risus.
+The abstract.
 
 \linenumbers
 
@@ -399,7 +409,10 @@ In the first section we
 
 
 \subsection*{VariantSpark.}
+Traditionally, VariantSpark made use of Spark's machine learning algrorithms `Spark ML'. These algorithms require data in a `DataFrame',
+similar to DataFrames in R.
 
+We use the same pre-processing algorithms in CursedForests. One difference is that we 
 
 
 % For figure citations, please use "Fig." instead of "Figure".
@@ -428,7 +441,7 @@ In the first section we
 % GWAS dataset
 
 
-\section*{Random Forests converges on wide data}
+\subsection*{Random Forests converges on wide data}
 
 As discussed in the Introduction,
 \marginpar{I think this has been removed from the introduction}
@@ -489,46 +502,54 @@ a)& b)\\
 \end{figure}
 
 
-\subsection*{CursedForest processes genome wide variant data}
-\label{comp}
-Spark ML vs CursedForest vs Kmeans vs LR on small and full version (where applicable) of 1000G (performance and
-time/mem)
+\subsection*{CursedForest processes genome-wide variant data}
+%\label{comp}
+%Spark ML vs CursedForest vs Kmeans vs LR on small and full version (where applicable) of 1000G (performance and
+%time/mem)
 
-% In this section we compare Apache's higher level machine learning library, Spark ML, with MLLib, the standard
-% low-level library. From the results, we see that times are similar.  There are many practical benefits for using Spark
-% ML with VariantSpark, with a selection of these benefits derived from the `pipeline' system Spark ML uses.  One
-% benefit is that hyperparameter optimisation is built in. Although possible in
+Traditionally, VariantSpark used the random forest algorithm from SparkML. While SparkML algorithms demonstrate
+scalability when dealing with a large number of samples, this scalability quickly breaks down as we include more features.
+
+One of the restrictions preventing SparkML algorithms from scaling to high-dimensionality data is the fact that the feature-set
+for each individual is stored as a `Vector'. In Spark, Vectors are unable to be split and to process multiple vectors together,
+the entirety of each vector must be loaded into memory on the same node. Therefore, as dimensionality increases, the
+size of these Vectors must also increase, and subsequently this results in higher memory requirents.
+
+On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed" data. It avoids the correlation between
+memory and dimensionality by not using Vectors. Data is instead stored in a columnar form in a Parquet format.
+
+
+
 
 \begin{table}[!ht]
-%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \caption{
-{\bf Performance comparison between the different Machine Learning algorithms.}}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+{\bf Performance comparison between the different machine learning algorithms.}}
+\begin{tabular}{|l+l|l|l|l|l|l|l|}
 \hline
 %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
 \bf{Genome \%}  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
-8\% (chr1) & CursedForest & XX & 1hr 58min 23sec & 4GB \\ \hline
-          & RF (Spark ML) & XX & 8hr 29min 07sec & 8GB \\ \hline
-          &  RF (R) & &  &\\ \hline
-          &  LR & &  &\\ \hline
-XX\% & CursedForest & &  &\\ \hline
-          & RF(Spark ML) & &  &\\ \hline
-          &  RF(R) & &  &\\ \hline
-          &  LR & &  &\\ \hline
+\multirow{3}{*}{8\% (chr1: 6,450,364)} & CursedForest & XX & 1hr 58min 23sec & 4GB \\
+& RF (Spark ML) & 0.94 & 8hr 29min 07sec & 8GB \\
+& LR &  & 10hr 30min & 8GB\\ \hline
 
-100\% & CursedForest & 0.96 & 7hr 14min 40sec & 8GB \\ \hline
-          & RF (Spark ML) & - & - & - \\ \hline
-          &  RF (R) & &  &\\ \hline
-          &  LR & - & - & - \\ \hline
-          & kmeans (Spark ML) & 0.82 & 30hr 44min 00sec & 24GB \\ \hline
+\multirow{3}{*}{24\% (chr1-3: 19,328,051)}  & CursedForest & &  &\\
+& RF(Spark ML) & &  &\\
+& LR & &  &\\ \hline
+
+\multirow{4}{*}{100\% (chr1-22: 81,047,467)} & CursedForest & 0.96 & 7hr 14min 40sec & 8GB \\ 
+& RF (Spark ML) & - & - & - \\
+& LR & - & - & - \\ 
+& kmeans (Spark ML) & 0.82 & 30hr 44min 00sec & 24GB \\ \hline
 \end{tabular}
 \begin{flushleft} 
-  Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus
-  tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+Comparison of different various machine learning libraries on different subsets of variant data 
+from the 1000 Genomes Project.
+
 \end{flushleft}
 \label{table1}
-%\end{adjustwidth}
+\end{adjustwidth}
 \end{table}
 
 
@@ -537,14 +558,17 @@ XX\% & CursedForest & &  &\\ \hline
 \begin{center}
 \begin{tabular}{|p{4.2cm}|l|l|l|l|l|l|l|}
 \hline
-\bf{Genome }  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
+\bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
- chr 22 - phase1 (2.1GB)  &  RF (R)\footnote{10 nodes, 500 trees, dpas03} 
+RF (R)\footnote{10 nodes, 500 trees, dpas03} 
                                    &  0.456 & 2.89 & 18GB \\ \hline
+CursedForest\footnote{something}
+                                   & X & X & X \\ \hline
 \end{tabular}
 \medskip
 \begin{flushleft} 
-\caption{some R results on smaller data sets.}
+\caption{Comparion between Random Forests on R and CursedForests on a smaller
+dataset. Chromosome 22 - phase1 (2.1GB) }
 \label{table:smaller_data}
 \end{flushleft}
 \end{center}
@@ -563,7 +587,7 @@ XX\% & CursedForest & &  &\\ \hline
 % \hline
 % \bf{Genome }  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
 % \hline
-%  chr 22 - phase1 (2.1GB)  &  RF (R) &  0.456 & 2.89 & 18GB \\ \hline
+%  chr 	 - phase1 (2.1GB)  &  RF (R) &  0.456 & 2.89 & 18GB \\ \hline
 % \end{tabular}
 % \begin{flushleft} 
 % \end{flushleft}
@@ -624,8 +648,8 @@ useful ranking of variable importance.
 
 
 
-\subsection*{James' dataset}
-Comparing CursedForest with feature selection + linear model (performance and time/mem) 
+%\subsection*{James' dataset}
+%Comparing CursedForest with feature selection + linear model (performance and time/mem) 
 
 
 
@@ -660,14 +684,6 @@ Comparing CursedForest with feature selection + linear model (performance and ti
 
 \subsection*{S1 Text}
 \label{S1_Text}
-{\bf Lorem Ipsum.} Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
-
-\subsection*{S1 Fig}
-\label{S1_Fig}
-{\bf Lorem Ipsum.} Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
-
-\subsection*{S2 Fig}
-\label{S2_Fig}
 {\bf Lorem Ipsum.} Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
 
 \subsection*{S1 Table}
