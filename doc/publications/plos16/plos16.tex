@@ -515,8 +515,9 @@ for each individual is stored as a `Vector'. In Spark, Vectors are unable to be 
 the entirety of each vector must be loaded into memory on the same node. Therefore, as dimensionality increases, the
 size of these Vectors must also increase, and subsequently this results in higher memory requirents.
 
-On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed" data. It avoids the correlation between
-memory and dimensionality by not using Vectors. Data is instead stored in a columnar form in a Parquet format.
+On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed" data. It avoids the relation between
+memory and dimensionality, by not using Vectors. Instead, CursedForest stores data in the Parquet columnar format.
+
 
 
 
@@ -530,22 +531,27 @@ memory and dimensionality by not using Vectors. Data is instead stored in a colu
 %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
 \bf{Genome \%}  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
-\multirow{3}{*}{8\% (chr1: 6,450,364)} & CursedForest & XX & 1hr 58min 23sec & 4GB \\
+
+\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest &  &  &  \\
+& RF (Spark ML) &  &  &  \\
+& RF (R) & 0.456 & 2.89 & 18GB \\ \hline
+
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & XX & 1hr 58min 23sec & 4GB \\
 & RF (Spark ML) & 0.94 & 8hr 29min 07sec & 8GB \\
 & LR &  & 10hr 30min & 8GB\\ \hline
 
-\multirow{3}{*}{24\% (chr1-3: 19,328,051)}  & CursedForest & &  &\\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & &  &\\
 & RF(Spark ML) & &  &\\
 & LR & &  &\\ \hline
 
-\multirow{4}{*}{100\% (chr1-22: 81,047,467)} & CursedForest & 0.96 & 7hr 14min 40sec & 8GB \\ 
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & 0.96 & 7hr 14min 40sec & 8GB \\ 
 & RF (Spark ML) & - & - & - \\
 & LR & - & - & - \\ 
 & kmeans (Spark ML) & 0.82 & 30hr 44min 00sec & 24GB \\ \hline
 \end{tabular}
 \begin{flushleft} 
 Comparison of different various machine learning libraries on different subsets of variant data 
-from the 1000 Genomes Project.
+from the 1000 Genomes Project. Size of the data is individuals x variants
 
 \end{flushleft}
 \label{table1}
@@ -553,28 +559,28 @@ from the 1000 Genomes Project.
 \end{table}
 
 
-\begin{table}
-\begin{minipage}{\textwidth}
-\begin{center}
-\begin{tabular}{|p{4.2cm}|l|l|l|l|l|l|l|}
-\hline
-\bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
-\hline
-RF (R)\footnote{10 nodes, 500 trees, dpas03} 
-                                   &  0.456 & 2.89 & 18GB \\ \hline
-CursedForest\footnote{something}
-                                   & X & X & X \\ \hline
-\end{tabular}
-\medskip
-\begin{flushleft} 
-\caption{Comparion between Random Forests on R and CursedForests on a smaller
-dataset. Chromosome 22 - phase1 (2.1GB) }
-\label{table:smaller_data}
-\end{flushleft}
-\end{center}
+%\begin{table}
+%\begin{minipage}{\textwidth}
+%\begin{center}
+%\begin{tabular}{|p{4.2cm}|l|l|l|l|l|l|l|}
+%\hline
+%\bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
+%\hline
+%RF (R)\footnote{10 nodes, 500 trees, dpas03} 
+ %                                  &  0.456 & 2.89 & 18GB \\ \hline
+%CursedForest\footnote{something}
+ %                                  & X & X & X \\ \hline
+%\end{tabular}
+%\medskip
+%\begin{flushleft} 
+%\caption{Comparion between Random Forests on R and CursedForests on a smaller
+%dataset. Chromosome 22 - phase1 (2.1GB) }
+%\label{table:smaller_data}
+%\end{flushleft}
+%\end{center}
 %\end{sidewaystable}
-\end{minipage}
-\end{table}
+%\end{minipage}
+%\end{table}
 
 
 
