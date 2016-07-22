@@ -72,7 +72,7 @@
 %
 % % % % % % % % % % % % % % % % % % % % % % % %
 
-\documentclass[10pt,letterpaper]{article}
+\documentclass[10pt,a4paper]{article}  %\documentclass[10pt,letterpaper]{article}
 \usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
 
 % amsmath and amssymb packages, useful for mathematical formulas and symbols
@@ -172,6 +172,15 @@
 %% END MACROS SECTION
 
 \usepackage{multirow}
+
+
+%%local edits (rob)
+\let\oldmarginpar\marginpar
+\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%hv
+{\raggedright\footnotesize #1}}
+\reversemarginpar
+\setlength{\marginparwidth}{5cm}
+
 
 \begin{document}
 \vspace*{0.2in}
