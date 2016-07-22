@@ -529,25 +529,25 @@ memory and dimensionality, by not using Vectors. Instead, CursedForest stores da
 \begin{tabular}{|l+l|l|l|l|l|l|l|}
 \hline
 %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-\bf{Genome \%}  & \bf{method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
+\bf{Genome \%}  & \bf{Method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest &  &  &  \\
 & RF (Spark ML) &  &  &  \\
 & RF (R) & 0.456 & 2.89 & 18GB \\ \hline
 
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & XX & 1hr 58min 23sec & 4GB \\
-& RF (Spark ML) & 0.94 & 8hr 29min 07sec & 8GB \\
-& LR &  & 10hr 30min & 8GB\\ \hline
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & XX & 1hr 58min & 4GB \\
+& RF (Spark ML) & 0.94 & 8hr 29min & 8GB \\
+& LR &  & 2hr 6min & 8GB\\ \hline
 
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & &  &\\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & 0.046 () & 4hr 0min & 4GB\\
 & RF(Spark ML) & &  &\\
-& LR & &  &\\ \hline
+& LR & & 14hr 48min & 8GB \\ \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & 0.96 & 7hr 14min 40sec & 8GB \\ 
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & 0.96 & 7hr 14min & 8GB \\ 
 & RF (Spark ML) & - & - & - \\
 & LR & - & - & - \\ 
-& kmeans (Spark ML) & 0.82 & 30hr 44min 00sec & 24GB \\ \hline
+& kmeans (Spark ML) & 0.82 & 30hr 44min & 24GB \\ \hline
 \end{tabular}
 \begin{flushleft} 
 Comparison of different various machine learning libraries on different subsets of variant data 
