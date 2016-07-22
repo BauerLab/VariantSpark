@@ -72,7 +72,7 @@
 %
 % % % % % % % % % % % % % % % % % % % % % % % %
 
-\documentclass[10pt,letterpaper]{article}
+\documentclass[10pt,a4paper]{article}  %\documentclass[10pt,letterpaper]{article}
 \usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
 
 % amsmath and amssymb packages, useful for mathematical formulas and symbols
@@ -172,6 +172,15 @@
 %% END MACROS SECTION
 
 \usepackage{multirow}
+
+
+%%local edits (rob)
+\let\oldmarginpar\marginpar
+\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%hv
+{\raggedright\footnotesize #1}}
+\reversemarginpar
+\setlength{\marginparwidth}{5cm}
+
 
 \begin{document}
 \vspace*{0.2in}
@@ -313,6 +322,19 @@ applications as having more features $p$ than samples $n$ causes the model to ov
 This is known as the `curse of dimensionality'~\cite{Bauer2014}.  
 \marginpar{is this the reference we want for the `curse of dimensionality'}
 
+
+Decision trees have a number of desirable features, they:
+\begin{itemize}
+  \item are scale invariant;
+  \item can handle categorical and real valued inputs;
+  \item can handle missing values;
+  \item are insensitive to useless predictors;
+  \item are able to capture interactions between features (which is of importance for modelling complex polygenic diseases).
+  \end{itemize}
+However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
+lead to a very different model. 
+\marginpar{a potential problem  with tree models is the tendencey to split on categorical variables with a high number of
+  levels, even when better splits are available}
 \subsection*{RF}  
 
 Random Forests~\cite{Breiman.2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
@@ -324,6 +346,7 @@ The results are combined in an appropriate way, i.e. for a regression problem,
 \begin{equation*}
 {\bar {h}}={\frac {1}{B}}\sum _{b=1}^{B} h(x;\theta_b).
 \end{equation*}
+\marginpar{make it a classification example}
 %where $x$ is the covariate vector of length $p$
 %with associated random vector $X$ and the $\theta_b$ are i.i.d. random vectors.
 
@@ -356,18 +379,7 @@ the forest, and (ii) low prediction error for the individual trees \cite{Segal.2
 % capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
 % independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise
 % overfitting and variance.
-Decision trees have a number of desirable features, they:
-\begin{itemize}
-  \item are scale invariant;
-  \item can handle categorical and real valued inputs;
-  \item can handle missing values;
-  \item are insensitive to useless predictors;
-  \item are able to capture interactions between features (which is of importance for modelling complex polygenic diseases).
-  \end{itemize}
-However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
-lead to a very different model. 
-\marginpar{a potential problem  with tree models is the tendencey to split on categorical variables with a high number of
-  levels, even when better splits are available}
+
 Random forests are a variance reduction technique. They take a tree models which have a low bias but a high variance and
 by combining them reduce the variance. The prediction error is the sum of the variance and the bias squared. 
 
@@ -452,6 +464,18 @@ However it is not true that they will not overfit; see \cite{Segal.2004} where e
 Subject to certain conditions, RF will not overfit even in the  $p > n$ case. 
 Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
 
+\cite{Strobl.et.al.2007} demosnstrate that a RF algorithm is subject to a bias in variable selection via two mechanisms:
+\begin{itemize}
+\item variable scale (for $X_I$ continuous) and number of levels (for $X_i$ discrete) inroduces a bias
+\item boosting introduces a bias.
+\end{itemize}
+These effects will be apparent in the CF algorithm as well. \marginpar{we can fix the boosting effect}
+However, there are many examples, (particularly in genomics) whre we have data sets that are
+\begin{itemize}
+\item very wide
+\item all variables have the same number of levels (measures at different points along the genome)
+\item the hypothesied functional relationship is of a form amenable to a DT.
+\end{itemize}
 
 Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
