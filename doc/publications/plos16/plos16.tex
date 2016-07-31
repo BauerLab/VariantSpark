@@ -469,6 +469,16 @@ similar to DataFrames in R.
 We use the same pre-processing algorithms in CursedForests. One difference is that we 
 
 
+Cursed Forest uses:
+\begin{itemize}
+\item an ``information gained'' criteria for splitting.
+\item variabel importance is the sum of IG over all notes and all trees for that variable
+\item the model of parallelism is different to the ``foreach'' method -- we need to describe it
+\end{itemize}
+
+
+
+
 % For figure citations, please use "Fig." instead of "Figure".
 %Nulla mi mi, Fig.~\ref{fig1}  Fusce fringilla erat porttitor lectus cursus, \nameref{S1_Video} vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
 %\begin{figure}[h]
@@ -493,6 +503,9 @@ We use the same pre-processing algorithms in CursedForests. One difference is th
 % synthetic data demonstrating random forest can cope with n<<p
 % James dataset
 % GWAS dataset
+
+
+\marginpar{These are regression examples, we nned some classification examples}
 
 
 To test this empirically we adapt the simulations developed by Genuer {\it et al.}~\cite{Genuer.et.al.2010} to include a
