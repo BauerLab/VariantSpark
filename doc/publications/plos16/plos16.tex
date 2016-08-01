@@ -243,8 +243,9 @@ Denis C. Bauer\textsuperscript{1,*}
 
 \end{flushleft}
 % Please keep the abstract below 300 words
-
-\section*{Notes}
+\tableofcontents
+\clearpage
+\section{Notes}
 \begin{itemize}
 \item   I think the structure of the first section should be
   \begin{itemize}
@@ -282,17 +283,17 @@ Denis C. Bauer\textsuperscript{1,*}
 \end{itemize}
 
 
+\clearpage
 
-
-\section*{Abstract}
+\section{Abstract}
 The abstract.
 
 \linenumbers
 
-\section*{Introduction}
+\section{Introduction}
 
 The digital revolution is seeing a dramatic increase in data collected about every aspect of 
-life~\cite{Loebbecke2015}.  These dataset not only grow vertically by capturing more and more events but also
+life~\cite{Loebbecke2015}.  These data sets are not only growing vertically by capturing more and more events but also
 horizontally by capturing more information about these events.  The challenge of big and `wide' data is especially
 pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
 billion basepairs of the human genome.  While a large fraction of this data is identical between individuals, \marginpar{base-pairs}
@@ -301,11 +302,12 @@ identifying the relevant and disease specific differences is the focus of comple
 For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
 denoting the differences between individuals.  This dataset consumes close to a terabyte of disk space.  The richness of
 this data can be utilised in other datasets as well by filling in or ``imputing" the information at genomic positions
-previously unobserved due to the less detailed resolution of older array technology [citation about imputation].  This
-means that the large number of samples for which genome-wide association (GWA) data is available~\cite{Welter2013} can
-be extended horizontally by imputing the previously unobserved genotypes.  This provides the potential to generate
-datasets of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating
-modern compute paradigms to deal with these challenges.
+previously unobserved due to the less detailed resolution of older array technology [citation about imputation].
+\marginpar{citations missing} 
+This means that the large number of samples for which genome-wide association (GWA) data
+is available~\cite{Welter2013} can be extended horizontally by imputing the previously unobserved genotypes.  This
+provides the potential to generate datasets of hundreds of thousands of individuals with millions of variants,
+highlighting the need for incorporating modern compute paradigms to deal with these challenges.
 
 % WGS has proven itself in discovering rare variants
 % [http://www.sciencedirect.com/science/article/pii/S2352396414000498] and diagnosing unknown genetic disorders [MATT
@@ -333,17 +335,17 @@ their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect c
 
 
 While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is
-supervised learning, i.e. given a phenotype of clinical label determine the most associated features.  One of the
+supervised learning, i.e. given a phenotype or clinical label determine the most associated features.  One of the
 simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
 linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
 This is known as the `curse of dimensionality'~\cite{Bauer2014}.  
-\marginpar{is this the reference we want for the ``curse of dimensionality''  Bellman (1961) is a more ususl reference}
+\marginpar{is this the reference we want for the ``curse of dimensionality''  Bellman (1961) is a more usual reference}
 
 
 Decision trees have a number of desirable features, they:
 \begin{itemize}
-  \item are scale invariant;
+  \item are invariant to monotonic scaling of the data;
   \item can handle categorical and real valued inputs;
   \item can handle missing values;
   \item are insensitive to useless predictors;
@@ -352,7 +354,7 @@ Decision trees have a number of desirable features, they:
 However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
 lead to a very different model. 
 
-\subsection*{RF}  
+\subsection{RF}  
 
 Random Forests~\cite{Breiman.2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
 data is independently drawn from the joint distribution of $(X,Y)$ and comprises $n$ $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$.
@@ -360,13 +362,14 @@ $X$ and $\theta_b$ for $b=1,\ldots,B$ are i.i.d. random vectors and a tree is gr
 ($X$ is randomly sampled $B$ times with replacement and a tree is grown on each of these $B$ samples). 
 
 The results are combined in an appropriate way. In a classification problem we take the majority vote for the trees over
-the $i=1,..,Q$ classes
+the $q=1,..,Q$ classes,
 \begin{equation*}
-{\bar {h}}=  \arg \max_i \left(\sum_b I(h(x;\theta_b)=i)\right).
+{{h_f}}=  \arg \max_q \left(\sum_b I(h(x;\theta_b)=q)\right).
 \end{equation*}
 
-Random forests are a variance reduction technique. They take a tree models, which have a low bias but a high variance, and
-by combining them reduce the variance. The prediction error is the sum of the variance and the bias squared. 
+Random forests are a variance reduction technique. They take unpruned tree models, which have a low bias but a high
+variance, and by combining them reduce the variance. The prediction error is the sum of the variance and the bias
+squared.
 
 The average prediction error for an individual tree $h(X; \theta)$ is
 \begin{equation}
@@ -379,50 +382,44 @@ PE_f \leq \rho PE_t
 where $\rho$ is the weighted correlation between residuals $(Y-h(X;\theta))$ and $(Y-h(X;\theta^\prime))$ for independent $\theta,
 \theta^\prime$.  
 So what is required for  accurate random forest regression is (i) low correlation between residuals of differing tree in
-the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}.
-
-%http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
- %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
-%overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
-%between features, which is of importance for modelling complex polygenic diseases.
-
-
-% We also investigated classifying the samples using Random Forests.  We chose random forests due to its ability to
-% capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
-% independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise
-% overfitting and variance.
+the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}. In addition to growing the trees
+on  bootstrapped samples, each node in the tree is split on a randomly selected subset of the variables.
 
 The benefits of random forests models are
   \begin{itemize}
-  \item they give an out-of-bag estimate of model accurace;
-  \item they provide a measure of variable importance;
+  \item they give an out-of-bag estimate of model accuracy, by using the samples not selected for the bootstrapped sample
+    as an independent test set for each tree;
+  \item they provide a measure of variable importance, for example by summing the number of times a variable is used to
+    split a node, over all nodes and all trees. More complex measures of variable importance are also used;
   \item they inherit some of the qualities of tree models (but not, for example, the handling of missing values via surrogate
     variables. This would be difficult as the trees as split on random subsets of variables).
   \end{itemize}
 
 
-Since the original implmentation of random forests there have been a number of developments leading to a better understanding of
+Since the original implementation of random forests there have been a number of developments leading to a better understanding of
 the algorithm. 
 \begin{itemize}
-\item random forests are resistent against overfitting. However it is not true that they will not overfit; see \cite{Segal.2004}
+\item random forests are resistant against overfitting. However it is not true that they will not overfit; see \cite{Segal.2004}
   where an example of RF overfitting is  given, caused by the fact that successive trees were correlated;
 \item \cite{Strobl.et.al.2007} demonstrates that the RF algorithm is subject to a bias in variable selection via two mechanisms:
   \begin{enumerate}
-  \item variable scale (for $X_I$ continuous) and number of levels (for $X_i$ discrete) inroduces a bias. A uninformative  variable with a large
+  \item differences in variable scale (for $X_i$ continuous) and number of levels (for $X_i$ discrete) introduces a bias. A uninformative  variable with a large
     number of levels may be selected over a more informative  variable with fewer levels;
-  \item bagging introduces a bias, but sampleing about $(1- 1/e) \approx 0.632$  of the data without 
+  \item bagging introduces a bias, but sampling $(1- 1/e) \approx 0.632$  of the data without replacement seems to be an
+    effective stragey for removing the problem.
   \end{enumerate}
 \end{itemize} 
 
 \cite{Strobl.et.al.2007} introduce changes to the RF algorithm to fix 1) and 2). 
 However the level effect will be apparent in the CF algorithm as well. \marginpar{we can fix the boosting effect}
-However, there are many examples, (particularly in genomics) whre we have data sets that are
+However, there are many examples, (particularly in genomics) where we have data sets that are
 \begin{itemize}
 \item very wide
 \item all variables have the same number of levels (measures at different points along the genome)
-\item the hypothesied functional relationship is of a form amenable to a DT.
+\item the hypothesized functional relationship is of a form amenable to a decision tree.
 \end{itemize}
 
+\subsubsection{convergence}
 Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
@@ -435,6 +432,20 @@ Subject to certain conditions, RF will not overfit even in the  $p > n$ case.
 Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
 
 
+\subsubsection{variable selection}
+\cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using the
+importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic data.
+\marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of RF to handle GWAS data. What do we need to do in this area}
+
+\section{Methods}
+
+
+
+
+\subsection{VariantSpark.}
+Traditionally, VariantSpark made use of Spark's machine learning algorithms `Spark ML'. These algorithms require data in a `DataFrame',
+similar to DataFrames in R.
+
 However, we observe that Spark's standard RF implementation is not able to handle the extremely `wide' genomic data as
 it was developed for large number of samples with only modest dimensionality.  Although Spark ML can build a RF model on
 a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
@@ -442,10 +453,6 @@ and processed by the single driver node during intermediate stages of building t
 unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
 scaling to larger datasets.
 
-% The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a
-% huge number of samples with a modest dimensionality, the 1000 Genomes data instead contains a huge number of
-% dimensions (features). As a result, the default random forests implementation is unable to partition the data into
-% small-enough tasks for nodes on the computer cluster to handle.
 
 We therefore developed CursedForest, a Spark-based random forest algorithm able to process big and `wide' data. Unlike
 the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
@@ -454,59 +461,37 @@ excessive resource requirements on the driver or worker nodes.
 In the first section we 
 
 
-% You may title this section "Methods" or "Models". 
-% "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
-% authors may use "Analysis" 
-
-\subsubsection*{variable selection}
-\cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using the
-importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic data.
-\marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of RF to handle GWAS data. Waht do we nned to do in this area}
-
-\section*{Methods}
-
-
-
-
-\subsection*{VariantSpark.}
-Traditionally, VariantSpark made use of Spark's machine learning algrorithms `Spark ML'. These algorithms require data in a `DataFrame',
-similar to DataFrames in R.
-
 
 We use the same pre-processing algorithms in CursedForests. One difference is that we 
 
 
-Cursed Forest uses:
+
+Traditionally, VariantSpark used the random forest algorithm from SparkML. While SparkML algorithms demonstrate
+scalability when dealing with a large number of samples, this scalability quickly breaks down as we include more features.
+
+One of the restrictions preventing SparkML algorithms from scaling to high-dimensionality data is the fact that the feature-set
+for each individual is stored as a `Vector'. In Spark, Vectors are unable to be split and to process multiple vectors together,
+the entirety of each vector must be loaded into memory on the same node. Therefore, as dimensionality increases, the
+size of these Vectors must also increase, and subsequently this results in higher memory requirents.
+
+On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed" data. It avoids the relation between
+memory and dimensionality, by not using Vectors. Instead, CursedForest stores data in the Parquet columnar format.
+
+
+The current implementation of Cursed Forest uses:
 \begin{itemize}
-\item an ``information gained'' criteria for splitting.  $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
-  \ldots, Q$ in a set. The  entropy of the set is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i$
-The expected information gain is the change in information entropy $H$ from a prior state $T$ to a state that takes some
+\item an ``information gained'' criteria for splitting. Let $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
+  \ldots, Q$ at a node. The  entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i$
+The expected information gain is the change in entropy $H$ from a prior state $T$ to a state that takes some
 information $a$ as given: 
-\[ IG(T,a) = H(T) - H(T|a) \]
-In this case, the  the information gain is IG = Entropy(parent node) - Weighted Sum of Entropy(Children)
+\[ IG(T,a) = H(T) - H(T|a). \]
+In this case, the information gain is IG = Entropy(parent node) - Weighted Sum of Entropy(Children)
 \item variable importance is the sum of IG over all notes and all trees for that variable
-\item the model of parallelism is different to the ``foreach'' method -- we need to describe it
 \end{itemize}
 
 
 
-
-% For figure citations, please use "Fig." instead of "Figure".
-%Nulla mi mi, Fig.~\ref{fig1}  Fusce fringilla erat porttitor lectus cursus, \nameref{S1_Video} vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
-%\begin{figure}[h]
-%\caption{{\bf Figure Title first bold sentence Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}
-%Figure Caption Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. A: Lorem ipsum dolor sit amet. B: Consectetur adipiscing elit.}
-%\label{fig1}
-%\end{figure}
-%\begin{enumerate}
-%\item{react}
-%\item{diffuse free particles}
-%\item{increment time by dt and go to 1}
-%\end{enumerate}
-
-% Results and Discussion can be combined.
-% Please do not create a heading level below \subsection. For 3rd level headings, use \paragraph{}. 
-\section*{Results and Discussion}
+\section{Results and Discussion}
 
 
 %OPTIONS
@@ -517,7 +502,7 @@ In this case, the  the information gain is IG = Entropy(parent node) - Weighted 
 % GWAS dataset
 
 
-\marginpar{These are regression examples, we nned some classification examples}
+\marginpar{These are regression examples, we need some classification examples}
 
 
 To test this empirically we adapt the simulations developed by Genuer {\it et al.}~\cite{Genuer.et.al.2010} to include a
@@ -562,23 +547,10 @@ a)& b)\\
 \end{figure}
 
 
-\subsection*{CursedForest processes genome-wide variant data}
+\subsection{CursedForest processes genome-wide variant data}
 %\label{comp}
 %Spark ML vs CursedForest vs Kmeans vs LR on small and full version (where applicable) of 1000G (performance and
 %time/mem)
-
-Traditionally, VariantSpark used the random forest algorithm from SparkML. While SparkML algorithms demonstrate
-scalability when dealing with a large number of samples, this scalability quickly breaks down as we include more features.
-
-One of the restrictions preventing SparkML algorithms from scaling to high-dimensionality data is the fact that the feature-set
-for each individual is stored as a `Vector'. In Spark, Vectors are unable to be split and to process multiple vectors together,
-the entirety of each vector must be loaded into memory on the same node. Therefore, as dimensionality increases, the
-size of these Vectors must also increase, and subsequently this results in higher memory requirents.
-
-On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed" data. It avoids the relation between
-memory and dimensionality, by not using Vectors. Instead, CursedForest stores data in the Parquet columnar format.
-
-
 
 
 
@@ -665,18 +637,18 @@ from the 1000 Genomes Project. Size of the data is individuals x variants
 
 
 
-\subsection*{Parameter settings}
+\subsection{Parameter settings}
 We consider the parameter setting for the RF algorithm. We use the R terms from the package RandomForests
-\cite{Liaw.and.Weiner.2002} which incoporates the original Fortran code by Brieman and Cutler. We incprporate the 
+\cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler. We incorporate the 
 advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience.
 
 \begin{itemize}
 \item \texttt{ntree} the number of trees.  The number of trees necessary for good performance grows with the number of predictors.
-  \marginpar{can we do proxmiity?}  \cite{Liaw.and.Weiner.2002} suggest that a high \texttt{ntree} is necessary to get stable
+  \marginpar{can we do proximity?}  \cite{Liaw.and.Weiner.2002} suggest that a high \texttt{ntree} is necessary to get stable
   estimates of variable importance and proximity; however, even though the variable importance measures may vary from run to run,
   the ranking of the importances is quite stable.  In addition, we note that it is possible for a RF model to have a very poor
   fit, and be useless for prediction, and still have a useful ranking of variable importance.
-\item \texttt{mtry} --  the number of variables considered at each split (if \texttt{mtry}=$p$, we have a boosted decison
+\item \texttt{mtry} --  the number of variables considered at each split (if \texttt{mtry}=$p$, we have a boosted decision
   tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \texttt{mtry} may give
   better performance.
 \item  For classification problems where the class frequencies are extremely unbalanced it may be necessary to change the prediction
@@ -720,34 +692,17 @@ useful ranking of variable importance.
 
 
 
-%\subsection*{James' dataset}
+%\subsection{James' dataset}
 %Comparing CursedForest with feature selection + linear model (performance and time/mem) 
 
 
 
-\subsection*{Conclusion}
+\subsection{Conclusion}
 
 
 
-%\begin{table}[!ht]
-%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
-%\caption{
-%{\bf Table caption Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}}
-%\begin{tabular}{|l|l|l|l|l|l|l|l|}
-%\hline
-%\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-%$cell1 row1$ & cell2 row 1 & cell3 row 1 & cell4 row 1 & cell5 row 1 & cell6 row 1 & cell7 row 1 & cell8 row 1\\ \hline
-%$cell1 row2$ & cell2 row 2 & cell3 row 2 & cell4 row 2 & cell5 row 2 & cell6 row 2 & cell7 row 2 & cell8 row 2\\ \hline
-%$cell1 row3$ & cell2 row 3 & cell3 row 3 & cell4 row 3 & cell5 row 3 & cell6 row 3 & cell7 row 3 & cell8 row 3\\ \hline
-%\end{tabular}
-%\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
-%\end{flushleft}
-%\label{table1}
-%\end{adjustwidth}
-%\end{table}
 
-
-\section*{Supporting Information}
+\section{Supporting Information}
 
 % Include only the SI item label in the subsection heading. Use the \nameref{label} command to cite SI items in the text.
 \subsection*{S1 Video}
@@ -816,3 +771,59 @@ keywords = "Variable selection",
 keywords = "Genomic data analysis ",
 abstract = "Random forests (RF) is a popular tree-based ensemble machine learning tool that is highly data adaptive, applies to “large p, small n” problems, and is able to account for correlation as well as interactions among features. This makes \{RF\} particularly appealing for high-dimensional genomic data analysis. In this article, we systematically review the applications and recent progresses of \{RF\} for genomic data, including prediction and classification, variable selection, pathway analysis, genetic association and epistasis detection, and unsupervised learning. "
 }
+
+
+%http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
+ %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
+%overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
+%between features, which is of importance for modelling complex polygenic diseases.
+
+
+% We also investigated classifying the samples using Random Forests.  We chose random forests due to its ability to
+% capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
+% independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise
+% overfitting and variance.
+
+
+
+% The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a
+% huge number of samples with a modest dimensionality, the 1000 Genomes data instead contains a huge number of
+% dimensions (features). As a result, the default random forests implementation is unable to partition the data into
+% small-enough tasks for nodes on the computer cluster to handle.
+
+
+
+% For figure citations, please use "Fig." instead of "Figure".
+%Nulla mi mi, Fig.~\ref{fig1}  Fusce fringilla erat porttitor lectus cursus, \nameref{S1_Video} vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
+%\begin{figure}[h]
+%\caption{{\bf Figure Title first bold sentence Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}
+%Figure Caption Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. A: Lorem ipsum dolor sit amet. B: Consectetur adipiscing elit.}
+%\label{fig1}
+%\end{figure}
+%\begin{enumerate}
+%\item{react}
+%\item{diffuse free particles}
+%\item{increment time by dt and go to 1}
+%\end{enumerate}
+
+% Results and Discussion can be combined.
+% Please do not create a heading level below \subsection. For 3rd level headings, use \paragraph{}. 
+
+
+
+%\begin{table}[!ht]
+%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+%\caption{
+%{\bf Table caption Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}}
+%\begin{tabular}{|l|l|l|l|l|l|l|l|}
+%\hline
+%\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
+%$cell1 row1$ & cell2 row 1 & cell3 row 1 & cell4 row 1 & cell5 row 1 & cell6 row 1 & cell7 row 1 & cell8 row 1\\ \hline
+%$cell1 row2$ & cell2 row 2 & cell3 row 2 & cell4 row 2 & cell5 row 2 & cell6 row 2 & cell7 row 2 & cell8 row 2\\ \hline
+%$cell1 row3$ & cell2 row 3 & cell3 row 3 & cell4 row 3 & cell5 row 3 & cell6 row 3 & cell7 row 3 & cell8 row 3\\ \hline
+%\end{tabular}
+%\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+%\end{flushleft}
+%\label{table1}
+%\end{adjustwidth}
+%\end{table}
