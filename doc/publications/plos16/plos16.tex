@@ -246,46 +246,42 @@ Denis C. Bauer\textsuperscript{1,*}
 
 \section*{Notes}
 \begin{itemize}
-\item what are you guys editing this with?  what about some carriage
-  returns or line feeds or something!
-\item Are we going to use the TCGA data in this paper?
-\item are we going to run sparkML or Cursed forest on the extended
-  simulation data \cite[]{Genuer.et.al.2010}? Has Aidan done this already?
-\item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
-  \ref{table:smaller_data} -- On it, Aidan
-\item check Piotr's simulation
-\item run an argument as follows:
+\item   I think the structure of the first section should be
   \begin{itemize}
-  \item variable  selection may succeed where accurate prediction does not
+  \item  convergence results from Biau 2012
   \item consider  \cite{Segal.2004} examples
-  \item  perhaps we argue that in the case where the relationship of $X$ and $y$ takes a particular form we can recover
-    the reltionship for very large $p$p
+  \item simulations reproduced from Genuer et al 2010 (no -- we need classification examples)
+  \item check Piotr's simulation
+  \item run sparkML or Cursed forest on the  simulation data 
+  \item we extend the simulations to many more variables 
+  \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
+    \ref{table:smaller_data} -- On it, Aidan
+  \item variable  selection may succeed where accurate prediction does not
+  \item discussion of the effect of the ntree and mtry parameters for variable selection with many noise variables
+  \item   perhaps we argue that in the case where the relationship of $X$ and $y$ takes a particular form (step, ramp) we can recover
+    the significant variables in the presence of a very large number of noise variables
+  \item in the case of genomic data, our functions of interest are more likely to be stop or ramp functions rather than harmonic
+    functions. So we have some hope.
   \end{itemize}
-\item \cite{Tuv.et.al.2009} feature selection via adding permuted variables. Do we want to consider this?
-\item check out varSelRF
-I think the structure of the first section should be
-\begin{itemize}
-\item  convergence results from Biau 2012
-\item simulations reproduced from Genuer et al 2010
-\item we extend the simulations to many more variables
-\item discussion of the effect of the ntree and mtry parameters for variable selection with many noise variables
-\item  in the case of some functions (step, ramp) we can recover the significant variables in the presence of a very large number of noise variables
-\item in the case of genomic data, our functions of interest are more likely to be stop or ramp functions rather than harmonic functions. So we have some hope.
-\end{itemize}
-
 \item check out 
   \begin{itemize}
-  \item D\'iaz-Uriarte, R., \& Alvarez de Andr\'es, S. (2006). Gene selection and classification of microarray data using random
-    forest. BMC Bioinformatics, 7, 3. http://doi.org/10.1186/1471-2105-7-3
+  \item D\'iaz-Uriarte, R., \& Alvarez de Andr\'es, S. (2006). (done)
   \item Goldstein et al. (2011)
-  \item Chen (2012)
-  \item VSURF and  varSelRF, 
+  \item Chen (2012)  (done)
+  \item VSURF and  varSelRF, (doee) recursive feature (forwards backwards) using variable importance
   \item ranger package
   \item  r2VIM: A new variable selection method for random forests in
     genome-wide association studies
   \item CloudForest: A Scalable and Efficient Random Forest Implementation for Biological Data
+  \item \cite{Tuv.et.al.2009} feature selection via adding permuted variables. Do we want to consider this? (no, leave it for now)
+  \end{itemize}
+\item other things to do
+  \begin{itemize}
+  \item what is the problem with bagging? Do we need to redo the thousand genome stuff?
   \end{itemize}
 \end{itemize}
+
+
 
 
 \section*{Abstract}
