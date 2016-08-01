@@ -279,7 +279,11 @@ I think the structure of the first section should be
     forest. BMC Bioinformatics, 7, 3. http://doi.org/10.1186/1471-2105-7-3
   \item Goldstein et al. (2011)
   \item Chen (2012)
-  \item VSURF and  varSelRF
+  \item VSURF and  varSelRF, 
+  \item ranger package
+  \item  r2VIM: A new variable selection method for random forests in
+    genome-wide association studies
+  \item CloudForest: A Scalable and Efficient Random Forest Implementation for Biological Data
   \end{itemize}
 \end{itemize}
 
@@ -414,7 +418,7 @@ the algorithm.
   \end{enumerate}
 \end{itemize} 
 
-\cite{Strobl.et.al.2007} introoduce changes to the RF algorithm to fix 1) and 2). 
+\cite{Strobl.et.al.2007} introduce changes to the RF algorithm to fix 1) and 2). 
 However the level effect will be apparent in the CF algorithm as well. \marginpar{we can fix the boosting effect}
 However, there are many examples, (particularly in genomics) whre we have data sets that are
 \begin{itemize}
@@ -457,6 +461,12 @@ In the first section we
 % You may title this section "Methods" or "Models". 
 % "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
 % authors may use "Analysis" 
+
+\subsubsection*{variable selection}
+\cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using the
+importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic data.
+\marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of RF to handle GWAS data. Waht do we nned to do in this area}
+
 \section*{Methods}
 
 
@@ -466,13 +476,19 @@ In the first section we
 Traditionally, VariantSpark made use of Spark's machine learning algrorithms `Spark ML'. These algorithms require data in a `DataFrame',
 similar to DataFrames in R.
 
+
 We use the same pre-processing algorithms in CursedForests. One difference is that we 
 
 
 Cursed Forest uses:
 \begin{itemize}
-\item an ``information gained'' criteria for splitting.
-\item variabel importance is the sum of IG over all notes and all trees for that variable
+\item an ``information gained'' criteria for splitting.  $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
+  \ldots, Q$ in a set. The  entropy of the set is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i$
+The expected information gain is the change in information entropy $H$ from a prior state $T$ to a state that takes some
+information $a$ as given: 
+\[ IG(T,a) = H(T) - H(T|a) \]
+In this case, the  the information gain is IG = Entropy(parent node) - Weighted Sum of Entropy(Children)
+\item variable importance is the sum of IG over all notes and all trees for that variable
 \item the model of parallelism is different to the ``foreach'' method -- we need to describe it
 \end{itemize}
 
