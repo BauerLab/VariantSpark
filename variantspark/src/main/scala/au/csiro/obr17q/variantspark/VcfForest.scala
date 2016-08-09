@@ -1,226 +1,380 @@
 package au.csiro.obr17q.variantspark
 
-import java.util.Date
-
-import au.csiro.obr17q.variantspark.CommonFunctions._
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import au.csiro.obr17q.variantspark.metrics.Metrics
+import au.csiro.obr17q.variantspark.model._
+import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
+import org.apache.spark.ml.regression.{RandomForestRegressionModel, RandomForestRegressor}
+import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
+import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
+import org.apache.spark.ml.evaluation.{MulticlassClassificationEvaluator, RegressionEvaluator}
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
+import org.apache.spark.mllib.evaluation.{MulticlassMetrics, RegressionMetrics}
 import org.apache.spark.mllib.linalg._
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.tree.RandomForest
-import org.apache.spark.mllib.tree.configuration.Strategy
+import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.rdd.RDD
 
-import scala.io.Source
+import scala.collection.mutable.ListBuffer
+import scala.io._
+import scala.math._
 
 /**
- * @author obr17q
- */
+  * @author obr17q
+  */
+
 object VcfForest extends SparkApp {
   conf.setAppName("VCF foresting")
-  
 
-  
-  def main(args:Array[String]) {
-    
-    //val args = Array("data/smALL.vcf","5","5","100","auto","0.5")
-    
-    val seed = 4363465
-    val VcfFiles = args(0)
-    val VariantCutoff = args(5).toInt
+  def main(args: Array[String]) {
+
+    val defaults = Array("/Users/obr17q/Desktop/coadread_mutations_bmi_filtered.csv","5","5,10","10","auto","false","simulationTwo","0","10", "100","1000")
+
+    //val seed = 3262362
+
+    val VcfFiles = if (args.length > 0) args(0) else defaults(0)
+    val NumTrees = if (args.length > 1) args(1).toInt else defaults(1).toInt
+    val maxDepth = if (args.length > 2) args(2).split(",").map(_.toInt) else defaults(2).split(",").map(_.toInt)
+    val maxBins = if (args.length > 3) args(3).split(",").map(_.toInt) else defaults(3).split(",").map(_.toInt)
+    val FeatureSubsetStrategy = if (args.length > 4) args(4) else defaults(4)
+    val classification = if (args.length > 5) args(5).toBoolean else defaults(5).toBoolean
+    val labelName = if (args.length > 6) args(6) else defaults(6)
+    val VariantCutoff = if (args.length > 7) args(7).toInt else defaults(7).toInt
+    val numFolds = if (args.length > 8) args(8).toInt else defaults(8).toInt
+
+    println(s"Parameters: Trees=$NumTrees, " +
+      s"MaxDepth(s)=[${maxDepth.head}], " +
+      s"MaxBins=[${maxBins.head}], " +
+      s"nTry=$FeatureSubsetStrategy")
+
+    println(s"Running ${if (classification) "classification" else "regression"} using label=$labelName")
+
+    //Feature Indexing stuff
+    val indexFeatures = false
+    val maxCategories = 10
+
+
+    val syntheticSamples = if (args.length > 7) args(7).toInt else defaults(7).toInt
+    val syntheticFeatures = if (args.length > 8) args(8).toInt else defaults(8).toInt
+    // Metric used for determining best cross-validation model
+    // "f1", "precision", "recall", "weightedPrecision", "weightedRecall"
+    val metricName = "f1"
+
+    // Can be used for building many models
+    val numModels = 1
+
+
+    val label = if (classification) "label" else labelName
+    val features = if (indexFeatures) "indexedFeatures" else "features"
 
     /**
-     * TCGA settings
-     * 01 - Individual ID
-     * 06 - Sex
-     * 46 - Weight
-     * 47 - Height
-     */
-    //val PopFiles = Source.fromFile("data/nationwidechildrens.org_clinical_patient_coad.txt").getLines()
-    //val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, 3, '\t', "[Not Available]", 1, 2 )(WeightCol = 46, HeightCol = 47, SexCol = 6).returnSexMap())
+      * TCGA settings
+      * 01 - Individual ID
+      * 06 - Sex
+      * 46 - Weight
+      * 47 - Height
+      */
+    //val PopFiles = "data/nationwidechildrens.org_clinical_patient_coad.txt"
+    //val IndividualMeta : RDD[IndividualMap] = sc.parallelize(
+    //  new MetaDataParser
+    //  (Source.fromFile(PopFiles).getLines(), HeaderLines = 3, '\t', "[Not Available]", IndividualIdCol = 1, PopulationCol = 2)
+    //  (WeightCol = 46, HeightCol = 47, SexCol = 6).returnBmiMap()
+    //)
 
-    
+    print(sqlContext)
     /**
-     * TCGA settings
-     * 00 - Individual
-     * 01 - Population
-     * 02 - Super Population
-     * 03 - Gender
-     */
-    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
-    val IndividualMeta = sc.parallelize(new MetaDataParser(PopFiles, HeaderLines = 1, '\t', "", 0, 2 )(SexCol = 3).returnMap())
+      * 1000 Genomes Project settings
+      * 00 - Individual
+      * 01 - Population
+      * 02 - Super Population
+      * 03 - Gender
+      */
+    val PopFiles = "data/ALL.panel"
+    lazy val IndividualMeta : RDD[IndividualMap] = sc.parallelize(
+      new MetaDataParser
+      (Source.fromFile(PopFiles).getLines(), HeaderLines = 1, '\t', "", IndividualIdCol = 0, PopulationCol = 1 )
+      (SexCol = 3, SuperPopulationCol = 2).returnMap()
+    )
 
 
-    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, sc)
+    //val modObject = new ThousandGenomesVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
+    //val modObject = new CsvParser(VcfFiles, VariantCutoff, sc, sqlContext)
+    val modObject = new GenericParser(VcfFiles, sc, sqlContext)
 
-    val NoOfAlleles = vcfObject.variantCount
-
-    val FilteredAlleles = vcfObject.individualTuples
-
-
-
-    val IndividualVariants = FilteredAlleles
-    .groupByKey //group by individual ID, i.e. get RDD of individuals
-    
-    //.map(p => (p._1.split('_')(0).substring(0,12), (p._1.split('_')(1), p._2))) // TCGA data
-    .map(p => (p._1, (p._1, p._2)))
-    .join(IndividualMeta.map(_.toPops)) //filter out individuals lacking required data 
-    .map(h =>
-      
-      (h._1, h._2._1._1, h._2._2, LabeledPoint(if (h._2._2 =="EUR") 0
-                  else if (h._2._2 =="AFR") 1 else if (h._2._2 =="AMR") 2
-                  else if (h._2._2 =="EAS") 3
-                  else -1, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ))) // Binary labels
-      /*
-      (h._1, h._2._1._1, h._2._2, LabeledPoint(if (h._2._2 =="GBR") 0
-                  else if (h._2._2 =="ASW") 1 else if (h._2._2 =="CHB") 2
-                  else -1, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ))) // Binary labels
-      */            
-                  
-      //(h._1, h._2._1._1, h._2._2, LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ) )
-          
-          
-          
-          
-          
-          
-          //if (h._2._2 == 1) LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, h._2._1._2.to[Seq] ))
-          //else LabeledPoint(h._2._2, Vectors.sparse(NoOfAlleles, Seq((1,1.0), (2,1.0)) ))
-          
-      
-      )  // Continuous labels
-      
-
-      
-      
-      
-    //.filter(_._2 == "NORMAL")
-    .cache
-    //.map(h => (h._1, h._2, h._3, h._4.label)).collect().foreach(println)
-
-    //val ReducedFeatureSelectedSet: RDD[(String, String, Double, LabeledPoint)] = sc
-    //.objectFile("reducedset", 100)
-    
-    //val DataA = ReducedFeatureSelectedSet.map(p => (p._1, p._2, p._3, LabeledPoint(p._3, p._4.features)))
-    
-    
+    //val modObject = new ABetaParser(VcfFiles, sc, sqlContext)
+    //val modObject = new FakeDataParser(samples = syntheticSamples, dims = syntheticFeatures, save = false, sc, sqlContext)
 
 
-    
-    val splits = IndividualVariants.randomSplit(Array(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), seed)
-    
+    val data = modObject.data.cache
+
+    //modObject.saveAs("100x1000.csv")
+
+    val Array(trainingData, testData) = data.randomSplit(Array(0.8, 0.2))
+
+
+    //val gender = modObject.feature("col5")
+    //val a = data.map(_.getAs[SparseVector](2)(gender+10)).distinct.count
+    //val a = data.map( row => (row.getAs[Double](labelName), row.getAs[Vector]("features").toArray)).take(5)
+    //val b = a(0)
+    //val c = a(1)
+    //println(b._2.length)
+    //println(b._1 - 10 * sin(10 * Pi * b._2.head))
+    //println(c._1 - 10 * sin(10 * Pi * c._2.head))
+
+
+
+
+    val labelIndexer = new StringIndexer()
+      .setInputCol(labelName)
+      .setOutputCol("label")
+      .fit(data)
+
+
+
+
+    //val featureIndexer = new VectorIndexer()
+    //  .setInputCol("features")
+    //  .setOutputCol("indexedFeatures")
+    //  .setMaxCategories(maxCategories)
+    //  .fit(data)
+
+
+    //Classification
+
+    val rfClassifier = new RandomForestClassifier()
+      .setLabelCol("label")
+      .setFeaturesCol(features)
+      .setNumTrees(NumTrees)
+      .setFeatureSubsetStrategy(FeatureSubsetStrategy)
+    //.setImpurity("entropy")
+
+
+    //Regression
+
+    //val rfRegressor = new RandomForestRegressor()
+    //  .setLabelCol(labelName)
+    //  .setFeaturesCol(features)
+    //  .setNumTrees(NumTrees)
+    //  .setFeatureSubsetStrategy(FeatureSubsetStrategy)
+    //  //.setImpurity("entropy")
+
+
+
+    // Convert indexed labels back to original labels.
+    val labelConverter = new IndexToString()
+      .setInputCol("prediction")
+      .setOutputCol("predictedLabel")
+      .setLabels(labelIndexer.labels)
+
+
+
+    val tasks = new ListBuffer[PipelineStage]()
+
+
+    if (classification) tasks += labelIndexer
+    //if (indexFeatures) tasks += featureIndexer
+    if (classification) tasks += rfClassifier //else tasks += rfRegressor
+    if (classification) tasks += labelConverter
+    //Array(labelIndexer, featureIndexer, rfClassifier, labelConverter)
+
+    // The index of the Random Forest classifier or regressor
+    val rfIndex = Array(tasks.toList.indexOf(rfClassifier),tasks.toList.indexOf(rfClassifier)).filter(_ != -1).head
+
+    val pipeline = new Pipeline()
+      .setStages(tasks.toArray)
+
+    //val regressionEvaluator = new RegressionEvaluator()
+    //  .setLabelCol(label)
+    //  .setPredictionCol("prediction")
+    //  .setMetricName(metricName)
+
+    //val classificationEvaluator = new MulticlassClassificationEvaluator()
+    //  .setLabelCol(label)
+    //  .setPredictionCol("prediction")
+    //  .setMetricName(metricName)
+
+    //val paramGrid = new ParamGridBuilder()
+    //  .addGrid(rfClassifier.maxDepth, maxDepth)
+    //  .addGrid(rfClassifier.maxBins, maxBins)
+    //  .build
+
+    //val cv = new CrossValidator()
+    //  .setEstimator(pipeline)
+    //  .setEvaluator(regressionEvaluator)
+    //  .setEstimatorParamMaps(paramGrid)
+    //  .setNumFolds(numFolds)
+
+
+    /**
+      * Prints predictions and probabilities from fitted DF.
+      */
+    def printPredictions(df: DataFrame) = {
+      println("Predictions:")
+      df.collect
+        .foreach { case Row(individual: String, aBeta: Double, label: Double, prediction: Double) =>
+          println(s"($individual, $aBeta)", prediction, label == prediction)
+        }
+    }
+
+    /**
+      * Prints important features from given model.
+      */
+    def printFeatures(rf: Vector) = {
+      println("Important features:")
+      val featureTuples = sc.parallelize(modObject.featureTuples)
+      featureTuples
+        .map(p => (p._2, (p._1, rf(p._2))))
+        .sortBy(_._2._2, ascending = false)
+        .take(100)
+        .foreach(println)
+    }
+
+    def modelFit(trainDF: DataFrame, testDF: DataFrame) = {
+
+      val testSize: Int = testDF.count.toInt
+      println(s"Total samples: ${data.count}")
+      println(s"Testset: $testSize")
+
+
+      // Build the cross-validated model
+      val cvModel = pipeline.fit(trainDF)
+
+
+      // Pull out the best Random Forest model
+      val untypedForestModel = cvModel
+        //.bestModel
+        //.asInstanceOf[PipelineModel]
+        .stages(rfIndex)
+
+
+
+
+      // Make predictions on the test DataFrame
+      val predictions: DataFrame = cvModel.transform(testDF).select("individual", label, label, "prediction")
+
+      // Get RDD of predictions and labels
+      val predictionsAndLabels = predictions.select("prediction", label)
+        .map(row => (row.getDouble(0), row.getDouble(1)))
+
+      val LabelsandPreds = predictionsAndLabels.collect
+      val ari = Metrics.adjustedRandIndex(LabelsandPreds.map(_._1.toInt).toList, LabelsandPreds.map(_._2.toInt).toList)
+      println("ARI", ari)
+      val err = Metrics.classificatoinError(LabelsandPreds.map(_._1.toInt), LabelsandPreds.map(_._2.toInt))
+      println("Error", err)
+
+
+      // Get metrics from above RDD
+      //val metrics = new RegressionMetrics(predictionsAndLabels)
+      val metrics = new MulticlassMetrics(predictionsAndLabels)
+      // Print metrics/predictions/features/etc.
+      printPredictions(predictions)
+      println(metrics.confusionMatrix)
+
+
+      println(s"Samples: $testSize")
+      //println(s"Correct: ${(metrics.precision*testSize).toInt}")
+      //println(s"MSE: ${metrics.meanSquaredError}")
+      //println(s"MAE: ${metrics.meanAbsoluteError}")
+      //println(s"R2: ${metrics.r2}")
+
+
+      val importantFeatures = if (classification)
+        untypedForestModel.asInstanceOf[RandomForestClassificationModel].featureImportances
+      else untypedForestModel.asInstanceOf[RandomForestRegressionModel].featureImportances
+
+      val featureTuples = sc.parallelize(modObject.featureTuples)
+      featureTuples
+        .map(p => (p._2, (p._1, importantFeatures(p._2))))
+        .sortBy(_._2._2, ascending = false).take(50)
+
+      printFeatures(importantFeatures)
+
+
+    }
+
+
+
+
+
+
+    modelFit(data, data)
+
+
+
+
+
+
+
+
+    /**
+      * Creates n models, gets the feature importances and counts their ocurences.
+      */
+    //Array.fill[RDD[(Int, (String, Double))]](numModels)(modelFit(data, data))
+    //  .reduce(_ union _)
+    //  .aggregateByKey(0, "", 0.0)((acc, value) => (acc._1 + 1, value._1, acc._3 + value._2), (acc1, acc2) => (acc1._1 + acc2._1, acc1._2, acc1._3 + acc2._3))
+    // .map(p => (p._1, p._2._2, p._2._3, p._2._1)).sortBy(_._3).collect.foreach(println)
+
+
+
+
+
+
+    //println("classes = " + forestModel.numClasses)
+    //println("features = " + forestModel.numFeatures)
+    //println("important features = " + filteredAlleleTuples.count)
+
+
+    //model.transform(testData)
+    //  .select("individual", "label", "prediction", "bmi")
+    //  .collect()
+    //  .foreach(p => println("%s (%s) (%s) predicted %scorrectly. BMI: %s" format(p(0), p(1), p(2), if (p(1).toString == p(2).toString) "" else "in", p(3) )))
+
+
+
     //val (trainingData, testData) = (splits(0), splits(1))
-    
-    
-    
+
+
+
     /**
-     * Print a count of healthy and obese individuals
-     */
-    
-    def isObese(i: Double) = i >= 30
-    def isMale(i: Double) = i == 1
-    println(IndividualVariants.count() + " individuals")
-    println("with " + NoOfAlleles + " alleles")
-  
-    
+      * Print a count of healthy and obese individuals
+      */
+
+    //def isObese(i: Double) = i >= 30
+    //def isMale(i: Double) = i == 1
+    //println(IndividualVariants.count() + " individuals")
+    //println("with " + NoOfAlleles + " alleles")
 
 
-    
+
+
+
+
+
+
+
+
+
     /**
-     * Strategies
-     * For binary classification and regrssion
-     */
-    
+      * Stuff for binary classifier
+      */
 
-    val ClassificationStrategy = new Strategy(algo = org.apache.spark.mllib.tree.configuration.Algo.Classification,
-                                impurity = org.apache.spark.mllib.tree.impurity.Gini,
-                                maxDepth = args(2).toInt,
-                                numClasses = 4,
-                                maxBins = args(3).toInt,
-                                categoricalFeaturesInfo = Map[Int, Int](),
-                                maxMemoryInMB = 1024
-                                )
-
-    val RegressionStrategy = new Strategy(algo = org.apache.spark.mllib.tree.configuration.Algo.Regression,
-                                impurity = org.apache.spark.mllib.tree.impurity.Variance,
-                                maxDepth = args(2).toInt,
-                                maxBins = args(3).toInt,
-                                categoricalFeaturesInfo = Map[Int, Int]()
-                               )  
-
-
-  /**
-   * Stuff for binary classifier
-   */
-    
-    
+    /*
   val TestArray: Array[Double] = new Array(10)
   val RandArray: Array[Double] = new Array(10)
-    
-  var a = 0
-  for( a <- 0 to 9){
-    val start = new Date().getTime
-    val trainingData =
-      if (a==0)       splits(1).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8)).union(splits(9))//0
-      else if (a==1)  splits(0).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8)).union(splits(9))//1
-      else if (a==2)  splits(0).union(splits(1)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8)).union(splits(9))//2
-      else if (a==3)  splits(0).union(splits(1)).union(splits(2)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8)).union(splits(9))//3
-      else if (a==4)  splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8)).union(splits(9))//3
-      else if (a==5)  splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(6)).union(splits(7)).union(splits(8)).union(splits(9))//3
-      else if (a==6)  splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(7)).union(splits(8)).union(splits(9))//3
-      else if (a==7)  splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(8)).union(splits(9))//3
-      else if (a==8)  splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(9))//3
-      else            splits(0).union(splits(1)).union(splits(2)).union(splits(3)).union(splits(4)).union(splits(5)).union(splits(6)).union(splits(7)).union(splits(8))//4
-
-    val testData = splits(a)
-      
-    val model = RandomForest.trainClassifier(
-                                             input=trainingData.map(_._4),
-                                             ClassificationStrategy,
-                                             numTrees = args(1).toInt,
-                                             featureSubsetStrategy = args(4),
-                                             seed)
-
-    val labelsAndPredictions = testData.map { point =>
-      val prediction = model.predict(point._4.features)
-      (point._1, point._2, point._4.label, prediction)
-    }.map(p => (p._1, p._2, p._3, p._4))
-
-
-    
-                      
-                                             
-                                             
-                                             
-
-    /**
-     * Stuff for regressor
-     */
-    /*
-    val model = RandomForest.trainRegressor(
-                                          input = trainingData.map(_._4),
-                                          RegressionStrategy,
-                                          numTrees = args(1).toInt,
-                                          featureSubsetStrategy = args(4),
-                                          seed)
-*/
-
-
-
 
 
     // Evaluate model on test instances and compute test error
 
-    
+
     //labelsAndPredictions.collect().foreach(println)
 
-    
+
     println("Calculating metrics..")
-    
+
     //// Adjusted Rand Index
     val resultArray: Array[(Double, Double)] = labelsAndPredictions.map(p => (p._3, p._4)).collect
     val clustered = "[%s]".format(resultArray.map(_._1.toString()).reduceLeft(_+","+_))
     val expected = "[%s]".format(resultArray.map(_._2.toString()).reduceLeft(_+","+_))
     val adjustedRandIndex = GetRandIndex(clustered, expected)
-    
+
 
 
     //val testMSE = labelsAndPredictions.map(p => (p._3,p._4)).map{ case(v, p) => math.pow((v - p), 2)}.mean()
@@ -235,18 +389,18 @@ object VcfForest extends SparkApp {
     val metrics = new MulticlassMetrics(labelsAndPredictions.map(p => (p._3, p._4)))
     val precision = Array(metrics.precision(0), metrics.precision(1), metrics.precision(2))
     val recall = Array(metrics.recall(0), metrics.recall(1), metrics.recall(2))
-    
+
 
     println(metrics.confusionMatrix.toString())
-    
-    
-    
+
+
+
     println("GBR - precision:" + precision(0) + " recall:" + recall(0))
     println("ASW - precision:" + precision(1) + " recall:" + recall(1))
     println("CHB - precision:" + precision(2) + " recall:" + recall(2))
     //println("EAS - precision:" + precision(3) + " recall:" + recall(3))
-    
-    
+
+
     TestArray(a) = testErr
     RandArray(a) = adjustedRandIndex.toDouble
     val end = new Date().getTime
@@ -255,19 +409,19 @@ object VcfForest extends SparkApp {
     //val metrics = new MulticlassMetrics(labelsAndPredictions.map(p => (p._3, p._4)))
     //val precision = Array(metrics.precision(0), metrics.precision(1), metrics.precision(2), metrics.precision(3))
     //val recall = Array(metrics.recall(0), metrics.recall(1), metrics.recall(2), metrics.recall(3))
-    }  
+    }
     //println("EUR - precision:" + precision(0) + " recall:" + recall(0))
     //println("AFR - precision:" + precision(1) + " recall:" + recall(1))
     //println("AMR - precision:" + precision(2) + " recall:" + recall(2))
     //println("EAS - precision:" + precision(3) + " recall:" + recall(3))
 
-  
-  
-  
+
+
+
     println("Test errors: " + TestArray.mkString(", "))
     println("Adjusted Rand Indices: " + RandArray.mkString(", "))
-    
-    
+    */
+
     /*
     val selector = new ChiSqSelector(50000)
     val transformer = selector.fit(SparseVariants.map(_._4))
@@ -281,8 +435,8 @@ object VcfForest extends SparkApp {
 
 
     */
-    
-    
-    
+
+
+
   }
 }

@@ -1,6 +1,6 @@
 package au.csiro.obr17q.variantspark
 
-import au.csiro.obr17q.variantspark.model.VcfParser
+import au.csiro.obr17q.variantspark.model.{GenericVcfParser, VcfParser}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.rdd.RDD
@@ -12,43 +12,32 @@ object VcfClustering extends SparkApp {
   conf.setAppName("VCF cluster")
   def main(args:Array[String]) {
 
-    val HOME = if (masterUrl == "local") "/Users/obr17q/" else "/OSM/HOME-CDC/obr17q/"
-    val args1 = {
-      if (masterUrl == "local") {
-        /*
-         * Define offline variables here!!!
-         */
+    val defaults =
         Array(
-          "data/merged.vcf", //Input VCF file
-          "3",             //Number of clusters (k)
-          "",   //Groups for inclusion
-          "",   //Groups for exclusion
-          "0.1"            //Sample size (0 - 1)
+          "data/merged.vcf",  //Input VCF file
+          "3",                //Number of clusters (k)
+          "",                 //Groups for inclusion
+          "",                 //Groups for exclusion
+          "1",               //Sample size (0 - 1)
+          ""
         )
-      } else {
-        args
-      }
-    }
-    if (args1.length < 1) {
-      println("Usage: CsvClusterer <input-path>")
-    }
 
-    val VcfFiles = args1(0)
-    val k = args1(1).toInt
-    val IncludeGroups = args1(2).split('|')
-    val ExcludeGroups = args1(3).split('|')
-    val VariantCutoff = args1(4).toInt
+    val VcfFiles = if (args.length > 0) args(0) else defaults(0)
+    val k = if (args.length > 1) args(1).toInt else defaults(1).toInt
+    val IncludeGroups = if (args.length > 2) args(2).split('|') else defaults(2).split('|')
+    val ExcludeGroups = if (args.length > 3) args(3).split('|') else defaults(3).split('|')
+    val VariantCutoff = if (args.length > 4) args(4).toInt else defaults(4).toInt
+    val PopFiles = if (args.length > 5) args(5) else VcfFiles
 
 
+    lazy val IndividualMeta : RDD[IndividualMap] = sc.parallelize(
+      new MetaDataParser
+      (Source.fromFile(PopFiles).getLines(), HeaderLines = 1, '\t', "", IndividualIdCol = 0, PopulationCol = 0 )
+      (SexCol = 0, SuperPopulationCol = 0).returnMap()
+    )
 
 
-
-    //val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
-    //val Populations = sc.parallelize(new PopulationMap(PopFiles, 1, ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups))
-
-    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
-    val IndividualMeta : RDD[IndividualMap] = sc.parallelize(new MetaDataParser(PopFiles, 1, '\t', "NA", 0, 1 ).returnMap(IncludeGroups, ExcludeGroups))
-    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
+    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, sc, sqlContext)(IndividualMeta)
 
     val FilteredAlleles = vcfObject.individualTuples
 
@@ -127,20 +116,23 @@ object VcfClustering extends SparkApp {
 
 
 
-    val labelIndexer = new StringIndexer()
-      .setInputCol("preLabel")
-      .setOutputCol("label")
-      .fit(data)
+    //val labelIndexer = new StringIndexer()
+    //  .setInputCol("individual")
+    //  .setOutputCol("label")
+    //  .fit(data)
 
-    val km = new KMeans()
+    val kmeans = new KMeans()
       .setK(k)
-      .setPredictionCol("label")
+      .setPredictionCol("prediction")
       .setFeaturesCol("features")
 
-    val pipeline = new Pipeline()
-      .setStages(Array(labelIndexer, km))
+    //val pipeline = new Pipeline()
+    //  .setStages(Array(kmeans))
 
+    val model = kmeans.fit(data)
 
+    //Print the position of the cluster centers
+    //model.clusterCenters.foreach(println)
 
 
     //val model = KMeans.train(dataFrame.map(_._3), k, 300)
@@ -150,9 +142,11 @@ object VcfClustering extends SparkApp {
 
 
 
-    //val WSSSE = model.computeCost(dataFrame.map(_._3))
-
-
+    val predictions = model.transform(data)
+    // Get RDD of predictions and labels
+    val predictionsAndLabels = predictions.select("prediction", "individual")
+      .map(row => (row.getInt(0), row.getString(1)))
+    predictionsAndLabels.collect.sortBy(_._1).foreach(println)
 
     /*
     /** predictions = RDD(IndividualID, DistanceFromCenter, Centroid) **/

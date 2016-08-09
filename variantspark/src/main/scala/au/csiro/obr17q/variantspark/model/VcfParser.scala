@@ -21,7 +21,7 @@ case class VcfRecord(
                       features: Vector
                     )
 
-class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val IndividualMeta: RDD[IndividualMap], val sc: SparkContext, val sqlContext: SQLContext) extends scala.Serializable {
+class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val sc: SparkContext, val sqlContext: SQLContext)(val IndividualMeta: RDD[IndividualMap]) extends scala.Serializable {
 
   val NotAVariant = "#CHROM" :: "POS" :: "ID" :: "REF" :: "ALT" :: "QUAL" :: "FILTER" :: "INFO" :: "FORMAT" :: Nil
 
@@ -84,17 +84,14 @@ class VcfParser (val VcfFileNames: String, val VariantCutoff: Int, val Individua
       println(s"Variants: $variantCount")
       individualTuples
         .groupByKey //group by individual ID, i.e. get RDD of individuals
-        .map(p => (p._1.split('_')(0).substring(0, 12), (p._1.split('_')(1), p._2))) // Split the TCGA key to get ID & type
-        .filter(_._2._1 == "NORMAL")
+        //.map(p => (p._1.split('_')(0).substring(0, 12), (p._1.split('_')(1), p._2))) // Split the TCGA key to get ID & type
+        //.filter(_._2._1 == "NORMAL")
         //.map(p => (p._1, (p._1, p._2))) // 1000 data
-        .join(IndividualMeta.map(_.toBMI)) //filter out individuals lacking required data
+        //.join(IndividualMeta.map(_.toBMI)) //filter out individuals lacking required data
         .map(h =>
         VcfRecord(
           individual = h._1,
-          sampleType = h._2._1._1,
-          bmi = h._2._2,
-          population = null,
-          features = Vectors.sparse(variantCount, h._2._1._2.to[Seq]))
+          features = Vectors.sparse(variantCount, h._2.to[Seq]))
         )
     }
 
