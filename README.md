@@ -10,9 +10,9 @@
 If you have trouble running VariantSpark, you can build it yourself using Maven.
 
 1. Check out the repo
-2. `cd variantspark`
+2. `cd VariantSpark/variantspark`
 3. `vi pom.xml` and ensure software versions match those on your cluster. 
-4. `mvn build` to build.
+4. `mvn package` to build.
 5. If you built it locally, copy `target/VCF-clusterer-0.0.1-SNAPSHOT.jar` to your cluster.
 
 ## Submit a Job
