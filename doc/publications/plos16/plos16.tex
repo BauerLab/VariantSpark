@@ -189,7 +189,7 @@
 % Please capitalize all terms in the title except conjunctions, prepositions, and articles.
 \begin{flushleft}
 {\Large
-\textbf\newline{Cursed Forest - A random forest implementation for `big' and `wide' data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
+\textbf\newline{Cursed Forest - A random forest implementation for ``big'' and ``wide'' data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
 }
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
@@ -249,7 +249,7 @@ Denis C. Bauer\textsuperscript{1,*}
 \item what are you guys editing this with?  what about some carriage
   returns or line feeds or something!
 \item Are we going to use the TCGA data in this paper?
-\item are we going to run sparkML or Cursed forest on the extended
+\item are we going to run spark ML or Cursed forest on the extended
   simulation data \cite[]{Genuer.et.al.2010}? Has Aidan done this already?
 \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
   \ref{table:smaller_data} -- On it, Aidan
@@ -273,16 +273,16 @@ The abstract.
 
 \section*{Introduction}
 
-The digital revolution or `datafication' sees a dramatic increase in data collected about every aspect of   \marginpar{is seeing, will see}
+The digital revolution or ``datafication'' sees a dramatic increase in data collected about every aspect of   \marginpar{is seeing, will see}
 life~\cite{Loebbecke2015}.  These dataset not only grow vertically by capturing more and more events but also
-horizontally by capturing more information about these events.  The challenge of big and `wide' data is especially
+horizontally by capturing more information about these events.  The challenge of big and ``wide'' data is especially
 pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
 billion basepairs of the human genome.  While a large fraction of this data is identical between individuals, \marginpar{base-pairs}
 identifying the relevant and disease specific differences is the focus of complex trait analysis [citation].
 
 For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
 denoting the differences between individuals.  This dataset consumes close to a terabyte of disk space.  The richness of
-this data can be utilised in other datasets as well by filling in or ``imputing" the information at genomic positions
+this data can be utilised in other datasets as well by filling in or ``imputing'' the information at genomic positions
 previously unobserved due to the less detailed resolution of older array technology [citation about imputation].  This
 means that the large number of samples for which genome-wide association (GWA) data is available~\cite{Welter2013} can
 be extended horizontally by imputing the previously unobserved genotypes.  This provides the potential to generate
@@ -302,10 +302,10 @@ modern compute paradigms to deal with these challenges.
 % tools such as Apache Spark are available as a framework for iteratively dealing with big data.
 Distributing the compute tasks is one strategy to overcome this challenge. Apache Spark, based on Scala, allows for  
 \marginpar{is it based on scale or does it have a scale API?}
-distributed applications to scale to thousands of nodes.  A Spark application runs on a `driver' node, and
-this node divides and distributes work out to the many `worker' nodes.  Spark also includes the machine learning (ML)
-library, Spark ML, providing popular machine learning libraries.  Spark ML includes supervised approaches such as
-decision trees and the ensemble method, random forests, as well as unsupervised approaches such as k-means clustering.
+distributed applications to scale to thousands of nodes.  A Spark application runs on a ``driver'' node, and this node
+divides and distributes work out to the many ``worker'' nodes.  Spark also includes the machine learning (ML) library,
+Spark ML, providing support for a selection of machine learning algorithms.  Spark ML includes supervised approaches such
+as decision trees and the ensemble method, random forests, as well as unsupervised approaches such as k-means clustering.
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
@@ -317,10 +317,10 @@ their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect c
 While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is
 supervised learning, i.e. given a phenotype of clinical label determine the most associated features.  One of the
 simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
-linear combination of the feature variables.  Processing the `wide' genomic data poses difficulties for machine learning
+linear combination of the feature variables.  Processing the ``wide'' genomic data poses difficulties for machine learning
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
-This is known as the `curse of dimensionality'~\cite{Bauer2014}.  
-\marginpar{is this the reference we want for the `curse of dimensionality'}
+This is known as the ``curse of dimensionality''~\cite{Bauer2014}.  
+\marginpar{is this the reference we want for the ``curse of dimensionality''}
 
 
 Decision trees have a number of desirable features, they:
@@ -335,7 +335,7 @@ However, the tree fitting algorithm is greedy and may generate an unstable model
 lead to a very different model. 
 \marginpar{a potential problem  with tree models is the tendencey to split on categorical variables with a high number of
   levels, even when better splits are available}
-\subsection*{RF}  
+\subsection*{Random Forest}  
 
 Random Forests~\cite{Breiman.2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
 data is independently drawn from the joint distribution of $(X,Y)$ and comprises $n$ $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$.
@@ -366,7 +366,7 @@ where $\rho$ is the weighted correlation between residuals $(Y-h(X;\theta))$ and
 So what is required for  accurate random forest regression is (i) low correlation between residuals of differing tree in
 the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}.
 
-\subsection*{benefits of RF}  
+\subsection*{Benefits of RF}  
 
 \marginpar{weak learners only in a misuse of the term. ``weak learners'' was applied to decision stumps}
 %http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
@@ -383,33 +383,40 @@ the forest, and (ii) low prediction error for the individual trees \cite{Segal.2
 Random forests are a variance reduction technique. They take a tree models which have a low bias but a high variance and
 by combining them reduce the variance. The prediction error is the sum of the variance and the bias squared. 
 
-The benefits of random forests models are
+The benefits of random forests models are:
   \begin{itemize}
   \item they give an out-of-bag estimate of model accurace;
   \item they provide a measure of variable importance;
   \item they inherit many of the qualities of tree models.
-\marginpar{but not the handling of missing velues via surrogate variables. This would be difficult as the trees as split
+\marginpar{but not the handling of missing velues via surrogate variables. This would be difficult as the trees are split
   on random subsets of variables}
   \end{itemize}
 
 
-However, we observe that Spark's standard RF implementation is not able to handle the extremely `wide' genomic data as
+However, we observe that Spark ML's standard RF implementation is unable to handle the extremely ``wide'' genomic data as
 it was developed for large number of samples with only modest dimensionality.  Although Spark ML can build a RF model on
 a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
 and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}).  This
 unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
-scaling to larger datasets.
+scaling to larger datasets. The memory requirements per executor also increases with dimensionality due to the data types
+Spark ML uses, which we elaborate on in the discussion.
 
-% The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a
+% The reason for the failure can be attributed to the ``curse of dimensionality''. Where Spark ML is designed to process a
 % huge number of samples with a modest dimensionality, the 1000 Genomes data instead contains a huge number of
 % dimensions (features). As a result, the default random forests implementation is unable to partition the data into
 % small-enough tasks for nodes on the computer cluster to handle.
 
-We therefore developed CursedForest, a Spark-based random forest algorithm able to process big and `wide' data. Unlike
+We therefore developed CursedForest, a Spark-based random forest algorithm able to process big and ``wide'' data. Unlike
 the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
-excessive resource requirements on the driver or worker nodes.
+excessive resource requirements on the driver or worker nodes. It also greatly reduces memory requirements on worker nodes
+by partitioning the job differently than Spark ML.
 %Also, due to more efficient handling of high-dimensional data, equivalent jobs are likely to finish faster on wideML than Spark ML.
-In the first section we 
+In the first section we explore some of the properties of random forests, demonstrating that any potential flaws in CursedForest
+are an inherent property of Random Forests. Here we provide demonstrations using synthetic data.
+We then demonstrate the scalability of CursedForest in respect to the dimensionality of the data, building an RF model on whole-genome
+data from the 1000 Genomes Project. Here we report on the accuracy (in terms of the ARI) and the error.
+Finally, given the role different parameter values can play in model construction, we explore the effect tuning these parameters
+can have on the prediction accuracy of a model.
 
 
 % You may title this section "Methods" or "Models". 
@@ -417,11 +424,8 @@ In the first section we
 % authors may use "Analysis" 
 \section*{Methods}
 
-
-
-
 \subsection*{VariantSpark.}
-Traditionally, VariantSpark made use of Spark's machine learning algrorithms `Spark ML'. These algorithms require data in a `DataFrame',
+Traditionally, VariantSpark made use of Spark's machine learning algrorithms, ``Spark ML''. These algorithms require data in a ``DataFrame'',
 similar to DataFrames in R.
 
 We use the same pre-processing algorithms in CursedForests. One difference is that we 
@@ -531,16 +535,21 @@ a)& b)\\
 %Spark ML vs CursedForest vs Kmeans vs LR on small and full version (where applicable) of 1000G (performance and
 %time/mem)
 
-Traditionally, VariantSpark used the random forest algorithm from SparkML. While SparkML algorithms demonstrate
+Traditionally, VariantSpark used the random forest algorithm from Spark ML. While Spark ML algorithms demonstrate
 scalability when dealing with a large number of samples, this scalability quickly breaks down as we include more features.
 
-One of the restrictions preventing SparkML algorithms from scaling to high-dimensionality data is the fact that the feature-set
-for each individual is stored as a `Vector'. In Spark, Vectors are unable to be split and to process multiple vectors together,
-the entirety of each vector must be loaded into memory on the same node. Therefore, as dimensionality increases, the
-size of these Vectors must also increase, and subsequently this results in higher memory requirents.
+One of the restrictions preventing Spark ML algorithms from scaling to high-dimensionality data is that the feature-set
+for each sample is stored as a vector data type. Spark vectors are stored in resilient distributed dataset (RDDs), and while RDDs
+can be split, vectors cannot. So as we add more samples (in our case individuals), Spark ML can simply split the RDD into more
+partitions and resource requirements will remain relatively stable. However, as the number of dimensions (variants) increases,
+the size of the vectors increases. This results in higher memory-requirements as increasingly large vectors must be loaded
+into memory.
 
-On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed" data. It avoids the relation between
+On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed'' data. It avoids the relation between
 memory and dimensionality, by not using Vectors. Instead, CursedForest stores data in the Parquet columnar format.
+To build a tree, CursedForest will distribute tasks across compute nodes to calculate the information gain for every feature
+in the feature-set. The result is then reduced to return the feature which gives the greatest information gain.
+This process is then repeated until CursedForest has calculated every node for said tree.
 
 
 
@@ -553,29 +562,29 @@ memory and dimensionality, by not using Vectors. Instead, CursedForest stores da
 \begin{tabular}{|l+l|l|l|l|l|l|l|}
 \hline
 %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-\bf{Genome \%}  & \bf{Method} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory/Node} \\
+\bf{Genome \%}  & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
 
-\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest &  &  &  \\
-& RF (Spark ML) &  &  &  \\
-& RF (R) & 0.456 & 2.89 & 18GB \\ \hline
+\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
+& RF - Spark ML &  &  &  \\
+& RF - R & 0.456 & 2.89 & 18GB \\ \hline
 
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & XX & 1hr 58min & 4GB \\
-& RF (Spark ML) & 0.94 & 8hr 29min & 8GB \\
-& LR &  & 2hr 6min & 8GB\\ \hline
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
+& RF - Spark ML & 0.94 & 8hr 29min & 8GB \\
+& LR - Spark ML&  & 2hr 6min & 8GB\\ \hline
 
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & 0.046 () & 4hr 0min & 4GB\\
-& RF(Spark ML) & &  &\\
-& LR & & 14hr 48min & 8GB \\ \hline
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
+& RF - Spark ML & &  &\\
+& LR - Spark ML & & 14hr 48min & 8GB \\ \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & 0.96 & 7hr 14min & 8GB \\ 
-& RF (Spark ML) & - & - & - \\
-& LR & - & - & - \\ 
-& kmeans (Spark ML) & 0.82 & 30hr 44min & 24GB \\ \hline
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
+& RF - Spark ML & - & - & - \\
+& LR - Spark ML & - & - & - \\ 
+& kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ \hline
 \end{tabular}
 \begin{flushleft} 
 Comparison of different various machine learning libraries on different subsets of variant data 
-from the 1000 Genomes Project. Size of the data is individuals x variants
+from the 1000 Genomes Project. Size of the data is listed as individuals x variants.
 
 \end{flushleft}
 \label{table1}
@@ -630,7 +639,7 @@ from the 1000 Genomes Project. Size of the data is individuals x variants
 
 
 \subsection*{Parameter settings}
-\marginpar{ was''Random forest is sensitive to tree depth''}
+\marginpar{ was``Random forest is sensitive to tree depth''}
 In this setting, variable selection in very high dimensions, we nned to consider the parameter setting for the RF
 algorithm. 
 
@@ -639,7 +648,7 @@ Cutler. We consider the parameters:
 \begin{itemize}
 \item the size and complexity of the individual trees is controlled in RandomForests by setting \texttt{nodesize}, the
   minimum size of terminal nodes. It is controlled in Spark.ML by setting \texttt{maxDepth}, the maximum depth of each
-  tree in the forest. The SparkML documentation somewhat unhelpfully sets \texttt{maxDepth=4} in their classification
+  tree in the forest. The Spark ML documentation somewhat unhelpfully sets \texttt{maxDepth=4} in their classification
   example\footnote{the documentation is available at \url{http://spark.apache.org/docs/latest/mllib-ensembles.html} }.
   In the ATCG example the RF code produced trees with depths of 30+. We note that Random forests are a way of averaging
   multiple deep decision trees, trained on different parts of the same training set, with the goal of reducing the
@@ -667,8 +676,7 @@ useful ranking of variable importance.
 &&&&&\\ \hline
 \end{tabular}
 \begin{flushleft} 
-  Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus
-  tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+  Table notes here.
 \end{flushleft}
 \label{table2}
 %\end{adjustwidth}
@@ -684,7 +692,7 @@ useful ranking of variable importance.
 
 
 \subsection*{Conclusion}
-
+We find 
 
 
 %\begin{table}[!ht]
@@ -708,17 +716,10 @@ useful ranking of variable importance.
 \section*{Supporting Information}
 
 % Include only the SI item label in the subsection heading. Use the \nameref{label} command to cite SI items in the text.
-\subsection*{S1 Video}
-\label{S1_Video}
-{\bf Bold the first sentence.}  Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
+%\subsection*{S1 Video}
+%\label{S1_Video}
+%{\bf Bold the first sentence.}  Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget %enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
 
-\subsection*{S1 Text}
-\label{S1_Text}
-{\bf Lorem Ipsum.} Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
-
-\subsection*{S1 Table}
-\label{S1_Table}
-{\bf Lorem Ipsum.} Maecenas convallis mauris sit amet sem ultrices gravida. Etiam eget sapien nibh. Sed ac ipsum eget enim egestas ullamcorper nec euismod ligula. Curabitur fringilla pulvinar lectus consectetur pellentesque.
 
 \section*{Acknowledgments}
 Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam id pretium nisi. Sed ac quam id nisi malesuada congue. Sed interdum aliquet augue, at pellentesque quam rhoncus vitae.
