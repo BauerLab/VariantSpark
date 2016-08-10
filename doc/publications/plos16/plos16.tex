@@ -323,7 +323,7 @@ highlighting the need for incorporating modern compute paradigms to deal with th
 Distributing the compute tasks is one strategy to overcome this challenge. Apache Spark, with APIs available for
 Scala, Java, Python and R, allows for distributed applications to scale to thousands of nodes.
 A Spark application runs on a ``driver'' node, and this node
-divides and distributes work out to the many ``worker'' nodes.  Spark also includes the machine learning (ML) library,
+divides and distributes work out to the many ``worker'' nodes, or ``executors''.  Spark also includes the machine learning (ML) library,
 Spark ML, providing support for a selection of machine learning algorithms.  Spark ML includes supervised approaches such
 as decision trees and the ensemble method, random forests, as well as unsupervised approaches such as k-means clustering.
 
@@ -484,10 +484,13 @@ the size of the vectors increases. This results in higher memory-requirements as
 into memory.
 
 On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed'' data. It avoids the relation between
-memory and dimensionality, by not using Vectors. Instead, CursedForest stores data in the Parquet columnar format.
-To build a tree, CursedForest will distribute tasks across compute nodes to calculate the information gain for every feature
-in the feature-set. The result is then reduced to return the feature which gives the greatest information gain.
-This process is then repeated until CursedForest has calculated every node for said tree.
+memory and dimensionality by avoiding calculations that rely on entire feature vectors.
+
+Compared to Spark ML, CursedForest further parallelizes work down to individual features. 
+For example, for each node of a tree, CursedForest will distribute tasks that consist of single features (variants), for every individual.
+Each of these tasks will calculate the information gain for that specific feature.
+Once these tasks have completed, the results are reduced to return the feature which gives the greatest information gain.
+This process is then repeated until CursedForest has calculated the entire decicion tree.
 
 
 The current implementation of Cursed Forest uses:
