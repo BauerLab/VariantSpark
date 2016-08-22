@@ -249,10 +249,10 @@ Denis C. Bauer\textsuperscript{1,*}
 \begin{itemize}
 \item   I think the structure of the first section should be
   \begin{itemize}
-  \item  convergence results from Biau 2012
+  \item  convergence results from Biau 2012  (done)
   \item consider  \cite{Segal.2004} examples
   \item simulations reproduced from Genuer et al 2010 (no -- we need classification examples)
-  \item check Piotr's simulation
+  \item check Piotr's simulation  (done)
   \item run sparkML or Cursed forest on the  simulation data 
   \item we extend the simulations to many more variables 
   \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
@@ -267,7 +267,17 @@ Denis C. Bauer\textsuperscript{1,*}
 \item check out 
   \begin{itemize}
   \item D\'iaz-Uriarte, R., \& Alvarez de Andr\'es, S. (2006). (done)
-  \item Goldstein et al. (2011)
+  \item \cite{Goldstein.et.al.2011}
+notes that the 0, 1, 2 encoding of alleles is an additive model i.e. each additional minor allele increases the effect 
+\begin{verbatim}
+Different genetic effects
+Type	Mechanism	Partition
+Additive	Each additional minor allele increases variation	0, 1, 2
+Dominant	Presence of at least 1 minor allele increases variation	0, 1/2
+Recessive	Two minor alleles needed for variation	0/1, 2
+Heterosis	Heterozygote leads to variation	0/2, 1
+\end{verbatim}
+
   \item Chen (2012)  (done)
   \item VSURF and  varSelRF, (doee) recursive feature (forwards backwards) using variable importance
   \item ranger package
