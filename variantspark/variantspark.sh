@@ -1,6 +1,4 @@
 # Default configuration
-StartPosition=0
-EndPosition=2147483647
 IncludeGroups=""
 ExcludeGroups=""
 SampleSize=1
@@ -46,11 +44,9 @@ spark-submit --class au.csiro.obr17q.variantspark.VcfClustering \
       --executor-memory $executor_memory \
       --executor-cores $executor_cores \
       --driver-memory $driver_memory \
-      workspace/variantspark/target/variantspark-0.0.1-SNAPSHOT.jar \
+      target/variantspark-0.0.1-SNAPSHOT.jar \
       $input_file \
-      $StartPosition \
-      $EndPosition \
       $clusters \
       "$IncludeGroups" \
       "$ExcludeGroups" \
-      $SampleSize
+      $VariantCutoff
