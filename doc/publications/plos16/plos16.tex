@@ -297,34 +297,33 @@ life~\cite{Loebbecke2015}.  These data sets are not only growing vertically by c
 horizontally by capturing more information about these events.  The challenge of big and `wide' data is especially
 pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
 billion base-pairs of the human genome.  
-%While a large fraction of this data is identical between individuals, 
 
-Identifying the relevant and disease specific base-pair differences between individuals is the focus of genome wide association studies (GWAs)~\cite{CCC2007}, which typically ascertain the mutations prevalence between affected and unaffected individuals at every genomic position independently.  
-% complex trait analysis~\cite{Yang2011}.
-These calculations were typically on a reduced-representation of the genome (SNP-arrays), however with WGS becoming more prevalent deep GWAs  sample numbers Crop ~\cite{Yano2016}
+Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide association studies (GWAs).
+These analysis are typically performed on only the base-pairs that differ frequently in the population (SNPs) with a linear or logistic regression analysis performed for each SNPs separately~\cite{CCC2007}.
+Not taking joint interactions between SNPs into account when filtering for potential disease mutations has since been demonstrated to to be inadequate, with variants identified from GWAS explaining only a small proportion of the overall heritability~\cite{Manolio2009}.
 
+Random Forests~\cite{Breiman.2001} (RF) are able to capture interactions between features and are hence better suited for modelling complex polygenic diseases. 
+Szymczak2016 {\it et al.} hence relied on random forests to perform variable selection in genome-wide association studies. 
+%DENIS Rob do you want to flesh this out more
+\marginpar{Rob do you want to flesh this out more}
+%(80000000 feat * 28800 s)/ 500000 feat = 4608000 s = 53 days
+%6000 samples
+On a simulated datasets with 500,000 features, r2VIM used 8 h (two threads).
+
+With WGS becoming more prevalent GWAs-type analyses need to be performed on datasets with a much larger number of features~\cite{Yano2016}. 
 For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
-denoting the differences between individuals.  This dataset consumes close to a terabyte of disk space.  
-The richness of
-this data can be utilised in other datasets as well by filling in or ``imputing'' the information at genomic positions
-previously unobserved due to the less detailed resolution of older array technology [citation about imputation].
-\marginpar{citations missing} 
-This means that the large number of samples for which genome-wide association (GWA) data
-is available~\cite{Welter2013} can be extended horizontally by imputing the previously unobserved genotypes.  This
-provides the potential to generate datasets of hundreds of thousands of individuals with millions of variants,
-highlighting the need for incorporating modern compute paradigms to deal with these challenges.
+This dataset consumes close to a terabyte of disk space.  
+The richness of this data can be utilised to ``fill in" or impute the information at previously unobserved genomic positions e.g. from older older array technology~\cite{Howie2012}.
+This provides the potential to impute samples in the GWAs catalogue and generate datasets of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern compute paradigms to deal with these challenges.
 
-% WGS has proven itself in discovering rare variants
-% [http://www.sciencedirect.com/science/article/pii/S2352396414000498] and diagnosing unknown genetic disorders [MATT
-% MIGHT], One challenge with analysing WGS data over, for example, traditional genome-wide association (GWA) data, is
-% developing software and algorithms to deal with the huge amounts of data.  Although the sample size of WGS data-sets
-% may be comparable to GWA, the dimensionality of the data may be many times larger. For example, the 1000 Genome data
-% consists of approximately 2500 individuals with up to 80 million variants. The uncompressed file sizes are close to a
-% terabyte. Of course, it's not just genomic data that is rapidly growing. Many other types of data
+%(80000000 feat * 26.423 s)/167698 feat =12605 s = 3.5 hours
+CloudForest~\cite{Bressler2015} written in Go, achieves fast running times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading, it processes 167,698 features in 26.423s.  
+%DENIS Rob do you want to flesh this out more
+\marginpar{Rob do you want to flesh this out more}
 
+However, expanding parallelisation beyond multi-threading and utilise CPUs from multiple compute nodes overcomes the limitation to hardware architecture hence allowing to scale to the large dimensional datasets and meet future demands.  
 
-% Developed b Apache, Hadoop is one platform for dealing with large data sets is Platforms Fortunately computational
-% tools such as Apache Spark are available as a framework for iteratively dealing with big data.
+%DENIS Write clearer
 Distributing the compute tasks is one strategy to overcome this challenge. Apache Spark, with APIs available for
 Scala, Java, Python and R, allows for distributed applications to scale to thousands of nodes.
 A Spark application runs on a ``driver'' node, and this node
@@ -338,7 +337,6 @@ Using VariantSpark, we successfully built a k-means model on the full
 $2500 \times 80$ million matrix to cluster individuals by
 their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering  and -1 random clustering).
 
-
 While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is
 supervised learning, i.e. given a phenotype or clinical label determine the most associated features.  One of the
 simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
@@ -346,6 +344,11 @@ linear combination of the feature variables.  Processing the ``wide'' genomic da
 applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
 This is known as the ``curse of dimensionality''~\cite{Bauer2014}.  
 \marginpar{is this the reference we want for the ``curse of dimensionality''  Bellman (1961) is a more usual reference}
+
+
+
+
+
 
 
 Decision trees have a number of desirable features, they:
