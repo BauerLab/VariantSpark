@@ -581,8 +581,8 @@ a)& b)\\
 %time/mem)
 
 
-
 \begin{table}[!ht]
+\begin{minipage}{\textwidth}
 \begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \caption{
 {\bf Performance comparison between the different machine learning algorithms.}}
@@ -594,15 +594,25 @@ a)& b)\\
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
 & RF - Spark ML &  &  &  \\
-& RF - R & 0.456 & 2.89 & 18GB \\ \hline
-
+& RF - R &  0.05  & 24 min  & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes}\\
+& ranger -R &         0.05 &        1 min 10 seconds  &          16GB  (one processor) \\
+ \hline
+\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548} &  &  &  &  \\
+& RF - R & NA  & NA & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface}\\
+&  H2O   &        0.05 &     16 hours       &   600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
+\hline
 \multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
 & RF - Spark ML & 0.94 & 8hr 29min & 8GB \\
-& LR - Spark ML&  & 2hr 6min & 8GB\\ \hline
-
+& LR - Spark ML&  & 2hr 6min & 8GB\\ 
+& ranger  R   &  0.06   &     28 mins  &            num.threads=10\footnote{don't know how to get the memory used, This
+  was done on dpas-03} \\ 
+\hline
 \multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
 & RF - Spark ML & &  &\\
-& LR - Spark ML & & 14hr 48min & 8GB \\ \hline
+& LR - Spark ML & & 14hr 48min & 8GB \\ 
+& ranger  R   &  0.05   &     58 mins\footnote{ but took 6 hours to load the data}  &      909GB\footnote{I think this is total memory. The job was run with
+  ntasks-per-node=160 cores-per-socket=10 on ruby }  \\ 
+\hline
 
 \multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
 & RF - Spark ML & - & - & - \\
@@ -616,6 +626,7 @@ from the 1000 Genomes Project. Size of the data is listed as individuals x varia
 \end{flushleft}
 \label{table1}
 \end{adjustwidth}
+\end{minipage}
 \end{table}
 
 
