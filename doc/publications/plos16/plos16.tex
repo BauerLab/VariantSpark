@@ -166,6 +166,7 @@
 
 %% Include all macros below
 
+\newcommand{\cursedforest}{{\sc CursedForest}}
 \newcommand{\lorem}{{\bf LOREM}}
 \newcommand{\ipsum}{{\bf IPSUM}}
 
@@ -307,43 +308,44 @@ The abstract.
 
 The digital revolution is seeing a dramatic increase in data collected about every aspect of 
 life~\cite{Loebbecke2015}.  These data sets are not only growing vertically by capturing more and more events but also
-horizontally by capturing more information about these events.  The challenge of big and `wide' data is especially
+horizontally by capturing more information about these events.  The challenge of big and ``wide'' data is especially
 pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
-billion base pairs of the human genome.  While a large fraction of this data is identical between individuals,
-identifying the relevant and disease specific differences is the focus of complex trait analysis [citation].
+billion base pairs of the human genome.  
 
 Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide association studies (GWAs).
-These analysis are typically performed on only the base-pairs that differ frequently in the population (SNPs) with a linear or logistic regression analysis performed for each SNPs separately~\cite{CCC2007}.
-Not taking joint interactions between SNPs into account when filtering for potential disease mutations has since been demonstrated to to be inadequate, with variants identified from GWAS explaining only a small proportion of the overall heritability~\cite{Manolio2009}.
+These analysis are typically performed on only the most frequently differing base-pairs (SNPs) by applying linear or logistic regression analysis to each SNPs separately~\cite{CCC2007}.
+It has since been demonstrated that not taking joint interactions between SNPs into account when filtering for potential disease mutations is inadequate~\cite{Manolio2009}. 
+Complex Trait analysis has demonstrated that in order to explain the overall heritability a model needs to take the joint contribution of all variants into account~\cite{Yang2011}.
 
-Random Forests~\cite{Breiman.2001} (RF) are able to capture interactions between features and are hence better suited for modelling complex polygenic diseases. 
-Szymczak2016 {\it et al.} hence relied on random forests to perform variable selection in genome-wide association studies. 
-%DENIS Rob do you want to flesh this out more
-\marginpar{Rob do you want to flesh this out more}
-%(80000000 feat * 28800 s)/ 500000 feat = 4608000 s = 53 days
-%6000 samples
-On a simulated datasets with 500,000 features, r2VIM used 8 h (two threads).
+Random Forests~\cite{Breiman2001} (RF) are able to capture interactions between features while still allowing to prioritise SNPs for their contribution to disease. 
+The joint interaction is achieved by apply the technique of bootstrap aggregation or bagging to decision trees, while a measure of variable importance can be provided for example by summing the number of times a variable is used to split a node, over all nodes and all trees.
+Processing ``wide'' genomic data poses difficulties for machine learning applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalise poorly. 
+This is known as the ``curse of dimensionality''~\cite{Bauer2014, bellman1961adaptive}. 
+RF are known to be more resistant to overfitting than other techniques~\cite{Segal.2004}. 
+%DENIS Rob, Piotr anything else to add or explain more clearly?
+\marginpar{Rob, Piotr anything else to add or explain more clearly?}
+RF are hence well suited for modelling complex polygenic diseases and identifying the strongest contributing features overall. 
 
-With WGS becoming more prevalent GWAs-type analyses need to be performed on datasets with a much larger number of features~\cite{Yano2016}. 
+Several RF implementations exists, most notably {\sc party}~\cite{} and the {\sc random forest} implementation in R~\cite{}. 
+%DENIS Rob, Piotr can you extend this with some more detailed descriptions of party and RF in R
+\marginpar{Rob, Piotr can you extend this with some more detailed descriptions of party and RF in R}
+These traditional implementations are have been reported to not scale well with increasing feature size~\cite{Wright.and.Ziegle.2016}.
+
+Historically successful solutions are hence not catering for the big data demands that especially due to WGS are becoming more prevalent. Here, GWAs-type analyses need to be performed on datasets with a much larger number of features~\cite{Yano2016}. 
 For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
 This dataset consumes close to a terabyte of disk space.  
 The richness of this data can be utilised to ``fill in" or impute the information at previously unobserved genomic positions e.g. from older older array technology~\cite{Howie2012}.
 This provides the potential to impute samples in the GWAs catalogue and generate datasets of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern compute paradigms to deal with these challenges.
 
 %(80000000 feat * 26.423 s)/167698 feat =12605 s = 3.5 hours
-CloudForest~\cite{Bressler2015} written in Go, achieves fast running times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading, it processes 167,698 features in 26.423s.  
+{\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast running times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.%, it processes 167,698 features in 26.423s.  
 %DENIS Rob do you want to flesh this out more
 \marginpar{Rob do you want to flesh this out more}
+Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimised for dealing with large data sets.
 
-However, expanding parallelisation beyond multi-threading and utilise CPUs from multiple compute nodes overcomes the limitation to hardware architecture hence allowing to scale to the large dimensional datasets and meet future demands.  
-
-%DENIS Write clearer
-Distributing the compute tasks is one strategy to overcome this challenge. Apache Spark, with APIs available for
-Scala, Java, Python and R, allows for distributed applications to scale to thousands of nodes.
-A Spark application runs on a ``driver'' node, and this node
-divides and distributes work out to the many ``worker'' nodes, or ``executors''.  Spark also includes the machine learning (ML) library,
-Spark ML, providing support for a selection of machine learning algorithms.  Spark ML includes supervised approaches such
-as decision trees and the ensemble method, random forests, as well as unsupervised approaches such as k-means clustering.
+However, these parallelisation strategies are capable to only utilise the CPUs on one compute node (multi-threading), which we show provides faster compute time on smaller dataset but becomes the bottleneck for datasets comprising of millions of features. 
+Hadoop/Spark overcomes this limitation by enabling programs to scale beyond compute-node boundaries and virtually utilise infinite number of CPUs.   
+A Spark application runs on a ``driver'' node, and this node divides and distributes work out to the many ``worker'' nodes, or ``executors''.  
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
@@ -351,19 +353,39 @@ Using VariantSpark, we successfully built a k-means model on the full
 $2500 \times 80$ million matrix to cluster individuals by
 their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering  and -1 random clustering).
 
-While unsupervised clustering is useful for selected clinical applications~\cite{Li2015}, a more common analysis task is
-supervised learning, i.e. given a phenotype or clinical label determine the most associated features.  One of the
-simplest supervised machine learning methods is logistic regression (LR), which creates a decision boundary by fitting a
-linear combination of the feature variables.  Processing the ``wide'' genomic data poses difficulties for machine learning
-applications as having more features $p$ than samples $n$ causes the model to overfit the data and generalize poorly.
-This is known as the ``curse of dimensionality''~\cite{Bauer2014}.  
-\marginpar{is this the reference we want for the ``curse of dimensionality''  Bellman (1961) is a more usual reference}
+Here we extend this toolkit to encompass supervised learning using random forest. 
+Spark ML's RF implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples with only modest dimensionality.  
+Although Spark ML can build a RF model on
+a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
+and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}).  This
+unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
+scaling to larger datasets. The memory requirements per executor also increases with dimensionality due to the data types
+Spark ML uses, which we elaborate on in the discussion.
+
+We therefore developed \cursedforest\, a Spark-based random forest algorithm able to process big and ``wide'' data. 
+%Unlike
+%the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
+%excessive resource requirements on the driver or worker nodes.
+%DENIS Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.
+\marginpar{Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.}
+Harnessing the virtually unlimited capability to parallelise tasks, \cursedforest\ can build a large number of trees, which boosts the accuracy for variable selection as demonstrated by {\sc r2VIM}~\cite{Szymczak2016} on smaller datasets. 
+ 
+In the first section we explore some of the properties of random forests, demonstrating that any potential flaws in CursedForest
+are an inherent property of Random Forests. Here we provide demonstrations using synthetic data.
+We then demonstrate the scalability of CursedForest in respect to the dimensionality of the data, building an RF model on whole-genome
+data from the 1000 Genomes Project. Here we report on the accuracy (in terms of the ARI) and the error.
+Finally, given the role different parameter values can play in model construction, we explore the effect tuning these parameters
+can have on the prediction accuracy of a model.
 
 
 
 
+\section{Methods}
 
 
+% DENIS Rob can you condense this down into what is relevant for this paper and not explained elsewhere in the literature
+\marginpar{Rob can you condense this down into what is relevant for this paper and not explained elsewhere in the literature}
+\section{Overview of Random Forests}
 
 Decision trees have a number of desirable features, they:
 \begin{itemize}
@@ -376,9 +398,9 @@ Decision trees have a number of desirable features, they:
 However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
 lead to a very different model. 
 
-\subsection{Random Forest}  
+%\subsection{Random Forest}  
 
-Random Forests~\cite{Breiman.2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
+Random Forests~\cite{Breiman2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
 data is independently drawn from the joint distribution of $(X,Y)$ and comprises $n$ $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$.
 $X$ and $\theta_b$ for $b=1,\ldots,B$ are i.i.d. random vectors and a tree is grown on each of these $\theta_b$  samples 
 ($X$ is randomly sampled $B$ times with replacement and a tree is grown on each of these $B$ samples). 
@@ -441,6 +463,9 @@ However, there are many examples, (particularly in genomics) where we have data 
 \item the hypothesized functional relationship is of a form amenable to a decision tree.
 \end{itemize}
 
+
+% DENIS why is this relevant 
+\marginpar{why is this relevant, i.e. if it is something we show in the first result section it should be introduced there.}
 \subsubsection{convergence}
 Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
@@ -454,12 +479,12 @@ Subject to certain conditions, RF will not overfit even in the  $p > n$ case.
 Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
 
 
+% DENIS why is this relevant 
+\marginpar{why is this relevant, i.e. if this is special to VariantSpark it should be explained better.}
 \subsubsection{variable selection}
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using the
 importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic data.
 \marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of RF to handle GWAS data. What do we need to do in this area}
-
-\section{Methods}
 
 
 
@@ -467,33 +492,6 @@ importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area w
 \subsection{VariantSpark.}
 Traditionally, VariantSpark made use of Spark's machine learning algorithms ``Spark ML''. These algorithms require data in a ``DataFrame'',
 similar to DataFrames in R.
-
-However, we observe that Spark ML's RF implementation is not able to handle the extremely ``wide'' genomic data as
-it was developed for large number of samples with only modest dimensionality.  Although Spark ML can build a RF model on
-a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
-and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}).  This
-unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
-scaling to larger datasets. The memory requirements per executor also increases with dimensionality due to the data types
-Spark ML uses, which we elaborate on in the discussion.
-
-
-We therefore developed CursedForest, a Spark-based random forest algorithm able to process big and ``wide'' data. Unlike
-the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
-excessive resource requirements on the driver or worker nodes.
-
-
-In the first section we explore some of the properties of random forests, demonstrating that any potential flaws in CursedForest
-are an inherent property of Random Forests. Here we provide demonstrations using synthetic data.
-We then demonstrate the scalability of CursedForest in respect to the dimensionality of the data, building an RF model on whole-genome
-data from the 1000 Genomes Project. Here we report on the accuracy (in terms of the ARI) and the error.
-Finally, given the role different parameter values can play in model construction, we explore the effect tuning these parameters
-can have on the prediction accuracy of a model.
-
-
-
-We use the same pre-processing algorithms in CursedForests. One difference is that we 
-
-
 
 Traditionally, VariantSpark used the random forest algorithm from Spark ML. While Spark ML algorithms demonstrate
 scalability when dealing with a large number of samples, this scalability quickly breaks down as we include more features.
@@ -529,15 +527,6 @@ In this case, the information gain is IG = Entropy(parent node) - Weighted Sum o
 
 
 \section{Results and Discussion}
-
-
-%OPTIONS
-% Spark ML vs MLlib
-% random forest, kmeans, logistic regression 
-% synthetic data demonstrating random forest can cope with n<<p
-% James dataset
-% GWAS dataset
-
 
 \marginpar{These are regression examples, we need some classification examples}
 
