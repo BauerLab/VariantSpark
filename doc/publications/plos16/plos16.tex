@@ -249,10 +249,10 @@ Denis C. Bauer\textsuperscript{1,*}
 \begin{itemize}
 \item   I think the structure of the first section should be
   \begin{itemize}
-  \item  convergence results from Biau 2012
+  \item  convergence results from Biau 2012  (done)
   \item consider  \cite{Segal.2004} examples
   \item simulations reproduced from Genuer et al 2010 (no -- we need classification examples)
-  \item check Piotr's simulation
+  \item check Piotr's simulation  (done)
   \item run sparkML or Cursed forest on the  simulation data 
   \item we extend the simulations to many more variables 
   \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
@@ -267,13 +267,26 @@ Denis C. Bauer\textsuperscript{1,*}
 \item check out 
   \begin{itemize}
   \item D\'iaz-Uriarte, R., \& Alvarez de Andr\'es, S. (2006). (done)
-  \item Goldstein et al. (2011)
+  \item \cite{Goldstein.et.al.2011}
+notes that the 0, 1, 2 encoding of alleles is an additive model i.e. each additional minor allele increases the effect 
+\begin{verbatim}
+Different genetic effects
+Type	Mechanism	Partition
+Additive	Each additional minor allele increases variation	0, 1, 2
+Dominant	Presence of at least 1 minor allele increases variation	0, 1/2
+Recessive	Two minor alleles needed for variation	0/1, 2
+Heterosis	Heterozygote leads to variation	0/2, 1
+\end{verbatim}
+
   \item Chen (2012)  (done)
-  \item VSURF and  varSelRF, (doee) recursive feature (forwards backwards) using variable importance
-  \item ranger package
+  \item VSURF and  varSelRF, (done) recursive feature (forwards backwards) using variable importance
+  \item \cite{Wright.and.Ziegle.2016} ranger package (doing it!)
   \item  r2VIM: A new variable selection method for random forests in
     genome-wide association studies
-  \item CloudForest: A Scalable and Efficient Random Forest Implementation for Biological Data
+  \item CloudForest: A Scalable and Efficient Random Forest
+    Implementation for Biological Data
+   Ensembles of decision trees in go/golang   --  do we need to look
+   at this? 
   \item \cite{Tuv.et.al.2009} feature selection via adding permuted variables. Do we want to consider this? (no, leave it for now)
   \end{itemize}
 \item other things to do
@@ -296,7 +309,8 @@ The digital revolution is seeing a dramatic increase in data collected about eve
 life~\cite{Loebbecke2015}.  These data sets are not only growing vertically by capturing more and more events but also
 horizontally by capturing more information about these events.  The challenge of big and `wide' data is especially
 pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
-billion base-pairs of the human genome.  
+billion base pairs of the human genome.  While a large fraction of this data is identical between individuals,
+identifying the relevant and disease specific differences is the focus of complex trait analysis [citation].
 
 Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide association studies (GWAs).
 These analysis are typically performed on only the base-pairs that differ frequently in the population (SNPs) with a linear or logistic regression analysis performed for each SNPs separately~\cite{CCC2007}.
@@ -576,8 +590,8 @@ a)& b)\\
 %time/mem)
 
 
-
 \begin{table}[!ht]
+\begin{minipage}{\textwidth}
 \begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \caption{
 {\bf Performance comparison between the different machine learning algorithms.}}
@@ -589,15 +603,25 @@ a)& b)\\
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
 & RF - Spark ML &  &  &  \\
-& RF - R & 0.456 & 2.89 & 18GB \\ \hline
-
+& RF - R &  0.05  & 24 min  & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes}\\
+& ranger -R &         0.05 &        1 min 10 seconds  &          16GB  (one processor) \\
+ \hline
+\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548} &  &  &  &  \\
+& RF - R & NA  & NA & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface}\\
+&  H2O   &        0.05 &     16 hours       &   600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
+\hline
 \multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364} & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
 & RF - Spark ML & 0.94 & 8hr 29min & 8GB \\
-& LR - Spark ML&  & 2hr 6min & 8GB\\ \hline
-
+& LR - Spark ML&  & 2hr 6min & 8GB\\ 
+& ranger  R   &  0.06   &     28 mins  &            num.threads=10\footnote{don't know how to get the memory used, This
+  was done on dpas-03} \\ 
+\hline
 \multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051}  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
 & RF - Spark ML & &  &\\
-& LR - Spark ML & & 14hr 48min & 8GB \\ \hline
+& LR - Spark ML & & 14hr 48min & 8GB \\ 
+& ranger  R   &  0.05   &     58 mins\footnote{ but took 6 hours to load the data}  &      909GB\footnote{I think this is total memory. The job was run with
+  ntasks-per-node=160 cores-per-socket=10 on ruby }  \\ 
+\hline
 
 \multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
 & RF - Spark ML & - & - & - \\
@@ -611,6 +635,7 @@ from the 1000 Genomes Project. Size of the data is listed as individuals x varia
 \end{flushleft}
 \label{table1}
 \end{adjustwidth}
+\end{minipage}
 \end{table}
 
 
