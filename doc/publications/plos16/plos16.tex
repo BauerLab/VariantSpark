@@ -327,18 +327,18 @@ RF are known to be more resistant to overfitting than other techniques~\cite{Seg
 RF are hence well suited for modelling complex polygenic diseases and identifying the strongest contributing features overall. 
 
 
-RF are very easy to parallize. As the forest is a sum of descision trees, it it possible to grow separate trees on 
+RF are very easy to parallize. As the forest is a sum of decision trees, it it possible to grow separate trees on 
 each processor and sum them. This mode of parallization is widely used for the {\sc random forest} implementation in
 R~\cite{}, and could also be used for the {\sc party}~\cite{} package.
 \marginpar{Rob, Piotr can you extend this with some more detailed descriptions of party and RF in R}
  However,
 this has several limitations. One is that these implementations reach a hard limit in R when they require vectors of a
-length greater than $2^{31}-1$. While R now has basic support for long vectors, not all fuctions can utilize it.
+length greater than $2^{31}-1$. While R now has basic support for long vectors, not all functions can utilize it.
 These traditional implementations are have been reported to not scale well with increasing feature
 size~\cite{Wright.and.Ziegle.2016}.
 
-However a more basic problem may be that the parallization is at too course a grain. The Cursed Forest implemtation has
-a finer grained version of paraliization where the calculation for each split is handed off ot a separate processor. 
+However a more basic problem may be that the parallization is at too course a grain. The Cursed Forest implementation has
+a finer grained version of parallization where the calculation for each split is handed off to a separate processor. 
 
 
 
