@@ -83,6 +83,27 @@
   Url                      = {http://dx.doi.org/10.1023/A:1010933404324}
 }
 
+@Article{Bressler2015,
+  Title                    = {CloudForest: A Scalable and Efficient Random Forest Implementation for Biological Data.},
+  Author                   = {Bressler, Ryan and Kreisberg, Richard B. and Bernard, Brady and Niederhuber, John E. and Vockley, Joseph G. and Shmulevich, Ilya and Knijnenburg, Theo A.},
+  Journal                  = {PLoS One},
+  Year                     = {2015},
+  Number                   = {12},
+  Pages                    = {e0144820},
+  Volume                   = {10},
+  Abstract                 = {Random Forest has become a standard data analysis tool in computational biology. However, extensions to existing implementations are often necessary to handle the complexity of biological datasets and their associated research questions. The growing size of these datasets requires high performance implementations. We describe CloudForest, a Random Forest package written in Go, which is particularly well suited for large, heterogeneous, genetic and biomedical datasets. CloudForest includes several extensions, such as dealing with unbalanced classes and missing values. Its flexible design enables users to easily implement additional extensions. CloudForest achieves fast running times by effective use of the CPU cache, optimizing for different classes of features and efficiently multi-threading. https://github.com/ilyalab/CloudForest.},
+  Doi                      = {10.1371/journal.pone.0144820},
+  Institution              = {Institute for Systems Biology, Seattle, WA, United States of America.},
+  Keywords                 = {Classification; Computational Biology, methods; Data Interpretation, Statistical; Programming Languages; Regression Analysis; Software},
+  Language                 = {eng},
+  Medline-pst              = {epublish},
+  Owner                    = {bau04c},
+  Pii                      = {PONE-D-15-17676},
+  Pmid                     = {26679347},
+  Timestamp                = {2016.08.24},
+  Url                      = {http://dx.doi.org/10.1371/journal.pone.0144820}
+}
+
 @Article{Chen.and.Ishwaran.2012,
   Title                    = {Random forests for genomic data analysis },
   Author                   = {Xi Chen and Hemant Ishwaran},
@@ -120,8 +141,6 @@
   Number                   = {7145},
   Pages                    = {661--678},
   Volume                   = {447},
-
-  __markedentry            = {[bau04c:]},
   Doi                      = {10.1038/nature05911},
   Keywords                 = {Arthritis, Rheumatoid, genetics; Bipolar Disorder, genetics; Case-Control Studies; Chromosomes, Human, genetics; Coronary Artery Disease, genetics; Crohn Disease, genetics; Diabetes Mellitus, genetics; Gene Frequency; Genetic Markers, genetics; Genetic Predisposition to Disease, genetics; Genetics, Population; Genome, Human, genetics; Geography; Great Britain; Humans; Hypertension, genetics},
   Language                 = {eng},
@@ -237,6 +256,29 @@
   Url                      = {http://dx.doi.org/10.1016/j.patrec.2010.03.014}
 }
 
+@Article{Howie2012,
+  Title                    = {Fast and accurate genotype imputation in genome-wide association studies through pre-phasing.},
+  Author                   = {Howie, Bryan and Fuchsberger, Christian and Stephens, Matthew and Marchini, Jonathan and Abecasis, Gon{\c{c}}alo R.},
+  Journal                  = {Nat Genet},
+  Year                     = {2012},
+
+  Month                    = {Aug},
+  Number                   = {8},
+  Pages                    = {955--959},
+  Volume                   = {44},
+  Abstract                 = {The 1000 Genomes Project and disease-specific sequencing efforts are producing large collections of haplotypes that can be used as reference panels for genotype imputation in genome-wide association studies (GWAS). However, imputing from large reference panels with existing methods imposes a high computational burden. We introduce a strategy called 'pre-phasing' that maintains the accuracy of leading methods while reducing computational costs. We first statistically estimate the haplotypes for each individual within the GWAS sample (pre-phasing) and then impute missing genotypes into these estimated haplotypes. This reduces the computational cost because (i) the GWAS samples must be phased only once, whereas standard methods would implicitly repeat phasing with each reference panel update, and (ii) it is much faster to match a phased GWAS haplotype to one reference haplotype than to match two unphased GWAS genotypes to a pair of reference haplotypes. We implemented our approach in the MaCH and IMPUTE2 frameworks, and we tested it on data sets from the Wellcome Trust Case Control Consortium 2 (WTCCC2), the Genetic Association Information Network (GAIN), the Women's Health Initiative (WHI) and the 1000 Genomes Project. This strategy will be particularly valuable for repeated imputation as reference panels evolve.},
+  Doi                      = {10.1038/ng.2354},
+  Institution              = {Department of Human Genetics, University of Chicago, Chicago, Illinois, USA.},
+  Keywords                 = {Computational Biology; Databases, Genetic; Genome-Wide Association Study, methods/statistics /&/ numerical data; Genotype; Haplotypes; Human Genome Project; Humans},
+  Language                 = {eng},
+  Medline-pst              = {epublish},
+  Owner                    = {bau04c},
+  Pii                      = {ng.2354},
+  Pmid                     = {22820512},
+  Timestamp                = {2016.08.24},
+  Url                      = {http://dx.doi.org/10.1038/ng.2354}
+}
+
 @Article{Li2015,
   Title                    = {Identification of type 2 diabetes subgroups through topological analysis of patient similarity.},
   Author                   = {Li, Li and Cheng, Wei-Yi and Glicksberg, Benjamin S. and Gottesman, Omri and Tamler, Ronald and Chen, Rong and Bottinger, Erwin P. and Dudley, Joel T.},
@@ -291,6 +333,31 @@
   Url                      = {http://dx.doi.org/10.1016/j.jsis.2015.08.002}
 }
 
+@Article{Manolio2009,
+  Title                    = {Finding the missing heritability of complex diseases.},
+  Author                   = {Manolio, Teri A. and Collins, Francis S. and Cox, Nancy J. and Goldstein, David B. and Hindorff, Lucia A. and Hunter, David J. and McCarthy, Mark I. and Ramos, Erin M. and Cardon, Lon R. and Chakravarti, Aravinda and Cho, Judy H. and Guttmacher, Alan E. and Kong, Augustine and Kruglyak, Leonid and Mardis, Elaine and Rotimi, Charles N. and Slatkin, Montgomery and Valle, David and Whittemore, Alice S. and Boehnke, Michael and Clark, Andrew G. and Eichler, Evan E. and Gibson, Greg and Haines, Jonathan L. and Mackay, Trudy F C. and McCarroll, Steven A. and Visscher, Peter M.},
+  Journal                  = {Nature},
+  Year                     = {2009},
+
+  Month                    = {Oct},
+  Number                   = {7265},
+  Pages                    = {747--753},
+  Volume                   = {461},
+
+  __markedentry            = {[bau04c:]},
+  Abstract                 = {Genome-wide association studies have identified hundreds of genetic variants associated with complex human diseases and traits, and have provided valuable insights into their genetic architecture. Most variants identified so far confer relatively small increments in risk, and explain only a small proportion of familial clustering, leading many to question how the remaining, 'missing' heritability can be explained. Here we examine potential sources of missing heritability and propose research strategies, including and extending beyond current genome-wide association approaches, to illuminate the genetics of complex diseases and enhance its potential to enable effective disease prevention or treatment.},
+  Doi                      = {10.1038/nature08494},
+  Institution              = {National Human Genome Research Institute, Building 31, Room 4B09, 31 Center Drive, MSC 2152, Bethesda, Maryland 20892-2152, USA. manoliot@mail.nih.gov},
+  Keywords                 = {Genetic Diseases, Inborn, genetics; Genetic Predisposition to Disease, genetics; Genetics, Medical, methods/trends; Genome-Wide Association Study, methods/trends; Humans; Inheritance Patterns, genetics; Pedigree},
+  Language                 = {eng},
+  Medline-pst              = {ppublish},
+  Owner                    = {bau04c},
+  Pii                      = {nature08494},
+  Pmid                     = {19812666},
+  Timestamp                = {2016.08.24},
+  Url                      = {http://dx.doi.org/10.1038/nature08494}
+}
+
 @Article{OBrien2015,
   Title                    = {VariantSpark: population scale clustering of genotype information},
   Author                   = {O'Brien, Aidan R. and Saunders, Neil F. W. and Guo, Yi and Buske, Fabian A. and Scott, Rodney J. and Bauer, Denis C.},
@@ -335,6 +402,27 @@
   Doi                      = {10.1186/1471-2105-8-25},
   Gs                       = {7766317648828457249},
   Url                      = {http://www.biomedcentral.com/1471-2105/8/25/abstract}
+}
+
+@Article{Szymczak2016,
+  Title                    = {r2VIM: A new variable selection method for random forests in genome-wide association studies.},
+  Author                   = {Szymczak, Silke and Holzinger, Emily and Dasgupta, Abhijit and Malley, James D. and Molloy, Anne M. and Mills, James L. and Brody, Lawrence C. and Stambolian, Dwight and Bailey-Wilson, Joan E.},
+  Journal                  = {BioData Min},
+  Year                     = {2016},
+  Pages                    = {7},
+  Volume                   = {9},
+
+  __markedentry            = {[bau04c:6]},
+  Abstract                 = {Machine learning methods and in particular random forests (RFs) are a promising alternative to standard single SNP analyses in genome-wide association studies (GWAS). RFs provide variable importance measures (VIMs) to rank SNPs according to their predictive power. However, in contrast to the established genome-wide significance threshold, no clear criteria exist to determine how many SNPs should be selected for downstream analyses.We propose a new variable selection approach, recurrent relative variable importance measure (r2VIM). Importance values are calculated relative to an observed minimal importance score for several runs of RF and only SNPs with large relative VIMs in all of the runs are selected as important. Evaluations on simulated GWAS data show that the new method controls the number of false-positives under the null hypothesis. Under a simple alternative hypothesis with several independent main effects it is only slightly less powerful than logistic regression. In an experimental GWAS data set, the same strong signal is identified while the approach selects none of the SNPs in an underpowered GWAS.The novel variable selection method r2VIM is a promising extension to standard RF for objectively selecting relevant SNPs in GWAS while controlling the number of false-positive results.},
+  Doi                      = {10.1186/s13040-016-0087-3},
+  Institution              = {Statistical Genetics Section, Inherited Disease Research Branch, National Human Genome Research Institute, National Institutes of Health, 333 Cassell Dr, 21224 Baltimore, USA.},
+  Language                 = {eng},
+  Medline-pst              = {epublish},
+  Owner                    = {bau04c},
+  Pii                      = {87},
+  Pmid                     = {26839594},
+  Timestamp                = {2016.08.24},
+  Url                      = {http://dx.doi.org/10.1186/s13040-016-0087-3}
 }
 
 @Article{Tuv.et.al.2009,
@@ -406,8 +494,6 @@
   Number                   = {8},
   Pages                    = {927--934},
   Volume                   = {48},
-
-  __markedentry            = {[bau04c:6]},
   Abstract                 = {A genome-wide association study (GWAS) can be a powerful tool for the identification of genes associated with agronomic traits in crop species, but it is often hindered by population structure and the large extent of linkage disequilibrium. In this study, we identified agronomically important genes in rice using GWAS based on whole-genome sequencing, followed by the screening of candidate genes based on the estimated effect of nucleotide polymorphisms. Using this approach, we identified four new genes associated with agronomic traits. Some genes were undetectable by standard SNP analysis, but we detected them using gene-based association analysis. This study provides fundamental insights relevant to the rapid identification of genes associated with agronomic traits using GWAS and will accelerate future efforts aimed at crop improvement.},
   Doi                      = {10.1038/ng.3596},
   Institution              = {Bioscience and Biotechnology Center, Nagoya University, Nagoya, Japan.},
