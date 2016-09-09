@@ -3,22 +3,31 @@ package au.csiro.obr17q.variantspark
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.Logging
+
 //import org.bdgenomics.adam.rdd.ADAMContext
 
-trait SparkApp {
-  def defaultMasterUrl = "yarn-client"
+trait SparkApp extends Logging {
+  def defaultMasterUrl = "local"
   Logger.getLogger("org").setLevel(Level.OFF)
   Logger.getLogger("akka").setLevel(Level.OFF)
-  
-  lazy val conf = new SparkConf()
-    //.setMaster("local")
-    //.set("spark.shuffle.memoryFraction", "0.2")
-    //.set("spark.storage.memoryFraction", "0.4")
-    //.set("spark.yarn.executor.memoryOverhead", "2048")
-    .set("spark.driver.maxResultSize","2048")
-    //.set("spark.default.parallelism", "256")
-  lazy val masterUrl =  if (System.getenv("MASTER") != null) System.getenv("MASTER") else "yarn-client"
-  lazy val sc = { println("MASTER: " + masterUrl) ; new SparkContext(conf)}
+
+  // Does nothing. For compatability.
+  lazy val masterUrl = "yarn-client"
+
+  lazy val conf = {
+    val conf = new SparkConf(!System.getProperty("sparkle.local","false").toBoolean)
+      .setAppName(getClass.getSimpleName)
+    if (conf.contains("spark.master")) conf else conf.setMaster(defaultMasterUrl)
+  }
+  //.set("spark.shuffle.memoryFraction", "0.2")
+  //.set("spark.storage.memoryFraction", "0.4")
+  //.set("spark.yarn.executor.memoryOverhead", "2048")
+  //.set("spark.driver.maxResultSize","2048")
+  //.set("spark.default.parallelism", "256")
+  lazy val sc = {
+    logDebug("Spark conf: " + conf.toDebugString)
+    new SparkContext(conf)
+  }
   lazy val sqlContext = new SQLContext(sc)
-  //lazy val ac = new ADAMContext(sc)
 }

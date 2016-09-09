@@ -1,6 +1,7 @@
 package au.csiro.obr17q.variantspark
 
 import au.csiro.obr17q.variantspark.model.VcfParser
+import au.csiro.obr17q.variantspark.model.GenericVcfParser
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.rdd.RDD
@@ -35,20 +36,22 @@ object VcfClustering extends SparkApp {
 
     val VcfFiles = args1(0)
     val k = args1(1).toInt
-    val IncludeGroups = args1(2).split('|')
-    val ExcludeGroups = args1(3).split('|')
-    val VariantCutoff = args1(4).toInt
+    // val IncludeGroups = args1(2).split('|')
+    // val ExcludeGroups = args1(3).split('|')
+    // val VariantCutoff = args1(4).toInt
+    val VariantCutoff = 0
+    val LABEL_NAME = "superPopulation" 
+    
+    
+    
+    
+    // val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
+    // val Populations = sc.parallelize(new PopulationMap(PopFiles, 1, ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups))
 
-    
-    
-    
-    
-    //val PopFiles = Source.fromFile("data/PGPParticipantSurvey-20150831064509.csv").getLines()
-    //val Populations = sc.parallelize(new PopulationMap(PopFiles, 1, ',', 0, 16 ).returnMap(IncludeGroups, ExcludeGroups))
-
-    val PopFiles = Source.fromFile("data/ALL.panel").getLines()
-    val IndividualMeta : RDD[IndividualMap] = sc.parallelize(new MetaDataParser(PopFiles, 1, '\t', "NA", 0, 1 ).returnMap(IncludeGroups, ExcludeGroups))
-    val vcfObject = new VcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
+    // val PopFiles = Source.fromFile("data/ALL.panel").getLines()
+    // val IndividualMeta : RDD[IndividualMap] = sc.parallelize(new MetaDataParser(PopFiles, 1, '\t', "NA", 0, 1 ).returnMap(IncludeGroups, ExcludeGroups))
+    val IndividualMeta : RDD[IndividualMap] = null
+    val vcfObject = new GenericVcfParser(VcfFiles, VariantCutoff, IndividualMeta, sc, sqlContext)
 
     val FilteredAlleles = vcfObject.individualTuples
 
@@ -128,74 +131,74 @@ object VcfClustering extends SparkApp {
 
 
     val labelIndexer = new StringIndexer()
-      .setInputCol("preLabel")
+      .setInputCol(LABEL_NAME)
       .setOutputCol("label")
       .fit(data)
 
-    val km = new KMeans()
+    val kmeans = new KMeans()
       .setK(k)
-      .setPredictionCol("label")
+      .setPredictionCol("prediction")
       .setFeaturesCol("features")
 
     val pipeline = new Pipeline()
-      .setStages(Array(labelIndexer, km))
+      .setStages(Array(labelIndexer, kmeans))
 
 
 
 
-    //val model = KMeans.train(dataFrame.map(_._3), k, 300)
-    //model.save(sc, "myModelPath")
-    //val model = KMeansModel.load(sc, "myModelPath")
+    val model = kmeans.fit(data)
 
+
+    val predictions = model.transform(data)
+
+    val predictionsAndLabels = predictions.select("prediction", "individual")
+      .map(row => (row.getInt(0), row.getString(1)))
+
+    predictionsAndLabels.collect.sortBy(_._1).foreach(println)
 
     
     
     //val WSSSE = model.computeCost(dataFrame.map(_._3))
     
-   
-    
-    /*
     /** predictions = RDD(IndividualID, DistanceFromCenter, Centroid) **/
-    val predictions = IndividualVariants.map(p => {
-      (p._1, Vectors.sqdist(p._3, model.clusterCenters(model.predict(p._3))), model.predict(p._3) )
-    })
+    //val predictions = IndividualVariants.map(p => {
+    //  (p._1, Vectors.sqdist(p._3, model.clusterCenters(model.predict(p._3))), model.predict(p._3) )
+    //})
      
-    val SuperPopulationUniqueId = Populations.map(_.SuperPopulationId).distinct().zipWithIndex() //For ARI
+    //val SuperPopulationUniqueId = Populations.map(_.SuperPopulationId).distinct().zipWithIndex() //For ARI
     //val SuperPopulationUniqueId = Populations.map(p => (p._2, p._1)).distinct()
     
     
     // Build RDD of tuples of predictions
-    val predVsExpec = predictions
-    .map(p => (p._1, p._3)) // (IndividualID, Centroid)
-    .join(Populations.map(_.toIndoAll)) // (IndividualID, (Centroid, (PopulationId, SuperPopulationId, something, something)))
-    .map(p => (p._2._2._2, (p._1, p._2._1, p._2._2._3, p._2._2._4, p._2._2._5, p._2._2._6) )) // (PopulationName, (IndividualID, Centroid))
-    .join(SuperPopulationUniqueId) // (PopulationName, ((IndividualID, Centroid), PopulationID))
-    .map(p => (p._2._1._1, p._2._1._2, p._2._2, p._1, p._2._1._3,p._2._1._4,p._2._1._5,p._2._1._6)) // (IndividualID, Centroid, PopulationID, PopulationName)
+    //val predVsExpec = predictions
+    //.map(p => (p._1, p._3)) // (IndividualID, Centroid)
+    //.join(Populations.map(_.toIndoAll)) // (IndividualID, (Centroid, (PopulationId, SuperPopulationId, something, something)))
+    //.map(p => (p._2._2._2, (p._1, p._2._1, p._2._2._3, p._2._2._4, p._2._2._5, p._2._2._6) )) // (PopulationName, (IndividualID, Centroid))
+    //.join(SuperPopulationUniqueId) // (PopulationName, ((IndividualID, Centroid), PopulationID))
+    //.map(p => (p._2._1._1, p._2._1._2, p._2._2, p._1, p._2._1._3,p._2._1._4,p._2._1._5,p._2._1._6)) // (IndividualID, Centroid, PopulationID, PopulationName)
 
     
-    .sortBy(_._2, true, 1)
-    .collect()
+    //.sortBy(_._2, true, 1)
+    //.collect()
     
     //predVsExpec.foreach( p => println( "%s: %s - %s, %s, [%s, %s, %s, %s]".format(p._1, p._2, p._4, p._5, p._6, p._7, p._8, p._9) ))
-    predVsExpec.foreach( p => println( "%s: %s - %s, [%s, %s, %s, %s]".format(p._1, p._2, p._4, p._5, p._6, p._7, p._8) ))
+    //predVsExpec.foreach( p => println( "%s: %s - %s, [%s, %s, %s, %s]".format(p._1, p._2, p._4, p._5, p._6, p._7, p._8) ))
 
     // Find the Adjusted Rand Index.
     // Must have Python and module Scikit installed. 
 
     
     //val pythonPath ="/Library/Frameworks/Python.framework/Versions/2.7/bin/python"
-    val clustered = "[%s]".format(predVsExpec.map(_._2.toString()).reduceLeft(_+","+_))
-    val expected = "[%s]".format(predVsExpec.map(_._3.toString()).reduceLeft(_+","+_))
-    val adjustedRandIndex = GetRandIndex(clustered, expected)
+    //val clustered = "[%s]".format(predVsExpec.map(_._2.toString()).reduceLeft(_+","+_))
+    //val expected = "[%s]".format(predVsExpec.map(_._3.toString()).reduceLeft(_+","+_))
+    //val adjustedRandIndex = GetRandIndex(clustered, expected)
     
-    println("Metrics:")
+    //println("Metrics:")
     //println("Pre-processing time: %s seconds".format((pEndTime - pStartTime)/1000.0))
-    println("k-Means time: %s seconds".format((kEndTime - kStartTime)/1000.0))
-    println("Within Set Sum of Squared Errors = %s".format(WSSSE))
-    println("Adjusted Rand Index: %s".format(adjustedRandIndex))
+    //println("k-Means time: %s seconds".format((kEndTime - kStartTime)/1000.0))
+    //println("Within Set Sum of Squared Errors = %s".format(WSSSE))
+    //println("Adjusted Rand Index: %s".format(adjustedRandIndex))
     //println("From %s alleles".format(NoOfAlleles))
-    
-    */
     
     
     // Save 'predictions' as a SIF file

@@ -12,7 +12,7 @@ import org.apache.spark.sql.SQLContext
 
 class GenericVcfParser(override val VcfFileNames: String, override val VariantCutoff: Int, override val IndividualMeta: RDD[IndividualMap],
                        override val sc: SparkContext, override val sqlContext: SQLContext) extends
-  VcfParser(VcfFileNames, VariantCutoff, sc, sqlContext)(IndividualMeta) {
+  VcfParser(VcfFileNames, VariantCutoff, IndividualMeta, sc, sqlContext) {
 
 
   /**
