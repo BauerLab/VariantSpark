@@ -719,6 +719,34 @@ Each random forest model consists of 50 trees.
 \end{table}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 3: Feature Selection 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{CursedForest selects previously demonstrated cancer variants }
+Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
+variables for further analysis. Our Random Forest implementation allows the user to retrieve a subsection of features, ranked
+by their importance. We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset. We build this model on
+VCF files retrieved from the TCGA data portal. For the label, we use the cell type (i.e. tumor or normal). 
+
+In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the Random Forest model.
+
+\begin{table}[!ht]
+%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\centering
+\caption{
+{\bf Features from the TCGA BRCA dataset ranked by their importance.}}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+{\bf Variant} & {\bf Gene} & {\bf Importance}\\ \thickhline
+x:xxxx & cell2 row 1 & cell3 row 1\\ \hline
+x:xxxx & cell2 row 2 & cell3 row 2\\ \hline
+x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
+\end{tabular}
+\begin{flushleft} Here the importance is the gini coefficient when building a model using the cell type as the label.
+\end{flushleft}
+\label{table3}
+%\end{adjustwidth}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 3: Sensitivity 
