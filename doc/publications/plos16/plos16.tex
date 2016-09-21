@@ -347,7 +347,6 @@ Harnessing the virtually unlimited capability to parallelise tasks, \cursedfores
 This offers a comprehensive analysis toolkit that can scale for the future data demands, where the richness from WGS data can be utilised to ``fill in" or impute the information at previously unobserved genomic positions in older array technology~\cite{Howie2012}. 
 This provides the potential to impute samples in the GWAs catalogue and generate datasets of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern compute paradigms to deal with these challenges.
 
-<<<<<<< HEAD
 %(80000000 feat * 26.423 s)/167698 feat =12605 s = 3.5 hours
 {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast running times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.%, it processes 167,698 features in 26.423s.  
 %DENIS Rob do you want to flesh this out more
@@ -535,7 +534,6 @@ importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area w
 \marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of RF to handle GWAS data. What do we need to do in this area}
 
 
-% <<CONDENSE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -685,7 +683,6 @@ To investigate this hypothesis for data sets with large number of feature variab
 %   variable with added Gaussian noise (in red).}
 %  \label{figure:synth}
 %\end{figure}
-% <<CONDENSE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -710,7 +707,6 @@ In this section we compare \cursedforest 's performance against other published 
 \begin{adjustwidth}{-1.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \caption{
 {\bf Performance comparison between the different machine learning algorithms.}}
-<<<<<<< HEAD
 \begin{tabular}{|l+l|l|l|l|l|l|p{1cm}|}
 \hline
 %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}                               \\ \hline
@@ -765,42 +761,45 @@ In this section we compare \cursedforest 's performance against other published 
 & LR - Spark ML & - & - & - \\ 
 & kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ 
 & ranger (C++)       &        NA     &        NA     &             80 CPU -- runs out of memory (12.8GB per CPU) \\
-& ranger (C++)       &        NA     &        NA      &            160 CPU -- runs out of time at 20 hours \\
-=======
-\begin{tabular}{|p{1.2cm}|p{1cm}|p{1.5cm}+l|l|p{1.8cm}|p{1.5cm}|}
-\hline
-%\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-\bf{Data- set} & \bf{Samp- les} & \bf{Feat- ures}  & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/ Node} \\
-\hline
-%\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
-phase1 chr22 &1,092 & 490,036 & CursedForest & 0.077 (XX)  & 9min 16sec & 1GB\footnote{\label{note10}10 nodes} \\
-&&& RF - Spark ML & 0.069 (0.89) & 14min 13sec & 1GB\footref{note10}  \\
-&&& RF - R &  0.05  & 24min  & 18GB\footref{note1}\footnote{using the \texttt{parallel} packages}\\
-&&& ranger -R &         0.05 &        1min 10sec  &          16GB  (one processor) \\
- \hline
-phase3 chr22 & 2,504 & 1,103,548 &  &  &  &  \\
-&&& CursedForest & 0.053 & 9 min 8 sec & 2GB\footnote{\label{note20}20 nodes}\\
-&&& RF - Spark ML & 0.058 (0.92) & 1hr 1min & 2GB\footref{note20} \\
-&&& RF - R & NA  & NA & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface}\\
-&&&  H2O   &        0.05 &     16 hours       &   600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
-\hline
-phase3 chr1 & 2,504 & 6,450,364 & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
-&&& RF - Spark ML & (0.94) & 8hr 29min & 8GB \\
-&&& LR - Spark ML&  & 2hr 6min & 8GB\\ 
-&&& ranger  R   &  0.06   &     28 mins  &            num.threads = 10\footnote{don't know how to get the memory used, This
-  was done on dpas-03} \\ 
-\hline
-phase3 chr1-3 & 2,504 & 19,328,051  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
-&&& RF - Spark ML & - & -  & -\\
-&&& LR - Spark ML & & 14hr 48min & 8GB \\ 
-&&& ranger  R   &  0.05   &     58 mins\footnote{ but took 6 hours to load the data}  &      909GB\footnote{I think this is total memory. The job was run with
-  ntasks-per-node=160 cores-per-socket=10 on ruby }  \\ 
-\hline
-phase3 chr1-22 & 2,504 & 81,047,467 & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
-&&& RF - Spark ML & - & - & - \\
-&&& LR - Spark ML & - & - & - \\ 
-%&&& kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ 
-\hline
+& ranger (C++)       &        NA     &        NA      &            160
+                                                        CPU -- runs
+                                                        out of time at
+                                                        20 hours \\
+
+% \begin{tabular}{|p{1.2cm}|p{1cm}|p{1.5cm}+l|l|p{1.8cm}|p{1.5cm}|}
+% \hline
+% %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
+% \bf{Data- set} & \bf{Samp- les} & \bf{Feat- ures}  & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/ Node} \\
+% \hline
+% %\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
+% phase1 chr22 &1,092 & 490,036 & CursedForest & 0.077 (XX)  & 9min 16sec & 1GB\footnote{\label{note10}10 nodes} \\
+% &&& RF - Spark ML & 0.069 (0.89) & 14min 13sec & 1GB\footref{note10}  \\
+% &&& RF - R &  0.05  & 24min  & 18GB\footref{note1}\footnote{using the \texttt{parallel} packages}\\
+% &&& ranger -R &         0.05 &        1min 10sec  &          16GB  (one processor) \\
+%  \hline
+% phase3 chr22 & 2,504 & 1,103,548 &  &  &  &  \\
+% &&& CursedForest & 0.053 & 9 min 8 sec & 2GB\footnote{\label{note20}20 nodes}\\
+% &&& RF - Spark ML & 0.058 (0.92) & 1hr 1min & 2GB\footref{note20} \\
+% &&& RF - R & NA  & NA & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface}\\
+% &&&  H2O   &        0.05 &     16 hours       &   600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
+% \hline
+% phase3 chr1 & 2,504 & 6,450,364 & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
+% &&& RF - Spark ML & (0.94) & 8hr 29min & 8GB \\
+% &&& LR - Spark ML&  & 2hr 6min & 8GB\\ 
+% &&& ranger  R   &  0.06   &     28 mins  &            num.threads = 10\footnote{don't know how to get the memory used, This
+%   was done on dpas-03} \\ 
+% \hline
+% phase3 chr1-3 & 2,504 & 19,328,051  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
+% &&& RF - Spark ML & - & -  & -\\
+% &&& LR - Spark ML & & 14hr 48min & 8GB \\ 
+% &&& ranger  R   &  0.05   &     58 mins\footnote{ but took 6 hours to load the data}  &      909GB\footnote{I think this is total memory. The job was run with
+%   ntasks-per-node=160 cores-per-socket=10 on ruby }  \\ 
+% \hline
+% phase3 chr1-22 & 2,504 & 81,047,467 & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
+% &&& RF - Spark ML & - & - & - \\
+% &&& LR - Spark ML & - & - & - \\ 
+% %&&& kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ 
+% \hline
 \end{tabular}
 \begin{flushleft} 
 Comparison of different various machine learning libraries on different subsets of variant data 
@@ -810,6 +809,25 @@ Each random forest model consists of 50 trees.
 \label{table1}
 \end{adjustwidth}
 \end{minipage}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{
+{\bf Time in seconds to build random forest with 100
+  trees with specified mtry fraction using given number of CPU cores.}}
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}                   & \multicolumn{4}{|c|}{Number of CPU cores}  \\
+                                                            &  & 16   & 32      & 64      & 128  \\
+\multirow{3}{*}{mtry (fraction)}                     & 0.10 & 708.27  & 340.00  & 186.01 & 134.47 \\	
+                                                     & 0.25 & 1134.89 & 535.01  & 270.78 & 179.59 \\	
+                                                     & 0.80 & 2313.47 & 1125.70 & 569.10 & 346.58 \\	
+\hline
+\end{tabular}
+\begin{flushleft} 
+\end{flushleft}
+\label{table10}
 \end{table}
 
 
