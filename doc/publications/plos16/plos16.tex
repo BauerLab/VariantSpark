@@ -639,6 +639,33 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 %To investigate this hypothesis for data sets with large number of feature variables we generated a synthetic dataset ...
   
 
+%nvars 150000  500000  2500000 10000000  50000000
+%nsamples          
+%1000  21.6  26.7  59.8  133.5 668.8
+%5000  45.7  71.9  186.2 729.3 2887.4
+%10000 70.2  120.2 397.3 2237.8  5747.8
+
+\begin{table}[!ht]
+\centering
+\caption{
+{\bf Time in seconds to build random forest of 100
+  trees on 128 CPU cores with varying numbers of variables and samples.}}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}                        & \multicolumn{5}{|c|}{Number of variables}  \\
+                                                            &  & 150,000 & 500,000 & 2,500,000  & 10,000,000 & 50,000,000 \\
+\hline                                                            
+\multirow{4}{*}{Number of samples}                          & 1000 &  21.6 & 26.7 & 59.8 & 133.5 & 668.8 \\
+                                                            & 5000 & 45.7 & 71.9 & 186.2 & 729.3 & 2887.4 \\
+                                                            & 10000 & 70.2 & 120.2 & 397.3 & 2237.8 & 5747.8 \\
+\hline
+\end{tabular}
+\begin{flushleft} 
+\end{flushleft}
+\label{table10}
+\end{table}
+
+
 \begin{table}[!ht]
 \centering
 \caption{
@@ -648,7 +675,7 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 \hline
 \multicolumn{2}{|l|}{\multirow{2}{*}{}}                   & \multicolumn{4}{|c|}{Number of CPU cores}  \\
                                                             &  & 16   & 32      & 64      & 128  \\
-\multirow{3}{*}{mtry (fraction)}                            & 0.10 & 708.3  & 340.0  & 186.0 & 134.5 \\
+\multirow{4}{*}{mtry (fraction)}                            & 0.10 & 708.3  & 340.0  & 186.0 & 134.5 \\
                                                             & 0.25 & 1134.9 & 535.0  & 270.8 & 179.6 \\
                                                             & 0.50 & 1724.1 & 856.6  & 428.7 & 243.8 \\
                                                             & 0.80 & 2313.5 & 1125.7 & 569.1 & 364.6 \\
