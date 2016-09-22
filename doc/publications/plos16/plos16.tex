@@ -308,11 +308,11 @@ The abstract.
 
 \section{Introduction}
 
-The digital revolution is seeing a dramatic increase in data collected about every aspect of 
-life~\cite{Loebbecke2015}.  These data sets are not only growing vertically by capturing more and more events but also
-horizontally by capturing more information about these events.  The challenge of big and ``wide'' data is especially
-pronounced in the health space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3
-billion base pairs of the human genome.  
+The digital revolution is seeing a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}.
+These data sets are not only growing vertically, by capturing more and more events, but also horizontally by capturing
+more information about these events.  The challenge of big and ``wide'' data is especially pronounced in the health
+space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3 billion base pairs of the
+human genome.
 
 Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide association studies (GWAs).
 These analysis are typically performed on only the most frequently differing base-pairs (SNPs) by applying linear or logistic regression analysis to each SNPs separately~\cite{CCC2007}.
@@ -672,14 +672,16 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 \caption{
 {\bf Time in seconds to build random forest of 100
   trees with specified mtry fraction using given number of CPU cores.}}
-\begin{tabular}{|l|l|l|l|l|l|}
+\begin{tabular}{|l|l||l|l|l|l|}
 \hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}                   & \multicolumn{4}{|c|}{Number of CPU cores}  \\
-                                                            &  & 16   & 32      & 64      & 128  \\
-\multirow{4}{*}{mtry (fraction)}                            & 0.10 & 708.3  & 340.0  & 186.0 & 134.5 \\
-                                                            & 0.25 & 1134.9 & 535.0  & 270.8 & 179.6 \\
-                                                            & 0.50 & 1724.1 & 856.6  & 428.7 & 243.8 \\
-                                                            & 0.80 & 2313.5 & 1125.7 & 569.1 & 364.6 \\
+\multicolumn{2}{|l||}{\multirow{2}{*}{}}                   & \multicolumn{4}{|c|}{Number of CPU cores}  \\
+\cline{3-6}
+\multicolumn{2}{|l||}{}                                               & \bf{16} & \bf{32}      & \bf{64}      & \bf{128}  \\
+\hline
+\multirow{4}{*}{mtry (fraction)}                            & \bf{0.10} & 708.3  & 340.0  & 186.0 & 134.5 \\
+                                                            & \bf{0.25} & 1134.9 & 535.0  & 270.8 & 179.6 \\
+                                                            & \bf{0.50} & 1724.1 & 856.6  & 428.7 & 243.8 \\
+                                                            & \bf{0.80} & 2313.5 & 1125.7 & 569.1 & 364.6 \\
 
 \hline
 \end{tabular}
