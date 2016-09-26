@@ -2,6 +2,7 @@
 *.bbl
 
 *.pdf
+plos16.toc
 
 doc/publications/incob2014/bmc_article.tex
 
@@ -37,4 +38,4 @@ data
 .cache
 .cache-main
 .cache-test
-
+.cache-tests
