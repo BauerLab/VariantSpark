@@ -638,48 +638,6 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 %run, the ranking of the variables will stabilise with growing \texttt{ntree}.
 
 %To investigate this hypothesis for data sets with large number of feature variables we generated a synthetic dataset ...
-  
-
-%nvars 150000  500000  2500000 10000000  50000000
-%nsamples          
-%1000  21.6  26.7  59.8  133.5 668.8
-%5000  45.7  71.9  186.2 729.3 2887.4
-%10000 70.2  120.2 397.3 2237.8  5747.8
-
-\begin{table}[!ht]
-\centering
-\caption{
-{\bf Time in seconds to build random forest of 100
-  trees on 128 CPU cores with varying numbers of variables and samples.}}
-\begin{tabular}{|l|l|l|l|l|l|l|}
-\hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}               & \multicolumn{5}{c|}{Number of variables}  \\
-\cline{3-7}
-\multicolumn{2}{|l|}{}                                & \bf{150,000} & \bf{500,000} & \bf{2,500,000}  & \bf{10,000,000} & \bf{50,000,000} \\
-\hline                                                            
-\multirow{4}{*}{Number of samples}                          & \bf{1000} &  21.6 & 26.7 & 59.8 & 133.5 & 668.8 \\
-                                                            & \bf{5000} & 45.7 & 71.9 & 186.2 & 729.3 & 2887.4 \\
-                                                            & \bf{10000} & 70.2 & 120.2 & 397.3 & 2237.8 & 5747.8 \\
-\hline
-\end{tabular}
-\begin{flushleft} 
-\end{flushleft}
-\label{table10}
-\end{table}
-
-
-\begin{figure}[tbhp]
-\begin{tabular}{ll}
-a)& b)\\
-\includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} & 
-\includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} \\
-\end{tabular}
-\captionof{figure}{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
-   {\bf a)} Time in seconds to build 100 trees for differnet mtry fractions. 
-   {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
-\label{figure:synth}
-\end{figure}
-
 
 
 \begin{table}[!ht]
@@ -716,8 +674,61 @@ a)& b)\\
    {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
 \label{figure:synth}
 \end{figure}
+  
+
+%nvars 150000  500000  2500000 10000000  50000000
+%nsamples          
+%1000  21.6  26.7  59.8  133.5 668.8
+%5000  45.7  71.9  186.2 729.3 2887.4
+%10000 70.2  120.2 397.3 2237.8  5747.8
+
+\begin{table}[!ht]
+\centering
+\caption{
+{\bf Time in seconds to build random forest of 100
+  trees on 128 CPU cores with varying numbers of variables and samples.}}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}               & \multicolumn{5}{c|}{Number of variables}  \\
+\cline{3-7}
+\multicolumn{2}{|l|}{}                                & \bf{150,000} & \bf{500,000} & \bf{2,500,000}  & \bf{10,000,000} & \bf{50,000,000} \\
+\hline                                                            
+\multirow{4}{*}{Number of samples}                          & \bf{1000} &  21.6 & 26.7 & 59.8 & 133.5 & 668.8 \\
+                                                            & \bf{5000} & 45.7 & 71.9 & 186.2 & 729.3 & 2887.4 \\
+                                                            & \bf{10000} & 70.2 & 120.2 & 397.3 & 2237.8 & 5747.8 \\
+\hline
+\end{tabular}
+\begin{flushleft} 
+\end{flushleft}
+\label{table10}
+\end{table}
 
 
+\begin{figure}[tbhp]
+\begin{tabular}{ll}
+a)& b)\\
+\includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} & 
+\includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
+\end{tabular}
+\captionof{figure}{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
+   {\bf a)} Number of trees build per hour when growing number of variables. 
+   {\bf b)} Number of trees build per hour when growing number of samples.}
+\label{figure:synth}
+\end{figure}
+
+
+
+\begin{figure}[tbhp]
+\begin{tabular}{ll}
+a)& b)\\
+\includegraphics[totalheight=6cm]{./figs/var_oder.png} & 
+\includegraphics[totalheight=6cm]{./figs/var_oob.png} \\
+\end{tabular}
+\captionof{figure}{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random forest with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.} 
+   {\bf a)} Variable importance of top 20 variabels normalized to the sum of the linear model coefficients. {\bf Others} represents aggregated importance of variables not present in the linear model.
+   {\bf b)} OOB (out of bag) classification error estimate as funtion of mtry fraction.}
+\label{figure:synth}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
