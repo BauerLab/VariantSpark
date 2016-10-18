@@ -585,6 +585,8 @@ In this case, the information gain is IG = Entropy(parent node) - Weighted Sum o
 \subsubsection{1000 Genomes}
 %DENIS: Rob how was the synthetic data generated
 \subsubsection{Synthetic data} 
+Each dataset consists of n samples and m variables where n << m, and values for each variable are ordinal factors with three levels represented as numbers 0, 1, 2 (which correspond to the ?typical? encoding of genomics variation) randomly generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a two level Bernoulli trail with p (probability of success) calculated by applying inverse logit transformation to the continuous linear response (y) of five variables:$$y = a_10* v_10 +  a_100*v_100 + a_1000*v_1000  +  a_10000*v_10000 + a_10000*v_100000  { where a_10 = 0.8, a_100 = 0.9, a_1000 = 1.1, a_10000 = 1.0, a_10000=1.15}$$
+
 
 
 \subsection{Parameter settings}
@@ -629,94 +631,33 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section 1:  Feature selection 
+% Section 1:  Feature Selection and classification on synthetic data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{CursedForest performance and scalability}
+\subsection{CursedForest can evaluate variable importance for millions of features  }\label{synthetic}
 %In this section we demonstrate that \cursedforest 's ability to rapidly grow large number of trees, \texttt{ntree}, in
 %parallel results in a stable feature importance ranking.  This concept was originally proposed by Liaw and
 %Weiner~\cite{Liaw.and.Weiner.2002}, who suggested that though the variable importance measures may vary from run to
 %run, the ranking of the variables will stabilise with growing \texttt{ntree}.
+In this section we demonstrate CursedForrest two main features, namely variable importance analysis to select the most associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of high-dimensional samples. 
+%We therefore generate a synthetic dataset with varying numbers of variables (features) and samples, as discussed in the method section. 
+We therefore generate a synthetic dataset with 2.5 million variables (features) and 5000 samples, as discussed in the method section. 
+Briefly we generate features by randomly sampling from a three value vector (1,2,3) with equal probabilities, which mimics genomic mutation data and corresponds to homozygote reference, heterozygote or homozygote alternative. 
+We then generate the response variable as a linear combination of 5 weighted features, modulating a complex trait of multiple interacting features. 
 
-%To investigate this hypothesis for data sets with large number of feature variables we generated a synthetic dataset ...
+After fitting the random forest model and performing the variable importance analysis we hence expect to retrieve these 5 feature in order of the weight that was assigned to them. 
+We are running Apache Spark 1.6.1 on a YARN cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB or RAM. 
+We captured the OOB (out of bag) classification error and the 20 most important variables.
 
+Figure~\ref{figure:synth}a illustrates that increasing the number of predictors sampled for splitting at each node (mtry) increases the accuracy with which features are ranked. 
+From $mtry=0.5$ the sort order of the features reflects the weight originally assigned to them (dotted line). Further increasing $mtry$ improves the predicted importance measure, which starts to converge to the weight originally assigned to them (coefficients). 
+It also increases the difference between the associated 5 variable and the remaining variables in the top 20 list. 
+By $mtry=0.8$ the variable with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the 15 remaining variables from the list.  
 
-\begin{table}[!ht]
-\centering
-\caption{
-{\bf Time in seconds to build random forest of 100
-  trees with specified mtry fraction using given number of CPU cores.}}
-\begin{tabular}{|l|l||l|l|l|l|}
-\hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}                   & \multicolumn{4}{c|}{Number of CPU cores}  \\
-\cline{3-6}
-\multicolumn{2}{|l|}{}                                      & \bf{16}   & \bf{32}  & \bf{64}    & \bf{128} \\
-\hline
-\multirow{4}{*}{mtry (fraction)}                            & \bf{0.10} & 708.3  & 340.0  & 186.0 & 134.5 \\
-                                                            & \bf{0.25} & 1134.9 & 535.0  & 270.8 & 179.6 \\
-                                                            & \bf{0.50} & 1724.1 & 856.6  & 428.7 & 243.8 \\
-                                                            & \bf{0.80} & 2313.5 & 1125.7 & 569.1 & 364.6 \\
-\hline
-\end{tabular}
-\begin{flushleft} 
-\end{flushleft}
-\label{table10}
-\end{table}
+Figure~\ref{figure:synth}b illustrates that increasing $mtry$ also improves the OOB (out of bag) classification error. 
+%Piotr can you please explain the remaining error on the synthetic data
+By $mtry=0.8$ the error is converging to X, which is due to Y.
 
-
-\begin{figure}[tbhp]
-\begin{tabular}{ll}
-a)& b)\\
-\includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} & 
-\includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png} \\
-\end{tabular}
-\captionof{figure}{{\bf Scalablity of the Wide Random Forest on the synthetic dataset of 2.5M features and 5K samples.} 
-   {\bf a)} Time in seconds to build 100 trees for differnet mtry fractions. 
-   {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
-\label{figure:synth}
-\end{figure}
-  
-
-%nvars 150000  500000  2500000 10000000  50000000
-%nsamples          
-%1000  21.6  26.7  59.8  133.5 668.8
-%5000  45.7  71.9  186.2 729.3 2887.4
-%10000 70.2  120.2 397.3 2237.8  5747.8
-
-\begin{table}[!ht]
-\centering
-\caption{
-{\bf Time in seconds to build random forest of 100
-  trees on 128 CPU cores with varying numbers of variables and samples.}}
-\begin{tabular}{|l|l|l|l|l|l|l|}
-\hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}               & \multicolumn{5}{c|}{Number of variables}  \\
-\cline{3-7}
-\multicolumn{2}{|l|}{}                                & \bf{150,000} & \bf{500,000} & \bf{2,500,000}  & \bf{10,000,000} & \bf{50,000,000} \\
-\hline                                                            
-\multirow{4}{*}{Number of samples}                          & \bf{1000} &  21.6 & 26.7 & 59.8 & 133.5 & 668.8 \\
-                                                            & \bf{5000} & 45.7 & 71.9 & 186.2 & 729.3 & 2887.4 \\
-                                                            & \bf{10000} & 70.2 & 120.2 & 397.3 & 2237.8 & 5747.8 \\
-\hline
-\end{tabular}
-\begin{flushleft} 
-\end{flushleft}
-\label{table10}
-\end{table}
-
-
-\begin{figure}[tbhp]
-\begin{tabular}{ll}
-a)& b)\\
-\includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} & 
-\includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
-\end{tabular}
-\captionof{figure}{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
-   {\bf a)} Number of trees build per hour when growing number of variables. 
-   {\bf b)} Number of trees build per hour when growing number of samples.}
-\label{figure:synth}
-\end{figure}
-
-
+From the synthetic data we can conclude that CursedForest is able to perform accurate feature selection as well as accurate classification for large numbers of samples with large feature vectors. 
 
 \begin{figure}[tbhp]
 \begin{tabular}{ll}
@@ -732,9 +673,46 @@ a)& b)\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section 2: Classification selection
+% Section 2: Feature Selection on real data 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{CursedForest selects previously demonstrated cancer variants }
+%Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
+%variables for further analysis. 
+As established in the pervious section, CursedForest allows the user to retrieve a subsection of features, ranked by their importance to identify the variables predictive of the label or selecting the n most important variables for further analysis. 
+We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset. 
+We build this model on VCF files retrieved from the TCGA data portal. 
+For the label, we use the cell type (i.e. tumor or normal). 
+
+In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the Random Forest model.
+
+\begin{table}[!ht]
+%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\centering
+\caption{
+{\bf Features from the TCGA BRCA dataset ranked by their importance.}}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+{\bf Variant} & {\bf Gene} & {\bf Importance}\\ \thickhline
+x:xxxx & cell2 row 1 & cell3 row 1\\ \hline
+x:xxxx & cell2 row 2 & cell3 row 2\\ \hline
+x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
+\end{tabular}
+\begin{flushleft} Here the importance is the gini coefficient when building a model using the cell type as the label.
+\end{flushleft}
+\label{table3}
+%\end{adjustwidth}
+\end{table}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 3: Classification selection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{CursedForest outperforms existing methods for classification problems}
+As established in Section~\ref{synthetic}, CursedForest 
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
 1000 genomes dataset.
 
@@ -848,39 +826,94 @@ Each random forest model consists of 50 trees.
 \end{minipage}
 \end{table}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section 3: Feature Selection 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{CursedForest selects previously demonstrated cancer variants }
-Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
-variables for further analysis. Our Random Forest implementation allows the user to retrieve a subsection of features, ranked
-by their importance. We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset. We build this model on
-VCF files retrieved from the TCGA data portal. For the label, we use the cell type (i.e. tumor or normal). 
 
-In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the Random Forest model.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 4: Sensitivity 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Scalability analysis}
+
+In this section we explore the performance of CursedForest by testing its ability to scale to different sizes of data and computational resources.In order to asses these characteristics we ran CursedForst classification on synthetics datasets with varying numbers of variables (features) and samples, similar to the dataset used in to evaluate ranger [REF: ranger], allocating varying number of CPU cores to the CursedForest and also varying computational complexity of random forest by using range of mtry values.We investigate the different synthetic datasets generated for section 5.1. and measured the time of building a random forest of 100 trees and the results reported below are averages of 5 runs. To improve consistency of measurements all the cases were executed with the same random seed.Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000 samples, by varying mtry fraction and the number of CPU cores allocated to the execution. The raw results are presented in the table [REF table1] and visualized in figure [REF: Fig 1] belowRegardless of the number of cores used, CursedForerst displays approximately  linear dependency between the execution time and the mtry parameter (presented here as a fraction of the number of variables) [Fig 1 a)CursedForest scales almost linearly with the number of CPU cores for medium values of mtry fraction but for both lower and higher values the performance degrades slightly (Fig 1 b)  In the latter case the likely cause is communication overhead (with lower mtry values the proportion of time for parallelizable computation to the time for internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational capacity.Next we investigate CursedForest scalability with regards to the size of data, by varying the number of variables and sample for a fixed mtry fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table [REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are expresses as trees per hour).Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that keeping mtry fraction constants results with higher mtry values with growing number of variables, and this is what drives the performance down rather that the increase of dataset size itself.To conclude CursedForst is capable of processing datasets with 50M variables and 10K samples, which is the order of magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per hour.
+
+
 
 \begin{table}[!ht]
-%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \centering
 \caption{
-{\bf Features from the TCGA BRCA dataset ranked by their importance.}}
-\begin{tabular}{|l|l|l|l|l|l|l|}
+{\bf Time in seconds to build random forest of 100
+  trees with specified mtry fraction using given number of CPU cores.}}
+\begin{tabular}{|l|l||l|l|l|l|}
 \hline
-{\bf Variant} & {\bf Gene} & {\bf Importance}\\ \thickhline
-x:xxxx & cell2 row 1 & cell3 row 1\\ \hline
-x:xxxx & cell2 row 2 & cell3 row 2\\ \hline
-x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}                   & \multicolumn{4}{c|}{Number of CPU cores}  \\
+\cline{3-6}
+\multicolumn{2}{|l|}{}                                      & \bf{16}   & \bf{32}  & \bf{64}    & \bf{128} \\
+\hline
+\multirow{4}{*}{mtry (fraction)}                            & \bf{0.10} & 708.3  & 340.0  & 186.0 & 134.5 \\
+                                                            & \bf{0.25} & 1134.9 & 535.0  & 270.8 & 179.6 \\
+                                                            & \bf{0.50} & 1724.1 & 856.6  & 428.7 & 243.8 \\
+                                                            & \bf{0.80} & 2313.5 & 1125.7 & 569.1 & 364.6 \\
+\hline
 \end{tabular}
-\begin{flushleft} Here the importance is the gini coefficient when building a model using the cell type as the label.
+\begin{flushleft} 
 \end{flushleft}
-\label{table3}
-%\end{adjustwidth}
+\label{table10}
 \end{table}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section 3: Sensitivity 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Sensitivity of parameter choice}
+
+\begin{figure}[tbhp]
+\begin{tabular}{ll}
+a)& b)\\
+\includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} & 
+\includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png} \\
+\end{tabular}
+\captionof{figure}{{\bf Scalablity of the Wide Random Forest on the synthetic dataset of 2.5M features and 5K samples.} 
+   {\bf a)} Time in seconds to build 100 trees for differnet mtry fractions. 
+   {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
+\label{figure:synth}
+\end{figure}
+  
+
+%nvars 150000  500000  2500000 10000000  50000000
+%nsamples          
+%1000  21.6  26.7  59.8  133.5 668.8
+%5000  45.7  71.9  186.2 729.3 2887.4
+%10000 70.2  120.2 397.3 2237.8  5747.8
+
+\begin{table}[!ht]
+\centering
+\caption{
+{\bf Time in seconds to build random forest of 100
+  trees on 128 CPU cores with varying numbers of variables and samples.}}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}               & \multicolumn{5}{c|}{Number of variables}  \\
+\cline{3-7}
+\multicolumn{2}{|l|}{}                                & \bf{150,000} & \bf{500,000} & \bf{2,500,000}  & \bf{10,000,000} & \bf{50,000,000} \\
+\hline                                                            
+\multirow{4}{*}{Number of samples}                          & \bf{1000} &  21.6 & 26.7 & 59.8 & 133.5 & 668.8 \\
+                                                            & \bf{5000} & 45.7 & 71.9 & 186.2 & 729.3 & 2887.4 \\
+                                                            & \bf{10000} & 70.2 & 120.2 & 397.3 & 2237.8 & 5747.8 \\
+\hline
+\end{tabular}
+\begin{flushleft} 
+\end{flushleft}
+\label{table10}
+\end{table}
+
+
+\begin{figure}[tbhp]
+\begin{tabular}{ll}
+a)& b)\\
+\includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} & 
+\includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
+\end{tabular}
+\captionof{figure}{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
+   {\bf a)} Number of trees build per hour when growing number of variables. 
+   {\bf b)} Number of trees build per hour when growing number of samples.}
+\label{figure:synth}
+\end{figure}
+
+
+
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
