@@ -343,7 +343,7 @@ separate trees on each processor and combine the trees.
 The most popular random forest software packages are R-based, although current implementations do not scale well with
 increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
 than $2^{31}$), and the {\sc randomForest} implementation in R lending itself to paralelization to grow multiple trees
-simultaneously~\cite{Liaw2002} and them combine them.  More suitable implementations for ``wide'' genomic data have been
+simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide'' genomic data have been
 developed in other programming languages.  {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast running
 times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.
 Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimised for
