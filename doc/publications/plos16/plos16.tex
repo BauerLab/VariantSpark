@@ -307,18 +307,21 @@ The abstract.
 \linenumbers
 
 \section{Introduction}
+\marginpar{change parallelisation to parallelization}
 
 The digital revolution is seeing a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}.
 These data sets are not only growing vertically, by capturing more events, but also horizontally by capturing
 more information about these events.  The challenge of big and ``wide'' data is especially pronounced in the health
-space where whole genome sequence (WGS) technology enabled researchers to interrogate all 3 billion base pairs of the
+space where whole genome sequence (WGS) technology enables researchers to interrogate all 3 billion base pairs of the
 human genome.
 
 Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide
 association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs
-(SNPs) by applying linear or logistic regression analysis to each SNPs separately~\cite{CCC2007}.  It has since been
+(SNPs) by applying linear or logistic regression analysis to each SNP separately~\cite{CCC2007}.  It has since been
 demonstrated that not taking joint interactions between SNPs into account when filtering for potential disease mutations
-is inadequate~\cite{Manolio2009}.  Complex Trait analysis has demonstrated that in order to explain the overall
+is inadequate~\cite{Manolio2009}.  
+\marginpar{is Complex Trait a thing? why capitals?}
+Complex Trait analysis has demonstrated that in order to explain the overall
 heritability a model needs to take the joint contribution of all variants into account~\cite{Yang2011}.
 
 
@@ -330,15 +333,9 @@ bootstrap aggregation or bagging to decision trees, while a measure of variable 
 by summing the number of times a variable is used to split a node, over all nodes and all trees.  RF are well suited for
 processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have the
 propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
-dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting. Random Forests are
-not immune to overfitting as shown by ~\cite{Segal.2004} who gives examples of overfitting in the case where:
-\begin{itemize}
-\item a single tree is the most appropriate model; and
-\item the variables are hightly correlated so that the boostrap resampling does not give rise to uncorrelated trees.
-\end{itemize}
-However, keeping these difficult cases in mind, RF have a strong claim to being resistant to overfitting.
+dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting. 
 Secondly, RF are also very easy to parallelise. As the forest is a sum of decision trees, it it possible to grow
-separate trees on each processor and combine the trees.
+separate trees on different processors and combine the trees.
 
 The most popular random forest software packages are R-based, although current implementations do not scale well with
 increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
@@ -354,14 +351,15 @@ these methods.  The programs are limited to utilising only CPUs that are on the 
 else they run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
 processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitation by enabling programs to
 scale beyond compute-node boundaries and hence enable more sophisticated parallelisation strategies.  In the case of
-Random forests this means that the the comutations for each node of a tree can be handed off to separate processors.
+random forests this means that the computations for each node of a tree can be handed off to separate processors.
   
 Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forest specifically designed to cater for
 ``big'' (many samples) and ``wide'' (many features) data sets. \cursedforest\ is capable of parallelising the split for
-each node in a tree thereby being able to handle millions of features, such as in the 1000 Genome data, which consists
+each node in a tree thereby handling millions of features, such as in the 1000 Genome data, which consists
 of approximately 2500 samples with up to 80 million variants~\cite{1KG2012}.  By also utilising Spark to read in and
 manipulate the standard genomic variant format (VCF) directly, \cursedforest\ outperforms existing tools on even small
-datasets where multi-threading is considered more performant. \marginpar{is performant a word?}
+datasets where multi-threading generally performs well. 
+\marginpar{``performant'' -- a person who performs, an actor or celebrant }
  \marginpar{Piotr this is your 20 trees has the important
   feature in the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be
   a result section.}
@@ -403,7 +401,7 @@ discussion.
 %% capability to parallelise tasks, \cursedforest\ can build a large number of trees, which boosts the accuracy for
 %% variable selection as demonstrated by {\sc r2VIM}~\cite{Szymczak2016} on smaller datasets.
  
-=======
+
 %Hadoop/Spark overcomes this limitation by enabling programs to scale beyond compute-node boundaries and virtually utilise infinite number of CPUs.   
 %A Spark application runs on a ``driver'' node, and this node divides and distributes work out to the many ``worker'' nodes, or ``executors''.  
 %Therefore, these historically successful solutions are not catering for the big data demands that especially due to WGS are becoming more prevalent. Here, classification or feature importance analysis needs to be performed on datasets with a much larger number of features~\cite{Yano2016}. 
@@ -435,8 +433,10 @@ In the first section we explore some of the
 properties of random forests, demonstrating that any potential flaws in CursedForest are an inherent property of Random
 Forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of CursedForest in
 respect to the dimensionality of the data, building an RF model on whole-genome data from the 1000 Genomes Project. Here
-we report on the accuracy (in terms of the ARI) and the error.  Finally, given the role different parameter values can
-play in model construction, we explore the effect tuning these parameters can have on the prediction accuracy of a
+we report on the accuracy (in terms of the ARI)
+\marginpar{what is ARI?}
+ and the error.  Finally, given the role different parameter values can
+play in model construction, we explore the effect tuning these parameters can have on the prediction accuracy of the
 model.
 
 
@@ -499,7 +499,14 @@ The benefits of random forests models are:
 Since the original implementation of random forests there have been a number of developments leading to a better understanding of
 the algorithm. 
 \begin{itemize}
-\item random forests are resistant against overfitting. However it is not true that they will not overfit \cite[]{Segal.2004};
+\item random forests are resistant against overfitting. However it is not true that they will not overfit,
+  ~\cite{Segal.2004} gives examples of overfitting in the case where:
+  \begin{itemize}
+  \item a single tree is the most appropriate model; and
+  \item the variables are hightly correlated so that the boostrap resampling does not give rise to uncorrelated trees.
+  \end{itemize}
+However, keeping these difficult cases in mind, RF have a strong claim to being resistant to overfitting.
+
 \item \cite{Strobl.et.al.2007} demonstrates that the RF algorithm is subject to a bias in variable selection via two mechanisms:
   \begin{enumerate}
   \item differences in variable scale (for $X_i$ continuous) and number of levels (for $X_i$ discrete) introduces a
@@ -568,7 +575,7 @@ CursedForest has calculated the entire decicion tree.
 The current implementation of Cursed Forest uses:
 \begin{itemize}
 \item an ``information gained'' criteria for splitting. Let $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
-  \ldots, Q$ at a node. The  entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i$
+  \ldots, Q$ at a node. The  entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$
 The expected information gain is the change in entropy $H$ from a prior state $T$ to a state that takes some
 information $a$ as given: 
 \[ IG(T,a) = H(T) - H(T|a). \]
@@ -585,7 +592,14 @@ In this case, the information gain is IG = Entropy(parent node) - Weighted Sum o
 \subsubsection{1000 Genomes}
 %DENIS: Rob how was the synthetic data generated
 \subsubsection{Synthetic data} 
-Each dataset consists of n samples and m variables where n << m, and values for each variable are ordinal factors with three levels represented as numbers 0, 1, 2 (which correspond to the ?typical? encoding of genomics variation) randomly generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a two level Bernoulli trail with p (probability of success) calculated by applying inverse logit transformation to the continuous linear response (y) of five variables:$$y = a_10* v_10 +  a_100*v_100 + a_1000*v_1000  +  a_10000*v_10000 + a_10000*v_100000  { where a_10 = 0.8, a_100 = 0.9, a_1000 = 1.1, a_10000 = 1.0, a_10000=1.15}
+
+Each dataset consists of $n$ samples and $m$ variables where $n << m$, and values for each variable are ordinal factors with
+three levels represented as numbers $\{0, 1, 2\}$ (which correspond to an additive effect encoding of genomics variation) randomly
+generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a two level
+Bernoulli trail with $p$ (probability of success) calculated by applying inverse logit transformation to the continuous
+linear response ($y$) of five variables:
+$$y = a_{10}* v_{10} + a_{100}*v_{100} + a_{1000}*v_{1000} + a_{10000}*v_{10000} + a_{10000}*v_{100000}$$
+where $a_{10} = 0.8, a_{100} = 0.9, a_{1000} = 1.1, a_{10000} = 1.0, a_{10000}=1.15$.
 
 
 
@@ -638,26 +652,35 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 %parallel results in a stable feature importance ranking.  This concept was originally proposed by Liaw and
 %Weiner~\cite{Liaw.and.Weiner.2002}, who suggested that though the variable importance measures may vary from run to
 %run, the ranking of the variables will stabilise with growing \texttt{ntree}.
-In this section we demonstrate CursedForrest two main features, namely variable importance analysis to select the most associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of high-dimensional samples. 
+In this section we demonstrate CursedForrest two main features, namely variable importance analysis to select the most
+associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
+high-dimensional samples.
 %We therefore generate a synthetic dataset with varying numbers of variables (features) and samples, as discussed in the method section. 
-We therefore generate a synthetic dataset with 2.5 million variables (features) and 5000 samples, as discussed in the method section. 
-Briefly we generate features by randomly sampling from a three value vector (1,2,3) with equal probabilities, which mimics genomic mutation data and corresponds to homozygote reference, heterozygote or homozygote alternative. 
-We then generate the response variable as a linear combination of 5 weighted features, modulating a complex trait of multiple interacting features. 
+We therefore generate a synthetic dataset with 2.5 million variables (features) and 5000 samples, as discussed in the
+method section.  Briefly we generate features by randomly sampling from a three value vector (1,2,3) with equal
+probabilities, which mimics genomic mutation data and corresponds to homozygote reference, heterozygote or homozygote
+alternative.  We then generate the response variable as a linear combination of 5 weighted features, modulating a
+complex trait of multiple interacting features.
 
-After fitting the random forest model and performing the variable importance analysis we hence expect to retrieve these 5 feature in order of the weight that was assigned to them. 
-We are running Apache Spark 1.6.1 on a YARN cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB or RAM. 
-We captured the OOB (out of bag) classification error and the 20 most important variables.
+After fitting the random forest model and performing the variable importance analysis we hence expect to retrieve these
+5 feature in order of the weight that was assigned to them.  We are running Apache Spark 1.6.1 on a YARN cluster with 12
+worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB or RAM.  We captured the OOB (out of bag)
+classification error and the 20 most important variables.
 
-Figure~\ref{figure:synth}a illustrates that increasing the number of predictors sampled for splitting at each node (mtry) increases the accuracy with which features are ranked. 
-From $mtry=0.5$ the sort order of the features reflects the weight originally assigned to them (dotted line). Further increasing $mtry$ improves the predicted importance measure, which starts to converge to the weight originally assigned to them (coefficients). 
-It also increases the difference between the associated 5 variable and the remaining variables in the top 20 list. 
-By $mtry=0.8$ the variable with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the 15 remaining variables from the list.  
+Figure~\ref{figure:synth}a illustrates that increasing the number of predictors sampled for splitting at each node
+(mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
+the weight originally assigned to them (dotted line). Further increasing $mtry$ improves the predicted importance
+measure, which starts to converge to the weight originally assigned to them (coefficients).  It also increases the
+difference between the associated 5 variable and the remaining variables in the top 20 list.  By $mtry=0.8$ the variable
+with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
+15 remaining variables from the list.
 
-Figure~\ref{figure:synth}b illustrates that increasing $mtry$ also improves the OOB (out of bag) classification error. 
+Figure~\ref{figure:synth}b illustrates that increasing $mtry$ also improves the OOB (out of bag) classification error.
 %Piotr can you please explain the remaining error on the synthetic data
 By $mtry=0.8$ the error is converging to X, which is due to Y.
 
-From the synthetic data we can conclude that CursedForest is able to perform accurate feature selection as well as accurate classification for large numbers of samples with large feature vectors. 
+From the synthetic data we can conclude that CursedForest is able to perform accurate feature selection as well as
+accurate classification for large numbers of samples with large feature vectors.
 
 \begin{figure}[tbhp]
 \begin{tabular}{ll}
@@ -665,9 +688,11 @@ a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/var_oder.png} & 
 \includegraphics[totalheight=6cm]{./figs/var_oob.png} \\
 \end{tabular}
-\captionof{figure}{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random forest with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.} 
-   {\bf a)} Variable importance of top 20 variabels normalized to the sum of the linear model coefficients. {\bf Others} represents aggregated importance of variables not present in the linear model.
-   {\bf b)} OOB (out of bag) classification error estimate as funtion of mtry fraction.}
+\captionof{figure}{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for
+    random forest with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
+  importance of top 20 variabels normalized to the sum of the linear model coefficients. {\bf Others} represents
+  aggregated importance of variables not present in the linear model.  {\bf b)} OOB (out of bag) classification error
+  estimate as funtion of mtry fraction.}
 \label{figure:synth}
 \end{figure}
 
@@ -678,10 +703,10 @@ a)& b)\\
 \subsection{CursedForest selects previously demonstrated cancer variants }
 %Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
 %variables for further analysis. 
-As established in the pervious section, CursedForest allows the user to retrieve a subsection of features, ranked by their importance to identify the variables predictive of the label or selecting the n most important variables for further analysis. 
-We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset. 
-We build this model on VCF files retrieved from the TCGA data portal. 
-For the label, we use the cell type (i.e. tumor or normal). 
+As established in the pervious section, CursedForest allows the user to retrieve a subsection of features, ranked by
+their importance to identify the variables predictive of the label or selecting the $n$ most important variables for
+further analysis.  We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset.  We build this model on
+VCF files retrieved from the TCGA data portal.  For the label, we use the cell type (i.e. tumor or normal).
 
 In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the Random Forest model.
 
