@@ -167,6 +167,8 @@
 %% Include all macros below
 
 \newcommand{\cursedforest}{{\sc CursedForest}}
+\newcommand{\mtry}{{\texttt mtry}}
+\newcommand{\ntree}{{\texttt ntree}}
 
 %% END MACROS SECTION
 
@@ -189,7 +191,7 @@
 % Title must be 250 characters or less.
 \begin{flushleft}
 {\Large
-\textbf\newline{\cursedforest - A random forest implementation for ``big'' and ``wide'' data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
+\textbf\newline{\cursedforest\ - A Random Forest Implementation for ``Big'' and ``Wide'' Data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
 }
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
@@ -246,9 +248,9 @@ Denis C. Bauer\textsuperscript{1,*}
 \clearpage
 \section{Notes}
 \begin{itemize}
-\item   I think the structure of the first section should be
+\item I think the structure of the first section should be
   \begin{itemize}
-  \item  convergence results from Biau 2012  (done)
+  \item convergence results from Biau 2012  (done)
   \item consider  \cite{Segal.2004} examples
   \item simulations reproduced from Genuer et al 2010 (no -- we need classification examples)
   \item check Piotr's simulation  (done)
@@ -257,7 +259,7 @@ Denis C. Bauer\textsuperscript{1,*}
   \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
     \ref{table:smaller_data} -- On it, Aidan
   \item variable  selection may succeed where accurate prediction does not
-  \item discussion of the effect of the ntree and mtry parameters for variable selection with many noise variables
+  \item discussion of the effect of the \ntree\ and \mtry\ parameters for variable selection with many noise variables
   \item   perhaps we argue that in the case where the relationship of $X$ and $y$ takes a particular form (step, ramp) we can recover
     the significant variables in the presence of a very large number of noise variables
   \item in the case of genomic data, our functions of interest are more likely to be stop or ramp functions rather than harmonic
@@ -298,13 +300,12 @@ Heterosis	Heterozygote leads to variation	0/2, 1
 \clearpage
 
 % Please keep the abstract below 300 words
-\section*{Abstract}
+\section{Abstract}
 The abstract.
 
 \linenumbers
 
 \section{Introduction}
-\marginpar{change parallelisation to parallelization}
 
 The digital revolution is seeing a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}.
 These data sets are not only growing vertically, by capturing more events, but also horizontally by capturing
@@ -317,21 +318,20 @@ association studies (GWAs).  These analysis are typically performed on only the 
 (SNPs) by applying linear or logistic regression analysis to each SNP separately~\cite{CCC2007}.  It has since been
 demonstrated that not taking joint interactions between SNPs into account when filtering for potential disease mutations
 is inadequate~\cite{Manolio2009}.  
-\marginpar{is Complex Trait a thing? why capitals?}
-Complex Trait analysis has demonstrated that in order to explain the overall
+Complex trait analysis has demonstrated that in order to explain the overall
 heritability a model needs to take the joint contribution of all variants into account~\cite{Yang2011}.
 
 
-\marginpar{decison trees capture interaction -- there is no main effect term. RF inherit this property. I dont think it
+\marginpar{decison trees capture interaction -- there is no main effect term. Random forests inherit this property. I dont think it
   has anything to do with boostrapping, the point of which is to ensure that successive trees are not correlated.}
-Random Forests~\cite{Breiman2001} (RF) are able to capture interactions between features while still allowing to
+Random forests~\cite{Breiman2001} are able to capture interactions between features while still allowing to
 prioritise SNPs for their contribution to disease.  The joint interaction is achieved by appling the technique of
 bootstrap aggregation or bagging to decision trees, while a measure of variable importance can be provided, for example,
-by summing the number of times a variable is used to split a node, over all nodes and all trees.  RF are well suited for
+by summing the number of times a variable is used to split a node, over all nodes and all trees.  Random forests are well suited for
 processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have the
 propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting. 
-Secondly, RF are also very easy to parallelise. As the forest is a sum of decision trees, it it possible to grow
+Secondly, random forests are also very easy to parallelise. As the forest is a sum of decision trees, it it possible to grow
 separate trees on different processors and combine the trees.
 
 The most popular random forest software packages are R-based, although current implementations do not scale well with
@@ -343,18 +343,18 @@ times by effective use of the CPU cache, optimising for different classes of fea
 Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimised for
 dealing with large data sets.
 
-However, the use of traditional compute infrastructure limits the parallelisation strategies that can be employed by
+However, the use of traditional compute infrastructure limits the parallelization strategies that can be employed by
 these methods.  The programs are limited to utilising only CPUs that are on the same computer node (multi-threading) or
 else they run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
 processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitation by enabling programs to
-scale beyond compute-node boundaries and hence enable more sophisticated parallelisation strategies.  In the case of
+scale beyond compute-node boundaries and hence enable more sophisticated parallelization strategies.  In the case of
 random forests this means that the computations for each node of a tree can be handed off to separate processors.
   
-Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forest specifically designed to cater for
+Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forests specifically designed to cater for
 ``big'' (many samples) and ``wide'' (many features) data sets. \cursedforest\ is capable of parallelising the split for
 each node in a tree thereby handling millions of features, such as in the 1000 Genomes Project data, which consists
 of approximately 2500 samples with up to 80 million variants~\cite{1KG2012}.  By also utilising Spark to read in and
-manipulate the standard genomic variant format (VCF) directly, \cursedforest\ outperforms existing tools on even small
+manipulate the standard genomic variant format (VCF) directly, \cursedforest\ outperforms existing tools even on small
 datasets where multi-threading generally performs well. 
 \marginpar{``performant'' -- a person who performs, an actor or celebrant }
  \marginpar{Piotr this is your 20 trees has the important
@@ -371,8 +371,7 @@ technology~\cite{Howie2012}.  This provides the potential to impute samples in t
 of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
 compute paradigms to deal with these challenges.
 
-A Spark application runs on a ``driver'' node, and this node
-divides and distributes work out to the many ``worker'' nodes, or ``executors''.
+A Spark application runs on a ``driver'' node and distributes tasks to the many ``worker'' nodes, or ``executors''.
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
@@ -380,9 +379,9 @@ Using VariantSpark, we successfully built a k-means model on the full $2500 \tim
 individuals by their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering and -1 random
 clustering).
 
-Here we extend this toolkit to encompass supervised learning using random forest.  Spark ML's RF implementation is not
+Here we extend this toolkit to encompass supervised learning using random forests.  Spark ML's random forest implementation is not
 able to handle the extremely ``wide'' genomic data as it was developed for large number of samples with only modest
-dimensionality.  Although Spark ML can build a RF model on a subset of the data (chromosome 1~and~2), the time taken is
+dimensionality.  Although Spark ML can build a random forest model on a subset of the data (chromosome 1~and~2), the time taken is
 excessive due to the huge amount of data being aggregated and processed by the single driver node during intermediate
 stages of building the model (see Result~\ref{comp}).  This unbalanced work load where the driver node becomes the
 bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets. The memory requirements per
@@ -400,7 +399,6 @@ discussion.
  
 
 %Hadoop/Spark overcomes this limitation by enabling programs to scale beyond compute-node boundaries and virtually utilise infinite number of CPUs.   
-%A Spark application runs on a ``driver'' node, and this node divides and distributes work out to the many ``worker'' nodes, or ``executors''.  
 %Therefore, these historically successful solutions are not catering for the big data demands that especially due to WGS are becoming more prevalent. Here, classification or feature importance analysis needs to be performed on datasets with a much larger number of features~\cite{Yano2016}. 
 %For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
 %This dataset consumes close to a terabyte of disk space.  
@@ -408,10 +406,10 @@ discussion.
 %framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
 %Using VariantSpark, we successfully built a k-means model on the full
 %$2500 \times 80$ million matrix to cluster individuals by
-%their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering  and -1 random clustering).
+%their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering and -1 random clustering).
 
-%Spark ML's RF implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples with only modest dimensionality.  
-%Although Spark ML can build a RF model on
+%Spark ML's random forest implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples with only modest dimensionality.  
+%Although Spark ML can build a random forest model on
 %a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
 %and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}).  This
 %unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
@@ -427,9 +425,9 @@ discussion.
 
 \marginpar{Needs to be rewritten once we actually have the sections} 
 In the first section we explore some of the
-properties of random forests, demonstrating that any potential flaws in \cursedforest\ are an inherent property of Random
-Forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of \cursedforest\ in
-respect to the dimensionality of the data, building an RF model on whole-genome data from the 1000 Genomes Project. Here
+properties of random forests, demonstrating that any potential flaws in \cursedforest\ are an inherent property of random
+forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of \cursedforest\ in
+respect to the dimensionality of the data, building a random forest model on whole-genome data from the 1000 Genomes Project. Here
 we report on the accuracy (in terms of the ARI)
 \marginpar{what is ARI?}
  and the error.  Finally, given the role different parameter values can
@@ -455,14 +453,14 @@ Decision trees have a number of desirable features, they:
 However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
 lead to a very different model. 
 
-Random Forests~\cite{Breiman2001} (RF) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
+Random forests~\cite{Breiman2001} (RFs) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
 data is independently drawn from the joint distribution of $(X,Y)$ and comprises $n$ $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$.
-$X$ and $\theta_b$ for $b=1,\ldots,B$ are i.i.d. random vectors and a tree is grown on each of these $\theta_b$  samples 
+$X$ and $\theta_b$ for $b=1,\ldots,B$ are i.i.d. random vectors and a tree is grown on each of these $\theta_b$ samples 
 ($X$ is randomly sampled $B$ times with replacement and a tree is grown on each of these $B$ samples). 
 The results are combined in an appropriate way. In a classification problem we take the majority vote for the trees over
 the $q=1,..,Q$ classes,
 \begin{equation*}
-{{h_f}}=  \arg \max_q \left(\sum_b I(h(x;\theta_b)=q)\right).
+{{h_f}}= \arg \max_q \left(\sum_b I(h(x;\theta_b)=q)\right).
 \end{equation*}
 
 Random forests are a variance reduction technique. They take unpruned tree models, which have a low bias but a high
@@ -473,17 +471,17 @@ The average prediction error for an individual tree $h(X; \theta)$ is
 \begin{equation}
 PE_t = E_\theta E_{X,Y} (Y-h(X; \theta))^2.
 \end{equation}
-Assume that, for all  $\theta$, the tree is unbiased, i.e., $EY= E_X h(X; \theta)$. Then
+Assume that, for all $\theta$, the tree is unbiased, i.e., $EY= E_X h(X; \theta)$. Then
 \begin{equation}
 PE_f \leq \rho PE_t
 \end{equation}
 where $\rho$ is the weighted correlation between residuals $(Y-h(X;\theta))$ and $(Y-h(X;\theta^\prime))$ for independent $\theta,
 \theta^\prime$.  
-So what is required for  accurate random forest regression is (i) low correlation between residuals of differing tree in
+So what is required for accurate random forest regression is (i) low correlation between residuals of differing tree in
 the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}. In addition to growing the trees
-on  bootstrapped samples, each node in the tree is split on a randomly selected subset of the variables.
+on bootstrapped samples, each node in the tree is split on a randomly selected subset of the variables.
 
-The benefits of random forests models are:
+The benefits of random forest models are:
   \begin{itemize}
   \item they give an out-of-bag estimate of model accuracy, by using the samples not selected for the bootstrapped sample
     as an independent test set for each tree;
@@ -493,28 +491,28 @@ The benefits of random forests models are:
     variables. This would be difficult as the trees as split on random subsets of variables).
   \end{itemize}
 
-Since the original implementation of random forests there have been a number of developments leading to a better understanding of
+Since the original implementation of random forests, there have been a number of developments leading to a better understanding of
 the algorithm. 
 \begin{itemize}
-\item random forests are resistant against overfitting. However it is not true that they will not overfit,
+\item random forests are resistant to overfitting. However it is not true that they will not overfit,
   ~\cite{Segal.2004} gives examples of overfitting in the case where:
   \begin{itemize}
   \item a single tree is the most appropriate model; and
   \item the variables are hightly correlated so that the boostrap resampling does not give rise to uncorrelated trees.
   \end{itemize}
-However, keeping these difficult cases in mind, RF have a strong claim to being resistant to overfitting.
+However, keeping these difficult cases in mind, random forests have a strong claim to being resistant to overfitting.
 
-\item \cite{Strobl.et.al.2007} demonstrates that the RF algorithm is subject to a bias in variable selection via two mechanisms:
+\item \cite{Strobl.et.al.2007} demonstrates that the random forest algorithm is subject to a bias in variable selection via two mechanisms:
   \begin{enumerate}
   \item differences in variable scale (for $X_i$ continuous) and number of levels (for $X_i$ discrete) introduces a
     bias. A uninformative variable with a large number of levels may be selected over a more informative variable with
     fewer levels;
-  \item bagging introduces a bias, but sampling $(1- 1/e) \approx 0.632$  of the data without replacement seems to be an
+  \item bagging introduces a bias, but sampling $(1- 1/e) \approx 0.632$ of the data without replacement seems to be an
     effective stragey for removing the problem.
   \end{enumerate}
 \end{itemize} 
 
-\cite{Strobl.et.al.2007} introduce changes to the RF algorithm to fix 1) and 2).  However the level effect will be
+\cite{Strobl.et.al.2007} introduce changes to the random forest algorithm to fix 1) and 2).  However the level effect will be
 apparent in the CF algorithm as well.  However, there are many examples, particularly in genomics, where we have data
 sets that are
 \begin{itemize}
@@ -531,7 +529,7 @@ rate that depends on the size of $S$ and not the number of noise variables in th
 compared to the total number of variables, then the rate of convergence will be quicker.
 \marginpar{say something about the rate of convergence}
 
-Subject to certain conditions, RF will not overfit even in the  $p > n$ case. 
+Subject to certain conditions, random forests will not overfit even in the $p > n$ case. 
 Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
 
 \marginpar{why is this relevant, i.e. if this is special to VariantSpark it should be explained better.}
@@ -539,7 +537,7 @@ Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using
 the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic
 data.
-\marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of RF to handle 
+\marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of random forests to handle 
 GWAS data. What do we need to do in this area? What about linkage diseqelibrium?}
 
 
@@ -572,7 +570,7 @@ are reduced to return the feature which gives the greatest information gain.  Th
 The current implementation of \cursedforest\ uses:
 \begin{itemize}
 \item an ``information gained'' criteria for splitting. Let $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
-  \ldots, Q$ at a node. The  entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$
+  \ldots, Q$ at a node. The entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$
 The expected information gain is the change in entropy $H$ from a prior state $T$ to a state that takes some
 information $a$ as given: 
 \[ IG(T,a) = H(T) - H(T|a). \]
@@ -604,30 +602,30 @@ where $a_{10} = 0.8, a_{100} = 0.9, a_{1000} = 1.1, a_{10000} = 1.0, a_{10000}=1
 
 
 \subsection{Parameter settings}
-We consider the parameter setting for the RF algorithm. We use the R terms from the package RandomForests
+We consider the parameter setting for the random forest algorithm. We use the R terms from the {\sc randomForest} package
 \cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler. We incorporate the 
 advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience.
 
 \begin{itemize}
-\item \texttt{ntree} the number of trees.  The number of trees necessary for good performance grows with the number of predictors.
-  \marginpar{can we do proximity?}  \cite{Liaw.and.Weiner.2002} suggest that a high \texttt{ntree} is necessary to get stable
+\item \ntree\ the number of trees.  The number of trees necessary for good performance grows with the number of predictors.
+  \marginpar{can we do proximity?} \cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable
   estimates of variable importance and proximity; however, even though the variable importance measures may vary from run to run,
-  the ranking of the importances is quite stable.  In addition, we note that it is possible for a RF model to have a very poor
+  the ranking of the importances is quite stable.  In addition, we note that it is possible for a random forest model to have a very poor
   fit, and be useless for prediction, and still have a useful ranking of variable importance.
-\item \texttt{mtry} --  the number of variables considered at each split (if \texttt{mtry}=$p$, we have a boosted decision
-  tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \texttt{mtry} may give
+\item \mtry\ -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
+  tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
   better performance.
-\item  For classification problems where the class frequencies are extremely unbalanced it may be necessary to change the prediction
+\item For classification problems where the class frequencies are extremely unbalanced it may be necessary to change the prediction
   rule \marginpar{can we do this}
-\item the size and complexity of the individual trees is controlled in RandomForests by setting \texttt{nodesize}, the
+\item the size and complexity of the individual trees is controlled in {\sc randomForest} by setting \texttt{nodesize}, the
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
-  tree in the forest. The SparkML documentation somewhat unhelpfully sets \texttt{maxDepth=4} in their classification
+  tree in the forest. The Spark ML documentation somewhat unhelpfully sets \texttt{maxDepth=4} in their classification
   example\footnote{The documentation is available at \url{http://spark.apache.org/docs/latest/mllib-ensembles.html}.}.
 
-  In the ATCG example the RandomForests code produced trees with depths of 30+. We note that Random forests are a way of averaging
+  In the ATCG example the RandomForests code produced trees with depths of 30+. We note that random forests are a way of averaging
   multiple deep decision trees, trained on different parts of the same training set, with the goal of reducing the
   variance. \url{https://en.wikipedia.org/wiki/Random_forest} and refs therein.  
-\marginpar{are we including this  example?  Supplementary info?}
+\marginpar{are we including this example?  Supplementary info?}
 \end{itemize}
 
 
@@ -648,10 +646,10 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 % Section 1:  Feature Selection and classification on synthetic data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ can evaluate variable importance for millions of features}\label{synthetic}
-%In this section we demonstrate that \cursedforest's ability to rapidly grow large number of trees, \texttt{ntree}, in
+%In this section we demonstrate that \cursedforest's ability to rapidly grow large number of trees, \ntree, in
 %parallel results in a stable feature importance ranking.  This concept was originally proposed by Liaw and
 %Weiner~\cite{Liaw.and.Weiner.2002}, who suggested that though the variable importance measures may vary from run to
-%run, the ranking of the variables will stabilise with growing \texttt{ntree}.
+%run, the ranking of the variables will stabilise with growing \ntree.
 In this section we demonstrate \cursedforest\ two main features, namely variable importance analysis to select the most
 associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
 high-dimensional samples.
@@ -668,14 +666,14 @@ worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB or RAM
 classification error and the 20 most important variables.
 
 Figure~\ref{figure:synth}a illustrates that increasing the number of predictors sampled for splitting at each node
-(mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
-the weight originally assigned to them (dotted line). Further increasing $mtry$ improves the predicted importance
+(\mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
+the weight originally assigned to them (dotted line). Further increasing \mtry\ improves the predicted importance
 measure, which starts to converge to the weight originally assigned to them (coefficients).  It also increases the
 difference between the associated 5 variable and the remaining variables in the top 20 list.  By $mtry=0.8$ the variable
 with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
 15 remaining variables from the list.
 
-Figure~\ref{figure:synth}b illustrates that increasing $mtry$ also improves the OOB (out of bag) classification error.
+Figure~\ref{figure:synth}b illustrates that increasing \mtry\ also improves the OOB (out of bag) classification error.
 %Piotr can you please explain the remaining error on the synthetic data
 By $mtry=0.8$ the error is converging to X, which is due to Y.
 
@@ -689,10 +687,10 @@ a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/var_oob.png} \\
 \end{tabular}
 \captionof{figure}{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for
-    random forest with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
+  random forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
   importance of top 20 variabels normalized to the sum of the linear model coefficients. {\bf Others} represents
   aggregated importance of variables not present in the linear model.  {\bf b)} OOB (out of bag) classification error
-  estimate as funtion of mtry fraction.}
+  estimate as funtion of \mtry\ fraction.}
 \label{figure:synth}
 \end{figure}
 
@@ -708,7 +706,7 @@ their importance to identify the variables predictive of the label or selecting 
 further analysis.  We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset.  We build this model on
 VCF files retrieved from the TCGA data portal.  For the label, we use the cell type (i.e. tumor or normal).
 
-In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the Random Forest model.
+In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the random forest model.
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
@@ -859,19 +857,19 @@ Each random forest model consists of 50 trees.
 
 In this section we explore the performance of \cursedforest\ by testing its ability to scale to different sizes of data and computational resources.
 
-In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers of variables (features) and samples, similar to the dataset used in to evaluate ranger [REF: ranger], allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity of random forest by using range of mtry values.
+In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers of variables (features) and samples, similar to the dataset used in to evaluate ranger [REF: ranger], allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity of random forests by using range of \mtry\ values.
 
 
-We investigate the different synthetic datasets generated for section 5.1. and measured the time of building a random forest of 100 trees and the results reported below are averages of 5 runs. To improve consistency of measurements all the cases were executed with the same random seed.
+We investigate the different synthetic datasets generated for section 5.1. and measured the time of building a random forest model of 100 trees and the results reported below are averages of 5 runs. To improve consistency of measurements all the cases were executed with the same random seed.
 
-Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000 samples, by varying mtry fraction and the number of CPU cores allocated to the execution. The raw results are presented in the table [REF table1] and visualized in figure [REF: Fig 1] below
-Regardless of the number of cores used, \cursedforest\ displays approximately  linear dependency between the execution time and the mtry parameter (presented here as a fraction of the number of variables) [Fig 1 a)
+Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000 samples, by varying \mtry\ fraction and the number of CPU cores allocated to the execution. The raw results are presented in the table [REF table1] and visualized in figure [REF: Fig 1] below
+Regardless of the number of cores used, \cursedforest\ displays approximately linear dependency between the execution time and the \mtry\ parameter (presented here as a fraction of the number of variables) [Fig 1 a)
 
-\cursedforest\ scales almost linearly with the number of CPU cores for medium values of mtry fraction but for both lower and higher values the performance degrades slightly (Fig 1 b)  In the latter case the likely cause is communication overhead (with lower mtry values the proportion of time for parallelizable computation to the time for internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational capacity.
+\cursedforest\ scales almost linearly with the number of CPU cores for medium values of \mtry\ fraction but for both lower and higher values the performance degrades slightly (Fig 1 b). In the latter case the likely cause is communication overhead (with lower \mtry\ values the proportion of time for parallelizable computation to the time for internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational capacity.
 
-Next we investigate \cursedforest\ scalability with regards to the size of data, by varying the number of variables and sample for a fixed mtry fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table [REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are expresses as trees per hour).
+Next we investigate \cursedforest\ scalability with regards to the size of data, by varying the number of variables and sample for a fixed \mtry\ fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table [REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are expresses as trees per hour).
 
-Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that keeping mtry fraction constants results with higher mtry values with growing number of variables, and this is what drives the performance down rather that the increase of dataset size itself.
+Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that keeping \mtry\ fraction constants results with higher \mtry\ values with growing number of variables, and this is what drives the performance down rather that the increase of dataset size itself.
 
 
 To conclude \cursedforest\ is capable of processing datasets with 50M variables and 10K samples, which is the order of magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per hour.
@@ -881,15 +879,15 @@ To conclude \cursedforest\ is capable of processing datasets with 50M variables 
 \begin{table}[!ht]
 \centering
 \caption{
-{\bf Time in seconds to build random forest of 100
-  trees with specified mtry fraction using given number of CPU cores.}}
+{\bf Time in seconds to build a random forest of 100
+  trees with specified \mtry\ fraction using given number of CPU cores.}}
 \begin{tabular}{|l|l||l|l|l|l|}
 \hline
 \multicolumn{2}{|l|}{\multirow{2}{*}{}}             & \multicolumn{4}{c|}{Number of CPU cores} \\
 \cline{3-6}
 \multicolumn{2}{|l|}{}                              & \bf{16} & \bf{32} & \bf{64} & \bf{128} \\
 \hline
-\multirow{4}{*}{mtry (fraction)}        & \bf{0.10} & 708.3   & 340.0   & 186.0   & 134.5 \\
+\multirow{4}{*}{\mtry\ (fraction)}        & \bf{0.10} & 708.3   & 340.0   & 186.0   & 134.5 \\
                                         & \bf{0.25} & 1134.9  & 535.0   & 270.8   & 179.6 \\
                                         & \bf{0.50} & 1724.1  & 856.6   & 428.7   & 243.8 \\
                                         & \bf{0.80} & 2313.5  & 1125.7  & 569.1   & 364.6 \\
@@ -907,12 +905,12 @@ a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} & 
 \includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png} \\
 \end{tabular}
-\captionof{figure}{{\bf Scalablity of the Wide Random Forest on the synthetic dataset of 2.5M features and 5K samples.} 
-   {\bf a)} Time in seconds to build 100 trees for differnet mtry fractions. 
-   {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
+\captionof{figure}{{\bf Scalablity of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.} 
+  {\bf a)} Time in seconds to build 100 trees for different \mtry\ fractions. 
+  {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
 \label{figure:synth}
 \end{figure}
-  
+
 
 %nvars 150000  500000  2500000 10000000  50000000
 %nsamples          
@@ -923,7 +921,7 @@ a)& b)\\
 \begin{table}[!ht]
 \centering
 \caption{
-{\bf Time in seconds to build random forest of 100
+{\bf Time in seconds to build a random forest of 100
   trees on 128 CPU cores with varying numbers of variables and samples.}}
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
@@ -949,8 +947,8 @@ a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
 \end{tabular}
 \captionof{figure}{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
-   {\bf a)} Number of trees build per hour when growing number of variables. 
-   {\bf b)} Number of trees build per hour when growing number of samples.}
+  {\bf a)} Number of trees build per hour when growing number of variables. 
+  {\bf b)} Number of trees build per hour when growing number of samples.}
 \label{figure:synth}
 \end{figure}
 
@@ -964,7 +962,7 @@ a)& b)\\
 \begin{tabular}{|l|l|l|l|l|l|l|l|}
 \hline
 %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-\bf{Mtry}  & \bf{Mtree} & \bf{depth} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory} \\
+\bf{ \mtry\ }  & \bf{Mtree} & \bf{depth} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory} \\
 \hline
 &&&&&\\ \hline
 \end{tabular}
@@ -1011,13 +1009,13 @@ Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et m
 
 %http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
  %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
-%overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
+%overcomes this issue and is hence ideally suited to this application.  Furthermore, random forests are able to capture interactions
 %between features, which is of importance for modelling complex polygenic diseases.
 
 
-% We also investigated classifying the samples using Random Forests.  We chose random forests due to its ability to
+% We also investigated classifying the samples using random forests.  We chose random forests due to its ability to
 % capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
-% independently, which, is ideal for parallelisation. Furthermore, the ensemble of weak learners can help to minimise
+% independently, which, is ideal for parallelization. Furthermore, the ensemble of weak learners can help to minimise
 % overfitting and variance.
 
 
