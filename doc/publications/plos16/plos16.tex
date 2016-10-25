@@ -72,7 +72,7 @@
 %
 % % % % % % % % % % % % % % % % % % % % % % % %
 
-\documentclass[10pt,a4paper]{article}  %\documentclass[10pt,letterpaper]{article}
+\documentclass[10pt,letterpaper]{article}
 \usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
 
 % amsmath and amssymb packages, useful for mathematical formulas and symbols
@@ -108,8 +108,6 @@
 
 % create "+" rule type for thick vertical lines
 \newcolumntype{+}{!{\vrule width 2pt}}
-
-\usepackage{footmisc}
 
 % create \thickcline for thick horizontal lines of variable length
 \newlength\savedwidth
@@ -169,11 +167,11 @@
 %% Include all macros below
 
 \newcommand{\cursedforest}{{\sc CursedForest}}
-\newcommand{\lorem}{{\bf LOREM}}
-\newcommand{\ipsum}{{\bf IPSUM}}
 
 %% END MACROS SECTION
 
+%% Additional packages
+\usepackage{footmisc}
 \usepackage{multirow}
 
 
@@ -189,10 +187,9 @@
 \vspace*{0.2in}
 
 % Title must be 250 characters or less.
-% Please capitalize all terms in the title except conjunctions, prepositions, and articles.
 \begin{flushleft}
 {\Large
-\textbf\newline{Cursed Forest - A random forest implementation for ``big'' and ``wide'' data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
+\textbf\newline{\cursedforest - A random forest implementation for ``big'' and ``wide'' data} % Please use "title case" (capitalize all terms in the title except conjunctions, prepositions, and articles).
 }
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
@@ -207,15 +204,15 @@ Denis C. Bauer\textsuperscript{1,*}
 %, with the Lorem Ipsum Consortium\textsuperscript{\textpilcrow}
 \\
 \bigskip
-\bf{1} Health \& Biosecurity, CSIRO, Sydney, NSW, Australia
+\textbf{1} Health \& Biosecurity, CSIRO, Sydney, NSW, Australia
 \\
-\bf{2} Data61, CSIRO, Brisbane, QLD, Australia
+\textbf{2} Data61, CSIRO, Brisbane, QLD, Australia
 \\
-\bf{3} Health \& Biosecurity, CSIRO, Brisbane, QLD, Australia
+\textbf{3} Health \& Biosecurity, CSIRO, Brisbane, QLD, Australia
 \\
-\bf{4} Oceans \& Atmosphere, CSIRO, Brisbane, QLD, Australia
+\textbf{4} Oceans \& Atmosphere, CSIRO, Brisbane, QLD, Australia
 \\
-\bf{5} Data61, CSIRO, Sydney, NSW, Australia
+\textbf{5} Data61, CSIRO, Sydney, NSW, Australia
 \\
 \bigskip
 
@@ -245,7 +242,6 @@ Denis C. Bauer\textsuperscript{1,*}
 * Denis.Bauer@CSIRO.au
 
 \end{flushleft}
-% Please keep the abstract below 300 words
 \tableofcontents
 \clearpage
 \section{Notes}
@@ -256,7 +252,7 @@ Denis C. Bauer\textsuperscript{1,*}
   \item consider  \cite{Segal.2004} examples
   \item simulations reproduced from Genuer et al 2010 (no -- we need classification examples)
   \item check Piotr's simulation  (done)
-  \item run sparkML or Cursed forest on the  simulation data 
+  \item run sparkML or CursedForest on the  simulation data 
   \item we extend the simulations to many more variables 
   \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
     \ref{table:smaller_data} -- On it, Aidan
@@ -301,7 +297,8 @@ Heterosis	Heterozygote leads to variation	0/2, 1
 
 \clearpage
 
-\section{Abstract}
+% Please keep the abstract below 300 words
+\section*{Abstract}
 The abstract.
 
 \linenumbers
@@ -355,7 +352,7 @@ random forests this means that the computations for each node of a tree can be h
   
 Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forest specifically designed to cater for
 ``big'' (many samples) and ``wide'' (many features) data sets. \cursedforest\ is capable of parallelising the split for
-each node in a tree thereby handling millions of features, such as in the 1000 Genome data, which consists
+each node in a tree thereby handling millions of features, such as in the 1000 Genomes Project data, which consists
 of approximately 2500 samples with up to 80 million variants~\cite{1KG2012}.  By also utilising Spark to read in and
 manipulate the standard genomic variant format (VCF) directly, \cursedforest\ outperforms existing tools on even small
 datasets where multi-threading generally performs well. 
@@ -393,7 +390,7 @@ executor also increases with dimensionality due to the data types Spark ML uses,
 discussion.
 
 %% We therefore developed \cursedforest\, a Spark-based random forest algorithm able to process big and ``wide'' data.
-%% % Unlike the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
+%% % Unlike the standard Apache implementation, \cursedforest\ is able to easily process data with millions of dimensions without
 %% % excessive resource requirements on the driver or worker nodes.  DENIS Piotr this is your 20 trees has the important feature in
 %% % the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.
 %% \marginpar{Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top
@@ -423,15 +420,15 @@ discussion.
 %
 %We therefore developed \cursedforest\, a Spark-based random forest algorithm able to process big and ``wide'' data. 
 %Unlike
-%the standard Apache implementation, CursedForest is able to easily process data with millions of dimensions without
+%the standard Apache implementation, \cursedforest\ is able to easily process data with millions of dimensions without
 %excessive resource requirements on the driver or worker nodes.
 %DENIS Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.
 
 
 \marginpar{Needs to be rewritten once we actually have the sections} 
 In the first section we explore some of the
-properties of random forests, demonstrating that any potential flaws in CursedForest are an inherent property of Random
-Forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of CursedForest in
+properties of random forests, demonstrating that any potential flaws in \cursedforest\ are an inherent property of Random
+Forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of \cursedforest\ in
 respect to the dimensionality of the data, building an RF model on whole-genome data from the 1000 Genomes Project. Here
 we report on the accuracy (in terms of the ARI)
 \marginpar{what is ARI?}
@@ -547,8 +544,8 @@ GWAS data. What do we need to do in this area? What about linkage diseqelibrium?
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Cursed Forest.}
-% DENIS: Aidan and Piotr can you please explain here how Cursed forest is implemented
+\subsection{\cursedforest.}
+% DENIS: Aidan and Piotr can you please explain here how CursedForest is implemented
 Traditionally, VariantSpark made use of Spark's machine learning algorithms ``Spark ML''. These algorithms require data
 in a ``DataFrame'', similar to DataFrames in R.
 
@@ -563,16 +560,16 @@ the RDD into more partitions and resource requirements will remain relatively st
 dimensions (variants) increases, the size of the vectors increases. This results in higher memory-requirements as
 increasingly large vectors must be loaded into memory.
 
-On the other hand, CursedForest (CF) is specifically designed to handle wide ``cursed'' data. It avoids the relation
+On the other hand, \cursedforest\ (CF) is specifically designed to handle wide ``cursed'' data. It avoids the relation
 between memory and dimensionality by avoiding calculations that rely on entire feature vectors.
 
-Compared to Spark ML, CursedForest further parallelizes work down to individual features.  For example, for each node of
-a tree, CursedForest will distribute tasks that consist of single features (variants), for every individual.  Each of
+Compared to Spark ML, \cursedforest\ further parallelizes work down to individual features.  For example, for each node of
+a tree, \cursedforest\ will distribute tasks that consist of single features (variants), for every individual.  Each of
 these tasks will calculate the information gain for that specific feature.  Once these tasks have completed, the results
 are reduced to return the feature which gives the greatest information gain.  This process is then repeated until
-CursedForest has calculated the entire decicion tree.
+\cursedforest\ has calculated the entire decicion tree.
 
-The current implementation of Cursed Forest uses:
+The current implementation of \cursedforest\ uses:
 \begin{itemize}
 \item an ``information gained'' criteria for splitting. Let $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
   \ldots, Q$ at a node. The  entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$
@@ -589,7 +586,10 @@ In this case, the information gain is IG = Entropy(parent node) - Weighted Sum o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Datasets}
 %DENIS: Aidan can you please fill this in of where we got it from and how we process it for all the different tools to use
-\subsubsection{1000 Genomes}
+\subsubsection{1000 Genomes Project}
+
+We obtained the 1000 Genomes Project data as VCF files from their FTP site. 
+
 %DENIS: Rob how was the synthetic data generated
 \subsubsection{Synthetic data} 
 
@@ -647,12 +647,12 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 1:  Feature Selection and classification on synthetic data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{CursedForest can evaluate variable importance for millions of features  }\label{synthetic}
-%In this section we demonstrate that \cursedforest 's ability to rapidly grow large number of trees, \texttt{ntree}, in
+\subsection{\cursedforest\ can evaluate variable importance for millions of features}\label{synthetic}
+%In this section we demonstrate that \cursedforest's ability to rapidly grow large number of trees, \texttt{ntree}, in
 %parallel results in a stable feature importance ranking.  This concept was originally proposed by Liaw and
 %Weiner~\cite{Liaw.and.Weiner.2002}, who suggested that though the variable importance measures may vary from run to
 %run, the ranking of the variables will stabilise with growing \texttt{ntree}.
-In this section we demonstrate CursedForrest two main features, namely variable importance analysis to select the most
+In this section we demonstrate \cursedforest\ two main features, namely variable importance analysis to select the most
 associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
 high-dimensional samples.
 %We therefore generate a synthetic dataset with varying numbers of variables (features) and samples, as discussed in the method section. 
@@ -679,7 +679,7 @@ Figure~\ref{figure:synth}b illustrates that increasing $mtry$ also improves the 
 %Piotr can you please explain the remaining error on the synthetic data
 By $mtry=0.8$ the error is converging to X, which is due to Y.
 
-From the synthetic data we can conclude that CursedForest is able to perform accurate feature selection as well as
+From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
 
 \begin{figure}[tbhp]
@@ -700,10 +700,10 @@ a)& b)\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{CursedForest selects previously demonstrated cancer variants }
+\subsection{\cursedforest\ selects previously demonstrated cancer variants }
 %Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
 %variables for further analysis. 
-As established in the pervious section, CursedForest allows the user to retrieve a subsection of features, ranked by
+As established in the pervious section, \cursedforest\ allows the user to retrieve a subsection of features, ranked by
 their importance to identify the variables predictive of the label or selecting the $n$ most important variables for
 further analysis.  We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset.  We build this model on
 VCF files retrieved from the TCGA data portal.  For the label, we use the cell type (i.e. tumor or normal).
@@ -736,46 +736,46 @@ x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 3: Classification selection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{CursedForest outperforms existing methods for classification problems}
-As established in Section~\ref{synthetic}, CursedForest 
+\subsection{\cursedforest\ outperforms existing methods for classification problems}
+As established in Section~\ref{synthetic}, \cursedforest\ 
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
-1000 genomes dataset.
+1000 Genomes Project dataset.
 
 
 \begin{table}[!ht]
 \begin{minipage}{\textwidth}
-\begin{adjustwidth}{-1.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+\centering
 \caption{
 {\bf Performance comparison between the different machine learning algorithms.}}
 \begin{tabular}{|l+l|l|l|l|l|l|p{1cm}|}
 \hline
-%\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}                               \\ \hline
 \bf{Genome \%}                      & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
 
-\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest  & 0.077 (XX) &                  &                                                                   \\
-                                                & RF - Spark ML &            &                  &                                                                   \\
-                                                & RF - R        & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\
-                                                & ranger -R     & 0.94       & 1 min 10 seconds & 16GB  (one processor)                                             \\
-                                                & ranger c++    & 0.94       & 7 mins           & --nthreads 20                                                     \\
+\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077 (XX) &                  &                                                                   \\
+                                                & RF - Spark ML  &            &                  &                                                                   \\
+                                                & RF - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\
+                                                & ranger - R      & 0.94       & 1 min 10 seconds & 16GB  (one processor)                                             \\
+                                                & ranger - c++     & 0.94       & 7 mins           & --nthreads 20                                                     \\
 
  \hline
-\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  &                                                                                     \\
+\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  &                                                                \\
                                                     & RF - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\
-                                                    & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)}                \\
-                                                    & ranger  -R    & 0.94       & 4 1/2 mins       & 21GB (one processor)                                                                \\
+                                                    & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
+                                                    & ranger - R    & 0.94       & 4 1/2 mins       & 21GB (one processor) \\
 \hline
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & CursedForest  & 0.063 (XX) & 1hr 58min        & 4GB                                                                                 \\
-                                                    & RF - Spark ML & 0.94       & 8hr 29min        & 8GB                                                                                 \\
-                                                    & LR - Spark ML &            & 2hr 6min         & 8GB                                                                                 \\ 
-                                                    & ranger  R     & 0.95       & 28 mins          & num.threads=10\footnote{don't
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063 (XX) & 1hr 58min        & 4GB \\
+                                                    & RF - Spark ML  & 0.94       & 8hr 29min        & 8GB \\
+                                                    & LR - Spark ML  &            & 2hr 6min         & 8GB \\
+                                                    & ranger - R      & 0.95       & 28 mins          & num.threads=10\footnote{don't
                                                                                                       know how to get the memory
-                                                                                                      used,   This was done on dpas-03}  \\ 
+                                                                                                      used,   This was done on dpas-03} \\
 \hline
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & CursedForest  & 0.046 (XX) & 4hr 0min                                             & 4GB         \\
-                                                    & RF - Spark ML &            &                                                      &             \\
-                                                    & LR - Spark ML &            & 14hr 48min                                           & 8GB         \\ 
-                                                    & ranger  R     &  0.97      & 58 mins\footnote{ but took 6 hours to load the
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046 (XX) & 4hr 0min                                             & 4GB \\
+                                                    & RF - Spark ML  &            &                                                      & \\
+                                                    & LR - Spark ML  &            & 14hr 48min                                           & 8GB \\
+                                                    & ranger - R      &  0.97      & 58 mins\footnote{ but took 6 hours to load the
                                                                                    data}
                                                                                                                                          &
                                                                                                                                            909GB\footnote{I
@@ -792,20 +792,20 @@ In this section we compare \cursedforest 's performance against other published 
                                                                                                                                            cores-per-socket=10
                                                                                                                                            on
                                                                                                                                            ruby
-                                                                                                                                           }  \\ 
-& ranger   -R        &             0.973     &      03:58           &       pearcey --cpus-per-task=15 --mem 1600gb   906GB \\
+                                                                                                                                           }  \\
+& ranger - R        &             0.973     &      03:58           &       pearcey --cpus-per-task=15 --mem 1600gb   906GB \\
 \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX (0.96) & 7hr 14min & 8GB \\
 & RF - Spark ML & - & - & - \\
 & LR - Spark ML & - & - & - \\ 
-& kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ 
-& ranger (C++)       &        NA     &        NA     &             80 CPU -- runs out of memory (12.8GB per CPU) \\
-& ranger (C++)       &        NA     &        NA      &            160
+& kmeans - Spark ML  & - (0.82)      & 30hr 44min    & 24GB \\ 
+& ranger (C++)       &        NA     &        NA     &            80 CPU -- runs out of memory (12.8GB per CPU) \\
+& ranger (C++)       &        NA     &        NA     &            160
                                                         CPU -- runs
                                                         out of time at
                                                         20 hours \\
-
+\hline
 % \begin{tabular}{|p{1.2cm}|p{1cm}|p{1.5cm}+l|l|p{1.8cm}|p{1.5cm}|}
 % \hline
 % %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
@@ -857,7 +857,24 @@ Each random forest model consists of 50 trees.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Scalability analysis}
 
-In this section we explore the performance of CursedForest by testing its ability to scale to different sizes of data and computational resources.In order to asses these characteristics we ran CursedForst classification on synthetics datasets with varying numbers of variables (features) and samples, similar to the dataset used in to evaluate ranger [REF: ranger], allocating varying number of CPU cores to the CursedForest and also varying computational complexity of random forest by using range of mtry values.We investigate the different synthetic datasets generated for section 5.1. and measured the time of building a random forest of 100 trees and the results reported below are averages of 5 runs. To improve consistency of measurements all the cases were executed with the same random seed.Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000 samples, by varying mtry fraction and the number of CPU cores allocated to the execution. The raw results are presented in the table [REF table1] and visualized in figure [REF: Fig 1] belowRegardless of the number of cores used, CursedForerst displays approximately  linear dependency between the execution time and the mtry parameter (presented here as a fraction of the number of variables) [Fig 1 a)CursedForest scales almost linearly with the number of CPU cores for medium values of mtry fraction but for both lower and higher values the performance degrades slightly (Fig 1 b)  In the latter case the likely cause is communication overhead (with lower mtry values the proportion of time for parallelizable computation to the time for internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational capacity.Next we investigate CursedForest scalability with regards to the size of data, by varying the number of variables and sample for a fixed mtry fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table [REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are expresses as trees per hour).Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that keeping mtry fraction constants results with higher mtry values with growing number of variables, and this is what drives the performance down rather that the increase of dataset size itself.To conclude CursedForst is capable of processing datasets with 50M variables and 10K samples, which is the order of magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per hour.
+In this section we explore the performance of \cursedforest\ by testing its ability to scale to different sizes of data and computational resources.
+
+In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers of variables (features) and samples, similar to the dataset used in to evaluate ranger [REF: ranger], allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity of random forest by using range of mtry values.
+
+
+We investigate the different synthetic datasets generated for section 5.1. and measured the time of building a random forest of 100 trees and the results reported below are averages of 5 runs. To improve consistency of measurements all the cases were executed with the same random seed.
+
+Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000 samples, by varying mtry fraction and the number of CPU cores allocated to the execution. The raw results are presented in the table [REF table1] and visualized in figure [REF: Fig 1] below
+Regardless of the number of cores used, \cursedforest\ displays approximately  linear dependency between the execution time and the mtry parameter (presented here as a fraction of the number of variables) [Fig 1 a)
+
+\cursedforest\ scales almost linearly with the number of CPU cores for medium values of mtry fraction but for both lower and higher values the performance degrades slightly (Fig 1 b)  In the latter case the likely cause is communication overhead (with lower mtry values the proportion of time for parallelizable computation to the time for internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational capacity.
+
+Next we investigate \cursedforest\ scalability with regards to the size of data, by varying the number of variables and sample for a fixed mtry fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table [REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are expresses as trees per hour).
+
+Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that keeping mtry fraction constants results with higher mtry values with growing number of variables, and this is what drives the performance down rather that the increase of dataset size itself.
+
+
+To conclude \cursedforest\ is capable of processing datasets with 50M variables and 10K samples, which is the order of magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per hour.
 
 
 
@@ -868,14 +885,14 @@ In this section we explore the performance of CursedForest by testing its abilit
   trees with specified mtry fraction using given number of CPU cores.}}
 \begin{tabular}{|l|l||l|l|l|l|}
 \hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}                   & \multicolumn{4}{c|}{Number of CPU cores}  \\
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}             & \multicolumn{4}{c|}{Number of CPU cores} \\
 \cline{3-6}
-\multicolumn{2}{|l|}{}                                      & \bf{16}   & \bf{32}  & \bf{64}    & \bf{128} \\
+\multicolumn{2}{|l|}{}                              & \bf{16} & \bf{32} & \bf{64} & \bf{128} \\
 \hline
-\multirow{4}{*}{mtry (fraction)}                            & \bf{0.10} & 708.3  & 340.0  & 186.0 & 134.5 \\
-                                                            & \bf{0.25} & 1134.9 & 535.0  & 270.8 & 179.6 \\
-                                                            & \bf{0.50} & 1724.1 & 856.6  & 428.7 & 243.8 \\
-                                                            & \bf{0.80} & 2313.5 & 1125.7 & 569.1 & 364.6 \\
+\multirow{4}{*}{mtry (fraction)}        & \bf{0.10} & 708.3   & 340.0   & 186.0   & 134.5 \\
+                                        & \bf{0.25} & 1134.9  & 535.0   & 270.8   & 179.6 \\
+                                        & \bf{0.50} & 1724.1  & 856.6   & 428.7   & 243.8 \\
+                                        & \bf{0.80} & 2313.5  & 1125.7  & 569.1   & 364.6 \\
 \hline
 \end{tabular}
 \begin{flushleft} 
@@ -910,13 +927,13 @@ a)& b)\\
   trees on 128 CPU cores with varying numbers of variables and samples.}}
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}               & \multicolumn{5}{c|}{Number of variables}  \\
+\multicolumn{2}{|l|}{\multirow{2}{*}{}}           & \multicolumn{5}{c|}{Number of variables} \\
 \cline{3-7}
-\multicolumn{2}{|l|}{}                                & \bf{150,000} & \bf{500,000} & \bf{2,500,000}  & \bf{10,000,000} & \bf{50,000,000} \\
+\multicolumn{2}{|l|}{}                               & \bf{150,000} & \bf{500,000} & \bf{2,500,000}  & \bf{10,000,000} & \bf{50,000,000} \\
 \hline                                                            
-\multirow{4}{*}{Number of samples}                          & \bf{1000} &  21.6 & 26.7 & 59.8 & 133.5 & 668.8 \\
-                                                            & \bf{5000} & 45.7 & 71.9 & 186.2 & 729.3 & 2887.4 \\
-                                                            & \bf{10000} & 70.2 & 120.2 & 397.3 & 2237.8 & 5747.8 \\
+\multirow{4}{*}{Number of samples}      & \bf{1000}  & 21.6  & 26.7  & 59.8  & 133.5  & 668.8 \\
+                                        & \bf{5000}  & 45.7  & 71.9  & 186.2 & 729.3  & 2887.4 \\
+                                        & \bf{10000} & 70.2  & 120.2 & 397.3 & 2237.8 & 5747.8 \\
 \hline
 \end{tabular}
 \begin{flushleft} 
@@ -992,30 +1009,6 @@ Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et m
 %  \item Goldstein, B. A., Polley, E. C., & Briggs, F. B. S. (2011). Random Forests for Genetic Association Studies. Statistical
 %    Applications in Genetics and Molecular Biology, 10(1), 32. http://doi.org/10.2202/1544-6115.1691
 
-
-
-%@article{Chen2012323,
-%title = "Random forests for genomic data analysis ",
-%journal = "Genomics ",
-%volume = "99",
-%number = "6",
-%pages = "323 - 329",
-%year = "2012",
-%note = "",
-%issn = "0888-7543",
-%doi = "http://dx.doi.org/10.1016/j.ygeno.2012.04.003",
-%url = "http://www.sciencedirect.com/science/article/pii/S0888754312000626",
-%author = "Xi Chen and Hemant Ishwaran",
-%keywords = "Random forests",
-%keywords = "Random survival forests",
-%keywords = "Classification",
-%keywords = "Prediction",
-%keywords = "Variable selection",
-%keywords = "Genomic data analysis ",
-%abstract = "Random forests (RF) is a popular tree-based ensemble machine learning tool that is highly data adaptive, applies to “large p, small n” problems, and is able to account for correlation as well as interactions among features. This makes \{RF\} particularly appealing for high-dimensional genomic data analysis. In this article, we systematically review the applications and recent progresses of \{RF\} for genomic data, including prediction and classification, variable selection, pathway analysis, genetic association and epistasis detection, and unsupervised learning. "
-%}
-
-
 %http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
  %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
 %overcomes this issue and is hence ideally suited to this application.  Furthermore, RF are able to capture interactions
@@ -1050,8 +1043,6 @@ Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et m
 %\end{enumerate}
 
 % Results and Discussion can be combined.
-% Please do not create a heading level below \subsection. For 3rd level headings, use \paragraph{}. 
-
 
 
 %\begin{table}[!ht]
