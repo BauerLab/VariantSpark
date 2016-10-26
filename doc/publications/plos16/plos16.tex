@@ -588,6 +588,12 @@ We use the phase 3 dataset which contains 2,504 individuals with approximately 8
 For compatibility with the majority of the algorithms we demonstrate, we convert the original variant representations to double representations.  
 For example, we store the absence of a variant (0\textbar0) as 0.0, a heterozygous variant (1\textbar0 or 0\textbar1)as 1.0. and a homozygous variant (1\textbar1) as 2.0.
 
+\subsubsection{The Cancer Genome Atlas}
+We obtained The Cancer Genome Atlas (TCGA) BRCA data as VCF files from the GDC data portal.
+This data is in the category ``Simple Nucleotide Variation''.
+After downloading, we use a custom script to name the samples in the files and filter for only the "Normal" tissue column.
+We then use GATK to merge the files into a single VCF file.
+
 %DENIS: Rob how was the synthetic data generated
 \subsubsection{Synthetic data} 
 Each dataset consists of $n$ samples and $m$ variables where $n << m$, and values for each variable are ordinal factors with
