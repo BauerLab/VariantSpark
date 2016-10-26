@@ -314,31 +314,33 @@ space where, for example, whole genome sequence (WGS) technology enables researc
 human genome.
 
 Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide
-association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs
-(SNPs) by applying linear or logistic regression analysis to each SNP separately~\cite{CCC2007}.  It has since been
+association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs, termed
+single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP separately~\cite{CCC2007}.  It has since been
 demonstrated that not taking joint interactions between SNPs into account when filtering for potential disease mutations
 is inadequate~\cite{Manolio2009}.  
 Complex trait analysis has demonstrated that in order to explain the overall
 heritability a model needs to take the joint contribution of all variants into account~\cite{Yang2011}.
 
 
-\marginpar{decison trees capture interaction -- there is no main effect term. Random forests inherit this property. I dont think it
-  has anything to do with boostrapping, the point of which is to ensure that successive trees are not correlated.}
-Random forests~\cite{Breiman2001} are able to capture interactions between features while still allowing to
-prioritise SNPs for their contribution to disease.  The joint interaction is achieved by applying the technique of
-bootstrap aggregation or bagging to decision trees, while a measure of variable importance can be provided, for example,
-by summing the number of times a variable is used to split a node, over all nodes and all trees.  Random forests are well suited for
+%\marginpar{decison trees capture interaction -- there is no main effect term. Random forests inherit this property. I dont think it
+%  has anything to do with boostrapping, the point of which is to ensure that successive trees are not correlated.}
+%Random forests~\cite{Breiman2001} are able to capture interactions between features while still allowing to
+%prioritise SNPs for their contribution to disease.  The joint interaction is achieved by applying the technique of
+%bootstrap aggregation or bagging to decision trees, while a measure of variable importance can be provided, for example,
+%by summing the number of times a variable is used to split a node, over all nodes and all trees.  
+Random forests are well suited for
 processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have the
 propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting. 
 Secondly, random forests are also very easy to parallelise. As the forest is a sum of decision trees, it it possible to grow
-separate trees on different processors and combine the trees.
+separate trees on different processors and combine the trees. See the discussion of the properties of random forests
+Section \ref{section:methods}.
 
 The most popular random forest software packages are R-based, although current implementations do not scale well with
 increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
 than $2^{31}$), and the {\sc randomForest} implementation in R lending itself to parallelization to grow multiple trees
 simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide'' genomic data have been
-developed in other programming languages.  {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast running
+developed in other programming languages.  {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast run
 times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.
 Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimised for
 dealing with large data sets.
@@ -362,13 +364,6 @@ datasets where multi-threading generally performs well.
 Harnessing the virtually unlimited capability to parallelise tasks, \cursedforest\ can build a large number of trees,
 which boosts the accuracy for variable importance selection~\cite{Szymczak2016}.
 
-\cursedforest\ is included in our previously developed framework for Spark-based genomic data analysis,
-VariantSpark~\cite{OBrien2015}, which therefore now enables supervised and unsupervised machine learning. This offers a
-comprehensive analysis toolkit that can scale for the future data demands, where the richness from WGS data can be
-utilised to ``fill in'' or impute the information at previously unobserved genomic positions in older array
-technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAs catalogue and generate datasets
-of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
-compute paradigms to deal with these challenges.
 
 A Spark application runs on a ``driver'' node and distributes tasks to the many ``worker'' nodes, or ``executors''.
 
@@ -422,8 +417,19 @@ discussion.
 %DENIS Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.
 
 
-\marginpar{Needs to be rewritten once we actually have the sections} 
+
+
+\cursedforest\ is included in our previously developed framework for Spark-based genomic data analysis,
+VariantSpark~\cite{OBrien2015}, which therefore now enables supervised and unsupervised machine learning. This offers a
+comprehensive analysis toolkit that can scale for the future data demands, where the richness from WGS data can be
+utilised to ``fill in'' or impute the information at previously unobserved genomic positions in older array
+technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAs catalogue and generate datasets
+of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
+compute paradigms to deal with these challenges.
+
+
 In the first section we explore some of the
+\marginpar{Needs to be rewritten once we actually have the sections} 
 properties of random forests, demonstrating that any potential flaws in \cursedforest\ are an inherent property of random
 forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of \cursedforest\ in
 respect to the dimensionality of the data, building a random forest model on whole-genome data from the 1000 Genomes Project. Here
@@ -436,6 +442,7 @@ model.
 
 
 \section{Methods}
+\label{section:methods}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \marginpar{Rob can you condense this down into what is relevant for this paper and not explained elsewhere in the literature}
@@ -446,16 +453,15 @@ Decision trees have a number of desirable features, they:
   \item are invariant to monotonic scaling of the data;
   \item can handle categorical and real valued inputs;
   \item can handle missing values;
-  \item are insensitive to useless predictors;
+  \item are insensitive to uninforamtive predictors;
   \item are able to capture interactions between features (which is of importance for modelling complex polygenic diseases).
   \end{itemize}
 However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
 lead to a very different model. 
 
-Random forests~\cite{Breiman2001} (RFs) apply the technique of bootstrap aggregation or bagging to decision trees.  The training
-data is independently drawn from the joint distribution of $(X,Y)$ and comprises $n$ $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$.
-$X$ and $\theta_b$ for $b=1,\ldots,B$ are i.i.d. random vectors and a tree is grown on each of these $\theta_b$ samples 
-($X$ is randomly sampled $B$ times with replacement and a tree is grown on each of these $B$ samples). 
+Random forests  apply the technique of bootstrap aggregation or bagging to decision trees.  The training
+data sets are independently drawn. with replacement,  from the joint distribution of $(X,Y)$ so that each set comprises $n$ $(p+1)$-tuples
+ $(x_1,y_1),\ldots, (x_n,y_n)$. This si done $B$ times and  a tree is grown on each of these $B$ samples.
 The results are combined in an appropriate way. In a classification problem we take the majority vote for the trees over
 the $q=1,..,Q$ classes,
 \begin{equation*}
@@ -467,6 +473,7 @@ variance, and by combining them reduce the variance. As the prediction error is 
 squared, this strategy should lead to a low prediction error.
 
 The average prediction error for an individual tree $h(X; \theta)$ is
+\marginpar{is this formulation correct in the case of classification? See Friedman on 0-1 losss}
 \begin{equation}
 PE_t = E_\theta E_{X,Y} (Y-h(X; \theta))^2.
 \end{equation}
@@ -494,7 +501,7 @@ Since the original implementation of random forests, there have been a number of
 the algorithm. 
 \begin{itemize}
 \item random forests are resistant to overfitting. However it is not true that they will not overfit,
-  ~\cite{Segal.2004} gives examples of overfitting in the case where:
+  ~\cite{Segal.2004} gives examples of overfitting in cases where:
   \begin{itemize}
   \item a single tree is the most appropriate model; and
   \item the variables are highly correlated so that the bootstrap resampling does not give rise to uncorrelated trees.
@@ -520,19 +527,16 @@ sets that are
 \item the hypothesized functional relationship is of a form amenable to a decision tree.
 \end{itemize}
 
-\subsubsection{convergence}
 Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
 rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
-compared to the total number of variables, then the rate of convergence will be quicker.
-\marginpar{say something about the rate of convergence}
+compared to the total number of variables, then the rate of convergence will be quicker. It is not clear waht the size
+of teh set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effectsd and also of
+contitions casued by the interaction of large groups of SNPs. 
+\marginpar{check this}
 
-Subject to certain conditions, random forests will not overfit even in the $p > n$ case. 
-Here we demonstrate that this may hold true in extreme cases where $p \gg n$.
 
-\marginpar{why is this relevant, i.e. if this is special to VariantSpark it should be explained better.}
-\subsubsection{variable selection}
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using
 the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic
 data.
@@ -542,8 +546,7 @@ GWAS data. What do we need to do in this area? What about linkage diseqelibrium?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest.}
-% DENIS: Aidan and Piotr can you please explain here how CursedForest is implemented
-Traditionally, VariantSpark made use of Spark's machine learning algorithms ``Spark ML''. These algorithms require data
+VariantSpark made use of Spark's machine learning algorithms ``Spark ML''. These algorithms require data
 in a ``DataFrame'', similar to DataFrames in R.
 
 Traditionally, VariantSpark used the random forest algorithm from Spark ML. While Spark ML algorithms demonstrate
@@ -574,7 +577,7 @@ The expected information gain is the change in entropy $H$ from a prior state $T
 information $a$ as given: 
 \[ IG(T,a) = H(T) - H(T|a). \]
 In this case, the information gain is IG = Entropy(parent node) - Weighted Sum of Entropy(Children)
-\item variable importance is the sum of IG over all notes and all trees for that variable
+\item variable importance is the sum of IG over all notes and all trees for that variable.
 \end{itemize}
 
 
@@ -594,12 +597,12 @@ This data is in the category ``Simple Nucleotide Variation''.
 After downloading, we use a custom script to name the samples in the files and filter for only the "Normal" tissue column.
 We then use GATK to merge the files into a single VCF file.
 
-%DENIS: Rob how was the synthetic data generated
 \subsubsection{Synthetic data} 
+\marginpar{these are not actually encoded as factors}
 Each dataset consists of $n$ samples and $m$ variables where $n << m$, and values for each variable are ordinal factors with
 three levels represented as numbers $\{0, 1, 2\}$ (which correspond to an additive effect encoding of genomics variation) randomly
-generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a two level
-Bernoulli trail with $p$ (probability of success) calculated by applying inverse logit transformation to the continuous
+generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a
+Bernoulli trail with $p$ (probability of success) calculated by applying an inverse logit transformation to the continuous
 linear response ($y$) of five variables:
 $$y = a_{10}* v_{10} + a_{100}*v_{100} + a_{1000}*v_{1000} + a_{10000}*v_{10000} + a_{10000}*v_{100000}$$
 where $a_{10} = 0.8, a_{100} = 0.9, a_{1000} = 1.1, a_{10000} = 1.0, a_{10000}=1.15$.
