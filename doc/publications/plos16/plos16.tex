@@ -254,7 +254,7 @@ Denis C. Bauer\textsuperscript{1,*}
   \item consider  \cite{Segal.2004} examples
   \item simulations reproduced from Genuer et al 2010 (no -- we need classification examples)
   \item check Piotr's simulation  (done)
-  \item run sparkML or CursedForest on the  simulation data 
+  \item run spark ML or CursedForest on the  simulation data 
   \item we extend the simulations to many more variables 
   \item I dont think I can get R to handle chromosme 1 etc. May have to run CF on chromosme 22, see table
     \ref{table:smaller_data} -- On it, Aidan
@@ -325,7 +325,7 @@ heritability a model needs to take the joint contribution of all variants into a
 \marginpar{decison trees capture interaction -- there is no main effect term. Random forests inherit this property. I dont think it
   has anything to do with boostrapping, the point of which is to ensure that successive trees are not correlated.}
 Random forests~\cite{Breiman2001} are able to capture interactions between features while still allowing to
-prioritise SNPs for their contribution to disease.  The joint interaction is achieved by appling the technique of
+prioritise SNPs for their contribution to disease.  The joint interaction is achieved by applying the technique of
 bootstrap aggregation or bagging to decision trees, while a measure of variable importance can be provided, for example,
 by summing the number of times a variable is used to split a node, over all nodes and all trees.  Random forests are well suited for
 processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have the
@@ -336,7 +336,7 @@ separate trees on different processors and combine the trees.
 
 The most popular random forest software packages are R-based, although current implementations do not scale well with
 increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
-than $2^{31}$), and the {\sc randomForest} implementation in R lending itself to paralelization to grow multiple trees
+than $2^{31}$), and the {\sc randomForest} implementation in R lending itself to parallelization to grow multiple trees
 simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide'' genomic data have been
 developed in other programming languages.  {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast running
 times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.
@@ -498,7 +498,7 @@ the algorithm.
   ~\cite{Segal.2004} gives examples of overfitting in the case where:
   \begin{itemize}
   \item a single tree is the most appropriate model; and
-  \item the variables are hightly correlated so that the boostrap resampling does not give rise to uncorrelated trees.
+  \item the variables are highly correlated so that the bootstrap resampling does not give rise to uncorrelated trees.
   \end{itemize}
 However, keeping these difficult cases in mind, random forests have a strong claim to being resistant to overfitting.
 
@@ -508,7 +508,7 @@ However, keeping these difficult cases in mind, random forests have a strong cla
     bias. A uninformative variable with a large number of levels may be selected over a more informative variable with
     fewer levels;
   \item bagging introduces a bias, but sampling $(1- 1/e) \approx 0.632$ of the data without replacement seems to be an
-    effective stragey for removing the problem.
+    effective strategy for removing the problem.
   \end{enumerate}
 \end{itemize} 
 
@@ -517,7 +517,7 @@ apparent in the CF algorithm as well.  However, there are many examples, particu
 sets that are
 \begin{itemize}
 \item very wide;
-\item all variables have the same number of levels (for example, measuments at different points along the genome);
+\item all variables have the same number of levels (for example, measurements at different points along the genome);
 \item the hypothesized functional relationship is of a form amenable to a decision tree.
 \end{itemize}
 
@@ -565,11 +565,11 @@ Compared to Spark ML, \cursedforest\ further parallelizes work down to individua
 a tree, \cursedforest\ will distribute tasks that consist of single features (variants), for every individual.  Each of
 these tasks will calculate the information gain for that specific feature.  Once these tasks have completed, the results
 are reduced to return the feature which gives the greatest information gain.  This process is then repeated until
-\cursedforest\ has calculated the entire decicion tree.
+\cursedforest\ has created the entire decision tree.
 
 The current implementation of \cursedforest\ uses:
 \begin{itemize}
-\item an ``information gained'' criteria for splitting. Let $f_q$ be the fraction of items labeled with value $q$ where $q= 1,
+\item an ``information gained'' criteria for splitting. Let $f_q$ be the fraction of items labelled with value $q$ where $q = 1,
   \ldots, Q$ at a node. The entropy of the node is $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$
 The expected information gain is the change in entropy $H$ from a prior state $T$ to a state that takes some
 information $a$ as given: 
@@ -583,14 +583,14 @@ In this case, the information gain is IG = Entropy(parent node) - Weighted Sum o
 % This section talks about the datasets
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Datasets}
-%DENIS: Aidan can you please fill this in of where we got it from and how we process it for all the different tools to use
 \subsubsection{1000 Genomes Project}
-
-We obtained the 1000 Genomes Project data as VCF files from their FTP site. 
+We obtained the 1000 Genomes Project data as VCF files from their FTP site.  Each VCF file contains the variants for every individual accross one chromosome.  
+We use the phase 3 dataset which contains 2,504 individuals with approximately 81 million variant positions (i.e. a matrix of $2,504 \times 81$ million).  
+For compatibility with the majority of the algorithms we demonstrate, we convert the original variant representations to double representations.  
+For example, we store the absence of a variant (0\textbar0) as 0.0, a heterozygous variant (1\textbar0 or 0\textbar1)as 1.0. and a homozygous variant (1\textbar1) as 2.0.
 
 %DENIS: Rob how was the synthetic data generated
 \subsubsection{Synthetic data} 
-
 Each dataset consists of $n$ samples and $m$ variables where $n << m$, and values for each variable are ordinal factors with
 three levels represented as numbers $\{0, 1, 2\}$ (which correspond to an additive effect encoding of genomics variation) randomly
 generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a two level
@@ -603,7 +603,7 @@ where $a_{10} = 0.8, a_{100} = 0.9, a_{1000} = 1.1, a_{10000} = 1.0, a_{10000}=1
 
 \subsection{Parameter settings}
 We consider the parameter setting for the random forest algorithm. We use the R terms from the {\sc randomForest} package
-\cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler. We incorporate the 
+\cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler.  We incorporate the
 advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience.
 
 \begin{itemize}
@@ -619,10 +619,10 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
   rule \marginpar{can we do this}
 \item the size and complexity of the individual trees is controlled in {\sc randomForest} by setting \texttt{nodesize}, the
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
-  tree in the forest. The Spark ML documentation somewhat unhelpfully sets \texttt{maxDepth=4} in their classification
+  tree in the forest. The Spark ML documentation sets \texttt{maxDepth} to 4 in their classification
   example\footnote{The documentation is available at \url{http://spark.apache.org/docs/latest/mllib-ensembles.html}.}.
 
-  In the ATCG example the RandomForests code produced trees with depths of 30+. We note that random forests are a way of averaging
+  In the TCGA example the RandomForests code produced trees with depths of 30+. We note that random forests are a way of averaging
   multiple deep decision trees, trained on different parts of the same training set, with the goal of reducing the
   variance. \url{https://en.wikipedia.org/wiki/Random_forest} and refs therein.  
 \marginpar{are we including this example?  Supplementary info?}
@@ -680,25 +680,27 @@ By $mtry=0.8$ the error is converging to X, which is due to Y.
 From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
 
-\begin{figure}[tbhp]
+\begin{figure}[tbph]
+\begin{adjustwidth}{-1.00in}{0in}
 \begin{tabular}{ll}
 a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/var_oder.png} & 
 \includegraphics[totalheight=6cm]{./figs/var_oob.png} \\
 \end{tabular}
-\captionof{figure}{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for
+\caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for
   random forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
   importance of top 20 variabels normalized to the sum of the linear model coefficients. {\bf Others} represents
   aggregated importance of variables not present in the linear model.  {\bf b)} OOB (out of bag) classification error
   estimate as funtion of \mtry\ fraction.}
 \label{figure:synth}
+\end{adjustwidth}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\cursedforest\ selects previously demonstrated cancer variants }
+\subsection{\cursedforest\ selects previously demonstrated cancer variants}
 %Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
 %variables for further analysis. 
 As established in the pervious section, \cursedforest\ allows the user to retrieve a subsection of features, ranked by
@@ -881,7 +883,7 @@ To conclude \cursedforest\ is capable of processing datasets with 50M variables 
 \caption{
 {\bf Time in seconds to build a random forest of 100
   trees with specified \mtry\ fraction using given number of CPU cores.}}
-\begin{tabular}{|l|l||l|l|l|l|}
+\begin{tabular}{|l|l|l|l|l|l|}
 \hline
 \multicolumn{2}{|l|}{\multirow{2}{*}{}}             & \multicolumn{4}{c|}{Number of CPU cores} \\
 \cline{3-6}
@@ -900,15 +902,17 @@ To conclude \cursedforest\ is capable of processing datasets with 50M variables 
 
 
 \begin{figure}[tbhp]
+\begin{adjustwidth}{-1.00in}{0in}
 \begin{tabular}{ll}
 a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} & 
 \includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png} \\
 \end{tabular}
-\captionof{figure}{{\bf Scalablity of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.} 
+\caption{{\bf Scalablity of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.} 
   {\bf a)} Time in seconds to build 100 trees for different \mtry\ fractions. 
   {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
 \label{figure:synth}
+\end{adjustwidth}
 \end{figure}
 
 
@@ -919,6 +923,7 @@ a)& b)\\
 %10000 70.2  120.2 397.3 2237.8  5747.8
 
 \begin{table}[!ht]
+\begin{adjustwidth}{-1.00in}{0in}
 \centering
 \caption{
 {\bf Time in seconds to build a random forest of 100
@@ -937,26 +942,28 @@ a)& b)\\
 \begin{flushleft} 
 \end{flushleft}
 \label{table10}
+\end{adjustwidth}
 \end{table}
 
 
 \begin{figure}[tbhp]
+\begin{adjustwidth}{-1.00in}{0in}
 \begin{tabular}{ll}
 a)& b)\\
 \includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} & 
 \includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
 \end{tabular}
-\captionof{figure}{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
+\caption{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
   {\bf a)} Number of trees build per hour when growing number of variables. 
   {\bf b)} Number of trees build per hour when growing number of samples.}
 \label{figure:synth}
+\end{adjustwidth}
 \end{figure}
 
 
 
 
 \begin{table}[!ht]
-%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \caption{
 {\bf Sensitivity analysis on parameter choice.}}
 \begin{tabular}{|l|l|l|l|l|l|l|l|}
@@ -970,7 +977,6 @@ a)& b)\\
   Table notes here.
 \end{flushleft}
 \label{table2}
-%\end{adjustwidth}
 \end{table}
 
 
