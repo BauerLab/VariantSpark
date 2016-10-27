@@ -264,7 +264,7 @@ more information about these events.  The challenge of big and ``wide'' data is 
 space where, for example, whole genome sequence (WGS) technology enables researchers to interrogate all 3 billion base pairs of the
 human genome.
 
-Identifying the relevant and disease specific base-pair difference between individuals is the focus of genome wide
+Identifying the relevant or disease specific base-pair difference between individuals is the focus of genome wide
 association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs, termed
 single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP separately~\cite{CCC2007}.  It has since been
 demonstrated that not taking joint interactions between SNPs into account when filtering for potential disease mutations
@@ -272,26 +272,20 @@ is inadequate~\cite{Manolio2009}.
 Complex trait analysis has demonstrated that in order to explain the overall
 heritability a model needs to take the joint contribution of all variants into account~\cite{Yang2011}.
 
-
-%\marginpar{decison trees capture interaction -- there is no main effect term. Random forests inherit this property. I dont think it
-%  has anything to do with boostrapping, the point of which is to ensure that successive trees are not correlated.}
-%Random forests~\cite{Breiman2001} are able to capture interactions between features while still allowing to
-%prioritise SNPs for their contribution to disease.  The joint interaction is achieved by applying the technique of
-%bootstrap aggregation or bagging to decision trees, while a measure of variable importance can be provided, for example,
-%by summing the number of times a variable is used to split a node, over all nodes and all trees.  
-Random forests are well suited for
+A tree based model is capable of taking this interaction of variables
+into account. In addition, random forests are well suited for
 processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have the
 propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting. 
 Secondly, random forests are also very easy to parallelise. As the forest is a sum of decision trees, it it possible to grow
-separate trees on different processors and combine the trees. See the discussion of the properties of random forests
-Section \ref{section:methods}.
+separate trees on different processors and combine the trees. See the
+discussion of the properties of random forests in Section \ref{section:methods}.
 
 The most popular random forest software packages are R-based, although current implementations do not scale well with
 increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
-than $2^{31}$), and the {\sc randomForest} implementation in R lending itself to parallelization to grow multiple trees
+than $2^{31}-1$), and the {\sc randomForest} implementation in R lending itself to parallelization to grow multiple trees
 simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide'' genomic data have been
-developed in other programming languages.  {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast run
+developed in other programming languages. {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast run
 times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.
 Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimised for
 dealing with large data sets.
@@ -321,7 +315,7 @@ A Spark application runs on a ``driver'' node and distributes tasks to the many 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
 Using VariantSpark, we successfully built a k-means model on the full $2500 \times 80$ million matrix to cluster
-individuals by their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering and -1 random
+individuals by their ethnicity achieving an Adjusted Rand Index (ARI) of 0.84 (with 1 being perfect clustering and -1 random
 clustering).
 
 Here we extend this toolkit to encompass supervised learning using random forests.  Spark ML's random forest implementation is not
@@ -332,42 +326,6 @@ stages of building the model (see Result~\ref{comp}).  This unbalanced work load
 bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets. The memory requirements per
 executor also increases with dimensionality due to the data types Spark ML uses, which we elaborate on in the
 discussion.
-
-%% We therefore developed \cursedforest\, a Spark-based random forest algorithm able to process big and ``wide'' data.
-%% % Unlike the standard Apache implementation, \cursedforest\ is able to easily process data with millions of dimensions without
-%% % excessive resource requirements on the driver or worker nodes.  DENIS Piotr this is your 20 trees has the important feature in
-%% % the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.
-%% \marginpar{Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top
-%%   element, do we need to spell this out better, it should be a result section.}  Harnessing the virtually unlimited
-%% capability to parallelise tasks, \cursedforest\ can build a large number of trees, which boosts the accuracy for
-%% variable selection as demonstrated by {\sc r2VIM}~\cite{Szymczak2016} on smaller datasets.
- 
-
-%Hadoop/Spark overcomes this limitation by enabling programs to scale beyond compute-node boundaries and virtually utilise infinite number of CPUs.   
-%Therefore, these historically successful solutions are not catering for the big data demands that especially due to WGS are becoming more prevalent. Here, classification or feature importance analysis needs to be performed on datasets with a much larger number of features~\cite{Yano2016}. 
-%For example, the 1000 Genome data consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012},
-%This dataset consumes close to a terabyte of disk space.  
-%We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
-%framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
-%Using VariantSpark, we successfully built a k-means model on the full
-%$2500 \times 80$ million matrix to cluster individuals by
-%their ethnicity achieving an Adjusted Rand Index of 0.84 (with 1 being perfect clustering and -1 random clustering).
-
-%Spark ML's random forest implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples with only modest dimensionality.  
-%Although Spark ML can build a random forest model on
-%a subset of the data (chromosome 1~and~2), the time taken is excessive due to the huge amount of data being aggregated
-%and processed by the single driver node during intermediate stages of building the model (see Result~\ref{comp}).  This
-%unbalanced work load where the driver node becomes the bottleneck and worker nodes being idle prevents a seamless
-%scaling to larger datasets. The memory requirements per executor also increases with dimensionality due to the data types
-%Spark ML uses, which we elaborate on in the discussion.
-%
-%We therefore developed \cursedforest\, a Spark-based random forest algorithm able to process big and ``wide'' data. 
-%Unlike
-%the standard Apache implementation, \cursedforest\ is able to easily process data with millions of dimensions without
-%excessive resource requirements on the driver or worker nodes.
-%DENIS Piotr this is your 20 trees has the important feature in the top 5 and 100 trees has it always as the top element, do we need to spell this out better, it should be a result section.
-
-
 
 
 \cursedforest\ is included in our previously developed framework for Spark-based genomic data analysis,
@@ -385,7 +343,6 @@ properties of random forests, demonstrating that any potential flaws in \cursedf
 forests. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability of \cursedforest\ in
 respect to the dimensionality of the data, building a random forest model on whole-genome data from the 1000 Genomes Project. Here
 we report on the accuracy (in terms of the ARI)
-\marginpar{what is ARI?}
  and the error.  Finally, given the role different parameter values can
 play in model construction, we explore the effect tuning these parameters can have on the prediction accuracy of the
 model.
@@ -567,31 +524,21 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
 
 \begin{itemize}
 \item \ntree\ the number of trees.  The number of trees necessary for good performance grows with the number of predictors.
-  \marginpar{can we do proximity?} \cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable
+\cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable
   estimates of variable importance and proximity; however, even though the variable importance measures may vary from run to run,
   the ranking of the importances is quite stable.  In addition, we note that it is possible for a random forest model to have a very poor
   fit, and be useless for prediction, and still have a useful ranking of variable importance.
 \item \mtry\ -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
   tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
   better performance.
-\item For classification problems where the class frequencies are extremely unbalanced it may be necessary to change the prediction
-  rule \marginpar{can we do this}
 \item the size and complexity of the individual trees is controlled in {\sc randomForest} by setting \texttt{nodesize}, the
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
   tree in the forest\footnote{The Spark ML documentation \cite[]{Spark.2016} sets \texttt{maxDepth}
     to 4 in their classification example. This is wrong. The
     individual trees should be grown to a large size to ensure that
     they give an unbiased estimate.}.
-
-  In the TCGA example the RandomForests code produced trees with depths of 30+. We note that random forests are a way of averaging
-  multiple deep decision trees, trained on different parts of the same training set, with the goal of reducing the
-  variance. \url{https://en.wikipedia.org/wiki/Random_forest} and refs therein.  
-\marginpar{are we including this example?  Supplementary info?}
+  In the TCGA example the RandomForests code produced trees with depths of 30+. 
 \end{itemize}
-
-
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
