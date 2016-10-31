@@ -612,12 +612,8 @@ a)& b)\\
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated cancer variants}
-%Feature selection can be useful for determining variables the contribute to the label or for perhaps selecting the n most important
-%variables for further analysis. 
-As established in the pervious section, \cursedforest\ allows the user to retrieve a subsection of features, ranked by
-their importance to identify the variables predictive of the label or selecting the $n$ most important variables for
-further analysis.  We demonstrate this feature on The Cancer Genome Atlas (TCGA) BRCA dataset.  We build this model on
-VCF files retrieved from the TCGA data portal.  For the label, we use the cell type (i.e. tumor or normal).
+We consider the question of feature discovery on the Cancer Genome Atlas (TCGA) BRCA dataset.  We build this model on
+VCF files retrieved from the TCGA data portal.  For the label, we use the cell type, tumor or normal.
 
 In Table~\ref{table3}, we display the top 10 features, ranked by their Gini index in the random forest model.
 
@@ -648,7 +644,6 @@ x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
 % Section 3: Classification selection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ outperforms existing methods for classification problems}
-As established in Section~\ref{synthetic}, \cursedforest\ 
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
@@ -667,8 +662,8 @@ In this section we compare \cursedforest 's performance against other published 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077 (XX) &                  &                                                                   \\
                                                 & Spark ML  &            &                  &                                                                   \\
                                                 & RF - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\
-                                                & ranger - R      & 0.94       & 1 min 10 seconds & 16GB  (one processor)                                             \\
-                                                & ranger - c++     & 0.94       & 7 mins           & --nthreads 20                                                     \\
+                                                & ranger - R      & 0.06       & 1 min 10 seconds & 16GB  (one processor)                                             \\
+                                                & ranger - c++     & 0.06       & 7 mins           & --nthreads 20                                                     \\
 
  \hline
 \multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  &                                                                \\
@@ -730,27 +725,48 @@ Each random forest model consists of 50 trees.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Scalability analysis}
 
-In this section we explore the performance of \cursedforest\ by testing its ability to scale to different sizes of data and computational resources.
+In this section we explore the performance of \cursedforest\ by testing its ability to scale to different sizes of data
+and computational resources.
 
-In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers of variables (features) and samples, similar to the dataset used in to evaluate ranger [REF: ranger], allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity of random forests by using range of \mtry\ values.
-
-
-We investigate the different synthetic datasets generated for section 5.1. and measured the time of building a random forest model of 100 trees and the results reported below are averages of 5 runs. To improve consistency of measurements all the cases were executed with the same random seed.
-
-Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000 samples, by varying \mtry\ fraction and the number of CPU cores allocated to the execution. The raw results are presented in the table [REF table1] and visualized in figure [REF: Fig 1] below
-Regardless of the number of cores used, \cursedforest\ displays approximately linear dependency between the execution time and the \mtry\ parameter (presented here as a fraction of the number of variables) [Fig 1 a)
-
-\cursedforest\ scales almost linearly with the number of CPU cores for medium values of \mtry\ fraction but for both lower and higher values the performance degrades slightly (Fig 1 b). In the latter case the likely cause is communication overhead (with lower \mtry\ values the proportion of time for parallelizable computation to the time for internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational capacity.
-
-Next we investigate \cursedforest\ scalability with regards to the size of data, by varying the number of variables and sample for a fixed \mtry\ fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table [REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are expresses as trees per hour).
-
-Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that keeping \mtry\ fraction constants results with higher \mtry\ values with growing number of variables, and this is what drives the performance down rather that the increase of dataset size itself.
+In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers
+of variables (features) and samples, similar to the dataset used in to evaluate ranger \cite{Wright.and.Ziegle.2016},
+allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity of random forests
+by using a range of \mtry\ values.
 
 
-To conclude \cursedforest\ is capable of processing datasets with 50M variables and 10K samples, which is the order of magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per hour.
+We investigate the different synthetic datasets generated for section 5.1. and measured the time taken to build a random
+forest model of 100 trees. The results reported below are averages of 5 runs, and all the cases were executed with the
+same random seed, to improve consistency of measurements.
+
+Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
+samples, by varying \mtry\ fraction and the number of CPU cores allocated to the execution. The raw results are
+presented in table \ref{table10} and visualized in figure \ref{figure:synth} below. Regardless of the number of cores used,
+\cursedforest\ displays approximately linear dependency between the execution time and the \mtry\ parameter (presented
+here as a fraction of the number of variables) [Fig 1 a).
+
+\cursedforest\ scales almost linearly with the number of CPU cores for medium values of \mtry\ fraction but for both
+lower and higher values the performance degrades slightly (Fig 1 b). In the latter case the likely cause is
+communication overhead (with lower \mtry\ values the proportion of time for parallelizable computation to the time for
+internode communication is lower) while in the latter case its most likely caused by reaching the clusters computational
+capacity.
+
+Next we investigate \cursedforest\ scalability with regards to the size of data, by varying the number of variables and
+sample for a fixed \mtry\ fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table
+[REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are
+expresses as trees per hour).
+
+Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some
+irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that
+keeping \mtry\ fraction constants results with higher \mtry\ values with growing number of variables, and this is what
+drives the performance down rather that the increase of dataset size itself.
 
 
+To conclude \cursedforest\ is capable of processing datasets with 50M variables and 10K samples, which is the order of
+magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per
+hour.
 
+
+\marginpar{can we remove this table and just rely on the figure?}
 \begin{table}[!ht]
 \centering
 \caption{
