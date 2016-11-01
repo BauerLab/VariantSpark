@@ -267,7 +267,9 @@ The abstract.
 
 \section{Introduction}
 \marginpar{
-we have parallelize and parallelise}
+We have parallelize and parallelise.
+US spelling. Rob
+}
 
 The digital revolution is seeing a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}.
 These data sets are not only growing vertically, by capturing more events, but also horizontally by capturing
@@ -330,7 +332,8 @@ Here we extend this toolkit to encompass supervised learning using random forest
 implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples
 with only modest dimensionality.  Although Spark ML can build a random forest model on a subset of the data (chromosome
 1~and~2), 
-\marginpar{something wrong here. We do not report on chromosome 1 and 2} 
+\marginpar{something wrong here. We do not report on chromosome 1 and 2.
+Aidan} 
 the time taken is excessive due to
 the large amount of data being aggregated and processed by the single driver node during intermediate stages of building
 the model (see Result~\ref{comp}).  This unbalanced work load where the driver node becomes the bottleneck and worker
@@ -351,7 +354,6 @@ In the first section we explore some of the properties of random forests, demons
 \cursedforest\ are an inherent property of random forests. Here we provide demonstrations using synthetic data.  We then
 demonstrate the scalability of \cursedforest\ in respect to the dimensionality of the data, building a random forest
 model on whole-genome data from the 1000 Genomes Project. Here we report on the accuracy (in terms of the ARI) 
-\marginpar{why not just error rate}
 and the error.  Finally, given the role different parameter values can play in model construction, we explore the effect tuning
 these parameters can have on the prediction accuracy of the model.
 
@@ -361,7 +363,6 @@ these parameters can have on the prediction accuracy of the model.
 \label{section:methods}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\marginpar{Rob can you condense this down into what is relevant for this paper and not explained elsewhere in the literature}
 \subsection{Overview of Random Forests}
 
 Decision trees have a number of desirable features, they:
@@ -389,7 +390,7 @@ variance, and by combining them reduce the variance. As the prediction error is 
 squared, this strategy should lead to a low prediction error.
 
 The average prediction error for an individual tree $h(X; B)$ is
-\marginpar{is this formulation correct in the case of classification? See Friedman on 0-1 losss}
+\marginpar{is this formulation correct in the case of classification? See Friedman on 0-1 losss, Rob}
 \begin{equation}
 PE_t = E_B E_{X,Y} (Y-h(X; B))^2.
 \end{equation}
@@ -448,16 +449,16 @@ the cardinality of the set $S$ of ``strong predictors'' rather than on the numbe
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
 rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
 compared to the total number of variables, then the rate of convergence will be quicker. It is not clear what the size
-of teh set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effectsd and also of
+of the set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effectsd and also of
 conditions caused by the interaction of large groups of SNPs. 
-\marginpar{check this}
+\marginpar{check this. Denis}
 
 
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using
 the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic
 data.
 \marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of random forests to handle 
-GWAS data. What do we need to do in this area? What about linkage disequilibrium?}
+GWAS data. What do we need to do in this area? What about linkage disequilibrium? Denis}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -536,8 +537,8 @@ After downloading, we use a custom script to name the samples in the files and f
 We then use GATK to merge the files into a single VCF file.
 
 \subsubsection{Synthetic data} 
-\marginpar{these are not actually encoded as factors}
-Each dataset consists of $n$ samples and $m$ variables where $n << m$, and values for each variable are ordinal factors with
+\marginpar{check details of simulation. Piotr}
+Each dataset consists of $n$ samples and $m$ variables where $n << m$, and values for each variable are ordinal variables with
 three levels represented as numbers $\{0, 1, 2\}$ (which correspond to an additive effect encoding of genomics variation) randomly
 generated from uniform distribution with equal probabilities.  The dichotomous response is generated from a
 Bernoulli trial with $p$ (probability of success) calculated by applying an inverse logit transformation to the continuous
@@ -557,7 +558,7 @@ advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own exper
   estimates of variable importance and proximity; however, even though the variable importance measures may vary from run to run,
   the ranking of the importances is quite stable.  In addition, we note that it is possible for a random forest model to
   have a very poor
-\marginpar{is this true}
+\marginpar{is this true. If unsupported, remove it. Rob}
   fit, and be useless for prediction, and still have a useful ranking of variable importance;
 \item \mtry\ -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
   tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
@@ -598,16 +599,13 @@ method section.  Briefly we generate features by randomly sampling from a three 
 \marginpar{replicated in methods section}
 probabilities, which mimics genomic mutation data and corresponds to homozygote reference, heterozygote or homozygote
 alternative.  We then generate the response variable as a linear combination of 5 weighted features, modulating a
-complex trait of multiple interacting features.
-\marginpar{in the terminology of statistics, these are all main effects. There are no interaction terms}
-
+complex trait of multiple additive features.
 
 After fitting the random forest model and performing the variable importance analysis we hence expect to retrieve these
 5 feature in order of the weight that was assigned to them.  We are running Apache Spark 1.6.1 on a YARN cluster with 12
 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.  We captured the OOB 
 classification error and the 20 most important variables.
 
-\marginpar{the accuracy hardly changes}
 Fig.~\ref{figure:synth}a illustrates that increasing the number of predictors sampled for splitting at each node
 (\mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
 the weight originally assigned to them (dotted line). Further increasing \mtry\ improves the predicted importance
@@ -616,10 +614,11 @@ difference between the associated 5 variable and the remaining variables in the 
 with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
 15 remaining variables from the list.
 
-\marginpar{wrong figure cited}
+\marginpar{wrong figures cited. Rob}
 Fig.~\ref{figure:synth}b illustrates that increasing \mtry\ also improves the OOB (out of bag) classification error.
 %Piotr can you please explain the remaining error on the synthetic data
 By $mtry=0.8$ the error is converging to X, which is due to Y.
+\marginpar{what are ``X'' and ``Y''. Piotr}
 
 From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
@@ -628,6 +627,7 @@ accurate classification for large numbers of samples with large feature vectors.
 
 \marginpar{figure needs bigger text}
 \begin{figure}[tbhp] 
+ \begin{adjustwidth}{-1.00in}{0in}
   \begin{subfigure}[b]{0.5\linewidth}
     \centering
     \includegraphics[totalheight=6cm]{./figs/var_oder.png} 
@@ -650,10 +650,8 @@ accurate classification for large numbers of samples with large feature vectors.
  {\bf b)} OOB (out of bag) classification error
   estimate as function of \mtry\ fraction.}
   \label{figure:synth}
+\end{adjustwidth}
 \end{figure}
-
-
-
 
 
 
@@ -706,10 +704,10 @@ In this section we compare \cursedforest 's performance against other published 
 {\bf Performance comparison between the different machine learning algorithms.}}
 \begin{tabular}{|l|l|l|l|l|l|p{1cm}|}
 \hline
-\bf{Genome \%}                      & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/Node} \\
+\bf{Genome \%}                      & \bf{Method} & \bf{Error  & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
 
-\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077 (XX) &                  &                                                                   \\
+\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077  &                  &                                                                   \\
                                                 & Spark ML  &            &                  &                                                                   \\
                                                 & RF - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\
                                                 & ranger - R      & 0.06       & 1 min 10 seconds & 16GB  (one processor)                                             \\
@@ -721,13 +719,13 @@ In this section we compare \cursedforest 's performance against other published 
                                                     & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
                                                     & ranger - R    & 0.06       & 4 1/2 mins       & 21GB (one processor) \\
 \hline
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063 (XX) & 1hr 58min        & 4GB \\
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063  & 1hr 58min        & 4GB \\
                                                     & Spark ML  & 0.94       & 8hr 29min        & 8GB \\
                                                     & ranger - R      &  0.05       & 28 mins          & num.threads=10\footnote{don't
                                                                                                       know how to get the memory
                                                                                                       used,   This was done on dpas-03} \\
 \hline
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046 (XX) & 4hr 0min                                             & 4GB \\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046  & 4hr 0min                                             & 4GB \\
                                                     & RF - Spark ML  &            &                                                      & \\
                                                     & ranger - R      & 0.03      & 58 mins\footnote{ but took 6 hours to load the
                                                                                    data}
@@ -816,28 +814,6 @@ magnitude of the entire genome variants expected in such dataset, for which it c
 hour.
 
 
-\marginpar{can we remove this table and just rely on the figure?}
-\begin{table}[!ht]
-\centering
-\caption{
-{\bf Time in seconds to build a random forest of 100
-  trees with specified \mtry\ fraction using given number of CPU cores.}}
-\begin{tabular}{|l|l|l|l|l|l|}
-\hline
-\multicolumn{2}{|l|}{\multirow{2}{*}{}}             & \multicolumn{4}{c|}{Number of CPU cores} \\
-\cline{3-6}
-\multicolumn{2}{|l|}{}                              & \bf{16} & \bf{32} & \bf{64} & \bf{128} \\
-\hline
-\multirow{4}{*}{\mtry\ (fraction)}        & \bf{0.10} & 708.3   & 340.0   & 186.0   & 134.5 \\
-                                        & \bf{0.25} & 1134.9  & 535.0   & 270.8   & 179.6 \\
-                                        & \bf{0.50} & 1724.1  & 856.6   & 428.7   & 243.8 \\
-                                        & \bf{0.80} & 2313.5  & 1125.7  & 569.1   & 364.6 \\
-\hline
-\end{tabular}
-\begin{flushleft} 
-\end{flushleft}
-\label{table10}
-\end{table}
 
 
 \begin{figure}[tbhp]
@@ -1025,3 +1001,27 @@ Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et m
 % \end{adjustwidth}
 % \end{figure}
 
+
+
+% \marginpar{can we remove this table and just rely on the figure?}
+% \begin{table}[!ht]
+% \centering
+% \caption{
+% {\bf Time in seconds to build a random forest of 100
+%   trees with specified \mtry\ fraction using given number of CPU cores.}}
+% \begin{tabular}{|l|l|l|l|l|l|}
+% \hline
+% \multicolumn{2}{|l|}{\multirow{2}{*}{}}             & \multicolumn{4}{c|}{Number of CPU cores} \\
+% \cline{3-6}
+% \multicolumn{2}{|l|}{}                              & \bf{16} & \bf{32} & \bf{64} & \bf{128} \\
+% \hline
+% \multirow{4}{*}{\mtry\ (fraction)}        & \bf{0.10} & 708.3   & 340.0   & 186.0   & 134.5 \\
+%                                         & \bf{0.25} & 1134.9  & 535.0   & 270.8   & 179.6 \\
+%                                         & \bf{0.50} & 1724.1  & 856.6   & 428.7   & 243.8 \\
+%                                         & \bf{0.80} & 2313.5  & 1125.7  & 569.1   & 364.6 \\
+% \hline
+% \end{tabular}
+% \begin{flushleft} 
+% \end{flushleft}
+% \label{table10}
+% \end{table}
