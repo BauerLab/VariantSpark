@@ -266,11 +266,6 @@ The abstract.
 \linenumbers
 
 \section{Introduction}
-\marginpar{
-We have parallelize and parallelise.
-US spelling. Rob
-}
-
 The digital revolution is seeing a dramatic increase in data collected about every aspect of life~\cite{Loebbecke2015}.
 These data sets are not only growing vertically, by capturing more events, but also horizontally by capturing
 more information about these events.  The challenge of big and ``wide'' data is especially pronounced in the health
@@ -290,7 +285,7 @@ into account. In addition, random forests are well suited for
 processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have the
 propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting. 
-Secondly, random forests are also very easy to parallelise. As the forest is a sum of decision trees, it it possible to grow
+Secondly, random forests are also very easy to parallelize. As the forest is a sum of decision trees, it it possible to grow
 separate trees on different processors and combine the trees. See the
 discussion of the properties of random forests in Section \ref{section:methods}.
 
@@ -299,12 +294,12 @@ increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now su
 than $2^{31}-1$), and the {\sc randomForest} implementation in R lending itself to parallelization to grow multiple trees
 simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide'' genomic data have been
 developed in other programming languages. {\sc CloudForest}~\cite{Bressler2015} written in Go, achieves fast run
-times by effective use of the CPU cache, optimising for different classes of features and efficiently multi-threading.
-Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimised for
+times by effective use of the CPU cache, optimizing for different classes of features and efficiently multi-threading.
+Similarly, {\sc Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is specifically optimized for
 dealing with large data sets.
 
 However, the use of traditional compute infrastructure limits the parallelization strategies that can be employed by
-these methods.  The programs are limited to utilising only CPUs that are on the same computer node (multi-threading) or
+these methods.  The programs are limited to utilizing only CPUs that are on the same computer node (multi-threading) or
 else they run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
 processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitation by enabling programs to
 scale beyond compute-node boundaries and hence enable more sophisticated parallelization strategies.  In the case of
@@ -313,17 +308,17 @@ random forests this means that the computations for each node of a tree can be h
 Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forests specifically designed to cater
 for ``big'' (many samples) and ``wide'' (many features) data sets. A Spark application runs on a ``driver'' node and
 distributes tasks to the many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest\ is capable of
-parallelising the split for each node in a tree thereby handling millions of features, such as in the 1000 Genomes
+parallelization the split for each node in a tree thereby handling millions of features, such as in the 1000 Genomes
 Project data, which consists of approximately 2500 samples with up to 80 million variants~\cite{1KG2012}.  By also
-utilising Spark to read in and manipulate the standard genomic variant format (VCF) directly, \cursedforest\ outperforms
+utilizing Spark to read in and manipulate the standard genomic variant format (VCF) directly, \cursedforest\ outperforms
 existing tools even on small datasets where multi-threading generally performs well. Harnessing the virtually unlimited
-capability to parallelise tasks, \cursedforest\ can build a large number of trees, which boosts the accuracy for
+capability to parallelize tasks, \cursedforest\ can build a large number of trees, which boosts the accuracy for
 variable importance selection~\cite{Szymczak2016}.
 
 
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
-framework allowing users to easily analyse Variant Call Format (VCF) files using ML algorithms on the Spark framework.
+framework allowing users to easily analyze Variant Call Format (VCF) files using ML algorithms on the Spark framework.
 Using VariantSpark, we successfully built a k-means model on the full $2500 \times 80$ million matrix to cluster
 individuals by their ethnicity achieving an Adjusted Rand Index (ARI) of 0.84 (with 1 being perfect clustering and -1 random
 clustering).
@@ -344,7 +339,7 @@ with dimensionality due to the data types Spark ML uses, which we elaborate on i
 \cursedforest\ is included in our previously developed framework for Spark-based genomic data analysis,
 VariantSpark~\cite{OBrien2015}, which therefore now enables supervised and unsupervised machine learning. This offers a
 comprehensive analysis toolkit that can scale for the future data demands, where the richness from WGS data can be
-utilised to ``fill in'' or impute the information at previously unobserved genomic positions in older array
+utilized to ``fill in'' or impute the information at previously unobserved genomic positions in older array
 technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAs catalogue and generate datasets
 of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
 compute paradigms to deal with these challenges.
@@ -449,7 +444,7 @@ the cardinality of the set $S$ of ``strong predictors'' rather than on the numbe
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
 rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
 compared to the total number of variables, then the rate of convergence will be quicker. It is not clear what the size
-of the set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effectsd and also of
+of the set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effects and also of
 conditions caused by the interaction of large groups of SNPs. 
 \marginpar{check this. Denis}
 
@@ -686,8 +681,8 @@ accurate classification for large numbers of samples with large feature vectors.
   \end{subfigure} 
   \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
       forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  Each measure is shown
-    as a function of \mtry and ntree. {\bf a)} The sum of the varible importances for the 5 significant variables.  {\bf
-      b)} OOB (out of bag) classification error. {\bf c)} the number of signifivant variables found in the top 5. 
+    as a function of \mtry and ntree. {\bf a)} The sum of the variable importances for the 5 significant variables.  {\bf
+      b)} OOB (out of bag) classification error. {\bf c)} the number of significant variables found in the top 5. 
      {\bf d)} The rank-biased-overlap \cite[]{Webber.et.al.2010}. }
   \label{figure:synth}
 \end{adjustwidth}
@@ -826,7 +821,7 @@ We investigate the different synthetic datasets generated for section 5.1. and m
 forest model of 100 trees. The results reported below are averages of 5 runs, and all the cases were executed with the
 same random seed, to improve the consistency of measurements.
 
-Firstly we look at CurstedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
+Firstly we look at CursedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
 samples, by varying \mtry\ fraction and the number of CPU cores allocated to the execution. The raw results are
 presented in table \ref{table10} and visualized in figure \ref{figure:synth} below. Regardless of the number of cores used,
 \cursedforest\ displays approximately linear dependency between the execution time and the \mtry\ parameter (presented
