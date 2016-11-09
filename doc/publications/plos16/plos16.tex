@@ -548,13 +548,11 @@ We consider the parameter setting for the random forest algorithm. We use the R 
 \cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler.  We incorporate the
 advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience:
 \begin{itemize}
-\item \ntree\ the number of trees.  The number of trees necessary for good performance grows with the number of predictors.
-\cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable
-  estimates of variable importance and proximity; however, even though the variable importance measures may vary from run to run,
-  the ranking of the importances is quite stable.  In addition, we note that it is possible for a random forest model to
-  have a very poor
-\marginpar{is this true. If unsupported, remove it. Rob}
-  fit, and be useless for prediction, and still have a useful ranking of variable importance;
+\item \ntree\ the number of trees.  The number of trees necessary for good performance grows with the number of
+  predictors.  \cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable estimates of variable
+  importance and proximity; however, even though the variable importance measures may vary from run to run, we note that
+  it is possible for a random forest model to have a very poor fit and still have a useful ranking of variable
+  importance;
 \item \mtry\ -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
   tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
   better performance;
@@ -647,7 +645,7 @@ accurate classification for large numbers of samples with large feature vectors.
 %   \label{figure:synth}
 % \end{adjustwidth}
 % \end{figure}
-
+\marginpar{this was done with n=100000. Needs to redone with n=2.5M}
 
 \begin{figure}[tbhp] 
  \begin{adjustwidth}{-1.00in}{0in}
@@ -730,66 +728,43 @@ x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
-
 \begin{table}[!ht]
 \begin{minipage}{\textwidth}
-\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \centering
 \caption{
 {\bf Performance comparison between the different machine learning algorithms.}}
-\begin{tabular}{|l|l|l|l|l|l|p{1cm}|}
+\begin{tabular}{|l|l|l|l|l|l||}
 \hline
-\bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime} & \bf{Memory/Node} \\
+\bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime}  \\
 \hline
 
-\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077  &                  &                                                                   \\
-                                                & Spark ML  &            &                  &                                                                   \\
-                                                & RF - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\
-                                                & ranger - R      & 0.06       & 1 min 10 seconds & 16GB  (one processor)                                             \\
-                                                & ranger - c++     & 0.06       & 7 mins           & --nthreads 20                                                     \\
+\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077  &                         \\
+                                                & Spark ML  &  Aidan           &           Aidan         \\
+                                                & RF - R         & 0.05       & 24 min           \\
+                                                & ranger - R      & 0.06       & 1 min 10 seconds       \\
+                                                & ranger - c++     & 0.06       & 7 mins            \\
 
  \hline
-\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  &                                                                \\
-                                                    & RF - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\
-                                                    & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
-                                                    & ranger - R    & 0.06       & 4 1/2 mins       & 21GB (one processor) \\
+\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  \\
+                                                    & RF - R        & NA         & NA                \\
+                                                    & H2O           & 0.05       & 16 hours         \\
+                                                    & ranger - R    & 0.06       & 4 1/2 mins     \\
 \hline
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063  & 1hr 58min        & 4GB \\
-                                                    & Spark ML  & 0.94       & 8hr 29min        & 8GB \\
-                                                    & ranger - R      &  0.05       & 28 mins          & num.threads=10\footnote{don't
-                                                                                                      know how to get the memory
-                                                                                                      used,   This was done on dpas-03} \\
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063  & 1hr 58min         \\
+                                                    & Spark ML  & 0.94       & 8hr 29min        \\
+                                                    & ranger - R      &  0.05       & 28 mins         \\
 \hline
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046  & 4hr 0min                                             & 4GB \\
-                                                    & RF - Spark ML  &            &                                                      & \\
-                                                    & ranger - R      & 0.03      & 58 mins\footnote{ but took 6 hours to load the
-                                                                                   data}
-                                                                                                                                         &
-                                                                                                                                           909GB\footnote{I
-                                                                                                                                           think
-                                                                                                                                           this
-                                                                                                                                           is
-                                                                                                                                           total
-                                                                                                                                           memory. The
-                                                                                                                                           job
-                                                                                                                                           was
-                                                                                                                                           run
-                                                                                                                                           with
-                                                                                                                                                   ntasks-per-node=160
-                                                                                                                                           cores-per-socket=10
-                                                                                                                                           on
-                                                                                                                                           ruby
-                                                                                                                                           }  \\
-& ranger - R        &             0.973     &      03:58           &       pearcey --cpus-per-task=15 --mem 1600gb   906GB \\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046  & 4hr 0min               \\
+                                                    & RF - Spark ML  &    Aidan         &   Aidan               \\
+                                                    & ranger - R      & 0.03      &         \\
+& ranger - R        &             0.973     &      03:58           \\
 \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX (0.96) & 7hr 14min & 8GB \\
-& Spark ML & - & - & - \\
-& ranger (C++)       &        NA     &        NA     &            80 CPU -- runs out of memory (12.8GB per CPU) \\
-& ranger (C++)       &        NA     &        NA     &            160
-                                                        CPU -- runs
-                                                        out of time at
-                                                        20 hours \\
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX  & 7hr 14min \\
+& Spark ML & Aidan & Aidan  \\
+& ranger (C++)       &        NA     &        NA      \\
+& ranger (C++)       &        NA     &        NA    \\
 \hline
 \end{tabular}
 \begin{flushleft} 
@@ -798,10 +773,9 @@ from the 1000 Genomes Project.
 Each random forest model consists of 50 trees.
 \end{flushleft}
 \label{table1}
-\end{adjustwidth}
+%\end{adjustwidth}
 \end{minipage}
 \end{table}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 4: Sensitivity 
@@ -934,7 +908,33 @@ a)& b)\\
 
 \section{Conclusion}
 
+We have demonstrated that using a different model of paralleization can extend the random forest to delaing with the
+case of an extremely large number of variables. By comparing this implementation to other implentations (including those
+optimized for large data sets) we have demonstrated the utility of this implentation.
 
+We have treated the case of variable selection in a $p >> n$ model where most of the variables are uninformative. We
+have also demostrated the utility of the model for large GWAs data sets.
+
+\marginpar{signal rather than ``significant variables''}
+
+Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result based on arguments from
+combinatorial geometry. This has applications in a large number of areas including variable selection in high
+diensions. Consider figure \ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover
+the important variables, plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant
+variables). There is a distinct doundary, shown empirically and also based on arguments from combinatorial geometry, to the
+region where we can reliably recover significant variables. 
+
+We note that the examples we are considering lie on the extreme left of the plot, close to the origin. So there are
+limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide, \cursedforest and
+other VariantSpark methods may provide a useful tool.
+
+\marginpar{redo plot}
+
+\begin{figure}[tbhp]
+\includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
+\caption{{\bf The phase chage diagram.}}
+\label{figure:phase-diagram-equivalence.png} 
+\end{figure}
 
 
 \section{Supporting Information}
@@ -954,109 +954,3 @@ Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et m
 
 \end{document}
 
-
-
-
-
-%  \item D\iaz-Uriarte, R., \& Alvarez de Andr\es, S. (2006). Gene selection and classification of microarray data using random
-%    forest. BMC Bioinformatics, 7, 3. http://doi.org/10.1186/1471-2105-7-3
-%  \item Goldstein, B. A., Polley, E. C., & Briggs, F. B. S. (2011). Random Forests for Genetic Association Studies. Statistical
-%    Applications in Genetics and Molecular Biology, 10(1), 32. http://doi.org/10.2202/1544-6115.1691
-
-%http://stats.stackexchange.com/questions/77018/random-forest-is-it-a-boosting-algorithm
- %http://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest
-%overcomes this issue and is hence ideally suited to this application.  Furthermore, random forests are able to capture interactions
-%between features, which is of importance for modelling complex polygenic diseases.
-
-
-% We also investigated classifying the samples using random forests.  We chose random forests due to its ability to
-% capture complex interactions between features. Also, due to it being an ensemble method where trees can be formed
-% independently, which, is ideal for parallelization. Furthermore, the ensemble of weak learners can help to minimise
-% overfitting and variance.
-
-
-
-% The reason for the failure can be attributed to the "curse of dimensionality". Where Spark ML is designed to process a
-% huge number of samples with a modest dimensionality, the 1000 Genomes data instead contains a huge number of
-% dimensions (features). As a result, the default random forests implementation is unable to partition the data into
-% small-enough tasks for nodes on the computer cluster to handle.
-
-
-
-% For figure citations, please use "Fig." instead of "Figure".
-%Nulla mi mi, Fig.~\ref{fig1}  Fusce fringilla erat porttitor lectus cursus, \nameref{S1_Video} vel sagittis arcu lobortis. Aliquam in enim semper, aliquam massa id, cursus neque. Praesent faucibus semper libero.
-%\begin{figure}[h]
-%\caption{{\bf Figure Title first bold sentence Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}
-%Figure Caption Proin rutrum vel massa non gravida. Quisque tempor sem et dignissim rutrum. A: Lorem ipsum dolor sit amet. B: Consectetur adipiscing elit.}
-%\label{fig1}
-%\end{figure}
-%\begin{enumerate}
-%\item{react}
-%\item{diffuse free particles}
-%\item{increment time by dt and go to 1}
-%\end{enumerate}
-
-% Results and Discussion can be combined.
-
-
-%\begin{table}[!ht]
-%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
-%\caption{
-%{\bf Table caption Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}}
-%\begin{tabular}{|l|l|l|l|l|l|l|l|}
-%\hline
-%\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-%$cell1 row1$ & cell2 row 1 & cell3 row 1 & cell4 row 1 & cell5 row 1 & cell6 row 1 & cell7 row 1 & cell8 row 1\\ \hline
-%$cell1 row2$ & cell2 row 2 & cell3 row 2 & cell4 row 2 & cell5 row 2 & cell6 row 2 & cell7 row 2 & cell8 row 2\\ \hline
-%$cell1 row3$ & cell2 row 3 & cell3 row 3 & cell4 row 3 & cell5 row 3 & cell6 row 3 & cell7 row 3 & cell8 row 3\\ \hline
-%\end{tabular}
-%\begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
-%\end{flushleft}
-%\label{table1}
-%\end{adjustwidth}
-%\end{table}
-
-
-
-% \begin{figure}[tbph]
-% \begin{adjustwidth}{-1.00in}{0in}
-% \begin{tabular}{ll}
-% a)& b)\\
-% \includegraphics[totalheight=6cm]{./figs/var_oder.png} & 
-% \includegraphics[totalheight=6cm]{./figs/var_oob.png} \\
-% \end{tabular}
-% \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
-%     forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
-%   importance of top 20 variables normalized to the sum of the linear model coefficients. {\bf Others} represents
-%   aggregated importance of variables not present in the linear model. The dotted line represents the original linear
-%   model coefficients.
-%  {\bf b)} OOB classification error
-%   estimate as function of \mtry\ fraction.}
-% \label{figure:synth}
-% \end{adjustwidth}
-% \end{figure}
-
-
-
-% \marginpar{can we remove this table and just rely on the figure?}
-% \begin{table}[!ht]
-% \centering
-% \caption{
-% {\bf Time in seconds to build a random forest of 100
-%   trees with specified \mtry\ fraction using given number of CPU cores.}}
-% \begin{tabular}{|l|l|l|l|l|l|}
-% \hline
-% \multicolumn{2}{|l|}{\multirow{2}{*}{}}             & \multicolumn{4}{c|}{Number of CPU cores} \\
-% \cline{3-6}
-% \multicolumn{2}{|l|}{}                              & \bf{16} & \bf{32} & \bf{64} & \bf{128} \\
-% \hline
-% \multirow{4}{*}{\mtry\ (fraction)}        & \bf{0.10} & 708.3   & 340.0   & 186.0   & 134.5 \\
-%                                         & \bf{0.25} & 1134.9  & 535.0   & 270.8   & 179.6 \\
-%                                         & \bf{0.50} & 1724.1  & 856.6   & 428.7   & 243.8 \\
-%                                         & \bf{0.80} & 2313.5  & 1125.7  & 569.1   & 364.6 \\
-% \hline
-% \end{tabular}
-% \begin{flushleft} 
-% \end{flushleft}
-% \label{table10}
-% \end{table}
