@@ -626,32 +626,73 @@ accurate classification for large numbers of samples with large feature vectors.
 
 
 \marginpar{figure needs bigger text}
+% \begin{figure}[tbhp] 
+%  \begin{adjustwidth}{-1.00in}{0in}
+%   \begin{subfigure}[b]{0.5\linewidth}
+%     \centering
+%     \includegraphics[totalheight=6cm]{./figs/var_oder.png} 
+%     \caption{Variable importance of top 20 variables.} 
+%     \label{fig7:a} 
+%     \vspace{4ex}
+%   \end{subfigure}%% 
+%   \begin{subfigure}[b]{0.5\linewidth}
+%     \centering
+%     \includegraphics[totalheight=6cm]{./figs/var_oob.png}
+%     \caption{OOB classification error} 
+%     \label{fig7:b} 
+%     \vspace{4ex}
+%   \end{subfigure} 
+% \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
+%     forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
+%   importance of top 20 variables normalized to the sum of the linear model coefficients. {\bf Others} represents
+%   aggregated importance of variables not present in the linear model. The dotted line represents the original linear
+%   model coefficients.
+%  {\bf b)} OOB (out of bag) classification error
+%   estimate as function of \mtry\ fraction.}
+%   \label{figure:synth}
+% \end{adjustwidth}
+% \end{figure}
+
+
 \begin{figure}[tbhp] 
  \begin{adjustwidth}{-1.00in}{0in}
   \begin{subfigure}[b]{0.5\linewidth}
     \centering
-    \includegraphics[totalheight=6cm]{./figs/var_oder.png} 
-    \caption{Variable importance of top 20 variables.} 
+    \includegraphics[totalheight=8cm]{./figs/variable_importance.png} 
+    \caption{The sum of the variable importance of the 5 significant variables.} 
     \label{fig7:a} 
     \vspace{4ex}
   \end{subfigure}%% 
   \begin{subfigure}[b]{0.5\linewidth}
     \centering
-    \includegraphics[totalheight=6cm]{./figs/var_oob.png}
+    \includegraphics[totalheight=8cm]{./figs/out-of-bag-prediction-error.png}
     \caption{OOB classification error} 
     \label{fig7:b} 
     \vspace{4ex}
   \end{subfigure} 
-\caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
-    forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
-  importance of top 20 variables normalized to the sum of the linear model coefficients. {\bf Others} represents
-  aggregated importance of variables not present in the linear model. The dotted line represents the original linear
-  model coefficients.
- {\bf b)} OOB (out of bag) classification error
-  estimate as function of \mtry\ fraction.}
+  \begin{subfigure}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[totalheight=8cm]{./figs/numnber_of_variables_found.png} 
+    \caption{The number of the 5 significant variables found in the top 5.} 
+    \label{fig7:a} 
+    \vspace{4ex}
+  \end{subfigure}%% 
+  \begin{subfigure}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[totalheight=8cm]{./figs/rbo.png}
+    \caption{The  rank-biased-overlap measure.} 
+    \label{fig7:b} 
+    \vspace{4ex}
+  \end{subfigure} 
+  \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
+      forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  Each measure is shown
+    as a function of \mtry and ntree. {\bf a)} The sum of the varible importances for the 5 significant variables.  {\bf
+      b)} OOB (out of bag) classification error. {\bf c)} the number of signifivant variables found in the top 5. 
+     {\bf d)} The rank-biased-overlap \cite[]{Webber.et.al.2010}. }
   \label{figure:synth}
 \end{adjustwidth}
 \end{figure}
+
 
 
 
@@ -703,7 +744,7 @@ In this section we compare \cursedforest 's performance against other published 
 {\bf Performance comparison between the different machine learning algorithms.}}
 \begin{tabular}{|l|l|l|l|l|l|p{1cm}|}
 \hline
-\bf{Genome \%}                      & \bf{Method} & \bf{Error  & \bf{Runtime} & \bf{Memory/Node} \\
+\bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime} & \bf{Memory/Node} \\
 \hline
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077  &                  &                                                                   \\
