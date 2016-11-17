@@ -722,8 +722,8 @@ In this section we compare \cursedforest 's performance against other published 
 \bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime}  \\
 \hline
 
-\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.077  &                         \\
-                                                & Spark ML  &  Aidan           &           Aidan         \\
+\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.04  & 1 min 50 seconds                        \\
+                                                & RF - Spark ML  &  Aidan           &           Aidan         \\
                                                 & RF - R         & 0.05       & 24 min           \\
                                                 & ranger - R      & 0.06       & 1 min 10 seconds       \\
                                                 & ranger - c++     & 0.06       & 7 mins            \\
@@ -732,20 +732,20 @@ In this section we compare \cursedforest 's performance against other published 
 \multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  \\
                                                     & RF - R        & NA         & NA                \\
                                                     & H2O           & 0.05       & 16 hours         \\
-                                                    & ranger - R    & 0.06       & 4 1/2 mins     \\
+                                                    & ranger - R    & 0.06       & 4 min 30 seconds     \\
 \hline
 \multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063  & 1hr 58min         \\
-                                                    & Spark ML  & 0.94       & 8hr 29min        \\
+                                                    & RF - Spark ML  & 0.04       & 8hr 29min        \\
                                                     & ranger - R      &  0.05       & 28 mins         \\
 \hline
 \multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046  & 4hr 0min               \\
-                                                    & RF - Spark ML  &    Aidan         &   Aidan               \\
+                                                    & RF - Spark ML  &    NA         &   NA               \\
                                                     & ranger - R      & 0.03      &         \\
 & ranger - R        &             0.973     &      03:58           \\
 \hline
 
 \multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX  & 7hr 14min \\
-& Spark ML & Aidan & Aidan  \\
+& Spark ML & NA & NA  \\
 & ranger (C++)       &        NA     &        NA      \\
 & ranger (C++)       &        NA     &        NA    \\
 \hline
