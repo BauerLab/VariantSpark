@@ -1,4 +1,4 @@
-% Template for PLoS
+% Template for PLoS
 % Version 3.3 June 2016
 %
 % % % % % % % % % % % % % % % % % % % % % %
@@ -274,11 +274,12 @@ human genome.
 
 Identifying the relevant or disease specific base-pair difference between individuals is the focus of genome wide
 association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs, termed
-single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP separately~\cite{CCC2007}.  It has since been
+single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP
+separately~\cite{CCC2007}.  
+
+It has since been
 demonstrated that not taking joint interactions between SNPs into account when filtering for potential disease mutations
-is inadequate~\cite{Manolio2009}.  \marginpar{do  these two sentences say teh same thing?}
-Complex trait analysis has demonstrated that in order to explain the overall
-heritability a model needs to take the joint contribution of all variants into account~\cite{Yang2011}.
+is inadequate~\cite{Manolio2009,Yang2011}.
 
 A tree based model is capable of taking this interaction of variables
 into account. In addition, random forests are well suited for
@@ -329,8 +330,7 @@ implementation is not able to handle the extremely ``wide'' genomic data as it w
 with only modest dimensionality.  Although Spark ML can build a random forest model on a subset of the data (chromosome
 1), the time taken is excessive due to the large amount of data being aggregated and processed by the driver node
 during intermediate stages of building the model (see Table~\ref{timingtable}). 
-\marginpar{missing ref}
- This unbalanced work load where the driver node becomes the bottleneck and worker
+This unbalanced work load where the driver node becomes the bottleneck and worker
 nodes being idle prevents a seamless scaling to larger datasets. The memory requirements per executor also increases
 with dimensionality due to the data types Spark ML uses, which we elaborate on in the discussion.
 
@@ -384,7 +384,9 @@ variance, and by combining them reduce the variance. As the prediction error is 
 squared, this strategy should lead to a low prediction error.
 
 The average prediction error for an individual tree $h(X; B)$ is
-\marginpar{is this formulation correct in the case of classification? See Friedman on 0-1 losss, Rob}
+
+\cite{Friedman.1997}
+
 \begin{equation}
 PE_t = E_B E_{X,Y} (Y-h(X; B))^2.
 \end{equation}
