@@ -327,12 +327,8 @@ clustering).
 Here we extend this toolkit to encompass supervised learning using random forests.  Spark ML's random forest
 implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples
 with only modest dimensionality.  Although Spark ML can build a random forest model on a subset of the data (chromosome
-1~and~2), 
-\marginpar{something wrong here. We do not report on chromosome 1 and 2.
-Aidan} 
-the time taken is excessive due to
-the large amount of data being aggregated and processed by the single driver node during intermediate stages of building
-the model (see Result~\ref{comp}). 
+1), the time taken is excessive due to the large amount of data being aggregated and processed by the driver node
+during intermediate stages of building the model (see Table~\ref{timingtable}). 
 \marginpar{missing ref}
  This unbalanced work load where the driver node becomes the bottleneck and worker
 nodes being idle prevents a seamless scaling to larger datasets. The memory requirements per executor also increases
@@ -679,7 +675,7 @@ accurate classification for large numbers of samples with large feature vectors.
 We consider the question of feature discovery on the Cancer Genome Atlas (TCGA) BRCA dataset.  We build this model on
 VCF files retrieved from the TCGA data portal.  For the label, we use the cell type, tumor or normal.
 
-In Table~\ref{table3}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
+In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
@@ -695,7 +691,7 @@ x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
 \end{tabular}
 \begin{flushleft} Here the importance is the Gini impurity measure when building a model using the cell type as the label.
 \end{flushleft}
-\label{table3}
+\label{featuretable}
 %\end{adjustwidth}
 \end{table}
 
@@ -723,10 +719,10 @@ In this section we compare \cursedforest 's performance against other published 
 \hline
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.04  & 1 min 50 seconds                        \\
-                                                & RF - Spark ML  &  Aidan           &           Aidan         \\
+                                                & RF - Spark ML  &  0.05           &           7 min 44 seconds         \\
                                                 & RF - R         & 0.05       & 24 min           \\
                                                 & ranger - R      & 0.06       & 1 min 10 seconds       \\
-                                                & ranger - c++     & 0.06       & 7 mins            \\
+                                                & ranger - c++     & 0.06       & 7 min            \\
 
  \hline
 \multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  \\
@@ -755,7 +751,7 @@ Comparison of different various machine learning libraries on different subsets 
 from the 1000 Genomes Project.
 Each random forest model consists of 50 trees.
 \end{flushleft}
-\label{table1}
+\label{timingtable}
 %\end{adjustwidth}
 \end{minipage}
 \end{table}
@@ -780,7 +776,7 @@ same random seed, to improve the consistency of measurements.
 
 Firstly we look at CursedForest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
 samples, by varying \mtry\ fraction and the number of CPU cores allocated to the execution. The raw results are
-presented in table \ref{table10} and visualized in figure \ref{figure:synth} below. Regardless of the number of cores used,
+presented in table \ref{synthetictimingtable} and visualized in figure \ref{figure:synth} below. Regardless of the number of cores used,
 \cursedforest\ displays approximately linear dependency between the execution time and the \mtry\ parameter (presented
 here as a fraction of the number of variables) [Fig 1 a).
 
@@ -848,7 +844,7 @@ a)& b)\\
 \end{tabular}
 \begin{flushleft} 
 \end{flushleft}
-\label{table10}
+\label{synthetictimingtable}
 \end{adjustwidth}
 \end{table}
 
