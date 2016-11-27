@@ -380,13 +380,15 @@ the $q=1,..,Q$ classes,
 \end{equation*}
 
 Random forests are a variance reduction technique. They take unpruned tree models, which have a low bias but a high
-variance, and by combining them reduce the variance. As the prediction error is the sum of the variance and the bias
-squared, this strategy should lead to a low prediction error.
+variance, and by combining them reduce the variance.  For regression problems, as the prediction error is the sum of the
+variance and the bias squared, this strategy should lead to a low prediction error.
 
-The average prediction error for an individual tree $h(X; B)$ is
+For classifiction problems there is no obvious decomposition of classification error into an equivalent bias plus
+variance form. A number of different additive decompositions of classification error have been considered
+in an effort to understand the success of bagging. They all less transparent than the regression
+case (see \cite{Friedman.1997} and citations therein).
 
-\cite{Friedman.1997}
-
+In the case of a regression tree, the average prediction error for an individual tree $h(X; B)$ is
 \begin{equation}
 PE_t = E_B E_{X,Y} (Y-h(X; B))^2.
 \end{equation}
@@ -447,15 +449,10 @@ rate that depends on the size of $S$ and not the number of noise variables in th
 compared to the total number of variables, then the rate of convergence will be quicker. It is not clear what the size
 of the set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effects and also of
 conditions caused by the interaction of large groups of SNPs. 
-\marginpar{check this. Denis}
-
 
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using
 the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic
 data.
-\marginpar{ \cite{Chen.and.Ishwaran.2012} cite many papers on extensions of random forests to handle 
-GWAS data. What do we need to do in this area? What about linkage disequilibrium? Denis}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest.}
@@ -497,10 +494,8 @@ Variable importance is the sum of IG over all notes and all trees for that varia
 We obtained the 1000 Genomes Project data as VCF files from their FTP site.  Each VCF file contains the variants for
 every individual across one chromosome.  We use the phase 3 dataset which contains 2,504 individuals with approximately
 81 million variant positions (i.e. a matrix of $2,504 \times 81$ million).  For compatibility with the majority of the
-algorithms we demonstrate, we convert the original variant representations to double representations. 
-\marginpar{are they stored a double or integer?}
- For example, we
-store the absence of a variant (0\textbar0) as 0, a heterozygous variant (1\textbar0 or 0\textbar1)as 1,  and a
+algorithms we demonstrate, we convert the original variant representations to double representations.  For example, we
+store the absence of a variant (0\textbar0) as 0, a heterozygous variant (1\textbar0 or 0\textbar1)as 1, and a
 homozygous variant (1\textbar1) as 2.  This is not the only possible encoding.  \cite{Goldstein.et.al.2011} note that of
 the encoding listed in table \ref{table:encodings}, the additive encoding will present the most difficulty for a random
 forest model.
