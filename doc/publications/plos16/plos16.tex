@@ -897,14 +897,22 @@ Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'
 combinatorial geometry. This has applications in a large number of areas including variable selection in high
 diensions. Consider figure \ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover
 the important variables, plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant
-variables). There is a distinct doundary, shown empirically and also based on arguments from combinatorial geometry, to the
-region where we can reliably recover significant variables. 
+variables). There is a distinct doundary, shown empirically and also based on arguments from combinatorial geometry, to
+the region where we can reliably recover significant variables.
 
 We note that the examples we are considering lie on the extreme left of the plot, close to the origin. So there are
-limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide, \cursedforest and
-other VariantSpark methods may provide a useful tool.
+limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide,
+\cursedforest and other VariantSpark methods may provide a useful tool.
 
-\marginpar{redo plot}
+Notes:
+\begin{itemize}
+\item \cite{Donoho.and.Stodden.2006} evalute variable selection by 
+$$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}$$
+However there is no $\hat{\beta}$ in a tree model. Piotr was using vaiable importace as
+a measure of $\hat{\beta}$ (i.e. we expect varible importance to be proportional to $\hat{\beta}$. Is this correct?
+
+\end{itemize}
+
 
 \begin{figure}[tbhp]
 \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
@@ -922,7 +930,12 @@ other VariantSpark methods may provide a useful tool.
 
 
 \section*{Acknowledgments}
-Cras egestas velit mauris, eu mollis turpis pellentesque sit amet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam id pretium nisi. Sed ac quam id nisi malesuada congue. Sed interdum aliquet augue, at pellentesque quam rhoncus vitae.
+
+Cras egestas velit mauris, eu mollis turpis pellentesque sit
+amet. Interdum et malesuada fames ac ante ipsum primis in
+faucibus. Nam id pretium nisi. Sed ac quam id nisi malesuada
+congue. Sed interdum aliquet augue, at pellentesque quam rhoncus
+vitae.
 
 \nolinenumbers
 
