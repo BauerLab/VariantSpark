@@ -865,21 +865,29 @@ a)& b)\\
 
 
 \section{Conclusion}
-We have demonstrated that using a different model of paralleization can extend the random forest to delaing with the
-case of an extremely large number of variables. By comparing this implementation to other implentations (including those
-optimized for large data sets) we have demonstrated the utility of this implentation.
-
-We have treated the case of variable selection in a $p >> n$ model where most of the variables are uninformative. We
-have also demostrated the utility of the model for large GWAs data sets.
+We have demonstrated that using a different paralleization model can extend random forests to the case of an
+extremely large number of variables. We have treated the case of variable selection in a $p >> n$ model where most of
+the variables are uninformative and have demonstrated the utility of the model for large GWAs data sets. By comparing
+this implementation to other implementations (including those optimized for large data sets) we have demonstrated the
+utility of this approach.
 
 \marginpar{signal rather than ``significant variables''}
 
-Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result based on arguments from
-combinatorial geometry. This has applications in a large number of areas including variable selection in high
-diensions. Consider figure \ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover
-the important variables, plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant
-variables). There is a distinct doundary, shown empirically and also based on arguments from combinatorial geometry, to
-the region where we can reliably recover significant variables.
+Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
+large number of areas including variable selection in high dimensions. Consider figure
+\ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover the important variables,
+plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant variables). There is a
+distinct boundary, shown empirically and also based on arguments from combinatorial geometry, to the region where we can
+reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investigate the behaviour of a number of
+regression approaches for variable selection (lars, lasso and forward stepwise) and make the point that above the
+phase-transition line variable recovery is still possible by a combinatorial approach.
+
+
+It is not surprising that that it is more difficult to recover the signal variable in the upper-left area of the figure,
+as the problem is both under-determined and sparse. What is surprising is the connection with arguments from
+combinatorial geometry. This suggests that we are seeing a universal rule rather than an implementation issue. As
+\cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions of
+the figure. 
 
 We note that the examples we are considering lie on the extreme left of the plot, close to the origin. So there are
 limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide,
@@ -887,11 +895,14 @@ limits to what can be recovered in the presence of noise. However in the case of
 
 Notes:
 \begin{itemize}
-\item \cite{Donoho.and.Stodden.2006} evalute variable selection by 
+\item \cite{Donoho.and.Stodden.2006} evaluate variable selection by 
 $$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}$$
-However there is no $\hat{\beta}$ in a tree model. Piotr was using vaiable importace as
-a measure of $\hat{\beta}$ (i.e. we expect varible importance to be proportional to $\hat{\beta}$. Is this correct?
-
+However there is no $\hat{\beta}$ in a tree model. We are using variable importance as
+a measure of the ordering of $\hat{\beta}$ (i.e. we expect variable importance to be proportional to $\hat{\beta}$). Is this correct?
+\item as RF is sort of greedy approximation to combinatorial approach, it may have some success in the dead zone
+\item  \cite{Donoho.and.Stodden.2006} are considering problems with $L_2$ errors (with additional  $L_1$ norms on the
+  $\beta$. $L_1$).
+How will their results carry over to 0-1 loss?
 \end{itemize}
 
 
