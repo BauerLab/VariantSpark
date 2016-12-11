@@ -193,7 +193,7 @@
 \setlength{\marginparwidth}{5cm}
 \usepackage{caption}
 \usepackage{subcaption}
-
+\usepackage{placeins}
 \begin{document}
 \vspace*{0.2in}
 
@@ -563,14 +563,9 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 % Section 1:  Feature Selection and classification on synthetic data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ can evaluate variable importance for millions of features}\label{synthetic}
-% In this section we demonstrate that \cursedforest's ability to rapidly grow large number of trees, \ntree, in parallel
-% results in a stable feature importance ranking.  This concept was originally proposed by Liaw and
-% Weiner~\cite{Liaw.and.Weiner.2002}, who suggested that though the variable importance measures may vary from run to
-% run, the ranking of the variables will stabilise with growing \ntree.
 In this section we demonstrate \cursedforest\ two main features, namely variable importance analysis to select the most
 associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
 high-dimensional samples.
-%We therefore generate a synthetic dataset with varying numbers of variables (features) and samples, as discussed in the method section. 
 We therefore generate a synthetic dataset with 2.5 million variables (features) and 5000 samples, as discussed in the
 method section.
 
@@ -587,44 +582,20 @@ difference between the associated 5 variable and the remaining variables in the 
 with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
 15 remaining variables from the list.
 
-\marginpar{wrong figures cited. Rob} Fig.~\ref{figure:synth}b illustrates that increasing \mtry\ also improves the OOB
+Fig.~\ref{figure:synth}b illustrates that increasing \mtry\ also improves the OOB
 (out of bag) classification error.
-%Piotr can you please explain the remaining error on the synthetic data
 By $mtry=0.8$ the error is converging to X, which is due to Y.
 \marginpar{what are ``X'' and ``Y''. Piotr}
 
 From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
 
-
-
-% \begin{figure}[tbhp] 
-%  \begin{adjustwidth}{-1.00in}{0in}
-%   \begin{subfigure}[b]{0.5\linewidth}
-%     \centering
-%     \includegraphics[totalheight=6cm]{./figs/var_oder.png} 
-%     \caption{Variable importance of top 20 variables.} 
-%     \label{fig7:a} 
-%     \vspace{4ex}
-%   \end{subfigure}%% 
-%   \begin{subfigure}[b]{0.5\linewidth}
-%     \centering
-%     \includegraphics[totalheight=6cm]{./figs/var_oob.png}
-%     \caption{OOB classification error} 
-%     \label{fig7:b} 
-%     \vspace{4ex}
-%   \end{subfigure} 
-% \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
-%     forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  {\bf a)} Variable
-%   importance of top 20 variables normalized to the sum of the linear model coefficients. {\bf Others} represents
-%   aggregated importance of variables not present in the linear model. The dotted line represents the original linear
-%   model coefficients.
-%  {\bf b)} OOB (out of bag) classification error
-%   estimate as function of \mtry\ fraction.}
-%   \label{figure:synth}
-% \end{adjustwidth}
-% \end{figure}
 \marginpar{this was done with n=100000. Needs to redone with n=2.5M}
+
+\subsubsection{simulation 1}
+ 
+Piotr's simulation with $n=1000$ and $p= 10000$
+
 
 \begin{figure}[tbhp] 
  \begin{adjustwidth}{-1.00in}{0in}
@@ -638,6 +609,34 @@ accurate classification for large numbers of samples with large feature vectors.
   \begin{subfigure}[b]{0.5\linewidth}
     \centering
     \includegraphics[totalheight=8cm]{./figs/rbo.png}
+    \caption{The  rank-biased-overlap measure.} 
+    \label{fig7:b} 
+    \vspace{4ex}
+  \end{subfigure} 
+  \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
+      forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  Each measure is shown
+    as a function of \mtry and \ntree. {\bf a0} OOB (out of bag) classification error.  {\bf b)} The rank-biased-overlap \cite[]{Webber.et.al.2010}. }
+  \label{figure:synth}
+\end{adjustwidth}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{simulation 2}
+Similar to Piotr's simulation with  except $y= w_1x_1 w_2x_2 w_3x_3 w_4x_4 w_5x_5$. $n=1000$ and $p= 10000$
+The significant variables can no longer be recovered by single variable tests for correlation with $y$
+
+\begin{figure}[tbhp] 
+ \begin{adjustwidth}{-1.00in}{0in}
+  \begin{subfigure}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[totalheight=8cm]{./figs/out-of-bag-prediction-error-prod.png}
+    \caption{OOB classification error} 
+    \label{fig7:b} 
+    \vspace{4ex}
+  \end{subfigure} 
+  \begin{subfigure}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[totalheight=8cm]{./figs/rbo-prod.png}
     \caption{The  rank-biased-overlap measure.} 
     \label{fig7:b} 
     \vspace{4ex}
@@ -894,8 +893,11 @@ limits to what can be recovered in the presence of noise. However in the case of
 
 Notes:
 \begin{itemize}
+\item we try a small simulation, a regression problem with $\beta(1:k) \sim U(1,100)$ and $y= X\beta + \epsilon$, $\epsilon \sim  N(0,\sqrt{16})$
 \item \cite{Donoho.and.Stodden.2006} evaluate variable selection by 
 $$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}$$
+See figure \ref{figure:stepwise_lars_cv.png} 
+\item 
 However there is no $\hat{\beta}$ in a tree model. We are using variable importance as
 a measure of the ordering of $\hat{\beta}$ (i.e. we expect variable importance to be proportional to $\hat{\beta}$). Is this correct?
 \item as RF is sort of greedy approximation to combinatorial approach, it may have some success in the dead zone
@@ -905,13 +907,36 @@ How will their results carry over to 0-1 loss?
 \end{itemize}
 
 
-\begin{figure}[tbhp]
-\includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
+
+
+\begin{figure}[tbhp] 
+ \begin{adjustwidth}{-1.00in}{0in}
+  \begin{subfigure}[b]{0.4\linewidth}
+    \centering
+   \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
 \caption{{\bf The phase chage diagram.}}
 \label{figure:phase-diagram-equivalence.png} 
+    \vspace{4ex}
+  \end{subfigure} 
+  \begin{subfigure}[b]{0.6\linewidth}
+    \centering
+  \includegraphics[totalheight=6cm]{./figs/stepwise_lars_cv.png}
+\caption{Stepwise lars. $p=200$, $n$ and $k$ variable. Model selected by cross-validation
+}
+\label{figure:stepwise_lars_cv.png}
+  \end{subfigure} 
+  \caption{}
+\end{adjustwidth}
 \end{figure}
 
 
+\begin{figure}[tbhp]
+\includegraphics[totalheight=6cm]{/home/dun280/Dropbox/random_forests/exploration/figs/ranger.png}
+\caption{ ranger}
+\label{figure:ranger.png}
+\end{figure}
+
+\clearpage
 \section{Supporting Information}
 
 % Include only the SI item label in the subsection heading. Use the \nameref{label} command to cite SI items in the text.
