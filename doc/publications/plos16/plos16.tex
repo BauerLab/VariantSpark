@@ -545,14 +545,21 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 \item \mtry\ -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
   tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
   better performance;
-\item the size and complexity of the individual trees is controlled in {\sc randomForest} by setting \texttt{nodesize}, the
-  minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
-  tree in the forest\footnote{The Spark ML documentation \cite[]{Spark.2016} sets \texttt{maxDepth}
-    to 4 in their classification example. This is wrong. The
-    individual trees should be grown to a large size to ensure that
-    they give an unbiased estimate.}.
-  In the TCGA example the RandomForests code produced trees with depths of 30+. 
+\item the size and complexity of the individual trees is controlled in
+  {\sc randomForest} by setting \texttt{nodesize}, the minimum size of
+  terminal nodes. It is controlled in Spark ML by setting
+  \texttt{maxDepth}, the maximum depth of each tree in the
+  forest\footnote{The Spark ML documentation \cite[]{Spark.2016} sets
+    \texttt{maxDepth} to 4 in their classification example. This may
+    give an estimate with a higher bias and, as such, may be a poor
+    choice. See the discussion in \cite{Dietterich.2002} where it is
+    shown that bagging may reduce bias as well as variance but gives a
+    better result for low bias learners. \cite{Dietterich.2002} notes
+    that if the boostrap replicate approximation were correct, then
+    bagging would reduce variance without changing bias.} In the TCGA
+  example the RandomForests code produced trees with depths of 30+.
 \end{itemize}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -568,31 +575,41 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 % Section 1:  Feature Selection and classification on synthetic data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ can evaluate variable importance for millions of features}\label{synthetic}
-In this section we demonstrate two features of \cursedforest\, variable importance analysis to select the most
+In this section we demonstrate two features of \cursedforest\, a variable importance analysis to select the most
 associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
 high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables (features) and 5000
-samples, as discussed in the method section.
+samples, as discussed in the methods section.
 
 After fitting the random forest model and performing the variable importance analysis we hence expect to retrieve these
 5 feature in order of the weight that was assigned to them.  We are running Apache Spark 1.6.1 on a YARN cluster with 12
 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.  We captured the OOB 
-classification error and the 20 most important variables.
+classification error and the rank-biased-overlap
+\cite[]{Webber.et.al.2010} measure.
 
-Fig.~\ref{figure:synth}a illustrates that increasing the number of predictors sampled for splitting at each node
-(\mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
-the weight originally assigned to them (dotted line). Further increasing \mtry\ improves the predicted importance
-measure, which starts to converge to the weight originally assigned to them (coefficients).  It also increases the
-difference between the associated 5 variable and the remaining variables in the top 20 list.  By $mtry=0.8$ the variable
-with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
-15 remaining variables from the list.
+% Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} illustrates that increasing the number of predictors sampled for splitting at each node
+% (\mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
+% the weight originally assigned to them (dotted line). Further increasing \mtry\ improves the predicted importance
+% measure, which starts to converge to the weight originally assigned to them (coefficients).  It also increases the
+% difference between the associated 5 variable and the remaining variables in the top 20 list.  By $mtry=0.8$ the variable
+% with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
+% 15 remaining variables from the list.
 
-Fig.~\ref{figure:synth}b illustrates that increasing \mtry\ also improves the OOB
-(out of bag) classification error.
-By $mtry=0.8$ the error is converging to X, which is due to Y.
-\marginpar{what are ``X'' and ``Y''. Piotr}
+% Fig.~\ref{figure:rbo-prod.png} illustrates that increasing \mtry\ also improves the OOB
+% (out of bag) classification error.
+% By $mtry=0.8$ the error is converging to X, which is due to Y.
+% \marginpar{what are ``X'' and ``Y''. Piotr}
+
+% From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
+% accurate classification for large numbers of samples with large feature vectors.
+
+Fig.~\ref{figure:synth1} illustrates the effect of varying  \mtry\ and \ntree\ on these two measures. 
+Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} shows that depends strongly on \ntree
+whereas Fig.~\ref{figure:rbo-prod.png} illustrates that the rbo measure is more dependent on \mtry.
 
 From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
+
+
 
 \marginpar{this was done with n=100000. Needs to redone with n=2.5M}
 
@@ -602,20 +619,21 @@ accurate classification for large numbers of samples with large feature vectors.
     \centering
     \includegraphics[totalheight=8cm]{./figs/out-of-bag-prediction-error-prod.png}
     \caption{OOB classification error} 
-    \label{fig7:b} 
+    \label{figure:out-of-bag-prediction-error-prod.png} 
     \vspace{4ex}
   \end{subfigure} 
   \begin{subfigure}[b]{0.5\linewidth}
     \centering
     \includegraphics[totalheight=8cm]{./figs/rbo-prod.png}
     \caption{The  rank-biased-overlap measure.} 
-    \label{fig7:b} 
+    \label{figure:rbo-prod.png} 
     \vspace{4ex}
   \end{subfigure} 
   \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
       forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  Each measure is shown
-    as a function of \mtry and \ntree. {\bf a0} OOB (out of bag) classification error.  {\bf b)} The rank-biased-overlap \cite[]{Webber.et.al.2010}. }
-  \label{figure:synth}
+    as a function of \mtry\ and \ntree. Note that the plot colors have been chose so that the lighter color indicates
+    the better result, that is, a lower OOB and a higher RBO.}
+  \label{figure:synth1}
 \end{adjustwidth}
 \end{figure}
 
@@ -673,13 +691,13 @@ In this section we compare \cursedforest 's performance against other published 
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.04  & 1 min 50 seconds                        \\
                                                 & RF - Spark ML  &  0.05           &           7 min 44 seconds         \\
-                                                & RF - R         & 0.05       & 24 min           \\
+                                                & randomForest - R         & 0.05       & 24 min           \\
                                                 & ranger - R      & 0.06       & 1 min 10 seconds       \\
                                                 & ranger - c++     & 0.06       & 7 min            \\
 
  \hline
 \multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  \\
-                                                    & RF - R        & NA         & NA                \\
+                                                    & randomForest - R      & NA         & NA                \\
                                                     & H2O           & 0.05       & 16 hours         \\
                                                     & ranger - R    & 0.06       & 4 min 30 seconds     \\
 \hline
@@ -690,13 +708,12 @@ In this section we compare \cursedforest 's performance against other published 
 \multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046  & 4hr 0min               \\
                                                     & RF - Spark ML  &    NA         &   NA               \\
                                                     & ranger - R      & 0.03      &         \\
-& ranger - R        &             0.973     &      03:58           \\
+                                                    & ranger - R        &             0.973     &      03:58           \\
 \hline
 
 \multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX  & 7hr 14min \\
 & Spark ML & NA & NA  \\
 & ranger (C++)       &        NA     &        NA      \\
-& ranger (C++)       &        NA     &        NA    \\
 \hline
 \end{tabular}
 \begin{flushleft} 
