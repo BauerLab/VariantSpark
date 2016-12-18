@@ -694,39 +694,40 @@ In this section we compare \cursedforest 's performance against other published 
 \begin{minipage}{\textwidth}
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \centering
-\caption{ {\bf Performance comparison between the different machine learning algorithms.}}
+\caption{ {\bf Performance comparison between the different random forest implementations.}}
 \begin{tabular}{|l|l|l|l|l|l||}
 \hline
 \bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime}  \\
 \hline
 
-\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.04  & 1 min 50 seconds                        \\
-                                                & RF - Spark ML  &  0.05           &           7 min 44 seconds         \\
-                                                & RF - R         & 0.05       & 24 min           \\
-                                                & ranger - R      & 0.06       & 1 min 10 seconds       \\
-                                                & ranger - c++     & 0.06       & 7 min            \\
+\multirow{5}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest\ & 0.04  & 1 min 50 seconds                        \\
+                                                & Spark ML  &  0.05           &           7 min 44 seconds         \\
+                                                & randomForest (R)         & 0.05       & 24 min           \\
+                                                & ranger (R)      & 0.06       & 1 min 10 seconds       \\
+                                                & ranger (C++)     & 0.06       & 7 min            \\
 
  \hline
-\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  \\
-                                                    & RF - R        & NA         & NA                \\
+\multirow{5}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest\ & 0.06 & 4 min 2 seconds \\
+                                                    & Spark ML  & 0.06 & 37 min 19 seconds \\
+                                                    & randomForest (R)        & NA         & NA                \\
+                                                    & ranger (R)    & 0.06       & 4 min 30 seconds     \\
                                                     & H2O           & 0.05       & 16 hours         \\
-                                                    & ranger - R    & 0.06       & 4 min 30 seconds     \\
 \hline
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063  & 1hr 58min         \\
-                                                    & RF - Spark ML  & 0.04       & 8hr 29min        \\
-                                                    & ranger - R      &  0.05       & 28 mins         \\
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.04  & 19 min 19 seconds         \\
+                                                    & Spark ML  & 0.04       & 8 hour 29 min        \\
+                                                    & ranger (R)      &  0.05       & 28 mins         \\
 \hline
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046  & 4hr 0min               \\
-                                                    & RF - Spark ML  &    NA         &   NA               \\
-                                                    & ranger - R      & 0.03      &         \\
-& ranger - R        &             0.973     &      03:58           \\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.02  & 56 min 43 seconds             \\
+                                                    & Spark ML &    NA         &   NA               \\
+                                                    & ranger (R)      & 0.03      &    3 hour 58 min     \\
 \hline
 
 \multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX  & 7hr 14min \\
-& Spark ML & NA & NA  \\
-& ranger (C++)       &        NA     &        NA      \\
-& ranger (C++)       &        NA     &        NA    \\
+                                                    & Spark ML & NA & NA  \\
+                                                    & ranger (R)       &        NA     &        NA    \\
+                                                    & ranger (C++)       &        NA     &        NA    \\
 \hline
+
 \end{tabular}
 \begin{flushleft} 
 Comparison of different various machine learning libraries on different subsets of variant data 
