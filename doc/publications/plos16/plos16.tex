@@ -879,6 +879,19 @@ We note that the examples we are considering lie on the extreme left of the plot
 limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide,
 \cursedforest and other VariantSpark methods may provide a useful tool.
 
+
+\begin{figure}[tbhp] 
+ \begin{adjustwidth}{-1.00in}{0in}
+    \centering
+    \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
+    \caption{{\bf The phase chage diagram.}}
+    \label{figure:phase-diagram-equivalence.png} 
+    \vspace{4ex}
+  \end{adjustwidth}
+\end{figure}
+
+
+\section{not for the paper}
 Notes:
 \begin{itemize}
 \item we try a small simulation, a regression problem with $\beta(1:k) \sim U(1,100)$ and $y= X\beta + \epsilon$, $\epsilon \sim  N(0,\sqrt{16})$
@@ -894,34 +907,44 @@ a measure of the ordering of $\hat{\beta}$ (i.e. we expect variable importance t
 How will their results carry over to 0-1 loss?
 \end{itemize}
 
+\begin{figure}[tbhp] 
+  \begin{adjustwidth}{-1.00in}{0in}
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/k.png}
+      \caption{k}
+      \label{figure:k.png}
+      \vspace{4ex}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/n.png}
+      \caption{n}
+      \label{figure:n.png}
+    \end{subfigure} 
+    \caption{}
+  \end{adjustwidth}
+\end{figure}
 
 
 
 \begin{figure}[tbhp] 
- \begin{adjustwidth}{-1.00in}{0in}
-  \begin{subfigure}[b]{0.4\linewidth}
-    \centering
-   \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
-\caption{{\bf The phase chage diagram.}}
-\label{figure:phase-diagram-equivalence.png} 
-    \vspace{4ex}
-  \end{subfigure} 
-  \begin{subfigure}[b]{0.6\linewidth}
-    \centering
-  \includegraphics[totalheight=6cm]{./figs/stepwise_lars_cv.png}
-\caption{Stepwise lars. $p=200$, $n$ and $k$ variable. Model selected by cross-validation
-}
-\label{figure:stepwise_lars_cv.png}
-  \end{subfigure} 
-  \caption{}
-\end{adjustwidth}
-\end{figure}
-
-
-\begin{figure}[tbhp]
-\includegraphics[totalheight=6cm]{./figs/ranger.png}
-\caption{ ranger}
-\label{figure:ranger.png}
+  \begin{adjustwidth}{-1.00in}{0in}
+    \begin{subfigure}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/stepwise_lars_cv.png}
+      \caption{Stepwise lars. $p=200$, $n$ and $k$ variable. Model selected by cross-validation}
+      \label{figure:stepwise_lars_cv.png}
+      \vspace{4ex}
+    \end{subfigure} 
+    \begin{subfigure}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/ranger.png}
+      \caption{ranger, RBO}
+      \label{figure:ranger.png}
+    \end{subfigure} 
+    \caption{}
+  \end{adjustwidth}
 \end{figure}
 
 \clearpage
