@@ -683,12 +683,38 @@ x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
+
+\begin{table}[!ht]
+\begin{minipage}{\textwidth}
+\centering
+\caption{ {\bf Performance comparison with \cursedforest\ on different subsets of the 1000 Genomes Project data.}}
+\begin{tabular}{| l | r | l |}
+\hline
+{\bf Genome \%} & {\bf Error} & {\bf Runtime} \\ \thickhline
+phase1\_chr22: 1,092 x 490,036 & 0.04 & 1 min 50 seconds \\ \hline
+phase3\_chr22: 2,504 x 1,103,548 & 0.06 & 4 min 2 seconds \\ \hline
+phase3\_chr1: 2,504 x 6,450,364 & 0.04 & 19 min 19 seconds \\ \hline
+phase3\_chr1-3: 2,504 x 19,328,051 & 0.02 & 56 min 43 seconds \\ \hline
+phase3\_chr1-22: 2,504 x 81,047,467 & 0.01 & 36 min 54 seconds \\ \hline
+\end{tabular}
+\begin{flushleft} 
+Comparison of runtime and error for models built using \cursedforest\ on different subsets of variant data 
+from the 1000 Genomes Project.
+Each random forest model consists of 50 trees and was built using 130 worker nodes---each with 8GB RAM.
+\end{flushleft}
+\label{cursedforesttable}
+\end{minipage}
+\end{table}
+
+
+
+
 \begin{table}[!ht]
 \begin{minipage}{\textwidth}
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \centering
 \caption{ {\bf Performance comparison between the different random forest implementations.}}
-\begin{tabular}{|l|l|l|l|l|l||}
+\begin{tabular}{| l | l | r | l |}
 \hline
 \bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime}  \\
 
@@ -699,6 +725,7 @@ In this section we compare \cursedforest 's performance against other published 
                                                 & randomForest (R)         & 0.05       & 24 min           \\
                                                 & ranger (R)      & 0.06       & 1 min 10 seconds       \\
                                                 & ranger (C++)     & 0.06       & 7 min            \\
+                                                & H2O           & ??       & ??         \\
 
 \hline
 
@@ -706,24 +733,33 @@ In this section we compare \cursedforest 's performance against other published 
                                                     & Spark ML  & 0.06 & 37 min 19 seconds \\
                                                     & randomForest (R)        & NA         & NA                \\
                                                     & ranger (R)    & 0.06       & 4 min 30 seconds     \\
+                                                    & ranger (C++)     &     ??   & ??        \\
                                                     & H2O           & 0.05       & 16 hours         \\
 
 \hline
 
 \multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.04  & 19 min 19 seconds         \\
                                                     & Spark ML  & 0.04       & 8 hour 29 min        \\
+                                                    & randomForest (R)        & NA         & NA                \\
                                                     & ranger (R)      &  0.05       & 28 mins         \\
+                                                    & ranger (C++)     & ??       & ??            \\
+                                                    & H2O           & NA       & NA         \\
 \hline
 
 \multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.02  & 56 min 43 seconds             \\
                                                     & Spark ML &    NA         &   NA               \\
+                                                    & randomForest (R)        & NA         & NA                \\
                                                     & ranger (R)      & 0.03      &    3 hour 58 min     \\
+                                                    & ranger (C++)     & ??       & ??            \\
+                                                    & H2O           & NA       & NA         \\
 \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX  & 7hour 14min \\
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & 0.01  & 3hour 16min \\
                                                     & Spark ML & NA & NA  \\
+                                                    & randomForest (R)        & NA         & NA                \\
                                                     & ranger (R)       &        NA     &        NA    \\
                                                     & ranger (C++)       &        NA     &        NA    \\
+                                                    & H2O           & NA       & NA         \\
 \hline
 
 
