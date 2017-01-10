@@ -174,9 +174,9 @@
 
 %% Include all macros below
 
-\newcommand{\cursedforest}{\textsc{CursedForest}}
-\newcommand{\mtry}{{\texttt mtry}}
-\newcommand{\ntree}{{\texttt ntree}}
+\newcommand{\cursedforest}{\textsc{CursedForest}\ }
+\newcommand{\mtry}{{\texttt mtry\ }}
+\newcommand{\ntree}{{\texttt ntree\ }}
 
 %% END MACROS SECTION
 
@@ -275,10 +275,10 @@ interrogate all 3 billion base pairs of the human genome.
 Identifying the relevant or disease specific base-pair difference between individuals is the focus of genome wide
 association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs,
 termed single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP
-separately~\cite{CCC2007}.  It has since been demonstrated that not taking joint interactions between SNPs into account
+separately~\cite{CCC2007}.  It has since been demonstrated that not taking interactions between SNPs into account
 when filtering for potential disease mutations is inadequate~\cite{Manolio2009,Yang2011}.
 
-A tree based model is capable of taking this interaction of variables into account \cite{Wright.et.al.2016}. In addition, random forests are well
+A tree based model is capable of taking the interaction of variables into account \cite{Wright.et.al.2016}. In addition, random forests are well
 suited for processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have
 the propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting.  Secondly, random
@@ -295,7 +295,7 @@ achieves fast run times by effective use of the CPU cache, optimizing for differ
 multi-threading.  Similarly, \textsc{Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is
 specifically optimized for dealing with large data sets.
 
-However, the use of traditional compute infrastructure limits the parallelization strategies that can be employed by  
+The use of traditional compute infrastructure limits the parallelization strategies that can be employed by  
 these methods.  The programs are limited to utilizing only CPUs that are on the same computer node (multi-threading) or
 else they run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
 processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitation by enabling programs to
@@ -304,13 +304,14 @@ random forests this means that the computations for each node of a tree can be h
   
 Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forests specifically designed to cater
 for ``big'' (many samples) and ``wide'' (many features) data sets. A Spark application runs on a ``driver'' node and
-distributes tasks to the many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest\ is capable of
+distributes tasks to many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest\ is capable of
 parallelization the split for each node in a tree thereby handling millions of features. It can, for example, fit a
 model to the 1000 Genomes Project data, which consists of approximately 2500 samples with up to 80 million
 variants~\cite{1KG2012}.  By also utilizing Spark to read in and manipulate the standard genomic variant format (VCF)
 directly, \cursedforest\ outperforms existing tools even on small datasets where multi-threading generally performs
 well. Harnessing the virtually unlimited capability to parallelize tasks, \cursedforest\ can build a large number of
 trees, which boosts the accuracy for variable importance selection~\cite{Szymczak2016}.
+\marginpar{check this. It also allows us to set mtry to a large number, important when p is large}
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyze Variant Call Format (VCF) files using ML algorithms on the Spark framework.
@@ -390,7 +391,9 @@ Assume that, for all $B$, the tree is unbiased, i.e., $EY= E_X h(X; B)$. Then
 \begin{equation}
 PE_f \leq \rho PE_t
 \end{equation}
-where $\rho$ is the weighted correlation between residuals $(Y-h(X;B))$ and $(Y-h(X;B^\prime))$ for independent $B,B^\prime$.  
+where $\rho$ is the weighted correlation between residuals $(Y-h(X;B))$ and $(Y-h(X;B^\prime))$ for independent
+$B,B^\prime$.
+\marginpar{why is this true}  
 So what is required for accurate random forest regression is (i) low correlation between residuals of differing tree in
 the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}. 
 
@@ -469,7 +472,9 @@ of these tasks will calculate the information gain for that specific feature.  O
 results are reduced to return the feature which gives the greatest information gain.  This process is then repeated
 until \cursedforest\ has created the entire decision tree.
 
+
 The current implementation of \cursedforest\ uses an ``information gained'' criteria for splitting. Let $f_q$ be the
+\marginpar{this is wrong -- it used Gini}
 fraction of items labelled with value $q$ where $q = 1, \ldots, Q$ at a node. The entropy of the node is
 $H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$ The expected information gain is the change in entropy $H$ from a prior state
 $T$ to a state that takes some information $a$ as given:
@@ -520,6 +525,7 @@ category ``Simple Nucleotide Variation''.  After downloading, we use a custom sc
 and filter for only the "Normal" tissue column.  We then use GATK to merge the files into a single VCF file.
 
 \subsubsection{Synthetic data} 
+\marginpar{this is wrong now}
 Each dataset consists of $n$ samples and $p$ variables where $n << p$,
 and values for each variable are ordinal variables with three levels represented as numbers $\{0, 1, 2\}$ (which
 correspond to an additive effect encoding of genomics variation) randomly generated from uniform distribution with equal
@@ -606,8 +612,9 @@ classification error and the rank-biased-overlap
 % accurate classification for large numbers of samples with large feature vectors.
 
 Fig.~\ref{figure:synth1} illustrates the effect of varying  \mtry\ and \ntree\ on these two measures. 
-Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} shows that depends strongly on \ntree
+Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} shows that depends strongly on \ntree\ 
 whereas Fig.~\ref{figure:rbo-prod.png} illustrates that the rbo measure is more dependent on \mtry.
+\marginpar{this is not true anymore}
 
 From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
@@ -617,32 +624,31 @@ accurate classification for large numbers of samples with large feature vectors.
 \marginpar{this was done with n=100000. Needs to redone with n=2.5M}
 
 \begin{figure}[tbhp] 
- \begin{adjustwidth}{-1.00in}{0in}
-  \begin{subfigure}[b]{0.5\linewidth}
-    \centering
-    \includegraphics[totalheight=8cm]{./figs/out-of-bag-prediction-error.png}
-    \caption{OOB classification error} 
-    \label{figure:out-of-bag-prediction-error-prod.png} 
-    \vspace{4ex}
-  \end{subfigure} 
-  \begin{subfigure}[b]{0.5\linewidth}
-    \centering
-    \includegraphics[totalheight=8cm]{./figs/rbo.png}
-    \caption{The  rank-biased-overlap measure.} 
-    \label{figure:rbo-prod.png} 
-    \vspace{4ex}
-  \end{subfigure} 
-  \caption{{\bf Variable importance (Mean Decrease Gini) and OOB (out of bag) classification error estimate for random
-      forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}  Each measure is shown
-    as a function of \mtry\ and \ntree. Note that the plot colors have been chose so that the lighter color indicates
-    the better result, that is, a lower OOB and a higher RBO.}
-  \label{figure:synth1}
-\end{adjustwidth}
+  \begin{adjustwidth}{-1.00in}{0in}
+    \caption{\textbf{ OOB (out of bag) classification error and Rank-biased overlap estimates for random
+        forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}}
+    \label{figure:synth1}
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=8cm]{./figs/out-of-bag-prediction-error.png}
+      \caption{OOB classification error} 
+      \label{figure:out-of-bag-prediction-error-prod.png} 
+      \vspace{4ex}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=8cm]{./figs/rbo.png}
+      \caption{The  rank-biased-overlap measure.} 
+      \label{figure:rbo-prod.png} 
+      \vspace{4ex}
+    \end{subfigure} 
+    \begin{flushleft} 
+      Each measure is shown
+      as a function of \mtry\ and \ntree. Note that the plot colors have been chose so that the lighter color indicates
+      the better result, that is, a lower OOB and a higher RBO.
+    \end{flushleft}
+  \end{adjustwidth}
 \end{figure}
-
-\marginpar{Does \cursedforest use Gini impurity or information gain? I
-  thought it used infomation gain but Piotr mentions Gini} 
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 2: Feature Selection on real data 
@@ -665,7 +671,8 @@ x:xxxx & cell2 row 1 & cell3 row 1\\ \hline
 x:xxxx & cell2 row 2 & cell3 row 2\\ \hline
 x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
 \end{tabular}
-\begin{flushleft} Here the importance is the Gini impurity measure when building a model using the cell type as the label.
+\begin{flushleft} 
+Here the importance is the Gini impurity measure when building a model using the cell type as the label.
 \end{flushleft}
 \label{featuretable}
 %\end{adjustwidth}
@@ -784,23 +791,23 @@ In this section we explore the performance of \cursedforest\ by testing its abil
 and computational resources.
 
 In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers
-of variables (features) and samples, similar to the dataset used in to evaluate ranger \cite{Wright.and.Ziegle.2016},
-allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity of random forests
-by using a range of \mtry\ values.
+of variables (features) and samples, similar to the dataset used in \cite{Wright.and.Ziegle.2016} to evaluate
+\textsc{Ranger}, allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity
+of random forests by using a range of \mtry\ values.
 
 
 We investigate the different synthetic datasets generated for section 5.1. and measured the time taken to build a random
 forest model of 100 trees. The results reported below are averages of 5 runs, and all the cases were executed with the
 same random seed, to improve the consistency of measurements.
 
-Firstly we look at \cursedforest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
-samples, by varying \mtry\ fraction and the number of CPU cores allocated to the execution. The raw results are
-presented in table \ref{synthetictimingtable} and visualized in figure \ref{figure:synth} below. Regardless of the
-number of cores used, \cursedforest\ displays approximately linear dependency between the execution time and the \mtry\
-parameter (presented here as a fraction of the number of variables) [Fig 1 a).
+First we look at \cursedforest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
+samples, by varying the \mtry  fraction and the number of CPU cores allocated to the execution. The raw results are
+presented in table \ref{synthetictimingtable} and visualized in figure \ref{figure:synthetictiming} below. Regardless of the
+number of cores used, \cursedforest displays approximately linear dependency between the execution time and the \mtry
+parameter (presented here as a fraction of the number of variables, Fig. \ref{figure:synthetictiming.a}
 
 \cursedforest\ scales almost linearly with the number of CPU cores for medium values of \mtry\ fraction but for both
-lower and higher values the performance degrades slightly (Fig 1 b). In the latter case the likely cause is
+lower and higher values the performance degrades slightly (Fig \ref{figure:synthetictiming.b}). In the latter case the likely cause is
 communication overhead (with lower \mtry\ values the proportion of time for parallelizable computation to the time for
 internode communication is lower) while in the latter case it is most likely caused by reaching the clusters
 computational capacity.
@@ -820,16 +827,23 @@ magnitude of the entire genome variants expected in such dataset, for which it c
 hour.
 
 \begin{figure}[tbhp]
-\begin{adjustwidth}{-1.00in}{0in}
-\begin{tabular}{ll}
-a)& b)\\
-\includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} & 
-\includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png} \\
-\end{tabular}
-\caption{{\bf Scalablity of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.} 
-  {\bf a)} Time in seconds to build 100 trees for different \mtry\ fractions. 
-  {\bf b)} Number of trees build per hour when using a growing number of CPU cores.}
-\label{figure:synth}
+  \begin{adjustwidth}{-1.00in}{0in}
+    \caption{\textbf{Scalablity of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.}}
+    \label{figure:synthetictiming}
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} 
+      \caption{Time in seconds to build 100 trees for different \mtry\ fractions. } 
+      \label{figure:synthetictiming.a} 
+      \vspace{4ex}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png}
+      \caption{Number of trees build per hour when using a growing number of CPU cores.}
+    \label{figure:synthetictiming.b}
+    \vspace{4ex}
+  \end{subfigure} 
 \end{adjustwidth}
 \end{figure}
 
@@ -843,9 +857,10 @@ a)& b)\\
 \begin{table}[!ht]
 \begin{adjustwidth}{-1.00in}{0in}
 \centering
-\caption{
-{\bf Time in seconds to build a random forest of 100
+\caption{\textbf{
+ Time in seconds to build a random forest of 100
   trees on 128 CPU cores with varying numbers of variables and samples.}}
+\label{synthetictimingtable}
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
 \multicolumn{2}{|l|}{\multirow{2}{*}{}}           & \multicolumn{5}{c|}{Number of variables} \\
@@ -857,26 +872,49 @@ a)& b)\\
                                         & \bf{10000} & 70.2  & 120.2 & 397.3 & 2237.8 & 5747.8 \\
 \hline
 \end{tabular}
-\begin{flushleft} 
-\end{flushleft}
-\label{synthetictimingtable}
 \end{adjustwidth}
 \end{table}
 
 
+
 \begin{figure}[tbhp]
-\begin{adjustwidth}{-1.00in}{0in}
-\begin{tabular}{ll}
-a)& b)\\
-\includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} & 
-\includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
-\end{tabular}
-\caption{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
-  {\bf a)} Number of trees build per hour when growing number of variables. 
-  {\bf b)} Number of trees build per hour when growing number of samples.}
-\label{figure:synth}
+  \begin{adjustwidth}{-1.00in}{0in}
+    \caption{\textbf{Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.}}
+    \label{figure:synth2}
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} 
+      \caption{Number of trees build per hour when growing number of variables.} 
+      \label{figure:synth2.a} 
+      \vspace{4ex}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png}
+      \caption{Number of trees build per hour when growing number of samples.}
+    \label{figure:synth2.b}
+    \vspace{4ex}
+  \end{subfigure} 
 \end{adjustwidth}
 \end{figure}
+
+
+
+
+
+% \begin{figure}[tbhp]
+% \begin{adjustwidth}{-1.00in}{0in}
+% \begin{tabular}{ll}
+% a)& b)\\
+% \includegraphics[totalheight=6cm]{./figs/nvars_nsamples.png} & 
+% \includegraphics[totalheight=6cm]{./figs/nsamples_nvars.png} \\
+% \end{tabular}
+% \caption{{\bf Scalablity of the Wide Random Forest on synthetic datasets with varying number of samples and variables.} 
+%   {\bf a)} Number of trees build per hour when growing number of variables. 
+%   {\bf b)} Number of trees build per hour when growing number of samples.}
+% \label{figure:synth}
+% \end{adjustwidth}
+% \end{figure}
 
 
 
