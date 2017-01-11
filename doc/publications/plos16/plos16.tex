@@ -174,9 +174,9 @@
 
 %% Include all macros below
 
-\newcommand{\cursedforest}{\textsc{CursedForest}\ }
-\newcommand{\mtry}{{\texttt mtry\ }}
-\newcommand{\ntree}{{\texttt ntree\ }}
+\newcommand{\cursedforest}{\textsc{CursedForest}\xspace}
+\newcommand{\mtry}{\texttt{mtry}\xspace}
+\newcommand{\ntree}{\texttt{ntree}\xspace}
 
 %% END MACROS SECTION
 
@@ -194,6 +194,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{placeins}
+\usepackage{xspace} % see http://tex.stackexchange.com/questions/31091/space-after-latex-commands
+
 \begin{document}
 \vspace*{0.2in}
 
@@ -295,6 +297,8 @@ achieves fast run times by effective use of the CPU cache, optimizing for differ
 multi-threading.  Similarly, \textsc{Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is
 specifically optimized for dealing with large data sets.
 
+\marginpar{make consistent capitalization for ranger, randomForest}
+
 The use of traditional compute infrastructure limits the parallelization strategies that can be employed by  
 these methods.  The programs are limited to utilizing only CPUs that are on the same computer node (multi-threading) or
 else they run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
@@ -304,14 +308,15 @@ random forests this means that the computations for each node of a tree can be h
   
 Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forests specifically designed to cater
 for ``big'' (many samples) and ``wide'' (many features) data sets. A Spark application runs on a ``driver'' node and
-distributes tasks to many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest\ is capable of
+distributes tasks to many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest is capable of
 parallelization the split for each node in a tree thereby handling millions of features. It can, for example, fit a
 model to the 1000 Genomes Project data, which consists of approximately 2500 samples with up to 80 million
 variants~\cite{1KG2012}.  By also utilizing Spark to read in and manipulate the standard genomic variant format (VCF)
 directly, \cursedforest\ outperforms existing tools even on small datasets where multi-threading generally performs
-well. Harnessing the virtually unlimited capability to parallelize tasks, \cursedforest\ can build a large number of
-trees, which boosts the accuracy for variable importance selection~\cite{Szymczak2016}.
-\marginpar{check this. It also allows us to set mtry to a large number, important when p is large}
+well. Harnessing the virtually unlimited capability to parallelize tasks, \cursedforest can build a large number of
+trees and use a high \mtry value which leads to greater accurace (see section \ref{section:synthetic}). 
+\marginpar{does \cite{Szymczak2016} say that high \ntree gives greater  accuracy for variable importance selection?
+We do not see that}
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyze Variant Call Format (VCF) files using ML algorithms on the Spark framework.
@@ -393,7 +398,6 @@ PE_f \leq \rho PE_t
 \end{equation}
 where $\rho$ is the weighted correlation between residuals $(Y-h(X;B))$ and $(Y-h(X;B^\prime))$ for independent
 $B,B^\prime$.
-\marginpar{why is this true}  
 So what is required for accurate random forest regression is (i) low correlation between residuals of differing tree in
 the forest, and (ii) low prediction error for the individual trees \cite{Segal.2004}. 
 
@@ -473,15 +477,13 @@ results are reduced to return the feature which gives the greatest information g
 until \cursedforest\ has created the entire decision tree.
 
 
-The current implementation of \cursedforest\ uses an ``information gained'' criteria for splitting. Let $f_q$ be the
-\marginpar{this is wrong -- it used Gini}
-fraction of items labelled with value $q$ where $q = 1, \ldots, Q$ at a node. The entropy of the node is
-$H = - \sum^{m}_{i=1} f_i \log^{}_2 f_i.$ The expected information gain is the change in entropy $H$ from a prior state
-$T$ to a state that takes some information $a$ as given:
-\[ IG(T,a) = H(T) - H(T|a). \]
-In this case, the information gain is IG = Entropy(parent node) - Weighted Sum of Entropy(Children). 
-Variable importance is the sum of IG over all notes and all trees for that variable.
-
+The current implementation of \cursedforest\ uses an ``Gini impurity''
+criteria for splitting. Let $f_q$ be the fraction of items labelled
+with value $q$ where $q = 1, \ldots, Q$ at a node. The Gini impurity is
+\[
+I_G(f) = \Sigma_{q = 1}^Q f_q ( 1 − f_q ), 
+\]
+which is a minimum when all observatkions at the node are in the same class.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This section talks about the datasets
@@ -525,19 +527,20 @@ category ``Simple Nucleotide Variation''.  After downloading, we use a custom sc
 and filter for only the "Normal" tissue column.  We then use GATK to merge the files into a single VCF file.
 
 \subsubsection{Synthetic data} 
-\marginpar{this is wrong now}
-Each dataset consists of $n$ samples and $p$ variables where $n << p$,
+ Each dataset consists of $n$ samples and $p$ variables where $n << p$,
 and values for each variable are ordinal variables with three levels represented as numbers $\{0, 1, 2\}$ (which
 correspond to an additive effect encoding of genomics variation) randomly generated from uniform distribution with equal
 probabilities.  
 
 The model paramters are $w_i = 1/\sqrt{2^{i-1}}$ for $i =1,\ldots 5$ then 
-\begin{align}
-y=& \prod_{i=1}^{i=5} {w_i x_i} + \epsilon \textrm{ for $x_i \neq 0$} 
-\intertext{where}
-\epsilon \sim & N(0, \sigma_\epsilon^2= 0.12)
-\end{align}
-The dichotomous response is generated by thresholding $y$ at the $0.8$ quantile
+\begin{align*}
+z=& \Sigma_{i=1}^{i=5} {w_i x_i} \\
+\intertext{and}
+\sigma_\epsilon^2 =& Var(z)(1- 0.125)/0.125 \\
+\intertext{so}
+y =&  z+\epsilon \textrm{ where } \epsilon \sim  N(0, \sigma_\epsilon^2).
+\end{align*}
+The dichotomous response is generated by thresholding $y$ at the $0.8$ quantile.
 
 
 
@@ -546,12 +549,12 @@ We consider the parameter setting for the random forest algorithm. We use the R 
 package \cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler.  We incorporate
 the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience:
 \begin{itemize}
-\item \ntree\ the number of trees.  The number of trees necessary for good performance grows with the number of
+\item \ntree{}  -- the number of trees.  The number of trees necessary for good performance grows with the number of
   predictors.  \cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable estimates of variable
   importance and proximity; however, even though the variable importance measures may vary from run to run, we note that
-  it is possible for a random forest model to have a very poor fit and still have an accurate ranking of variable
+  it is possible for a random forest model to have a poorer fit and still have an accurate ranking of variable
   importance;
-\item \mtry\ -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
+\item \mtry{}  -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
   tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
   better performance;
 \item the size and complexity of the individual trees is controlled in
@@ -583,7 +586,8 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 1:  Feature Selection and classification on synthetic data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\cursedforest\ can evaluate variable importance for millions of features}\label{synthetic}
+\subsection{\cursedforest\ can evaluate variable importance for millions of features}
+\label{section:synthetic}
 In this section we demonstrate two features of \cursedforest\, a variable importance analysis to select the most
 associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
 high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables (features) and 5000
@@ -593,6 +597,7 @@ After fitting the random forest model and performing the variable importance ana
 5 feature in order of the weight that was assigned to them.  We are running Apache Spark 1.6.1 on a YARN cluster with 12
 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.  We captured the OOB 
 classification error and the rank-biased-overlap
+\marginpar{what is wrong with the formatting of this citation?}
 \cite[]{Webber.et.al.2010} measure.
 
 % Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} illustrates that increasing the number of predictors sampled for splitting at each node
@@ -611,22 +616,20 @@ classification error and the rank-biased-overlap
 % From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 % accurate classification for large numbers of samples with large feature vectors.
 
-Fig.~\ref{figure:synth1} illustrates the effect of varying  \mtry\ and \ntree\ on these two measures. 
-Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} shows that depends strongly on \ntree\ 
-whereas Fig.~\ref{figure:rbo-prod.png} illustrates that the rbo measure is more dependent on \mtry.
-\marginpar{this is not true anymore}
+\marginpar{this was done with n=10000. Needs to redone with n=2.5M and some things re-written}
+Fig.~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
+value for a classification problem is $\sqrt{p}=100$ so in this case we are considering values considerably larger than
+the default. Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is minimized at the largerst
+values of \mtry and \ntree considered  whereas Fig.~\ref{figure:rbo-prod.png} illustrates that the rbo measure is less
+sensitive once we over a certain threshold.
 
 From the synthetic data we can conclude that \cursedforest\ is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
 
 
-
-\marginpar{this was done with n=100000. Needs to redone with n=2.5M}
-
 \begin{figure}[tbhp] 
   \begin{adjustwidth}{-1.00in}{0in}
-    \caption{\textbf{ OOB (out of bag) classification error and Rank-biased overlap estimates for random
-        forests with 100 trees trained on the synthetic dataset of 2.5M features and 5K samples.}}
+    \caption{\textbf{ out of bag classification error and Rank-biased overlap estimates}} 
     \label{figure:synth1}
     \begin{subfigure}[b]{0.5\linewidth}
       \centering
@@ -643,9 +646,9 @@ accurate classification for large numbers of samples with large feature vectors.
       \vspace{4ex}
     \end{subfigure} 
     \begin{flushleft} 
-      Each measure is shown
-      as a function of \mtry\ and \ntree. Note that the plot colors have been chose so that the lighter color indicates
-      the better result, that is, a lower OOB and a higher RBO.
+      Random forests with 100 trees were trained on the synthetic dataset of 2.5M features and 5K samples.
+      Each measure is shown as a function of \mtry and \ntree. Note that the plot colors have been chosen so that the lighter color indicates
+      the better result, that is, a lower OOB or a higher RBO.
     \end{flushleft}
   \end{adjustwidth}
 \end{figure}
@@ -690,6 +693,7 @@ Here the importance is the Gini impurity measure when building a model using the
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
+\marginpar{this section is not one sentence? has it been lost?}
 
 \begin{table}[!ht]
 \begin{minipage}{\textwidth}
@@ -793,7 +797,7 @@ and computational resources.
 In order to asses these characteristics we ran \cursedforest\ classification on synthetics datasets with varying numbers
 of variables (features) and samples, similar to the dataset used in \cite{Wright.and.Ziegle.2016} to evaluate
 \textsc{Ranger}, allocating varying number of CPU cores to the \cursedforest\ and also varying computational complexity
-of random forests by using a range of \mtry\ values.
+of random forests by using a range of \mtry values.
 
 
 We investigate the different synthetic datasets generated for section 5.1. and measured the time taken to build a random
@@ -803,23 +807,25 @@ same random seed, to improve the consistency of measurements.
 First we look at \cursedforest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
 samples, by varying the \mtry  fraction and the number of CPU cores allocated to the execution. The raw results are
 presented in table \ref{synthetictimingtable} and visualized in figure \ref{figure:synthetictiming} below. Regardless of the
-number of cores used, \cursedforest displays approximately linear dependency between the execution time and the \mtry
-parameter (presented here as a fraction of the number of variables, Fig. \ref{figure:synthetictiming.a}
+number of cores used, \cursedforest displays approximately linear dependency between the execution time and \mtry
+(Fig. \ref{figure:synthetictiming.a}).
 
-\cursedforest\ scales almost linearly with the number of CPU cores for medium values of \mtry\ fraction but for both
+\cursedforest scales almost linearly with the number of CPU cores for medium values of \mtry fraction but for both
 lower and higher values the performance degrades slightly (Fig \ref{figure:synthetictiming.b}). In the latter case the likely cause is
-communication overhead (with lower \mtry\ values the proportion of time for parallelizable computation to the time for
+communication overhead (with lower \mtry values the proportion of time for parallelizable computation to the time for
 internode communication is lower) while in the latter case it is most likely caused by reaching the clusters
 computational capacity.
 
-Next we investigate \cursedforest\ scalability with regards to the size of data, by varying the number of variables and
-sample for a fixed \mtry\ fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table
-[REF] and visualized in figure [ REF: Fig 2] below (please note log scale on the axes and the values on y axes are
+Next we investigate \cursedforest scalability with regards to the size of data, by varying the number of variables and
+sample for a fixed \mtry fraction of 0.25 and execution of 128 CPU cores. The raw results are presented in the table
+[REF] 
+\marginpar{have we lost this table?}
+and visualized in figure \ref{figure:synth2} below (please note log scale on the axes and the values on y axes are
 expresses as trees per hour).
 
 Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some
 irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that
-keeping \mtry\ fraction constants results with higher \mtry\ values with growing number of variables, and this is what
+keeping the \mtry fraction constant results in higher \mtry values with the growing number of variables, and this is what
 drives the performance down rather that the increase of dataset size itself.
 
 To conclude \cursedforest\ is capable of processing datasets with 50M variables and 10K samples, which is the order of
@@ -828,16 +834,17 @@ hour.
 
 \begin{figure}[tbhp]
   \begin{adjustwidth}{-1.00in}{0in}
-    \caption{\textbf{Scalablity of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.}}
+    \caption{\textbf{Scalability of the wide random forest on the synthetic dataset of 2.5M features and 5K samples.}}
     \label{figure:synthetictiming}
-    \begin{subfigure}[b]{0.5\linewidth}
+    \begin{subfigure}[b]{0.45\linewidth}
       \centering
       \includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} 
       \caption{Time in seconds to build 100 trees for different \mtry\ fractions. } 
       \label{figure:synthetictiming.a} 
       \vspace{4ex}
     \end{subfigure} 
-    \begin{subfigure}[b]{0.5\linewidth}
+\hfill
+    \begin{subfigure}[b]{0.45\linewidth}
       \centering
       \includegraphics[totalheight=6cm]{./figs/cpu_mtry_trees_per_hour.png}
       \caption{Number of trees build per hour when using a growing number of CPU cores.}
@@ -939,7 +946,7 @@ hour.
 
 
 \section{Conclusion}
-We have demonstrated that using a different paralleization model can extend random forests to the case of an
+We have demonstrated that using a different parallelization model can extend random forests to the case of an
 extremely large number of variables. We have treated the case of variable selection in a $p >> n$ model where most of
 the variables are uninformative and have demonstrated the utility of the model for large GWAs data sets. By comparing
 this implementation to other implementations (including those optimized for large data sets) we have demonstrated the
@@ -956,12 +963,16 @@ reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investig
 regression approaches for variable selection (lars, lasso and forward stepwise) and make the point that above the
 phase-transition line variable recovery is still possible by a combinatorial approach.
 
-
 It is not surprising that that it is more difficult to recover the signal variable in the upper-left area of the figure,
 as the problem is both under-determined and sparse. What is surprising is the connection with arguments from
 combinatorial geometry. This suggests that we are seeing a universal rule rather than an implementation issue. As
 \cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions of
 the figure. 
+
+We note several things here:
+\begin{itemize}
+\item 
+\end{itemize}
 
 We note that the examples we are considering lie on the extreme left of the plot, close to the origin. So there are
 limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide,
