@@ -461,7 +461,7 @@ scalability when dealing with a large number of samples, this scalability eventu
 features.
 
 As is standard with Spark applications, we store our data in a Resilient Distributed Dataset (RDD), where an RDD is
-essentially a collection of elements. In the case of Spark ML, each element in our RDD is a sample. RDDs contribute to
+essentially a collection of elements. In the case of Spark ML, each element in the RDD is a sample. RDDs contribute to
 the scalability of Spark as they can distributed across multiple nodes and operated on in parallel. Even as we add more
 samples to a dataset, Spark can still simply schedule extra tasks to handle the additional items in the RDD.
 
@@ -472,22 +472,18 @@ into a single node's memory.
 
 So in the case of adding more samples, Spark ML can simply create more tasks, keeping memory consumption within the
 cluster's bounds. However, as the dimensionality of each sample grows, the memory requirements of the job increases to
-enable these increasingly large vectors to be loaded into memory.
-\marginpar{not clear. Are RDDs the problem or the solutuion Aidan: Better?}
+enable these increasingly large vectors to be loaded into memory.  
 
-On the other hand, \cursedforest\ is specifically designed to handle wide ``cursed'' data. It avoids the relation
-between memory and dimensionality by avoiding calculations that rely on entire feature vectors.
+On the other hand, \cursedforest is specifically designed to handle wide ``cursed'' data. It avoids the relation between
+memory and dimensionality by avoiding calculations that rely on entire feature vectors and taking the parallelization
+work down to the level of the individual features.  For example, for each node of a tree, \cursedforest will distribute
+tasks that consist of single features (variants), for every individual.  Each of these tasks will calculate the
+information gain for that specific feature.  Once these tasks have completed, the results are reduced to return the
+feature which gives the greatest information gain.  This process is then repeated until \cursedforest has created the
+entire decision tree.
 
-Compared to Spark ML, \cursedforest\ further parallelizes work down to individual features.  For example, for each node
-of a tree, \cursedforest\ will distribute tasks that consist of single features (variants), for every individual.  Each
-of these tasks will calculate the information gain for that specific feature.  Once these tasks have completed, the
-results are reduced to return the feature which gives the greatest information gain.  This process is then repeated
-until \cursedforest\ has created the entire decision tree.
-
-
-The current implementation of \cursedforest\ uses an ``Gini impurity''
-criteria for splitting. Let $f_q$ be the fraction of items labelled
-with value $q$ where $q = 1, \ldots, Q$ at a node. The Gini impurity is
+The current implementation of \cursedforest uses an ``Gini impurity'' criteria for splitting. Let $f_q$ be the fraction
+of items labelled with value $q$ where $q = 1, \ldots, Q$ at a node. The Gini impurity is
 \[
 I_G(f) = \Sigma_{q = 1}^Q f_q ( 1 − f_q ), 
 \]
@@ -558,12 +554,12 @@ package \cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code
 the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience:
 \begin{itemize}
 \item \ntree{}  -- the number of trees.  The number of trees necessary for good performance grows with the number of
-  predictors.  \cite{Liaw.and.Weiner.2002} suggest that a high \ntree\ is necessary to get stable estimates of variable
+  predictors.  \cite{Liaw.and.Weiner.2002} suggest that a high \ntree is necessary to get stable estimates of variable
   importance and proximity; however, even though the variable importance measures may vary from run to run, we note that
   it is possible for a random forest model to have a poorer fit and still have an accurate ranking of variable
   importance;
 \item \mtry{}  -- the number of variables considered at each split (if \mtry=$p$, we have a boosted decision
-  tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry\ may give
+  tree model).  If one has a very large number of variables but expects only very few to be ``important'', using larger \mtry may give
   better performance;
 \item the size and complexity of the individual trees is controlled in
   \textsc{randomForest} by setting \texttt{nodesize}, the minimum size of
