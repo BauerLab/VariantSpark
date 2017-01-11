@@ -451,17 +451,25 @@ the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the ar
 data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\cursedforest.}
-VariantSpark made use of Spark's machine learning algorithms ``Spark ML''. These algorithms require data in a
-``DataFrame'', similar to DataFrames in R.  While Spark ML algorithms demonstrate some scalability when dealing with a
-large number of samples, this scalability eventually break down as we include more features.
+\subsection{\cursedforest}
+VariantSpark made use of Spark's machine learning algorithms ``Spark ML''. While Spark ML algorithms demonstrate
+scalability when dealing with a large number of samples, this scalability eventually breaks down as we include more
+features.
 
-One of the restrictions preventing Spark ML algorithms from scaling to high-dimensionality data is that the feature-set
-for each sample is stored as a vector data type. Spark vectors are stored in resilient distributed dataset (RDDs), and
-while RDDs can be split, vectors cannot. So as we add more samples (in our case individuals), Spark ML can simply split
-the RDD into more partitions and resource requirements will remain relatively stable. However, as the number of
-dimensions (variants) increases, the size of the vectors increases. This results in higher memory-requirements as
-increasingly large vectors must be loaded into memory.  \marginpar{not clear. Are RDDs the problem or the solutuion}
+As is standard with Spark applications, we store our data in a Resilient Distributed Dataset (RDD), where an RDD is
+essentially a collection of elements. In the case of Spark ML, each element in our RDD is a sample. RDDs contribute to
+the scalability of Spark as they can distributed across multiple nodes and operated on in parallel. Even as we add more
+samples to a dataset, Spark can still simply schedule extra tasks to handle the additional items in the RDD.
+
+However, within an RDD, spark ML stores each sample as a vector. Unlike RDDs, which can be partitioned and distributed
+across multiple nodes, each vector must be present in its entirity on any node accessing it. This is no problem with
+typical datasets, however as dimensionality increases, the vectors eventually reach a size where they can no longer fit
+into a single node's memory.
+
+So in the case of adding more samples, Spark ML can simply create more tasks, keeping memory consumption within the
+cluster's bounds. However, as the dimensionality of each sample grows, the memory requirements of the job increases to
+enable these increasingly large vectors to be loaded into memory.
+\marginpar{not clear. Are RDDs the problem or the solutuion Aidan: Better?}
 
 On the other hand, \cursedforest\ is specifically designed to handle wide ``cursed'' data. It avoids the relation
 between memory and dimensionality by avoiding calculations that rely on entire feature vectors.
