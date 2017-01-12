@@ -175,6 +175,7 @@
 %% Include all macros below
 
 \newcommand{\cursedforest}{\textsc{CursedForest}\xspace}
+\newcommand{\ranger}{\textsc{Ranger}\xspace}
 \newcommand{\mtry}{\texttt{mtry}\xspace}
 \newcommand{\ntree}{\texttt{ntree}\xspace}
 
@@ -263,7 +264,10 @@ Denis C. Bauer\textsuperscript{1,*}
 
 % Please keep the abstract below 300 words
 \section{Abstract}
-The abstract.
+We introduce \cursedforest, an implementation of random forests designed to handle data that may have an extremely large
+number of variables. We discuss the utility of random forests for machine learning problems. We show on simulated and
+real data that the novel implementation can achieve reasonable prediction accuracy and variable importance estimates
+even in setting where other implementations, including some designed for large data, fail.
 
 \linenumbers
 
@@ -294,7 +298,7 @@ than $2^{31}-1$), and the \textsc{randomForest} implementation in R lending itse
 trees simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide''
 genomic data have been developed in other programming languages. \textsc{CloudForest} \cite{Bressler2015} written in Go,
 achieves fast run times by effective use of the CPU cache, optimizing for different classes of features and efficiently
-multi-threading.  Similarly, \textsc{Ranger}~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is
+multi-threading.  Similarly, \ranger~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is
 specifically optimized for dealing with large data sets.
 
 \marginpar{make consistent capitalization for ranger, randomForest}
