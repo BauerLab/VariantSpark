@@ -185,7 +185,7 @@
 %% Additional packages
 \usepackage{footmisc}
 \usepackage{multirow}
-\usepackage[T1]{fontenc}
+%\usepackage[T1]{fontenc}
 
 %%local edits (rob)
 \let\oldmarginpar\marginpar
@@ -659,16 +659,19 @@ accurate classification for large numbers of samples with large feature vectors.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
 We consider the problem of feature discovery on a genomic dataset for a specific phenotype.
-In this case we investigate the ability of  ability to locate variants in the same loci as genes previously demonstrated to
+In this case we investigate the ability to retrieve variants in the same loci as genes previously demonstrated to
 be associated with a high or low bone mass density (BMD) and rank these variants as being "important".
-From a random forest model built on this data, we produce a list of the to 5,000 features. 
-Applying the Mann–Whitney U test to these fetures we observe a p-value of x, supporting our
-hypothesis that features in close proximity to the known BMD genes are Contributing more information to our classification model.
+We build a random forest model on this data, and produce a list of the top 5,000 contributing features, ranked by their
+Gini impurity. We apply the Mann–Whitney U test to these fetures and observe a p-value of x, supporting our hypothesis
+that features in close proximity to the known BMD genes are contributing more information to our classification model.
 
-One observation we make is that of the most-important features---for example, the top ten variants ranked by Gini impurity---is
-that not all of these are variants are in close proximity of known BMD genes.
-One of these is COLEC10. Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as containing a SNP
+However, we also observe that from the set of highest-ranked features---for example, the top ten---not all of them exist
+within close proximity to known BMD genes.
+
+One example is COLEC10. Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as containing a SNP
 associated with BMD \cite{Liu2008}.
+
+We also frequently see highly-ranked variants in chromosome 22q11
 
 
 In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
