@@ -655,22 +655,40 @@ accurate classification for large numbers of samples with large feature vectors.
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
-We consider the problem of feature discovery on a genomic dataset for a specific phenotype.
-In this case we investigate the ability to retrieve variants in the same loci as genes previously demonstrated to
-be associated with a high or low bone mass density (BMD) and rank these variants as being "important".
-We build a random forest model on this data, and produce a list of the top 5,000 contributing features, ranked by their
-Gini impurity. We apply the Mann–Whitney U test to these fetures and observe a p-value of x, supporting our hypothesis
-that features in close proximity to the known BMD genes are contributing more information to our classification model.
+We investigate the ability of using a random forest model we build on genomic data to identify variants related to a
+specific phenotype.
+In this case we aim to identify variants associated with Bone Minderal Density (BMD). We build a model on the BMD dataset
+(see datasets) using a binary high or low BMD value as the label.
+From this model, we output a list of the top 10,000 contributing variants, ranked by their Gini impurity. The variant with
+the highest Gini impurity---and hence, importance---is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.
+Then, using the 26 known and 6 novel BMD genes from Duncan et al., we compile a list of variants that are present in or near one of these
+32 genes.
+
+We then apply the Mann–Whitney U test to this list to verify that from our list, variants from known BMD loci are ranked
+higher than variants from elsewhere in the genome.
+We observe a p-value of XXXX, supporting our hypothesis that variants in close proximity to the known BMD genes are
+contributing more information to our classification model.
 
 However, we also observe that from the set of highest-ranked features---for example, the top ten---not all of them exist
-within close proximity to known BMD genes.
+within close proximity to known BMD genes. We investigate the literature to determine the plausibility of these variants
+contributing to BMD.
 
-One example is COLEC10. Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as containing a SNP
-associated with BMD \cite{Liu2008}.
+One gene is COLEC10 (collectin 10). Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as
+containing variants associated with BMD \cite{Kemp2014,Liu2008}. However there currently exists no information on how this gene
+may contribute to BMD. 
 
 We also frequently see highly-ranked variants in chromosome 22q11. Stagi2010 observe that individuals with a microdeletion
-in this region have a significant in bone mass.\ref{Stagi2010} In this same region, we also observe variants present within the
-PRODH gene---a gene which is overexpressed in bone. 
+in this region have a significant in bone mass\cite{Stagi2010}. In this same region, we also observe variants present in
+PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degredation, and as proposed by Phang et al., proline
+is made available by collagen degradation \cite{Phang2008}.
+
+DCDC5 (Doublecortin Domain Containing 5) is one of the 26 known genes, however it is one of the genes that Duncan et al.
+failed to replicate in their study. DCDC5 does appear in our list of genes, however the first occurance of a variant in
+or near this gene has a rank of 9,667 out of 10,000. Also, this gene is not highly expressed in bone, and any mechanisms
+by which this gene might regulate BMD are unclear \cite{Thakker2012}. Although variants near DCDC5 are associated with
+BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
+
+
 
 
 In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
@@ -1000,7 +1018,7 @@ vitae.
 
 \nolinenumbers
 
-\bibliography{./CursedForest.bib}
+\bibliography{CursedForest}
 
 \end{document}
 
