@@ -720,7 +720,38 @@ Here the importance is the Gini impurity measure when building a model using the
 In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
-\marginpar{this section is not one sentence? has it been lost?}
+In a previous paper, we clustered individuals from the 1000 Genomes Project using k-means clustering\cite{Obrien2016}.
+Although we were able to cluster individuals on all 80 million variants, it was relatively slow, with the entire
+process (pre-processing and clustering) taking over 30 hours.
+We investigate building random forest models on this data---however we observed this process to not only be slower
+than building a k-means model, but also unable to scale to as many dimensions (see Table~\ref{timingtable}). To keep
+the following comparisons fair, we limit the number of executors available to Spark. On the relatively low-dimensional
+phase1\_chr22 dataset (1,092 x 490,036), we observed a runtime of under 8 minutes. Although slower than Ranger---
+presumably due to the overhead of Spark's distributed platform on this relatively small dataset---we observe Spark ML to
+be about 16 minutes faster than R. Moving to the larger dataset, phase3\_chr1 (2,504 x 6,450,364), we observe an increase
+in Spark ML's runtime to over 8 hours. Moving to our next largest dataset, phase3\_chr1\-3 (2,504 x 19,328,051), and the
+job fails to complete within our arbitrary cutoff time of 20 hours.
+
+From our trials, it was apparent that Spark ML---although designed to handle many samples---is unable to efficiently cope
+with a huge number of features. With the decreasing costs of genome sequencing, this case will surely become increasingly
+common.
+
+\cursedforest solves this problem of high-dimensionality genomic data. Not only is it faster on the above smaller datasets,
+but it is also able to scale to the entire genome. In table~\ref{cursedforesttable} we present our observed times building
+models with CursedForest using all available resources on our Spark cluster.
+
+As we previously mentioned, building a random forest model on the phase3\_chr1 dataset with Spark ML takes over 8 hours.
+Building a model with \cursedforest, however, takes only 20 minutes using the same cluster setup and this time drops to
+nearly 4 minutes using the entire compute cluster. Subsequently, phase3\_chr1\-3 takes about 11 minutes, and building a
+model on the entire genome is just shy of 37 minutes. Not only does the job complete successfully, but building a random
+forest model on all 22 autosomes (phase3\_chr1\-22) using \cursedforest is more than twice as fast as building a random
+forest on the chromosome 1 (phase3\_chr1) using Spark ML.
+
+
+
+
+
+
 
 \begin{table}[!ht]
 \begin{minipage}{\textwidth}
