@@ -211,10 +211,12 @@
 \\
 Aidan O'Brien\textsuperscript{1},
 Piotr Szul\textsuperscript{2},
-Stephanie Li\textsuperscript{3},
-James Doecke\textsuperscript{3},
-Nick Ellis\textsuperscript{4},
-Robert Dunne\textsuperscript{5}, and
+Robert Dunne\textsuperscript{3}, 
+Paul Leo \textsuperscript{4},
+Emma L. Duncan \textsuperscript{4,5,6},
+Stephanie Li\textsuperscript{7},
+James Doecke\textsuperscript{7},
+Nick Ellis\textsuperscript{8}, and
 Denis C. Bauer\textsuperscript{1,*}
 %, with the Lorem Ipsum Consortium\textsuperscript{\textpilcrow}
 \\
@@ -223,12 +225,17 @@ Denis C. Bauer\textsuperscript{1,*}
 \\
 \textbf{2} Data61, CSIRO, Brisbane, QLD, Australia
 \\
-\textbf{3} Health \& Biosecurity, CSIRO, Brisbane, QLD, Australia
+\textbf{3} Data61, CSIRO, Sydney, NSW, Australia
 \\
-\textbf{4} Oceans \& Atmosphere, CSIRO, Brisbane, QLD, Australia
+\textbf{4} Institute of Health and Biomedical Innovation, Queensland University of Technology, Brisbane, QLD, Australia
 \\
-\textbf{5} Data61, CSIRO, Sydney, NSW, Australia
+\textbf{5} Department of Endocrinology, Royal Brisbane and Women's Hospital, Brisbane, QLD, Australia
 \\
+\textbf{6} Faculty of Medicine and Biomedical Sciences, University of Queensland, Brisbane, QLD, Australia
+\\
+\textbf{7} Health \& Biosecurity, CSIRO, Brisbane, QLD, Australia
+\\
+\textbf{8} Oceans \& Atmosphere, CSIRO, Brisbane, QLD, Australia
 \bigskip
 
 % Insert additional author notes using the symbols described below. Insert symbol callouts after author names as necessary.
@@ -777,6 +784,17 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
 
 
 
+\begin{figure}[tbhp] 
+    \caption{\textbf{Runtime comparison on the 1000 genomes project}} 
+    \label{figure:synth1}
+      \includegraphics[totalheight=8cm]{./figs/1000genomesRuntime.pdf}
+    \begin{flushleft} 
+      The figure shows the runtime for the 5 subsets of the 1000 genomes project and the different methods investigated. $\bigotimes$ marks the last dataset the different method completed before running out of memory or running more than 24 hours. The dashed lines mark the trajectory for how ranger and SparkML had performed given larger memory machines. 
+    \end{flushleft}
+\end{figure}
+
+
+\iffalse
 
 \begin{table}[!ht]
 \begin{minipage}{\textwidth}
@@ -789,41 +807,41 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
 
 \hline
 
-\multirow{5}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest & 0.04  & 1 min 50 seconds                        \\
-                                                & Spark ML  &  0.05           &           7 min 44 seconds         \\
-                                                & \randomforest (R)         & 0.05       & 24 min           \\
-                                                & \ranger (R)      & 0.06       & 1 min 10 seconds       \\
-                                                & \ranger (C++)     & 0.06       & 7 min            \\
+\multirow{5}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest & 0.04  & 1 min 50 seconds    \\ %110
+                                                & Spark ML  &  0.05           &           7 min 44 seconds         \\  %464
+                                                & \randomforest (R)         & 0.05       & 24 min           \\ %1440
+                                                & \ranger (R)      & 0.06       & 1 min 10 seconds       \\ %70
+                                                & \ranger (C++)     & 0.06       & 7 min            \\ %420
                                                 & H2O           & ??       & ??         \\
 
 \hline
 
-\multirow{5}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest & 0.06 & 4 min 2 seconds \\
-                                                    & Spark ML  & 0.06 & 37 min 19 seconds \\
+\multirow{5}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest & 0.06 & 4 min 2 seconds \\  %240
+                                                    & Spark ML  & 0.06 & 37 min 19 seconds \\  %2239
                                                     & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)    & 0.06       & 4 min 30 seconds     \\
+                                                    & \ranger (R)    & 0.06       & 4 min 30 seconds     \\  %270
                                                     & \ranger (C++)     &     ??   & ??        \\
-                                                    & H2O           & 0.05       & 16 hours         \\
+                                                    & H2O           & 0.05       & 16 hours         \\ %57600
 
 \hline
 
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest & 0.04  & 19 min 19 seconds         \\
-                                                    & Spark ML  & 0.04       & 8 hour 29 min        \\
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest & 0.04  & 19 min 19 seconds         \\ %1159
+                                                    & Spark ML  & 0.04       & 8 hour 29 min        \\ % 3403
                                                     & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)      &  0.05       & 28 mins         \\
+                                                    & \ranger (R)      &  0.05       & 28 mins         \\ %1680
                                                     & \ranger (C++)     & ??       & ??            \\
                                                     & H2O           & NA       & NA         \\
 \hline
 
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest & 0.02  & 56 min 43 seconds             \\
-                                                    & Spark ML &    NA         &   NA               \\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest & 0.02  & 56 min 43 seconds             \\ %3403
+                                                    & Spark ML &    NA         &   NA               \\ %30540
                                                     & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)      & 0.03      &    3 hour 58 min     \\
+                                                    & \ranger (R)      & 0.03      &    3 hour 58 min     \\ %14280
                                                     & \ranger (C++)     & ??       & ??            \\
                                                     & H2O           & NA       & NA         \\
 \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest & 0.01  & 3hour 16min \\
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest & 0.01  & 3hour 16min \\ %11760
                                                     & Spark ML & NA & NA  \\
                                                     & \randomforest (R)        & NA         & NA                \\
                                                     & \ranger (R)       &        NA     &        NA    \\
@@ -844,6 +862,9 @@ Each random forest model consists of 50 trees.
 %\end{adjustwidth}
 \end{minipage}
 \end{table}
+
+\fi
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 4: Sensitivity 
