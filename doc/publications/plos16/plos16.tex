@@ -280,7 +280,7 @@ even in setting where other implementations, including some designed for large d
 The digital revolution is seeing a dramatic increase in data collected about almost every aspect of
 life~\cite{Loebbecke2015}.  These data sets are not only growing vertically, by capturing more events, but also
 horizontally by capturing more information about these events.  The challenge of big and ``wide'' data is especially
-pronounced in the health space where, for example, whole genome sequence (WGS) technology enables researchers to
+pronounced in the health space where, for example, whole genome sequencing (WGS) technology enables researchers to
 interrogate all 3 billion base pairs of the human genome.
 
 Identifying the relevant or disease specific base-pair difference between individuals is the focus of genome wide
@@ -392,7 +392,7 @@ variance and the bias squared, this strategy should lead to a low prediction err
 
 For classifiction problems there is no obvious decomposition of classification error into an equivalent bias plus
 variance form. A number of different additive decompositions of classification error have been considered in an effort
-to understand the success of bagging. They all less transparent than the regression case (see \cite{Friedman.1997} and
+to understand the success of bagging. They are all less transparent than the regression case (see \cite{Friedman.1997} and
 citations therein).
 
 In the case of a regression tree, the average prediction error for an individual tree $h(X; B)$ is
@@ -432,7 +432,7 @@ However, keeping these difficult cases in mind, random forests have a strong cla
   via two mechanisms:
   \begin{enumerate}
   \item differences in variable scale (for $X_i$ continuous) and number of levels (for $X_i$ discrete) introduces a
-    bias. A uninformative variable with a large number of levels may be selected over a more informative variable with
+    bias. An uninformative variable with a large number of levels may be selected over a more informative variable with
     fewer levels;
   \item bagging introduces a bias, but sampling $(1- 1/e) \approx 0.632$ of the data without replacement seems to be an
     effective strategy for removing the problem.
@@ -449,7 +449,7 @@ sets that are:
 \end{itemize}
 GWAs data sets are an obvious application areas for this algorithm. 
 
-Biau {\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
+Biau~{\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
 rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
@@ -473,7 +473,7 @@ the scalability of Spark as they can distributed across multiple nodes and opera
 samples to a dataset, Spark can simply schedule extra tasks to handle the additional items in the RDD.
 
 However, within an RDD, spark ML stores each sample as a vector. Unlike RDDs, which can be partitioned and distributed
-across multiple nodes, each vector must be present in its entirity on any node accessing it. This is no problem with
+across multiple nodes, each vector must be present in its entirety on any node accessing it. This is no problem with
 typical datasets, however as dimensionality increases, the vectors eventually reach a size where they can no longer fit
 into a single node's memory.
 
@@ -489,12 +489,12 @@ information gain for that specific feature.  Once these tasks have completed, th
 feature which gives the greatest information gain.  This process is then repeated until \cursedforest has created the
 entire decision tree.
 
-The current implementation of \cursedforest uses an ``Gini impurity'' criteria for splitting. Let $f_q$ be the fraction
+The current implementation of \cursedforest uses a ``Gini impurity'' criteria for splitting. Let $f_q$ be the fraction
 of items labelled with value $q$ where $q = 1, \ldots, Q$ at a node. The Gini impurity is
 $$
 I_G(f) = \sum_{q = 1}^Q f_q ( 1 - f_q ), 
 $$
-which is a minimum when all observatkions at the node are in the same class.
+which is a minimum when all observations at the node are in the same class.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This section talks about the datasets
@@ -507,8 +507,8 @@ every individual across one chromosome.  We use the phase 3 dataset which contai
 algorithms we demonstrate, we convert the original variant representations to double representations.  For example, we
 store the absence of a variant (0\textbar0) as 0, a heterozygous
 variant (1\textbar0 or 0\textbar1) as 1, and a
-homozygous variant (1\textbar1) as 2.  This is not the only possible encoding.  \cite{Goldstein.et.al.2011} note that of
-the encoding listed in Table~\ref{table:encodings}, the additive encoding will present the most difficulty for a random
+homozygous variant (1\textbar1) as 2.  However, this is not the only possible encoding \cite{Goldstein.et.al.2011}. Note that from
+the encodings listed in Table~\ref{table:encodings}, the additive encoding will present the most difficulty for a random
 forest model.
 
 
@@ -569,10 +569,10 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
   better performance;
 \item the size and complexity of the individual trees is controlled in \randomforest by setting \texttt{nodesize}, the
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
-  tree in the forest\footnote{The Spark ML documentation \cite[]{Spark.2016} sets \texttt{maxDepth} to 4 in their
+  tree in the forest\footnote{The Spark ML documentation \cite{Spark.2016} sets \texttt{maxDepth} to 4 in their
     classification example. This may give an estimate with a higher bias and, as such, may be a poor choice. See the
     discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but gives a
-    better result for low bias learners. \cite{Dietterich.2002} notes that if the boostrap replicate approximation were
+    better result for low bias learners. \cite{Dietterich.2002} notes that if the bootstrap replicate approximation were
     correct (i.e.~if the bootstrap sample came from an identical distribution to the data), then bagging would reduce
     variance without changing bias.} In the TCGA example the RandomForests code produced trees with depths of 30+.
 \end{itemize}
@@ -662,11 +662,11 @@ accurate classification for large numbers of samples with large feature vectors.
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
 We investigate the ability of using a random forest model we build on genomic data to identify variants related to a
 specific phenotype.
-In this case we aim to identify variants associated with Bone Minderal Density (BMD). We build a model on the BMD dataset
+In this case we aim to identify variants associated with Bone Mineral Density (BMD). We build a model on the BMD dataset
 (see datasets) using a binary high or low BMD value as the label.
 From this model, we output a list of the top 10,000 contributing variants, ranked by their Gini impurity. The variant with
 the highest Gini impurity---and hence, importance---is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.
-Then, using the 26 known and 6 novel BMD genes from Duncan et al., we compile a list of variants that are present in or near one of these
+Then, using the 26 known and 6 novel BMD genes from Duncan~{\it et al.}, we compile a list of variants that are present in or near one of these
 32 genes.
 
 We then apply the Mann–Whitney U test to this list to verify that from our list, variants from known BMD loci are ranked
@@ -682,13 +682,13 @@ One gene is COLEC10 (collectin 10). Featuring a transcription factor binding sit
 containing variants associated with BMD \cite{Kemp2014,Liu2008}. However there currently exists no information on how this gene
 may contribute to BMD. 
 
-We also frequently see highly-ranked variants in chromosome 22q11. Stagi et al. observe that individuals with a microdeletion
+We also frequently see highly-ranked variants in chromosome 22q11. Stagi~{\it et al.} observe that individuals with a microdeletion
 in this region have a significant in bone mass\cite{Stagi2010}. In this same region, we also observe variants present in
-PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degredation, and as proposed by Phang et al., proline
+PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degradation, and as proposed by Phang~{\it et al.}, proline
 is made available by collagen degradation \cite{Phang2008}.
 
-DCDC5 (Doublecortin Domain Containing 5) is one of the 26 known genes, however it is one of the genes that Duncan et al.
-failed to replicate in their study. DCDC5 does appear in our list of genes, however the first occurance of a variant in
+DCDC5 (Doublecortin Domain Containing 5) is one of the 26 known genes, however it is one of the genes that Duncan~{\it et al.}.
+failed to replicate in their study. DCDC5 does appear in our list of genes, however the first occurrence of a variant in
 or near this gene has a rank of 9,667 out of 10,000. Also, this gene is not highly expressed in bone, and any mechanisms
 by which this gene might regulate BMD are unclear \cite{Thakker2012}. Although variants near DCDC5 are associated with
 BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
@@ -724,7 +724,7 @@ Here the importance is the Gini impurity measure when building a model using the
 % Section 3: Classification selection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest outperforms existing methods for classification problems}
-In this section we compare \cursedforest 's performance against other published methods for predicting ethnicity on the
+In this section we compare \cursedforest's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
 In a previous paper, we clustered individuals from the 1000 Genomes Project using k-means clustering\cite{Obrien2016}.
@@ -789,7 +789,7 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
     \label{figure:synth1}
       \includegraphics[totalheight=8cm]{./figs/1000genomesRuntime.pdf}
     \begin{flushleft} 
-      The figure shows the runtime for the 5 subsets of the 1000 genomes project and the different methods investigated. $\bigotimes$ marks the last dataset the different method completed before running out of memory or running more than 24 hours. The dashed lines mark the trajectory for how ranger and SparkML had performed given larger memory machines. 
+      The figure shows the runtime for the 5 subsets of the 1000 genomes project and the different methods investigated. $\bigotimes$ marks the last dataset the different method completed before running out of memory or running more than 24 hours. The dashed lines mark the trajectory for how ranger and Spark ML had performed given larger memory machines. 
     \end{flushleft}
 \end{figure}
 
@@ -1026,13 +1026,13 @@ We note several things here:
 \begin{itemize}
 \item the Donoho-Tanner phase transition arises in recovering the $\beta$ in data generated by a
   linear model. However, in a decision tree (random forest) there is no notion of estimating the $\beta$
-\item A decision tree (random forest) is a heruistic search. It may recover a relationship in the space of the
+\item A decision tree (random forest) is a heuristic search. It may recover a relationship in the space of the
   combinatorial search.
 \end{itemize}
 
-The existence of the  Donoho-Tanner phase transition is a salutory warning. There are likley to be limits, both
-computionaal and logical, to the recovery of signals from noisy data. \cursedforest  is a contribution to addressing the
-practivcal limits but the logical limits will still apply. However in the case of data that is both big and wide,
+The existence of the  Donoho-Tanner phase transition is a salutary warning. There are likely to be limits, both
+computational and logical, to the recovery of signals from noisy data. \cursedforest  is a contribution to addressing the
+practical limits but the logical limits will still apply. However in the case of data that is both big and wide,
 \cursedforest and other VariantSpark methods may provide a useful tool.
 
 
