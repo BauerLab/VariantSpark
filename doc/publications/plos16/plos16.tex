@@ -508,7 +508,7 @@ algorithms we demonstrate, we convert the original variant representations to do
 store the absence of a variant (0\textbar0) as 0, a heterozygous
 variant (1\textbar0 or 0\textbar1) as 1, and a
 homozygous variant (1\textbar1) as 2.  This is not the only possible encoding.  \cite{Goldstein.et.al.2011} note that of
-the encoding listed in table \ref{table:encodings}, the additive encoding will present the most difficulty for a random
+the encoding listed in Table~\ref{table:encodings}, the additive encoding will present the most difficulty for a random
 forest model.
 
 
@@ -516,7 +516,7 @@ forest model.
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \begin{flushleft} 
 \centering
-\caption{\bf Possible encodings of GWAS data \cite[]{Goldstein.et.al.2011}}
+\caption{\bf Possible encodings of GWAS data \cite{Goldstein.et.al.2011}}
 \begin{tabular}{|l|l|l|l||}
 \hline
 {\bf Type} & {\bf Mechanism}                                         & {\bf Partition} \\ 
@@ -603,7 +603,7 @@ After fitting the random forest model and performing the variable importance ana
 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.  We captured the OOB 
 classification error and the rank-biased-overlap (RBO) \cite{Webber2010} measure.
 
-% Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} illustrates that increasing the number of predictors sampled for splitting at each node
+% Fig~\ref{figure:out-of-bag-prediction-error-prod.png} illustrates that increasing the number of predictors sampled for splitting at each node
 % (\mtry) increases the accuracy with which features are ranked.  From $mtry=0.5$ the sort order of the features reflects
 % the weight originally assigned to them (dotted line). Further increasing \mtry\ improves the predicted importance
 % measure, which starts to converge to the weight originally assigned to them (coefficients).  It also increases the
@@ -611,7 +611,7 @@ classification error and the rank-biased-overlap (RBO) \cite{Webber2010} measure
 % with the smallest weight has a predicted importance measure that is 5 times larger than the aggregated importance of the
 % 15 remaining variables from the list.
 
-% Fig.~\ref{figure:rbo-prod.png} illustrates that increasing \mtry\ also improves the OOB
+% Fig~\ref{figure:rbo-prod.png} illustrates that increasing \mtry\ also improves the OOB
 % (out of bag) classification error.
 % By $mtry=0.8$ the error is converging to X, which is due to Y.
 % \marginpar{what are ``X'' and ``Y''. Piotr}
@@ -620,10 +620,10 @@ classification error and the rank-biased-overlap (RBO) \cite{Webber2010} measure
 % accurate classification for large numbers of samples with large feature vectors.
 
 \marginpar{this was done with n=10000. Needs to redone with n=2.5M and some things re-written}
-Fig.~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
+Fig~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
 value for a classification problem is $\sqrt{p}=100$ so in this case we are considering values considerably larger than
-the default. Fig.~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is minimized at the largerst
-values of \mtry and \ntree considered  whereas Fig.~\ref{figure:rbo-prod.png} illustrates that the RBO measure is less
+the default. Fig~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is minimized at the largerst
+values of \mtry and \ntree considered  whereas Fig~\ref{figure:rbo-prod.png} illustrates that the RBO measure is less
 sensitive once we over a certain threshold.
 
 From the synthetic data we can conclude that \cursedforest is able to perform accurate feature selection as well as
@@ -744,7 +744,7 @@ with a huge number of features. With the decreasing costs of genome sequencing, 
 common.
 
 \cursedforest solves this problem of high-dimensionality genomic data. Not only is it faster on the above smaller datasets,
-but it is also able to scale to the entire genome. In table~\ref{cursedforesttable} we present our observed times building
+but it is also able to scale to the entire genome. In Table~\ref{cursedforesttable} we present our observed times building
 models with CursedForest using all available resources on our Spark cluster.
 
 As we previously mentioned, building a random forest model on the phase3\_chr1 dataset with Spark ML takes over 8 hours.
@@ -884,14 +884,14 @@ were executed with the same random seed, to improve the consistency of measureme
 
 First we look at \cursedforest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
 samples, by varying the \mtry  fraction and the number of CPU cores allocated to the execution. 
-The results are  visualized in figure \ref{figure:synthetictiming} below. 
+The results are  visualized in Fig~\ref{figure:synthetictiming} below. 
 %The raw results are
-%presented in table \ref{synthetictimingtable} and visualized in figure \ref{figure:synthetictiming} below. 
+%presented in Table~\ref{synthetictimingtable} and visualized in figure \ref{figure:synthetictiming} below. 
 Regardless of the number of cores used, \cursedforest displays approximately linear dependency between the execution
-time and \mtry (Fig. \ref{figure:synthetictiming.a}).
+time and \mtry (Fig~\ref{figure:synthetictiming.a}).
 
 \cursedforest scales almost linearly with the number of CPU cores for medium values of \mtry fraction but for both
-lower and higher values the performance degrades slightly (Fig \ref{figure:synthetictiming.b}). In the latter case the likely cause is
+lower and higher values the performance degrades slightly (Fig~\ref{figure:synthetictiming.b}). In the latter case the likely cause is
 communication overhead (with lower \mtry values the proportion of time for parallelizable computation to the time for
 internode communication is lower) while in the latter case it is most likely caused by reaching the clusters
 computational capacity.
@@ -900,7 +900,7 @@ computational capacity.
   tables just leave the figures. I have done this for the time being} 
 Next we investigate \cursedforest scalability with
 regards to the size of data, by varying the number of variables and sample for a fixed \mtry fraction of 0.25 and
-execution of 128 CPU cores. The results are visualized in figure \ref{figure:synth2} below (please note log scale on the
+execution of 128 CPU cores. The results are visualized in Fig~\ref{figure:synth2} below (please note log scale on the
 axes and the values on y axes are expresses as trees per hour).
 
 Generally, the number of trees per hour decreases with increased number of variables and samples sizes. Some
@@ -975,7 +975,7 @@ hour.
       \caption{Number of trees build per hour when growing number of samples.}
     \label{figure:synth2.b}
     \vspace{4ex}
-  \end{subfigure} 
+  \end{subfigure}
 \end{adjustwidth}
 \end{figure}
 
@@ -1007,8 +1007,8 @@ this implementation to other implementations (including those optimized for larg
 utility of this approach.
 
 Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
-large number of areas including variable selection in high dimensions. Consider figure
-\ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover the important variables,
+large number of areas including variable selection in high dimensions. Consider
+Fig~\ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover the important variables,
 plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant variables). There is a
 distinct boundary, shown empirically and also based on arguments from combinatorial geometry, to the region where we can
 reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investigate the behaviour of a number of
