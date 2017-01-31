@@ -186,6 +186,7 @@
 \usepackage{footmisc}
 \usepackage{multirow}
 \usepackage[T1]{fontenc}
+%% required the installation of cm-super 55MB - TeX font package (full version) with CM (EC) in Type1 in T1, T2*, TS1, X2 enc
 
 %%local edits (rob)
 \let\oldmarginpar\marginpar
@@ -321,9 +322,10 @@ model to the 1000 Genomes Project data, which consists of approximately 2500 sam
 variants~\cite{1KG2012}.  By also utilizing Spark to read in and manipulate the standard genomic variant format (VCF)
 directly, \cursedforest outperforms existing tools even on small datasets where multi-threading generally performs
 well. Harnessing the virtually unlimited capability to parallelize tasks, \cursedforest can build a large number of
-trees and use a high \mtry value which leads to greater accuracy (see the example in section \ref{section:synthetic}). 
+trees and use a high \mtry value which may lead to greater accuracy (see the example in section \ref{section:synthetic}). 
+
 \marginpar{does \cite{Szymczak2016} say that high \ntree gives greater  accuracy for variable importance selection?
-We do not see that. }
+Check this. }
 
 We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
 framework allowing users to easily analyze Variant Call Format (VCF) files using ML algorithms on the Spark framework.
@@ -449,7 +451,7 @@ sets that are:
 \end{itemize}
 GWAs data sets are an obvious application areas for this algorithm. 
 
-Biau~{\it et al.}~\cite{Biau.2012} provide a proof that a random forest model will converge at a rate that depends on
+\cite{Biau.2012} provides a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
 rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
@@ -533,9 +535,9 @@ Heterosis  & Heterozygote leads to variation                         & 0/2, 1   
 
 
 \subsubsection{Bone mineral density dataset}
-We obtained a VCF file from the authors of \cite{Duncan2011}, which contains variant data from 1,936 postmenopausal women.
+We obtained a VCF file from the authors of \cite{Duncan.2011}, which contains variant data from 1,936 postmenopausal women.
 This dataset covers approximately 7 million variant positions. We have information about the bone mineral density (BMD)
-for each individual, where a low BMD is a major predisposing factor to fracture \cite{Duncan2011}. 
+for each individual, where a low BMD is a major predisposing factor to fracture \cite{Duncan.2011}. 
 
 \subsubsection{Synthetic data} 
 \label{section:synthetic_data}
@@ -619,12 +621,11 @@ classification error and the rank-biased-overlap (RBO) \cite{Webber2010} measure
 % From the synthetic data we can conclude that \cursedforest is able to perform accurate feature selection as well as
 % accurate classification for large numbers of samples with large feature vectors.
 
-\marginpar{this was done with n=10000. Needs to redone with n=2.5M and some things re-written}
 Fig~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
-value for a classification problem is $\sqrt{p}=100$ so in this case we are considering values considerably larger than
-the default. Fig~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is minimized at the largerst
-values of \mtry and \ntree considered  whereas Fig~\ref{figure:rbo-prod.png} illustrates that the RBO measure is less
-sensitive once we over a certain threshold.
+value for a classification problem is $\sqrt{p} \approx 1581$ so in this case we are considering values considerably larger than
+the default. Fig~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is minimized at the largest
+values of \mtry and \ntree considered  whereas Fig~\ref{figure:rbo-prod.png} illustrates that the RBO measure depends
+heavily on \ntree but gives a better valuye with lower values of \mtry.
 
 From the synthetic data we can conclude that \cursedforest is able to perform accurate feature selection as well as
 accurate classification for large numbers of samples with large feature vectors.
@@ -636,14 +637,14 @@ accurate classification for large numbers of samples with large feature vectors.
     \label{figure:synth1}
     \begin{subfigure}[b]{0.5\linewidth}
       \centering
-      \includegraphics[totalheight=8cm]{./figs/out-of-bag-prediction-error.png}
+      \includegraphics[totalheight=8cm]{./figs/oob_levleplot.png}
       \caption{OOB classification error.} 
       \label{figure:out-of-bag-prediction-error-prod.png} 
       \vspace{4ex}
     \end{subfigure} 
     \begin{subfigure}[b]{0.5\linewidth}
       \centering
-      \includegraphics[totalheight=8cm]{./figs/rbo.png}
+      \includegraphics[totalheight=8cm]{./figs/rbo_levleplot.png}
       \caption{The rank-biased-overlap measure.} 
       \label{figure:rbo-prod.png} 
       \vspace{4ex}
@@ -660,38 +661,36 @@ accurate classification for large numbers of samples with large feature vectors.
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
-We investigate the ability of using a random forest model we build on genomic data to identify variants related to a
-specific phenotype.
-In this case we aim to identify variants associated with Bone Mineral Density (BMD). We build a model on the BMD dataset
-(see datasets) using a binary high or low BMD value as the label.
-From this model, we output a list of the top 10,000 contributing variants, ranked by their Gini impurity. The variant with
-the highest Gini impurity---and hence, importance---is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.
-Then, using the 26 known and 6 novel BMD genes from Duncan~{\it et al.}, we compile a list of variants that are present in or near one of these
-32 genes.
+In this section we use \cursedforest\ to identify genomic locations that are associated with a specific trait. To do this, we perform feature selection over XX genomic variants to 
+identify the locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. We build a
+model on the BMD dataset (see datasets) using a binary high or low BMD value as the label.  From this model, we output a
+list of the top 10,000 contributing variants, ranked by their Gini impurity. The variant with the highest Gini impurity,
+and hence importance, is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.  
 
-We then apply the Mann–Whitney U test to this list to verify that from our list, variants from known BMD loci are ranked
-higher than variants from elsewhere in the genome.
-We observe $P=1.3\times10^{-07}$, supporting our hypothesis that variants in close proximity to the known BMD genes are
-contributing more information to our classification model.
+%DENIS: number
+To test whether the associated features have biological meaning, we investigate whether the known BMD genes investigated by Duncan {\it et al.}~\cite{Duncan.2011} are enriched amongst the 
+highly ranked genes. We therefore label all variants that fall within XXbp of these 32 BMD genes and observe that they are
+ranked significantly higher than other locations in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$), supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
 
-However, we also observe that from the set of highest-ranked features---for example, the top ten---not all of them exist
-within close proximity to known BMD genes. We investigate the literature to determine the plausibility of these variants
-contributing to BMD.
+We therefore investigate the highest-ranked features not amongst the associated gene list by Duncan {\it et al.}~\cite{Duncan.2011}. 
+%DENIS is this correct about the transcription factor binding site?
+COLEC10 (collectin 10) contains variants more recently associated with BDM~\cite{Kemp2014,Liu2008}, with a transcription factor binding site for the known BMD gene FOXL1 overlapping the highly ranked variant.
+%However, we also observe that from the set of highest-ranked features, for example, the top ten, not all of them exist
+%within close proximity to known BMD genes. We investigate the literature to determine the plausibility of these variants
+%contributing to BMD.
+%One gene is COLEC10 (collectin 10). Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as
+%containing variants associated with BMD \cite{Kemp2014,Liu2008}. However there currently exists no information on how this gene
+%may contribute to BMD. 
+Also highly-ranked are variants in chromosome 22q11. Stagi {\it et al.}~\cite{Stagi.2010}, observe that individuals with a
+microdeletion in this region have a significant reduction in bone mass. In this same region, we also observe
+variants present in PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degradation, and as
+proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation.
 
-One gene is COLEC10 (collectin 10). Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as
-containing variants associated with BMD \cite{Kemp2014,Liu2008}. However there currently exists no information on how this gene
-may contribute to BMD. 
-
-We also frequently see highly-ranked variants in chromosome 22q11. Stagi~{\it et al.} observe that individuals with a microdeletion
-in this region have a significant in bone mass\cite{Stagi2010}. In this same region, we also observe variants present in
-PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degradation, and as proposed by Phang~{\it et al.}, proline
-is made available by collagen degradation \cite{Phang2008}.
-
-DCDC5 (Doublecortin Domain Containing 5) is one of the 26 known genes, however it is one of the genes that Duncan~{\it et al.}.
-failed to replicate in their study. DCDC5 does appear in our list of genes, however the first occurrence of a variant in
-or near this gene has a rank of 9,667 out of 10,000. Also, this gene is not highly expressed in bone, and any mechanisms
-by which this gene might regulate BMD are unclear \cite{Thakker2012}. Although variants near DCDC5 are associated with
-BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
+Investigating the lowly-ranked genes, we observe DCDC5 (Doublecortin Domain Containing 5) ranked 9,667 out of 10,000. This gene is 
+one of the BMD-associated genes postulated by literature that Duncan {\it et al.}~\cite{Duncan.2011} inspect.
+Similar to their findings, our results also indicate that this gene does not have a strong association with BMD. 
+In fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear \cite{Thakker2012}. 
+Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
 
 
 In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
@@ -727,19 +726,20 @@ Here the importance is the Gini impurity measure when building a model using the
 In this section we compare \cursedforest's performance against other published methods for predicting ethnicity on the
 1000 Genomes Project dataset.
 
-In a previous paper, we clustered individuals from the 1000 Genomes Project using k-means clustering\cite{Obrien2016}.
+In a previous paper, we clustered individuals from the 1000 Genomes Project using k-means clustering \cite{Obrien2016}.
+\marginpar{reference is missing}
 Although we were able to cluster individuals on all 80 million variants, it was relatively slow, with the entire
 process (pre-processing and clustering) taking over 30 hours.
-We investigate building random forest models on this data---however we observed this process to not only be slower
-than building a k-means model, but also unable to scale to as many dimensions (see Table~\ref{timingtable}). To keep
+We investigate building random forest models on this data. However, we observed this process to not only be slower
+than building a k-means model, but does not scale to as many dimensions (see Table~\ref{timingtable}). To keep
 the following comparisons fair, we limit the number of executors available to Spark. On the relatively low-dimensional
-phase1\_chr22 dataset (1,092 x 490,036), we observed a runtime of under 8 minutes. Although slower than Ranger---
-presumably due to the overhead of Spark's distributed platform on this relatively small dataset---we observe Spark ML to
+phase1\_chr22 dataset (1,092 x 490,036), we observed a runtime of under 8 minutes. Although slower than Ranger, 
+presumably due to the overhead of Spark's distributed platform on this relatively small dataset, we observe Spark ML to
 be about 16 minutes faster than R. Moving to the larger dataset, phase3\_chr1 (2,504 x 6,450,364), we observe an increase
 in Spark ML's runtime to over 8 hours. Moving to our next largest dataset, phase3\_chr1\-3 (2,504 x 19,328,051), and the
 job fails to complete within our arbitrary cutoff time of 20 hours.
 
-From our trials, it was apparent that Spark ML---although designed to handle many samples---is unable to efficiently cope
+From our trials, it was apparent that Spark ML, although designed to handle many samples, is unable to efficiently cope
 with a huge number of features. With the decreasing costs of genome sequencing, this case will surely become increasingly
 common.
 
@@ -753,11 +753,6 @@ nearly 4 minutes using the entire compute cluster. Subsequently, phase3\_chr1\-3
 model on the entire genome is just shy of 37 minutes. Not only does the job complete successfully, but building a random
 forest model on all 22 autosomes (phase3\_chr1\-22) using \cursedforest is more than twice as fast as building a random
 forest on the chromosome 1 (phase3\_chr1) using Spark ML.
-
-
-
-
-
 
 
 \begin{table}[!ht]
@@ -776,7 +771,7 @@ phase3\_chr1-22: 2,504 x 81,047,467 & 0.01 & 36 min 54 seconds \\ \hline
 \begin{flushleft} 
 Comparison of runtime and error for models built using \cursedforest on different subsets of variant data 
 from the 1000 Genomes Project.
-Each random forest model consists of 50 trees and was built using 130 worker nodes---each with 8GB RAM.
+Each random forest model consists of 50 trees and was built using 130 worker nodes, each with 8GB RAM.
 \end{flushleft}
 \label{cursedforesttable}
 \end{minipage}
@@ -878,7 +873,7 @@ of variables (features) and samples, similar to the dataset used in \cite{Wright
 \ranger, allocating varying number of CPU cores to the \cursedforest and also varying the computational complexity
 of the random forests by using a range of \mtry values.
 
-We investigate the different synthetic datasets generated for section \ref{ection:synthetic_data} and measured the time
+We investigate the different synthetic datasets generated for section \ref{section:synthetic_data} and measured the time
 taken to build a random forest model of 100 trees. The results reported below are averages of 5 runs, and all the cases
 were executed with the same random seed, to improve the consistency of measurements.
 
