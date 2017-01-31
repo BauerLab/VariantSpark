@@ -661,36 +661,36 @@ accurate classification for large numbers of samples with large feature vectors.
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
-We investigate the ability of using a random forest model we build on genomic data to identify variants related to a
-specific phenotype.  In this case we aim to identify variants associated with Bone Mineral Density (BMD). We build a
+In this section we use \cursedforest\ to identify genomic locations that are associated with a specific trait. To do this, we perform feature selection over XX genomic variants to 
+identify the locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. We build a
 model on the BMD dataset (see datasets) using a binary high or low BMD value as the label.  From this model, we output a
 list of the top 10,000 contributing variants, ranked by their Gini impurity. The variant with the highest Gini impurity,
-and hence importance, is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.  Then, using the 26
-known and 6 novel BMD genes from \cite{Duncan.2011}, we compile a list of variants that are present in or near one of
-these 32 genes.
+and hence importance, is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.  
 
-We then apply the Mann–Whitney U test to this list to verify that from our list, variants from known BMD loci are ranked
-higher than variants from elsewhere in the genome.  We observe $P=1.3\times10^{-07}$, supporting our hypothesis that
-variants in close proximity to the known BMD genes are contributing more information to our classification model.
+%DENIS: number
+To test whether the associated features have biological meaning, we investigate whether the known BMD genes investigated by Duncan {\it et al.}~\cite{Duncan.2011} are enriched amongst the 
+highly ranked genes. We therefore label all variants that fall within XXbp of these 32 BMD genes and observe that they are
+ranked significantly higher than other locations in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$), supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
 
-However, we also observe that from the set of highest-ranked features, for example, the top ten, not all of them exist
-within close proximity to known BMD genes. We investigate the literature to determine the plausibility of these variants
-contributing to BMD.
-
-One gene is COLEC10 (collectin 10). Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as
-containing variants associated with BMD \cite{Kemp2014,Liu2008}. However there currently exists no information on how this gene
-may contribute to BMD. 
-
-We also frequently see highly-ranked variants in chromosome 22q11. \cite{Stagi.2010}, observe that individuals with a
-microdeletion in this region have a significant in bone mass\cite{Stagi2010}. In this same region, we also observe
+We therefore investigate the highest-ranked features not amongst the associated gene list by Duncan {\it et al.}~\cite{Duncan.2011}. 
+%DENIS is this correct about the transcription factor binding site?
+COLEC10 (collectin 10) contains variants more recently associated with BDM~\cite{Kemp2014,Liu2008}, with a transcription factor binding site for the known BMD gene FOXL1 overlapping the highly ranked variant.
+%However, we also observe that from the set of highest-ranked features, for example, the top ten, not all of them exist
+%within close proximity to known BMD genes. We investigate the literature to determine the plausibility of these variants
+%contributing to BMD.
+%One gene is COLEC10 (collectin 10). Featuring a transcription factor binding site for FOXL1, COLEC10 is also reported as
+%containing variants associated with BMD \cite{Kemp2014,Liu2008}. However there currently exists no information on how this gene
+%may contribute to BMD. 
+Also highly-ranked are variants in chromosome 22q11. Stagi {\it et al.}~\cite{Stagi.2010}, observe that individuals with a
+microdeletion in this region have a significant reduction in bone mass. In this same region, we also observe
 variants present in PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degradation, and as
-proposed by \cite{Phang.2008}, proline is made available by collagen degradation \cite{Phang2008}.
+proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation.
 
-DCDC5 (Doublecortin Domain Containing 5) is one of the 26 known genes, however it is one of the genes that \cite{Duncan.2011}.
-failed to replicate in their study. DCDC5 does appear in our list of genes, however the first occurrence of a variant in
-or near this gene has a rank of 9,667 out of 10,000. Also, this gene is not highly expressed in bone, and any mechanisms
-by which this gene might regulate BMD are unclear \cite{Thakker2012}. Although variants near DCDC5 are associated with
-BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
+Investigating the lowly-ranked genes, we observe DCDC5 (Doublecortin Domain Containing 5) ranked 9,667 out of 10,000. This gene is 
+one of the BMD-associated genes postulated by literature that Duncan {\it et al.}~\cite{Duncan.2011} inspect.
+Similar to their findings, our results also indicate that this gene does not have a strong association with BMD. 
+In fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear \cite{Thakker2012}. 
+Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
 
 
 In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
