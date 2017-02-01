@@ -681,20 +681,22 @@ little correspondence between the OOB and RBO measure.
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
-In this section we use \cursedforest\ to identify genomic locations that are associated with a specific trait. To do this, we perform feature selection over XX genomic variants to 
-identify the locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. We build a
-model on the BMD dataset (see datasets) using a binary high or low BMD value as the label.  From this model, we output a
-list of the top 10,000 contributing variants, ranked by their Gini impurity. The variant with the highest Gini impurity,
-and hence importance, is ranked 1, and the variant with the lowest Gini impurity is ranked 10,000.  
+In this section we use \cursedforest\ to identify genomic locations that are associated with a specific trait. To do
+this, we perform feature selection over 7,225,008 genomic variants to identify the locations associated with Bone
+Mineral Density (BMD)~\cite{Duncan.2011}. We build a model on the BMD dataset (see datasets) using a binary high or low
+BMD value as the label.  From this model, we output a list of the top 10,000 contributing variants, ranked by their Gini
+impurity. The variant with the highest Gini impurity, and hence importance, is ranked 1, and the variant with the lowest
+Gini impurity is ranked 10,000.  
 
-%DENIS: number
-To test whether the associated features have biological meaning, we investigate whether the known BMD genes investigated by Duncan {\it et al.}~\cite{Duncan.2011} are enriched amongst the 
-highly ranked genes. We therefore label all variants that fall within XXbp of these 32 BMD genes and observe that they are
-ranked significantly higher than other locations in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$), supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
+To test whether the associated features have biological meaning, we investigate whether the known BMD genes investigated
+by Duncan {\it et al.}~\cite{Duncan.2011} are enriched amongst the highly ranked genes. We therefore label all variants
+that fall within 100 kb of these 32 BMD genes and observe that they are ranked significantly higher than other locations
+in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$), supporting our hypothesis that biologically relevant features are
+contributing more information to our classification model.
 
-We therefore investigate the highest-ranked features not amongst the associated gene list by Duncan {\it et al.}~\cite{Duncan.2011}. 
-%DENIS is this correct about the transcription factor binding site?
-COLEC10 (collectin 10) contains variants more recently associated with BDM~\cite{Kemp2014,Liu2008}, with a verified transcription factor binding site for the known BMD gene FOXL1.
+We therefore investigate the highest-ranked features not amongst the associated gene list by Duncan
+{\it et al.}~\cite{Duncan.2011}. COLEC10 (collectin 10) contains variants more recently associated with
+BDM~\cite{Kemp2014,Liu2008}, with a verified transcription factor binding site for the known BMD gene FOXL1~\cite{DECODE}.
 %However, we also observe that from the set of highest-ranked features, for example, the top ten, not all of them exist
 %within close proximity to known BMD genes. We investigate the literature to determine the plausibility of these variants
 %contributing to BMD.
