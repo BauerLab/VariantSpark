@@ -603,14 +603,16 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest can evaluate variable importance for millions of features}
 \label{section:synthetic}
-In this section we demonstrate the two features of \cursedforest, namely variable importance analysis to select the most
-associated set of features amongst millions of dimensions as well as its ability to accurately classify the labels of
-high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables (features, p) of which 5 
-are the response variable and 5000 samples (n), as discussed in the methods section.
+In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
+associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
+high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$) of which 5 
+are related to the response variable and 5000 samples ($n=5000$), as discussed in the methods section.
 
-We fit the random forest model to obtain the classification accuracy by capturing the out-of-bag error (OOB) and perform the variable importance analysis where we expect to retrieve the
-5 features in order of the weight that was assigned to them, which is captured by the rank-biased-overlap (RBO) \cite{Webber2010} measure.
-We are running Apache Spark 1.6.1 on a YARN cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.
+We fit the random forest model and estimate the classification accuracy by capturing the out-of-bag error (OOB) and the
+variable selection performance by capturing the rank-biased-overlap (RBO) \cite{Webber2010} measure. We expect to
+retrieve the 5 features in order of the weight that was assigned to them and with a higher variable importance measure
+than the noise variables. RBO provides a quantiative measure of this.  We are running Apache Spark 1.6.1 on a YARN
+cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.
 
 %mtry = number of variable seclection at each node - proportion of p 
 %ntree= number of trees 
@@ -618,20 +620,23 @@ We are running Apache Spark 1.6.1 on a YARN cluster with 12 worker nodes each wi
 % mtry large makes trees correlated because the same important features have a higher chance of being selected
 % overfitting because it picks random that happen to be 
 
-As shown in Fig~\ref{figure:out-of-bag-prediction-error-prod.png} the default value for \mtry (number of variables selected at each node) does not result in a 
-good classification performance for this large feature dataset. Note, that the plot shows the proportion of $n/p$ for \mtry\ with the default being $\sqrt{p} \approx 1581$. 
-The OOB  for this value of \mtry does not exceed 0.5 on a scale from 0 (perfect) to 1 (random), even when the number of trees are increased (\ntree). 
+As shown in Fig~\ref{figure:out-of-bag-prediction-error-prod.png} the default value for \mtry (number of variables
+selected at each node) does not result in a good classification performance for this large feature dataset. Note, that
+the plot shows the proportion of $n/p$ for \mtry\ with the default being $\sqrt{p} \approx 1581$ ($n/p=0.0006$).  The
+OOB for this value of \mtry does not drop below 0.5, even when the number of trees are increased (\ntree).
 
-Increasing \mtry\ in combination with \ntree\ yields best performance with the OOB error essentially constant around 0.4 across a large range of 
-of \mtry and \ntree values. 
-This is in contrast to the feature-selection performance, where the RBO measure heavily depends on \ntree\ and gives better results with lower values of \mtry, where 
-the best RBO is around 0.85 on a scale from 0 (no feature recovered) to 1 (fully recovered).
+Increasing \mtry\ in combination with \ntree\ yields best performance with the OOB error essentially constant around 0.4
+across a large range of of \mtry and \ntree values.  This is in contrast to the feature-selection performance, where the
+RBO measure heavily depends on \ntree\ and gives better results with lower values of \mtry, where the best RBO is around
+0.85 on a scale from 0 (no feature recovered) to 1 (fully recovered).
 
-This may be because a large \mtry\ generates more correlated trees as the same important features have a higher chance of being selected in all, not yielding good performance outcomes. 
-This issue is less pronounced for classification tasks where random features can mimic the response variable, hence resulting more in a performance plateau. 
-Increasing the number of trees on the other hand improves performance especially when 
-the trees are kept diverse (small \mtry) but appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelising trees at the node level hence cater perfectly for the 
-requirement of large feature datasets as more trees can be built given a fixed time budget. 
+This may be because a large \mtry\ generates more correlated trees as the same important features have a higher chance
+of being selected in all, not yielding good performance outcomes.  This issue is less pronounced for classification
+tasks where random features can mimic the response variable, hence resulting more in a performance plateau.  Increasing
+the number of trees on the other hand improves performance especially when the trees are kept diverse (small \mtry) but
+appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelising trees at
+the node level hence cater perfectly for the requirement of large feature datasets as more trees can be built given a
+fixed time budget.
 
 %Fig~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
 %value for a classification problem is $\sqrt{p} \approx 1581$ so in this case we are considering values considerably larger than
@@ -640,8 +645,9 @@ requirement of large feature datasets as more trees can be built given a fixed t
 %heavily on \ntree but gives a better value with lower values of \mtry.
 
 From the synthetic data we can conclude that \cursedforest is able to perform accurate feature selection as well as
-accurate classification for large numbers of samples with large feature vectors.
-We can also conclude that fine tuning the model to accurately classify the dataset does not ensure good feature selection performance as there seems to be little correspondence between the OOB and RBO measure.
+accurate classification for large numbers of samples with large feature vectors.  We can also conclude that fine tuning
+the model to accurately classify the dataset does not ensure good feature selection performance as there seems to be
+little correspondence between the OOB and RBO measure.
 
 
 
@@ -654,14 +660,14 @@ We can also conclude that fine tuning the model to accurately classify the datas
       \includegraphics[totalheight=8cm]{./figs/oob_levleplot.png}
       \caption{OOB classification error.} 
       \label{figure:out-of-bag-prediction-error-prod.png} 
-      \vspace{4ex}
+%      \vspace{4ex}
     \end{subfigure} 
     \begin{subfigure}[b]{0.5\linewidth}
       \centering
       \includegraphics[totalheight=8cm]{./figs/rbo_levleplot.png}
       \caption{The rank-biased-overlap measure.} 
       \label{figure:rbo-prod.png} 
-      \vspace{4ex}
+%      \vspace{4ex}
     \end{subfigure} 
     \begin{flushleft} 
       Random forests with 100 trees were trained on the synthetic dataset of 2.5M features and 5K samples.
@@ -905,8 +911,6 @@ communication overhead (with lower \mtry values the proportion of time for paral
 internode communication is lower) while in the latter case it is most likely caused by reaching the clusters
 computational capacity.
 
-\marginpar{tables 2 has been commented out -- there is no data in it. Piotr could add the data or we could remove both
-  tables just leave the figures. I have done this for the time being} 
 Next we investigate \cursedforest scalability with
 regards to the size of data, by varying the number of variables and sample for a fixed \mtry fraction of 0.25 and
 execution of 128 CPU cores. The results are visualized in Fig~\ref{figure:synth2} below (please note log scale on the
