@@ -279,18 +279,18 @@ even in setting where other implementations, including some designed for large d
 
 \section{Introduction}
 The digital revolution is seeing a dramatic increase in data collected about almost every aspect of
-life~\cite{Loebbecke2015}.  These data sets are not only growing vertically, by capturing more events, but also
+life~\cite{Loebbecke2015}.  These datasets are not only growing vertically, by capturing more events, but also
 horizontally by capturing more information about these events.  The challenge of big and ``wide'' data is especially
 pronounced in the health space where, for example, whole genome sequencing (WGS) technology enables researchers to
 interrogate all 3 billion base pairs of the human genome.
 
-Identifying the relevant or disease specific base-pair difference between individuals is the focus of genome wide
-association studies (GWAs).  These analysis are typically performed on only the most frequently differing base-pairs,
+Identifying the relevant or disease specific base pair differences between individuals is the focus of genome wide
+association studies (GWAS).  These analyses are typically performed on only the most frequently differing base pairs,
 termed single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP
 separately~\cite{CCC2007}.  It has since been demonstrated that not taking interactions between SNPs into account
 when filtering for potential disease mutations is inadequate~\cite{Manolio2009,Yang2011}.
 
-A tree based model is capable of taking the interaction of variables into account \cite{Wright.et.al.2016}. In addition, random forests are well
+A tree-based model is capable of taking the interaction of variables into account \cite{Wright.et.al.2016}. In addition, random forests are well
 suited for processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have
 the propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting.  Secondly, random
@@ -301,26 +301,26 @@ trees on different processors and combine the trees. See the discussion of the p
 The most popular random forest software packages are R-based, although current implementations do not scale well with
 increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
 than $2^{31}-1$), and the \randomforest implementation in R lending itself to parallelization to grow multiple
-trees simultaneously~\cite{Liaw.and.Weiner.2002} and them combine them.  More suitable implementations for ``wide''
-genomic data have been developed in other programming languages. \textsc{CloudForest} \cite{Bressler2015} written in Go,
+trees simultaneously~\cite{Liaw.and.Weiner.2002} and then combine them.  More suitable implementations for ``wide''
+genomic data have been developed in other programming languages. \textsc{CloudForest} \cite{Bressler2015}, written in Go,
 achieves fast run times by effective use of the CPU cache, optimizing for different classes of features and efficiently
-multi-threading.  Similarly, \ranger~\cite{Wright.and.Ziegle.2016} written in C++ with an R front-end is
-specifically optimized for dealing with large data sets.
+multithreading.  Similarly, \ranger~\cite{Wright.and.Ziegle.2016}, written in C++ with an R front-end, is
+specifically optimized for dealing with large datasets.
 
 The use of traditional compute infrastructure limits the parallelization strategies that can be employed by  
-these methods.  The programs are limited to utilizing only CPUs that are on the same computer node (multi-threading) or
-else they run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
-processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitation by enabling programs to
+these methods.  The programs are limited to utilizing only CPUs that are on the same computer node (multithreading) or
+else they can run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
+processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitations by enabling programs to
 scale beyond compute-node boundaries and hence enable more sophisticated parallelization strategies.  In the case of
 random forests this means that the computations for each node of a tree can be handed off to separate processors.
   
-Here we introduce \cursedforest, a Hadoop/Spark based implementation of random forests specifically designed to cater
-for ``big'' (many samples) and ``wide'' (many features) data sets. A Spark application runs on a ``driver'' node and
+Here we introduce \cursedforest, a Hadoop/Spark-based implementation of random forests specifically designed to cater
+for ``big'' (many samples) and ``wide'' (many features) datasets. A Spark application runs on a ``driver'' node and
 distributes tasks to many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest is capable of
-parallelization the split for each node in a tree thereby handling millions of features. It can, for example, fit a
+parallelizing the split for each node in a tree thereby handling millions of features. It can, for example, fit a
 model to the 1000 Genomes Project data, which consists of approximately 2500 samples with up to 80 million
 variants~\cite{1KG2012}.  By also utilizing Spark to read in and manipulate the standard genomic variant format (VCF)
-directly, \cursedforest outperforms existing tools even on small datasets where multi-threading generally performs
+directly, \cursedforest outperforms existing tools even on small datasets where multithreading generally performs
 well. Harnessing the virtually unlimited capability to parallelize tasks, \cursedforest can build a large number of
 trees and use a high \mtry value which may lead to greater accuracy (see the example in section \ref{section:synthetic}). 
 
@@ -334,7 +334,7 @@ individuals by their ethnicity achieving an Adjusted Rand Index (ARI) of 0.84 (w
 random clustering).
 
 Here we extend this toolkit to encompass supervised learning using random forests.  Spark ML's random forest
-implementation is not able to handle the extremely ``wide'' genomic data as it was developed for large number of samples
+implementation is not able to handle the extremely ``wide'' genomic data as it was developed for a large number of samples
 with only modest dimensionality.  Although Spark ML can build a random forest model on a subset of the data (chromosome
 1), the time taken is excessive due to the large amount of data being aggregated and processed by the driver node during
 intermediate stages of building the model (see Table~\ref{timingtable}).  This unbalanced work load where the driver
@@ -344,18 +344,19 @@ in the discussion.
 
 \cursedforest is included in our previously developed framework for Spark-based genomic data analysis,
 VariantSpark~\cite{OBrien2015}, which therefore now enables supervised and unsupervised machine learning. This offers a
-comprehensive analysis toolkit that can scale for the future data demands, where the richness from WGS data can be
+comprehensive analysis toolkit that can scale for future data demands, where the richness from WGS data can be
 utilized to ``fill in'' or impute the information at previously unobserved genomic positions in older array
-technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAs catalogue and generate datasets
+technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAS catalogue and generate datasets
 of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
 compute paradigms to deal with these challenges.
 
 In the first section we explore some of the properties of random forests as these will also be apparent in the
-\cursedforest implementation. Here we provide demonstrations using synthetic data.  We then demonstrate the scalability
-of \cursedforest in respect to the dimensionality of the data, building a random forest model on whole-genome data from
-the 1000 Genomes Project. We report the error in predicting ethnicity.  Finally, given the role
-different parameter values can play in model construction, we explore the effect tuning these parameters can have on the
-prediction accuracy of the model.
+\cursedforest implementation. Here we provide demonstrations using synthetic data. Secondly, we demonstrate the ability of
+\cursedforest to select previously demonstrated features from a bone mineral density (BMD) dataset. 
+Thirdly, we demonstrate the scalability of \cursedforest in respect to the dimensionality of the data by building a random
+forest model on whole-genome data from the 1000 Genomes Project. Here we report the error in predicting ethnicity.
+Finally, given the role different parameter values can play in model construction, we explore the effect that tuning these
+parameters can have on the prediction accuracy of the model.
 
 
 
@@ -371,12 +372,12 @@ Decision trees have a number of desirable features, they:
   \item can handle categorical and real valued inputs;
   \item can handle missing values;
   \item are insensitive to uninformative predictors;
-  \item are able to capture interactions between features (which is of importance for modelling complex polygenic diseases).
+  \item are able to capture interactions between features (which is important for modelling complex polygenic diseases).
   \end{itemize}
 However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
 lead to a very different model. 
 
-Random forests apply the technique of bootstrap aggregation or bagging to decision trees.  The training data sets are
+Random forests apply the technique of bootstrap aggregation or bagging to decision trees.  The training datasets are
 independently drawn, with replacement, from the joint distribution of $(X,Y)$ so that each set comprises $n$
 $(p+1)$-tuples $(x_1,y_1),\ldots, (x_n,y_n)$. This is done $B$ times and a tree is grown on each of these $B$ samples.
 The results are then combined in an appropriate way. In a classification problem we take the majority vote for the trees
@@ -449,15 +450,15 @@ sets that are:
 \item all variables have the same number of levels (for example, measurements at different points along the genome);
 \item the hypothesized functional relationship is of a form amenable to a decision tree.
 \end{itemize}
-GWAs data sets are an obvious application areas for this algorithm. 
+GWAS datasets are an obvious application area for this algorithm. 
 
 \cite{Biau.2012} provides a proof that a random forest model will converge at a rate that depends on
 the cardinality of the set $S$ of ``strong predictors'' rather than on the number of variables $p$. That is, given a
 function $y=f(S)$ depending on a set of variables $S$, a random forest will converge to the true function $y$ with a
-rate that depends on the size of $S$ and not the number of noise variables in the data set. If the size of $S$ is small
+rate that depends on the size of $S$ and not the number of noise variables in the dataset. If the size of $S$ is small
 compared to the total number of variables, then the rate of convergence will be quicker. It is not clear what the size
-of the set $S$ will be in a GWAs application. There are cases of small groups of SNPs with large effects and also of
-conditions caused by the interaction of large groups of SNPs.
+of the set $S$ will be in a GWAS application. There are cases of small groups of SNPs with large effects and also of
+conditions caused by the interactions of large groups of SNPs.
 
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using
 the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic
@@ -471,10 +472,10 @@ features.
 
 As is standard with Spark applications, we store our data in a Resilient Distributed Dataset (RDD), where an RDD is
 essentially a collection of elements. In the case of Spark ML, each element in the RDD is a sample. RDDs contribute to
-the scalability of Spark as they can distributed across multiple nodes and operated on in parallel. Even as we add more
+the scalability of Spark as they can be distributed across multiple nodes and operated on in parallel. Even as we add more
 samples to a dataset, Spark can simply schedule extra tasks to handle the additional items in the RDD.
 
-However, within an RDD, spark ML stores each sample as a vector. Unlike RDDs, which can be partitioned and distributed
+However, within an RDD, Spark ML stores each sample as a vector. Unlike RDDs, which can be partitioned and distributed
 across multiple nodes, each vector must be present in its entirety on any node accessing it. This is no problem with
 typical datasets, however as dimensionality increases, the vectors eventually reach a size where they can no longer fit
 into a single node's memory.
@@ -492,11 +493,11 @@ feature which gives the greatest information gain.  This process is then repeate
 entire decision tree.
 
 The current implementation of \cursedforest uses a ``Gini impurity'' criteria for splitting. Let $f_q$ be the fraction
-of items labelled with value $q$ where $q = 1, \ldots, Q$ at a node. The Gini impurity is
+of items labelled with value $q$, where $q = 1, \ldots, Q$ at a node. The Gini impurity is
 $$
 I_G(f) = \sum_{q = 1}^Q f_q ( 1 - f_q ), 
 $$
-which is a minimum when all observations at the node are in the same class.
+which is at a minimum when all observations at the node are in the same class.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This section talks about the datasets
@@ -543,15 +544,15 @@ for each individual, where a low BMD is a major predisposing factor to fracture 
 \label{section:synthetic_data}
  Each dataset consists of $n$ samples and $p$ variables where $n << p$,
 and values for each variable are ordinal variables with three levels represented as numbers $\{0, 1, 2\}$ (which
-correspond to an additive effect encoding of genomics variation) randomly generated from uniform distribution with equal
+correspond to an additive effect encoding of genomics variation) randomly generated from a uniform distribution with equal
 probabilities.  
 
-The model paramters are $w_i = 1/\sqrt{2^{i-1}}$ for $i =1,\ldots 5$ and we set 
+The model parameters are $w_i = 1/\sqrt{2^{i-1}}$ for $i =1,\ldots 5$ and we set 
 \begin{equation}
 \label{equation:synthetic.data}
 z =  \sum_{i=1}^{i=5} {w_i x_i}.
 \end{equation}
-We let $\sigma_\epsilon^2 = Var(z)(1-\theta)/\theta $  where $\theta$ is a parameter controling the fraction of variance explained by the infomative variables and in our study we chose $\theta = 0.125$ . Then 
+We let $\sigma_\epsilon^2 = Var(z)(1-\theta)/\theta $  where $\theta$ is a parameter controlling the fraction of variance explained by the informative variables and in our study we chose $\theta = 0.125$ . Then 
 $y =   z + \epsilon$ where $\epsilon \sim  N(0, \sigma_\epsilon^2).$
 The dichotomous response is generated by thresholding $y$ at the $0.5$ quantile.
 
@@ -566,7 +567,7 @@ $$
 
 
 \subsection{Parameter settings}
-We consider the parameter setting for the random forest algorithm. We use the R notation from the \randomforest
+We consider the parameter settings for the random forest algorithm. We use the R notation from the \randomforest
 package \cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler.  We incorporate
 the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own experience:
 \begin{itemize}
@@ -580,12 +581,12 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
   better performance;
 \item the size and complexity of the individual trees is controlled in \randomforest by setting \texttt{nodesize}, the
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
-  tree in the forest\footnote{The Spark ML documentation \cite{Spark.2016} sets \texttt{maxDepth} to 4 in their
+  tree in the forest.\footnote{The Spark ML documentation \cite{Spark.2016} sets \texttt{maxDepth} to 4 in their
     classification example. This may give an estimate with a higher bias and, as such, may be a poor choice. See the
-    discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but gives a
+    discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but give a
     better result for low bias learners. \cite{Dietterich.2002} notes that if the bootstrap replicate approximation were
     correct (i.e.~if the bootstrap sample came from an identical distribution to the data), then bagging would reduce
-    variance without changing bias.} In the TCGA example the RandomForests code produced trees with depths of 30+.
+    variance without changing bias.}
 \end{itemize}
 
 
@@ -606,14 +607,14 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 \label{section:synthetic}
 In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
 associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
-high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$) of which 5 
-are related to the response variable and 5000 samples ($n=5000$), as discussed in the methods section.
+high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$), of which 5 
+are related to the response variable, and 5000 samples ($n=5000$), as discussed in the methods section.
 
 We fit the random forest model and estimate the classification accuracy by capturing the out-of-bag error (OOB) and the
-variable selection performance by capturing the rank-biased-overlap (RBO) \cite{Webber2010} measure. RBO compares two
-lists (in this case, the paramters $w_i, i=1,\ldots , 5$ (equation \ref{equation:synthetic.data}), and the top 1000
+variable selection performance by capturing the rank-biased overlap (RBO) \cite{Webber2010} measure. RBO compares two
+lists (in this case, the parameters $w_i, i=1,\ldots , 5$ (Equation~\ref{equation:synthetic.data}), and the top 1000
 ranked variable importances from the \cursedforest model). It is a mesaure of similarity between rankings that handles
-list of different length, weighs high ranks more heavily than low, and is monotonic with increasing depth of
+lists of different lengths, weighs high ranks more heavily than low, and is monotonic with increasing depth of
 evaluation. We expect to retrieve the 5 features in order of the weight that was assigned to them and with a higher
 variable importance measure than the noise variables. RBO provides a quantiative measure of how close we come to this on
 a scale from 0 (no feature recovered) to 1 (fully recovered). See supplementary information (S*) for more details.
@@ -632,7 +633,7 @@ selected at each node) does not result in a good classification performance for 
 the plot shows the proportion, $n/p,$ for \mtry\ with the default being $\sqrt{p} \approx 1581$ ($n/p=0.0006$).  The
 OOB for this value of \mtry does not drop below 0.5, even when the number of trees are increased (\ntree).
 
-Increasing \mtry\ in combination with \ntree\ yields best performance with the OOB error essentially constant around 0.4
+Increasing \mtry\ in combination with \ntree\ yields the best performance with the OOB error essentially constant around 0.4
 across a large range of of \mtry and \ntree values.  This is in contrast to the feature-selection performance, where the
 RBO measure heavily depends on \ntree\ and gives better results with lower values of \mtry.
 
@@ -643,7 +644,7 @@ tasks where random features can mimic the response variable, hence resulting mor
 Increasing
 the number of trees on the other hand improves performance especially when the trees are kept diverse (small \mtry) but
 appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelising trees at
-the node level hence cater perfectly for the requirement of large feature datasets as more trees can be built given a
+the node level hence caters perfectly to the requirement of large feature datasets as more trees can be built given a
 fixed time budget.
 
 %Fig~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
@@ -690,7 +691,7 @@ little correspondence between the OOB and RBO measure.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
 In this section we use \cursedforest\ to identify genomic locations that are associated with a specific trait. To do
-this, we perform feature selection over 7,225,008 genomic variants to identify the locations associated with Bone
+this, we perform feature selection over 7.2 million genomic variants to identify the locations associated with Bone
 Mineral Density (BMD)~\cite{Duncan.2011}. We build a model on the BMD dataset (see datasets) using a binary high or low
 BMD value as the label.  From this model, we output a list of the top 10,000 contributing variants, ranked by their Gini
 impurity. The variant with the highest Gini impurity, and hence importance, is ranked 1, and the variant with the lowest
@@ -1025,8 +1026,8 @@ hour.
 \section{Conclusion}
 We have demonstrated that using a different parallelization model can extend random forests to the case of an
 extremely large number of variables. We have treated the case of variable selection in a $p >> n$ model where most of
-the variables are uninformative and have demonstrated the utility of the model for large GWAs data sets. By comparing
-this implementation to other implementations (including those optimized for large data sets) we have demonstrated the
+the variables are uninformative and have demonstrated the utility of the model for large GWAS datasets. By comparing
+this implementation to other implementations (including those optimized for large datasets) we have demonstrated the
 utility of this approach.
 
 Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
