@@ -734,12 +734,20 @@ In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gin
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
 {\bf Variant} & {\bf Gene} & {\bf Importance}\\ \thickhline
-x:xxxx & cell2 row 1 & cell3 row 1\\ \hline
-x:xxxx & cell2 row 2 & cell3 row 2\\ \hline
-x:xxxx & cell2 row 3 & cell3 row 3\\ \hline
+8:120003727 & COLEC10 & 1.6393260970E-6\\ \hline
+1:22702231  & ZBTB40  & 1.3901355155E-6\\ \hline
+22:18923745 & PRODH   & 1.3769982791E-6\\ \hline
+1:22702187  & ZBTB40  & 1.3350582926E-6\\ \hline
+3:41111035  & CTNNB1  & 1.2707227479E-6\\ \hline
+1:693731    &         & 1.1786957578E-6\\ \hline
+1:22700351  & ZBTB40  & 1.1547011076E-6\\ \hline
+8:120040181 & COLEC10 & 1.1511986773E-6\\ \hline
+1:22701761  & ZBTB40  & 1.1495539020E-6\\ \hline
+3:41120417  & CTNNB1  & 1.1325242379E-6\\ \hline
 \end{tabular}
 \begin{flushleft} 
-Here the importance is the Gini impurity measure when building a model using the cell type as the label.
+The ten genes proximal to the top variants as ranked by their Gini impurity from a random forest model built on
+individuals using high/low bone mineral density as the label.
 \end{flushleft}
 \label{featuretable}
 %\end{adjustwidth}
