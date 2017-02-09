@@ -346,14 +346,14 @@ in the discussion.
 VariantSpark~\cite{OBrien2015}, which therefore now enables supervised and unsupervised machine learning. This offers a
 comprehensive analysis toolkit that can scale for future data demands, where the richness from WGS data can be
 utilized to ``fill in'' or impute the information at previously unobserved genomic positions in older array
-technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAS catalogue and generate datasets
+technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAS catalog and generate datasets
 of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
 compute paradigms to deal with these challenges.
 
 In the first section we explore some of the properties of random forests as these will also be apparent in the
 \cursedforest implementation. Here we provide demonstrations using synthetic data. Secondly, we demonstrate the ability of
 \cursedforest to select previously demonstrated features from a bone mineral density (BMD) dataset. 
-Thirdly, we demonstrate the scalability of \cursedforest in respect to the dimensionality of the data by building a random
+Thirdly, we demonstrate the scalability of \cursedforest in respect to the dimensionality of data by building a random
 forest model on whole-genome data from the 1000 Genomes Project. Here we report the error in predicting ethnicity.
 Finally, given the role different parameter values can play in model construction, we explore the effect that tuning these
 parameters can have on the prediction accuracy of the model.
@@ -372,7 +372,7 @@ Decision trees have a number of desirable features, they:
   \item can handle categorical and real valued inputs;
   \item can handle missing values;
   \item are insensitive to uninformative predictors;
-  \item are able to capture interactions between features (which is important for modelling complex polygenic diseases).
+  \item are able to capture interactions between features (which is important for modeling complex polygenic diseases).
   \end{itemize}
 However, the tree fitting algorithm is greedy and may generate an unstable model. That is, a small change in the data may
 lead to a very different model. 
@@ -493,7 +493,7 @@ feature which gives the greatest information gain.  This process is then repeate
 entire decision tree.
 
 The current implementation of \cursedforest uses a ``Gini impurity'' criteria for splitting. Let $f_q$ be the fraction
-of items labelled with value $q$, where $q = 1, \ldots, Q$ at a node. The Gini impurity is
+of items labeled with value $q$, where $q = 1, \ldots, Q$ at a node. The Gini impurity is
 $$
 I_G(f) = \sum_{q = 1}^Q f_q ( 1 - f_q ), 
 $$
@@ -544,7 +544,7 @@ for each individual, where a low BMD is a major predisposing factor to fracture 
 \label{section:synthetic_data}
  Each dataset consists of $n$ samples and $p$ variables where $n << p$,
 and values for each variable are ordinal variables with three levels represented as numbers $\{0, 1, 2\}$ (which
-correspond to an additive effect encoding of genomics variation) randomly generated from a uniform distribution with equal
+correspond to an additive effect encoding of genomic variation) randomly generated from a uniform distribution with equal
 probabilities.  
 
 The model parameters are $w_i = 1/\sqrt{2^{i-1}}$ for $i =1,\ldots 5$ and we set 
@@ -643,7 +643,7 @@ tasks where random features can mimic the response variable, hence resulting mor
 \marginpar{unclear what this means}
 Increasing
 the number of trees on the other hand improves performance especially when the trees are kept diverse (small \mtry) but
-appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelising trees at
+appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelizing trees at
 the node level hence caters perfectly to the requirement of large feature datasets as more trees can be built given a
 fixed time budget.
 
@@ -717,7 +717,7 @@ microdeletion in this region have a significant reduction in bone mass. In this 
 variants present in PRODH (proline dehydrogenase). PRODH catalyzes the first step in proline degradation, and as
 proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation.
 
-Investigating the lowly-ranked genes, we observe DCDC5 (Doublecortin Domain Containing 5) ranked 9,667 out of 10,000. This gene is 
+Investigating the lowly-ranked genes, we observe DCDC5 (Doublecortin Domain Containing 5) ranked 9,830 out of 10,000. This gene is 
 one of the BMD-associated genes postulated by literature that Duncan {\it et al.}~\cite{Duncan.2011} inspect.
 Similar to their findings, our results also indicate that this gene does not have a strong association with BMD. 
 In fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear \cite{Thakker2012}. 
@@ -1045,7 +1045,7 @@ large number of areas including variable selection in high dimensions. Consider
 Fig~\ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover the important variables,
 plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant variables). There is a
 distinct boundary, shown empirically and also based on arguments from combinatorial geometry, to the region where we can
-reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investigate the behaviour of a number of
+reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investigate the behavior of a number of
 regression approaches for variable selection (LARS, Lasso and forward stepwise) and make the point that above the
 phase-transition line variable recovery is still possible by a combinatorial approach.
 
