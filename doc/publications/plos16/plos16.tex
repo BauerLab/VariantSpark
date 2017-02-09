@@ -691,19 +691,19 @@ little correspondence between the OOB and RBO measure.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest\ selects previously demonstrated bone-density variants}
 In this section we use \cursedforest\ to identify genomic locations that are associated with a specific trait. To do
-this, we perform feature selection over 7.2 million genomic variants to identify the locations associated with Bone
+this, we perform feature selection on over 7.2 million genomic variants to identify the locations associated with Bone
 Mineral Density (BMD)~\cite{Duncan.2011}. We build a model on the BMD dataset (see datasets) using a binary high or low
 BMD value as the label.  From this model, we output a list of the top 10,000 contributing variants, ranked by their Gini
 impurity. The variant with the highest Gini impurity, and hence importance, is ranked 1, and the variant with the lowest
 Gini impurity is ranked 10,000.  
 
 To test whether the associated features have biological meaning, we investigate whether variants in or near
-BMD-associated genes are enriched are enriched toward the top of our list of our ranked variant list. To begin with,
-we start with 26 known BMD genes~\cite{Duncan.2011}. We also include the 6 genes that Duncan {\it et al.} find with
-a new BMD association. We then add to this list the genes that Estrada {\it et al.} found with a new BMD association.
+BMD-associated genes are enriched toward the top of our ranked variant list. To form this list of "known genes", we start
+with the 26 known BMD genes listed by Duncan {\it et al.}~\cite{Duncan.2011}. We also include the 6 genes that they find
+with a new BMD association. We then add to this list the genes that Estrada {\it et al.} found with a new BMD association.
 In total, this gives us a list of 100 genes.
 
-We label our contributing variants that fall within 100 kb of these 100 genes and observe that they are ranked
+We label variants from our ranked list that fall within 100 kb of these 100 genes and observe that they are ranked
 significantly higher than variants from other locations in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$),
 supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
 
