@@ -1,5 +1,5 @@
 % Template for PLoS
-% Version 3.3 June 2016
+% Version 3.4 January 2017
 %
 % % % % % % % % % % % % % % % % % % % % % %
 %
@@ -45,32 +45,24 @@
 % - no graphics or colored text (cell background color/shading OK)
 % See http://journals.plos.org/plosone/s/tables for table guidelines.
 %
-% For tables that exceed the width of the text column, use the adjustwidth environment as illustrated in the example
-% table in text below.
+% For tables that exceed the width of the text column, use the adjustwidth environment as illustrated in the example table in text below.
 %
 % % % % % % % % % % % % % % % % % % % % % % % %
 %
 % -- EQUATIONS, MATH SYMBOLS, SUBSCRIPTS, AND SUPERSCRIPTS
 %
 % IMPORTANT
+% Below are a few tips to help format your equations and other special characters according to our specifications. For more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at http://journals.plos.org/plosone/s/latex
 %
-% Below are a few tips to help format your equations and other special characters according to our specifications. For
-% more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at
-% http://journals.plos.org/plosone/s/latex
+% For inline equations, please be sure to include all portions of an equation in the math environment.  For example, x$^2$ is incorrect; this should be formatted as $x^2$ (or $\mathrm{x}^2$ if the romanized font is desired).
 %
-% For inline equations, please be sure to include all portions of an equation in the math environment.  For example,
-% x$^2$ is incorrect; this should be formatted as $x^2$ (or $\mathrm{x}^2$ if the romanized font is desired).
+% Do not include text that is not math in the math environment. For example, CO2 should be written as CO\textsubscript{2} instead of CO$_2$.
 %
-% Do not include text that is not math in the math environment. For example, CO2 should be written as
-% CO\textsubscript{2} instead of CO$_2$.
+% Please add line breaks to long display equations when possible in order to fit size of the column. 
 %
-% Please add line breaks to long display equations when possible in order to fit size of the column.
+% For inline equations, please do not include punctuation (commas, etc) within the math environment unless this is part of the equation.
 %
-% For inline equations, please do not include punctuation (commas, etc) within the math environment unless this is part
-% of the equation.
-%
-% When adding superscript or subscripts outside of brackets/braces, please group using {}.  For example, change
-% "[U(D,E,\gamma)]^2" to "{[U(D,E,\gamma)]}^2".
+% When adding superscript or subscripts outside of brackets/braces, please group using {}.  For example, change "[U(D,E,\gamma)]^2" to "{[U(D,E,\gamma)]}^2". 
 %
 % Do not use \cal for caligraphic font.  Instead, use \mathcal{}
 %
@@ -81,7 +73,7 @@
 % % % % % % % % % % % % % % % % % % % % % % % %
 
 \documentclass[10pt,letterpaper]{article}
-\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in,showframe]{geometry}
 
 % amsmath and amssymb packages, useful for mathematical formulas and symbols
 \usepackage{amsmath,amssymb}
@@ -90,7 +82,7 @@
 \usepackage{changepage}
 
 % Use Unicode characters when possible
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 
 % textcomp package and marvosym package for additional characters
 \usepackage{textcomp,marvosym}
@@ -174,30 +166,34 @@
 
 %% Include all macros below
 
-\newcommand{\cursedforest}{\textsc{CursedForest}\xspace}
-\newcommand{\ranger}{\textsc{Ranger}\xspace}
-\newcommand{\randomforest}{\textsc{randomForest}\xspace}
-\newcommand{\mtry}{\texttt{mtry}\xspace}
-\newcommand{\ntree}{\texttt{ntree}\xspace}
+\newcommand{\lorem}{{\bf LOREM}}
+\newcommand{\ipsum}{{\bf IPSUM}}
 
 %% END MACROS SECTION
 
-%% Additional packages
+%% Additional packages and local edits
 \usepackage{footmisc}
 \usepackage{multirow}
 \usepackage[T1]{fontenc}
 %% required the installation of cm-super 55MB - TeX font package (full version) with CM (EC) in Type1 in T1, T2*, TS1, X2 enc
 
-%%local edits (rob)
 \let\oldmarginpar\marginpar
 \renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%hv
 {\raggedright\footnotesize #1}}
 \reversemarginpar
+
 \setlength{\marginparwidth}{5cm}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{placeins}
-\usepackage{xspace} % see http://tex.stackexchange.com/questions/31091/space-after-latex-commands
+\usepackage{xspace} % see http:
+%\usepackage{showframe}
+
+\newcommand{\cursedforest}{\textsc{CursedForest}\xspace}
+\newcommand{\ranger}{\textsc{Ranger}\xspace}
+\newcommand{\randomforest}{\textsc{randomForest}\xspace}
+\newcommand{\mtry}{\texttt{mtry}\xspace}
+\newcommand{\ntree}{\texttt{ntree}\xspace}
 
 \begin{document}
 \vspace*{0.2in}
@@ -564,8 +560,6 @@ $$
 $$
 
 
-
-
 \subsection{Parameter settings}
 We consider the parameter settings for the random forest algorithm. We use the R notation from the \randomforest
 package \cite{Liaw.and.Weiner.2002} which incorporates the original Fortran code by Brieman and Cutler.  We incorporate
@@ -690,30 +684,44 @@ little correspondence between the OOB and RBO measure.
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{GWAS-style analysis using \cursedforest\ identifies novel variants associated with Bone Mineral Density}
-In this section we use \cursedforest\ to perform feature selection on over 7.2 million genomic variants to identify the locations associated with Bone
-Mineral Density (BMD)~\cite{Duncan.2011}. We build a model on the BMD dataset as described in Methods using a binary high or low
-BMD value as the label.  From this model, we output the top 10,000 contributing variants, ranked by their Gini
-impurity. The variant with the highest Gini impurity, and hence importance, is ranked 1, the lowest 10,000.  
+In this section we use \cursedforest\ to perform feature selection on over 7.2 million genomic variants to identify the
+locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. We build a model on the BMD dataset as
+described in Methods using a binary high or low BMD value as the label.  From this model, we output the top 10,000
+contributing variants, ranked by their Gini impurity. The variant with the highest Gini impurity, and hence importance,
+is ranked 1, the lowest 10,000.
 
 To test whether the associated features have biological meaning, we investigate whether variants in or near
-BMD-associated genes are enriched toward the top of our ranked variant list. To form the list of "known genes", we combine the 26 known and 6 novel BMD genes listed by Duncan {\it et al.}~\cite{Duncan.2011} with genes identified by Estrada {\it et al.}~\cite{Estrada2012, Kemp2014,Phang.2008}, resulting in 102 genes.
-All genes are covered in the 10,000 extracted variants and the gene name is assigned to a variant if it falls within 100 kb of the gene.
+BMD-associated genes are enriched toward the top of our ranked variant list. To form the list of "known genes", we
+combine the 26 known and 6 novel BMD genes listed by Duncan {\it et al.}~\cite{Duncan.2011} with genes identified by
+Estrada {\it et al.}~\cite{Estrada2012, Kemp2014,Phang.2008}, resulting in 102 genes.  All genes are covered in the
+10,000 extracted variants and the gene name is assigned to a variant if it falls within 100 kb of the gene.
 
-As shown in Figure~\ref{figure:ranksumtest}, the known genes are ranked significantly higher than variants from other locations in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$), supporting our hypothesis that biologically relevant features are contributing more information to our classification model. 
+As shown in Fig~\ref{figure:ranksumtest}, the known genes are ranked significantly higher than variants from other
+locations in the genome (Mann-Whitney U, $p=1.3\times10^{-07}$), supporting our hypothesis that biologically relevant
+features are contributing more information to our classification model.
 
-The gene with the highest-ranked features is COLEC10 (collectin 10) as shown in Figure~\ref{figure:knowngeneranks}, a well established contributor to BDM~\cite{Kemp2014,Liu2008} with verified transcription factor binding site for FOXL1, also a known BDM gene~\cite{DECODE}.
-The second highest ranked gene is ZBTB40 on 22q11. Stagi {\it et al.}~\cite{Stagi.2010}, observe that individuals with a
-micro-deletion in this region have a significant reduction in bone mass. In this same region, we also observe the next highest ranked gene, PRODH (proline dehydrogenase). 
-PRODH catalyses the first step in proline degradation, and as
-proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation.
+The gene with the highest-ranked features is COLEC10 (collectin 10) as shown in Fig~\ref{figure:knowngeneranks}, a
+well established contributor to BDM~\cite{Kemp2014,Liu2008} with verified transcription factor binding site for FOXL1,
+also a known BDM gene~\cite{DECODE}.  The second highest ranked gene is ZBTB40 on 22q11. Stagi {\it et
+  al.}~\cite{Stagi.2010}, observe that individuals with a micro-deletion in this region have a significant reduction in
+bone mass. In this same region, we also observe the next highest ranked gene, PRODH (proline dehydrogenase).  PRODH
+catalyses the first step in proline degradation, and as proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is
+made available by collagen degradation.
 
-The lowest ranked gene with literature implied BMD association is DCDC5 (Doublecortin Domain Containing 5) ranked 9,830 out of 10,000 (see Figure~\ref{figure:knowngeneranks}). 
-Similar to the conclusions drawn by Duncan {\it et al.}~\cite{Duncan.2011}, our results also indicate that this gene does not have a strong association with BMD. 
-In fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear \cite{Thakker2012}. 
-Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as to whether the gene itself contributes to BMD.
+The lowest ranked gene with literature implied BMD association is DCDC5 (Doublecortin Domain Containing 5) ranked 9,830
+out of 10,000 (see Fig~\ref{figure:knowngeneranks}).  Similar to the conclusions drawn by Duncan {\it et
+  al.}~\cite{Duncan.2011}, our results also indicate that this gene does not have a strong association with BMD.  In
+fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear
+\cite{Thakker2012}.  Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as
+to whether the gene itself contributes to BMD.
 
-Hence focusing on the top 20 most associated variants, the majority are from five known BMD genes (left side of the vertical line in Figure~\ref{figure:knowngeneranks}), however there are also five novel locations as annotated in Figure~\ref{figure:ranksumtest}. Most notably the SNP in the intronic region of Unc13c (rs12916554) is linked to quality of sleep~\cite{Nicod2016}, which in turn is reported to be the best predictor of osteoporosis risk~\cite{Magali2016}, a condition diagnosed by measuring BMD.  
-Also listed is rs1035665, which was identified in a recent GWAS study to regulate ABCF1 (ATP Binding Cassette Subfamily F Member 1)~\cite{Dixon2007} with member 2 of this subfamily being a known BMD gene. The other three novel loci are on or near ncRNA.
+Hence focusing on the top 20 most associated variants, the majority are from five known BMD genes (left side of the
+vertical line in Fig~\ref{figure:knowngeneranks}), however there are also five novel locations as annotated in
+Fig~\ref{figure:ranksumtest}. Most notably the SNP in the intronic region of Unc13c (rs12916554) is linked to quality
+of sleep~\cite{Nicod2016}, which in turn is reported to be the best predictor of osteoporosis risk~\cite{Magali2016}, a
+condition diagnosed by measuring BMD.  Also listed is rs1035665, which was identified in a recent GWAS study to regulate
+ABCF1 (ATP Binding Cassette Subfamily F Member 1)~\cite{Dixon2007} with member 2 of this subfamily being a known BMD
+gene. The other three novel loci are on or near ncRNA.
 
 \cursedforest\ can successfully be used in GWAS-type analysis replicating previous findings and uncovering novel associations due to the ability of random forests to pick up interacting features.  
 
@@ -1130,4 +1138,6 @@ vitae.
 \bibliography{CursedForest}
 
 \end{document}
+
+
 
