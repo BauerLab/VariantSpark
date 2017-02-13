@@ -266,10 +266,15 @@ Denis C. Bauer\textsuperscript{1,*}
 
 % Please keep the abstract below 300 words
 \section{Abstract}
-We introduce \cursedforest, an implementation of random forests designed to handle data that may have an extremely large
-number of variables. We discuss the utility of random forests for machine learning problems. We show on simulated and
-real data that the novel implementation can achieve reasonable prediction accuracy and variable importance estimates
-even in setting where other implementations, including some designed for large data, fail.
+
+Analyses are performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in genomics, cohort sizes are in the thousands, each comprising of Millions of variants that make up a persons genetic differences. Traditional approaches are unable to cater for this task and even standard implementations using novel compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such data. Specifically, Spark ML?s supervised machine learning methods suffer from "the curse of dimensionality". That is, they scale well with samples (n) but not with features (p, variants).
+
+We introduce \cursedforest, a tailored implementation of random forests designed to handle data with extremely large number of variables per sample. We showcase \cursedforest\ to accurately predict ethnicity from whole genome sequencing profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest\ was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or more. We also demonstrate a GWAS-style analysis using  \cursedforest's feature selection approach on an imputed SNP array dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying novel candidates.  
+
+\cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near real-time classification of population-scale patient cohorts in "patients like mine" scenarios, as well as performing GWAS analysis on large unfiltered whole genome sequencing cohorts. 
+
+
+
 
 \linenumbers
 
@@ -794,38 +799,57 @@ gene. The other three novel loci are on or near ncRNA.
 % Section 3: Classification selection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest outperforms existing methods for classification problems}
-In this section we demonstrate \cursedforest's classification accuracy on biological data and compare its performance against other published methods by predicting ethnicity on the
-1000 Genomes Project dataset.
-
+In this section we demonstrate \cursedforest's classification accuracy on biological data and compare its performance against other published methods. 
+We do this by predicting the ethnicity of the individuals in the 1000 Genomes Project from their genomic profiles and evaluate against the annotated label. 
+We record the prediction error (OOB) as well as the runtime for each method. 
 %In a previous paper, we clustered individuals from the 1000 Genomes Project using k-means clustering \cite{OBrien2015}.
 %Although we were able to cluster individuals on all 80 million variants, it was relatively slow, with the entire
 %process (pre-processing and clustering) taking over 30 hours.
 %We investigate building random forest models on this data. However, we observed this process to not only be slower
 %than building a k-means model, but does not scale to as many dimensions (see Table~\ref{timingtable}). 
-To keep
-the following comparisons fair, we limit the number of executors available to Spark. 
+%@Aidan 
+We limit the number of executors to X that are available to \cursedforest\ to keep the comparison fair for all methods.  
 
-On the relatively low-dimensional
-phase1\_chr22 dataset (1,092 x 490,036), we observed a runtime of under 8 minutes. Although slower than Ranger, 
-presumably due to the overhead of Spark's distributed platform on this relatively small dataset, we observe Spark ML to
-be about 16 minutes faster than R. Moving to the larger dataset, phase3\_chr1 (2,504 x 6,450,364), we observe an increase
-in Spark ML's runtime to over 8 hours. Moving to our next largest dataset, phase3\_chr1\-3 (2,504 x 19,328,051), and the
-job fails to complete within our arbitrary cutoff time of 20 hours.
+As shown in Fig.~\ref{figure:1000genomes}, only \cursedforest\ is able to scale to the full phase3\_chr1-22 dataset (2,504 samples x 19,328,051 variants), with
+the standard random forest implementation in R and ranger's C++ version running out of resources on the relatively low-dimensional
+phase1\_chr22 dataset (1,092 x 490,036). Ranger's R implementation is able to process the second largest dataset (phase3\_chr1-3 with 2,504 x 19,328,051), however, for larger datasets the runtime increases beyond a reasonable compute time for this task (>20h). 
+The standard implementation of random forest in SparkML already runs out of memory after processing the third largest dataset, phase3\_chr1 (2,504 x 6,450,364). 
+This demonstrates that Spark ML, although designed to handle many samples, is unable to efficiently cope with large numbers of features. 
 
-From our trials, it was apparent that Spark ML, although designed to handle many samples, is unable to efficiently cope
-with a huge number of features. With the decreasing costs of genome sequencing, this case will surely become increasingly
-common.
+%With the decreasing costs of genome sequencing, this case will surely become increasingly
+%common.
+All tested methods have a worse runtime than \cursedforest\ for the datasets they processed successfully, except for the smallest dataset where the overhead of Spark's distributed platform made Ranger's R implementation faster with 1 min 10 seconds compared to 1 min 50 seconds. For example, on phase3\_chr1-3 \cursedforest\ finishes in 1h, with Ranger(R) requiring 4h and SparkML already needing 8 hours on a smaller dataset. 
+Extrapolating from this, all comparable implementations hence would require more than 100 days to finish, assuming the use of larger memory nodes.  
 
-\cursedforest solves this problem of high-dimensionality genomic data. Not only is it faster on the above smaller datasets,
-but it is also able to scale to the entire genome. In Table~\ref{cursedforesttable} we present our observed times building
-models with CursedForest using all available resources on our Spark cluster.
+%with the ranger implementation in R and SparkML 
+%On the relatively low-dimensional
+%phase1\_chr22 dataset (1,092 samples x 490,036 variants), we observed a runtime of under 8 minutes. Although slower than Ranger, 
+%presumably due to the overhead of Spark's distributed platform on this relatively small dataset, we observe Spark ML to
+%be about 16 minutes faster than R. Moving to the larger dataset, phase3\_chr1 (2,504 x 6,450,364), we observe an increase
+%in Spark ML's runtime to over 8 hours. Moving to our next largest dataset, phase3\_chr1\-3 (2,504 x 19,328,051), and the
+%job fails to complete within our arbitrary cutoff time of 20 hours.
 
-As we previously mentioned, building a random forest model on the phase3\_chr1 dataset with Spark ML takes over 8 hours.
-Building a model with \cursedforest, however, takes only 20 minutes using the same cluster setup and this time drops to
-nearly 4 minutes using the entire compute cluster. Subsequently, phase3\_chr1\-3 takes about 11 minutes, and building a
-model on the entire genome is just shy of 37 minutes. Not only does the job complete successfully, but building a random
-forest model on all 22 autosomes (phase3\_chr1\-22) using \cursedforest is more than twice as fast as building a random
-forest on the chromosome 1 (phase3\_chr1) using Spark ML.
+%From our trials, it was apparent that Spark ML, although designed to handle many samples, is unable to efficiently cope
+%with a huge number of features. With the decreasing costs of genome sequencing, this case will surely become increasingly
+%common.
+
+%\cursedforest solves this problem of high-dimensionality genomic data. Not only is it faster on the above smaller datasets,
+%but it is also able to scale to the entire genome. 
+
+As our implementation can efficiently utilise large numbers of commodity nodes, the performance of \cursedforest\ can be substantially improved further.  
+Table~\ref{cursedforesttable} shows the runtime when utilising the full Spark cluster (12 worker nodes). 
+
+%As we previously mentioned, building a random forest model on the phase3\_chr1 dataset with Spark ML takes over 8 hours.
+Building a model with \cursedforest\ on phase3\_chr1, which previously took 20 minutes, can be reduced to 4 minutes. 
+Subsequently, phase3\_chr1-3 takes about 11 minutes, and building a
+model on the entire genome is 37 minutes. 
+
+Not only does the job complete successfully using \cursedforest\, but building a random
+forest model on all 22 autosomes (phase3\_chr1-22)  leads to a more accurate result. 
+The error can be reduced from OOB=0.04 when using only data from Chr1, which represents processing power limit for most tools, down to OOB=0.01 when using the full dataset. 
+
+%than twice as fast as building a random
+%forest on the chromosome 1 (phase3\_chr1) using Spark ML.
 
 
 \begin{table}[!ht]
@@ -854,7 +878,7 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
 \begin{figure}[tbhp]
   \begin{adjustwidth}{-1.00in}{0in}
     \caption{\textbf{Runtime comparison on the 1000 genomes project}}
-    \label{figure:synth1}
+    \label{figure:1000genomes}
     \includegraphics[totalheight=8cm]{./figs/1000genomesRuntime.pdf}
     \begin{flushleft}
       The figure shows the runtime for the 5 subsets of the 1000 genomes project and the different methods investigated.
@@ -941,10 +965,10 @@ Each random forest model consists of 50 trees.
 % Section 4: Sensitivity 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Scalability analysis}
-In this section we explore the performance of \cursedforest by testing its ability to scale to different sizes of data
+In this section we explore the performance of \cursedforest\ in more detail by testing its ability to scale to different sizes of data
 and computational resources.
 
-In order to asses these characteristics we ran \cursedforest classification on synthetic datasets with varying numbers
+In order to asses these characteristics, we run \cursedforest classification on synthetic datasets with varying numbers
 of variables (features) and samples, similar to the dataset used in \cite{Wright.and.Ziegle.2016} to evaluate
 \ranger, allocating varying number of CPU cores to the \cursedforest and also varying the computational complexity
 of the random forests by using a range of \mtry values.
@@ -955,7 +979,7 @@ were executed with the same random seed, to improve the consistency of measureme
 
 First we look at \cursedforest horizontal scalability for a medium size dataset of 2.5 million variables and 5000
 samples, by varying the \mtry  fraction and the number of CPU cores allocated to the execution. 
-The results are  visualized in Fig~\ref{figure:synthetictiming} below. 
+%The results are visualised in Fig~\ref{figure:synthetictiming}. 
 %The raw results are
 %presented in Table~\ref{synthetictimingtable} and visualized in figure \ref{figure:synthetictiming} below. 
 Regardless of the number of cores used, \cursedforest displays approximately linear dependency between the execution
@@ -977,9 +1001,8 @@ irregularities in the graph can be attributed to computation vs communication tr
 keeping the \mtry fraction constant results in higher \mtry values with the growing number of variables, and this is what
 drives the performance down rather that the increase of dataset size itself.
 
-To conclude \cursedforest is capable of processing datasets with 50M variables and 10K samples, which is the order of
-magnitude of the entire genome variants expected in such dataset, for which it can build approximately 60 trees per
-hour.
+To conclude \cursedforest is capable of processing 60 trees per hour on a datasets with 50 million variables and 10,000 samples, which 
+is the size range for whole genome sequencing experiments of clinically relevant cohort sizes.
 
 \begin{figure}[tbhp]
   \begin{adjustwidth}{-1.00in}{0in}
@@ -1126,12 +1149,8 @@ practical limits but the logical limits will still apply. However in the case of
 
 
 \section*{Acknowledgments}
-
-Cras egestas velit mauris, eu mollis turpis pellentesque sit
-amet. Interdum et malesuada fames ac ante ipsum primis in
-faucibus. Nam id pretium nisi. Sed ac quam id nisi malesuada
-congue. Sed interdum aliquet augue, at pellentesque quam rhoncus
-vitae.
+AO and PS implemented the method, AO conducted the BMD and 1000genomes experiments while PS generated the scaling data, analysed by RD with input from NE. PL and ELD aided in the interpretation of the BMD data, while SL and JD contributed to the 1000genomes analysis. DCB visualised the BMD and 1000genomes results. All authors contributed to the manuscript. 
+The authors would like to acknowledge CSIRO, specifically PS, for setting up and maintaining the in-house Spark cluster. 
 
 \nolinenumbers
 
