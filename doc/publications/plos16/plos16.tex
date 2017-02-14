@@ -261,15 +261,15 @@ Denis C. Bauer\textsuperscript{1,*}
 * Denis.Bauer@CSIRO.au
 \end{flushleft}
 
-\tableofcontents
-\clearpage
+%\tableofcontents
+%\clearpage
 
 % Please keep the abstract below 300 words
 \section{Abstract}
 
-Analyses are performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in genomics, cohort sizes are in the thousands, each comprising of Millions of variants that make up a persons genetic differences. Traditional approaches are unable to cater for this task and even standard implementations using novel compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such data. Specifically, Spark ML?s supervised machine learning methods suffer from "the curse of dimensionality". That is, they scale well with samples (n) but not with features (p, variants).
+Analyses are performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in genomics, cohort sizes are in the thousands, each comprising of Millions of variants that make up a person's genetic differences. Traditional approaches are unable to cater for this task and even standard implementations using novel compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such data. Specifically, Spark ML's supervised machine learning methods suffer from "the curse of dimensionality". That is, they scale well with samples (n) but not with features (p, variants).
 
-We introduce \cursedforest, a tailored implementation of random forests designed to handle data with extremely large number of variables per sample. We showcase \cursedforest\ to accurately predict ethnicity from whole genome sequencing profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest\ was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or more. We also demonstrate a GWAS-style analysis using  \cursedforest's feature selection approach on an imputed SNP array dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying novel candidates.  
+We introduce \cursedforest, a tailored implementation of random forests, designed to handle data with extremely large number of variables per sample. We showcase \cursedforest\ to accurately predict ethnicity from whole genome sequencing profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest\ was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or more. We also demonstrate a GWAS-style analysis using  \cursedforest's feature selection approach on an imputed SNP array dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying novel candidates.  
 
 \cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near real-time classification of population-scale patient cohorts in "patients like mine" scenarios, as well as performing GWAS analysis on large unfiltered whole genome sequencing cohorts. 
 
@@ -291,71 +291,82 @@ termed single nucleotide polymorphisms (SNPs), by applying linear or logistic re
 separately~\cite{CCC2007}.  It has since been demonstrated that not taking interactions between SNPs into account
 when filtering for potential disease mutations is inadequate~\cite{Manolio2009,Yang2011}.
 
-A tree-based model is capable of taking the interaction of variables into account \cite{Wright.et.al.2016}. In addition, random forests are well
+Hence using more sophisticated machine learning (ML) approaches, in particular tree-based models, have been successful
+for taking the interaction of variables into account~\cite{Wright.et.al.2016}. In addition, random forests are well
 suited for processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have
 the propensity to overfit datasets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting.  Secondly, random
-forests are also very easy to parallelize. As the forest is a sum of decision trees, it is possible to grow separate
-trees on different processors and combine the trees. See the discussion of the properties of random forests in Section
-\ref{section:methods}.
+forests are also very easy to parallelise. As the forest is a sum of decision trees, it is possible to grow separate
+trees on different processors and combine the trees. 
+%See the discussion of the properties of random forests in Section \ref{section:methods}.
 
-The most popular random forest software packages are R-based, although current implementations do not scale well with
-increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
-than $2^{31}-1$), and the \randomforest implementation in R lending itself to parallelization to grow multiple
-trees simultaneously~\cite{Liaw.and.Weiner.2002} and then combine them.  More suitable implementations for ``wide''
+The most popular random forest software packages to date are R-based, although it has been reported that current implementations 
+do not scale well with increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
+than $2^{31}-1$), and the \randomforest implementation in R lending itself to parallelisation by growing multiple
+trees simultaneously and combining them for the final result~\cite{Liaw.and.Weiner.2002}.  More suitable implementations for ``wide''
 genomic data have been developed in other programming languages. \textsc{CloudForest} \cite{Bressler2015}, written in Go,
-achieves fast run times by effective use of the CPU cache, optimizing for different classes of features and efficiently
+achieves fast run times by effective use of the CPU cache, optimising for different classes of features and efficiently
 multithreading.  Similarly, \ranger~\cite{Wright.and.Ziegle.2016}, written in C++ with an R front-end, is
-specifically optimized for dealing with large datasets.
+specifically optimised for dealing with large datasets.
 
-The use of traditional compute infrastructure limits the parallelization strategies that can be employed by  
-these methods.  The programs are limited to utilizing only CPUs that are on the same computer node (multithreading) or
-else they can run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
-processes (a separate tree is grown on each node).  Hadoop/Spark overcomes these limitations by enabling programs to
-scale beyond compute-node boundaries and hence enable more sophisticated parallelization strategies.  In the case of
-random forests this means that the computations for each node of a tree can be handed off to separate processors.
+However, the use of traditional compute infrastructure limits the parallelisation strategies that can be employed.  
+The programs are limited to utilising only CPUs that are on the same computer node (multithreading) or
+farm out independent tasks to CPUs distributed across nodes that do not require communication between the
+processes (a separate tree is grown on each node).
+%else they can run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
+%processes (a separate tree is grown on each node).  
+Hadoop/Spark overcomes these limitations by enabling programs to
+scale beyond compute-node boundaries and hence enable more sophisticated parallelisation strategies.  In the case of
+random forests, the computations for each node of a tree can hence be handed off to separate processors.
+ 
+Despite overcoming the node-boundary limitation, the standard implementation of random forest in Spark ML
+is not able to handle the extremely ``wide'' genomic data as it was developed for a large number of samples
+with only modest dimensionality~\cite{NIPS2016_6366}.  Although Spark ML can build a random forest model on a subset of the data (chromosome
+1), we show that the time taken is excessive due to the large amount of data being aggregated and processed by the driver node during
+intermediate stages of building the model.  This unbalanced work load where the driver
+node becomes the bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets. We also show that the memory
+requirements per executor increases with dimensionality due to the data types Spark ML uses.%, which we elaborate on in the discussion.
   
-Here we introduce \cursedforest, a Hadoop/Spark-based implementation of random forests specifically designed to cater
-for ``big'' (many samples) and ``wide'' (many features) datasets. A Spark application runs on a ``driver'' node and
-distributes tasks to many ``worker'' nodes, or ``executors''. Using this facility, \cursedforest is capable of
-parallelizing the split for each node in a tree thereby handling millions of features. It can, for example, fit a
-model to the 1000 Genomes Project data, which consists of approximately 2500 samples with up to 80 million
-variants~\cite{1KG2012}.  By also utilizing Spark to read in and manipulate the standard genomic variant format (VCF)
+Here we introduce \cursedforest, a tailored Hadoop/Spark-based implementation of random forests specifically designed to cater
+for ``big'' (many samples) and ``wide'' (many features) datasets. 
+\cursedforest extends our previously developed variant interpretation framework, VariantSpark~\cite{OBrien2015}, to now offer
+supervised as well as unsupervised ML algorithms in the Spark framework.
+In our implementation a Spark application runs on a ``driver'' node and
+distributes tasks to many ``worker'' nodes, or ``executors''. 
+By also utilising Spark to read in and manipulate the standard genomic variant format (VCF)
 directly, \cursedforest outperforms existing tools even on small datasets where multithreading generally performs
-well. Harnessing the virtually unlimited capability to parallelize tasks, \cursedforest can build a large number of
-trees and use a high \mtry value which may lead to greater accuracy (see the example in section \ref{section:synthetic}). 
+well. Harnessing the virtually unlimited capability to parallelise tasks, \cursedforest can hence explore the solution 
+space faster by building a larger number of diverse models to generate a consensus from. 
 
-\marginpar{does \cite{Szymczak2016} say that high \ntree gives greater  accuracy for variable importance selection?
-Check this. }
+Using this facility, \cursedforest is capable of parallelising the split for each node in a tree thereby handling millions 
+of features, as required to process whole genome sequencing data or SNP array data with unobserved genotypes 
+imputed~\cite{Howie2012}.  This provides the potential to generate datasets of hundreds of thousands of individuals 
+with millions of variants (imputing the GWAS catalog), highlighting the need for modern
+compute paradigms in the genomics space.
 
-We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
-framework allowing users to easily analyze Variant Call Format (VCF) files using ML algorithms on the Spark framework.
-Using VariantSpark, we successfully built a k-means model on the full $2500 \times 80$ million matrix to cluster
-individuals by their ethnicity achieving an Adjusted Rand Index (ARI) of 0.84 (with 1 being perfect clustering and -1
-random clustering).
+%It can, for example, fit a model to the 1000 Genomes Project data, which consists of approximately 2500 samples with up to 80 million
+%variants~\cite{1KG2012}.  
+%build a larger number of
+%trees hence building a larger number of diverse models to generate the consensus from.  %and use a high \mtry value which may lead to greater accuracy (see the example in section \ref{section:synthetic}). 
+%\marginpar{does \cite{Szymczak2016} say that high \ntree gives greater  accuracy for variable importance selection?
+%Check this. }
+%We previously demonstrated the versatility and scalability of Spark by developing VariantSpark~\cite{OBrien2015}, a
+%framework allowing users to easily analyze Variant Call Format (VCF) files using ML algorithms on the Spark framework.
+%Using VariantSpark, we successfully built a k-means model on the full $2500 \times 80$ million matrix to cluster
+%individuals by their ethnicity achieving an Adjusted Rand Index (ARI) of 0.84 (with 1 being perfect clustering and -1
+%random clustering).
+%Using VariantSpark, we successfully built a k-means model on the full $2500 \times 80$ million matrix to cluster
+%individuals by their ethnicity achieving an Adjusted Rand Index (ARI) of 0.84 (with 1 being perfect clustering and -1
+%random clustering).
+%Here we extend this toolkit to encompass supervised learning using random forests.  
 
-Here we extend this toolkit to encompass supervised learning using random forests.  Spark ML's random forest
-implementation is not able to handle the extremely ``wide'' genomic data as it was developed for a large number of samples
-with only modest dimensionality.  Although Spark ML can build a random forest model on a subset of the data (chromosome
-1), the time taken is excessive due to the large amount of data being aggregated and processed by the driver node during
-intermediate stages of building the model (see Table~\ref{timingtable}).  This unbalanced work load where the driver
-node becomes the bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets. The memory
-requirements per executor also increases with dimensionality due to the data types Spark ML uses, which we elaborate on
-in the discussion.
-
-\cursedforest is included in our previously developed framework for Spark-based genomic data analysis,
-VariantSpark~\cite{OBrien2015}, which therefore now enables supervised and unsupervised machine learning. This offers a
-comprehensive analysis toolkit that can scale for future data demands, where the richness from WGS data can be
-utilized to ``fill in'' or impute the information at previously unobserved genomic positions in older array
-technology~\cite{Howie2012}.  This provides the potential to impute samples in the GWAS catalog and generate datasets
-of hundreds of thousands of individuals with millions of variants, highlighting the need for incorporating modern
-compute paradigms to deal with these challenges.
-
-In the first section we explore some of the properties of random forests as these will also be apparent in the
-\cursedforest implementation. Here we provide demonstrations using synthetic data. Secondly, we demonstrate the ability of
-\cursedforest to select previously demonstrated features from a bone mineral density (BMD) dataset. 
+VariantSpark~\cite{OBrien2015} with the \cursedforest extension therefore offers a
+comprehensive analysis toolkit that can scale to future data demands. To showcase the framework's ability we demonstrate
+a classification as well as feature-selection task on synthetic data in the first section. In the second section, we demonstrate the ability of
+\cursedforest to successfully replicate findings from a previous GWAS study as well as identify novel variants associated with bone 
+mineral density (BMD). 
 Thirdly, we demonstrate the scalability of \cursedforest in respect to the dimensionality of data by building a random
-forest model on whole-genome data from the 1000 Genomes Project. Here we report the error in predicting ethnicity.
+forest model on whole-genome data from the 1000 Genomes Project~\cite{1KG2012} to predict ethnicity.
 Finally, given the role different parameter values can play in model construction, we explore the effect that tuning these
 parameters can have on the prediction accuracy of the model.
 
