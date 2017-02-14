@@ -129,17 +129,12 @@ Supplementary Information}
 
 
 
-<<echo=FALSE,eval=FALSE>>=
-
-
-@ 
-
 
 \section{supplementary Information for Section 4.1}
 
 
 
-\begin{table}[!ht]
+\begin{sidewaystable}[!ht]
 \begin{minipage}{\textwidth}
 %\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \centering
@@ -160,19 +155,19 @@ Supplementary Information}
 \multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   &               &            &                  &                                                                \\
                                                     & RF - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\
                                                     & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
-                                                    & ranger - R    & 0.94       & 4 1/2 mins       & 21GB (one processor) \\
+                                                    & ranger - R    & 0.06       & 4 1/2 mins       & 21GB (one processor) \\
 \hline
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.063 (XX) & 1hr 58min        & 4GB \\
-                                                    & RF - Spark ML  & 0.94       & 8hr 29min        & 8GB \\
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest\ & 0.06 & 1hr 58min        & 4GB \\
+                                                    & RF - Spark ML  & 0.06       & 8hr 29min        & 8GB \\
                                                     & LR - Spark ML  &            & 2hr 6min         & 8GB \\
-                                                    & ranger - R      & 0.95       & 28 mins          & num.threads=10\footnote{don't
+                                                    & ranger - R      & 0.05       & 28 mins          & num.threads=10\footnote{don't
                                                                                                       know how to get the memory
                                                                                                       used,   This was done on dpas-03} \\
 \hline
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.046 (XX) & 4hr 0min                                             & 4GB \\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest\ & 0.04 & 4hr 0min                                             & 4GB \\
                                                     & RF - Spark ML  &            &                                                      & \\
                                                     & LR - Spark ML  &            & 14hr 48min                                           & 8GB \\
-                                                    & ranger - R      &  0.97      & 58 mins\footnote{ but took 6 hours to load the
+                                                    & ranger - R      &  0.03      & 58 mins\footnote{ but took 6 hours to load the
                                                                                    data}
                                                                                                                                          &
                                                                                                                                            909GB\footnote{I
@@ -190,53 +185,19 @@ Supplementary Information}
                                                                                                                                            on
                                                                                                                                            ruby
                                                                                                                                            }  \\
-& ranger - R        &             0.973     &      03:58           &       pearcey --cpus-per-task=15 --mem 1600gb   906GB \\
+& ranger - R        &             0.027     &      03:58           &       pearcey --cpus-per-task=15 --mem 1600gb   906GB \\
 \hline
 
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & XX (0.96) & 7hr 14min & 8GB \\
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & 0.04 & 7hr 14min & 8GB \\
 & RF - Spark ML & - & - & - \\
 & LR - Spark ML & - & - & - \\ 
-& kmeans - Spark ML  & - (0.82)      & 30hr 44min    & 24GB \\ 
+& kmeans - Spark ML  & 0.18      & 30hr 44min    & 24GB \\ 
 & ranger (C++)       &        NA     &        NA     &            80 CPU -- runs out of memory (12.8GB per CPU) \\
 & ranger (C++)       &        NA     &        NA     &            160
                                                         CPU -- runs
                                                         out of time at
                                                         20 hours \\
 \hline
-% \begin{tabular}{|p{1.2cm}|p{1cm}|p{1.5cm}+l|l|p{1.8cm}|p{1.5cm}|}
-% \hline
-% %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-% \bf{Data- set} & \bf{Samp- les} & \bf{Feat- ures}  & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/ Node} \\
-% \hline
-% %\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
-% phase1 chr22 &1,092 & 490,036 & CursedForest & 0.077 (XX)  & 9min 16sec & 1GB\footnote{\label{note10}10 nodes} \\
-% &&& RF - Spark ML & 0.069 (0.89) & 14min 13sec & 1GB\footref{note10}  \\
-% &&& RF - R &  0.05  & 24min  & 18GB\footref{note1}\footnote{using the \texttt{parallel} packages}\\
-% &&& ranger -R &         0.05 &        1min 10sec  &          16GB  (one processor) \\
-%  \hline
-% phase3 chr22 & 2,504 & 1,103,548 &  &  &  &  \\
-% &&& CursedForest & 0.053 & 9 min 8 sec & 2GB\footnote{\label{note20}20 nodes}\\
-% &&& RF - Spark ML & 0.058 (0.92) & 1hr 1min & 2GB\footref{note20} \\
-% &&& RF - R & NA  & NA & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface}\\
-% &&&  H2O   &        0.05 &     16 hours       &   600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
-% \hline
-% phase3 chr1 & 2,504 & 6,450,364 & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
-% &&& RF - Spark ML & (0.94) & 8hr 29min & 8GB \\
-% &&& LR - Spark ML&  & 2hr 6min & 8GB\\ 
-% &&& ranger  R   &  0.06   &     28 mins  &            num.threads = 10\footnote{don't know how to get the memory used, This
-%   was done on dpas-03} \\ 
-% \hline
-% phase3 chr1-3 & 2,504 & 19,328,051  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
-% &&& RF - Spark ML & - & -  & -\\
-% &&& LR - Spark ML & & 14hr 48min & 8GB \\ 
-% &&& ranger  R   &  0.05   &     58 mins\footnote{ but took 6 hours to load the data}  &      909GB\footnote{I think this is total memory. The job was run with
-%   ntasks-per-node=160 cores-per-socket=10 on ruby }  \\ 
-% \hline
-% phase3 chr1-22 & 2,504 & 81,047,467 & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
-% &&& RF - Spark ML & - & - & - \\
-% &&& LR - Spark ML & - & - & - \\ 
-% %&&& kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ 
-% \hline
 \end{tabular}
 \begin{flushleft} 
 Comparison of different various machine learning libraries on different subsets of variant data 
@@ -246,15 +207,26 @@ Each random forest model consists of 50 trees.
 \label{table1}
 %\end{adjustwidth}
 \end{minipage}
-\end{table}
+\end{sidewaystable}
 
 
 
 
 
-\begin{table}[!ht]
+
+\bibliographystyle{apalike}
+
+%\bibliography{/home/dun280/Dropbox/TeX/bibliography/screening_compliance.bib}
+\bibliography{/home/dun280/Dropbox/TeX/bibliography/ripley.bib}
+\end{document}
+
+
+
+
+
+\begin{sidewaystable}[!ht]
 \begin{minipage}{\textwidth}
-\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
 \centering
 \caption{
 {\bf Performance comparison between the different machine learning algorithms.}}
@@ -319,16 +291,46 @@ from the 1000 Genomes Project.
 Each random forest model consists of 50 trees.
 \end{flushleft}
 \label{table1}
-\end{adjustwidth}
+%\end{adjustwidth}
 \end{minipage}
-\end{table}
+\end{sidewaystable}
 
 
 
 
 
-\bibliographystyle{apalike}
 
-%\bibliography{/home/dun280/Dropbox/TeX/bibliography/screening_compliance.bib}
-\bibliography{/home/dun280/Dropbox/TeX/bibliography/ripley.bib}
-\end{document}
+% \begin{tabular}{|p{1.2cm}|p{1cm}|p{1.5cm}+l|l|p{1.8cm}|p{1.5cm}|}
+% \hline
+% %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
+% \bf{Data- set} & \bf{Samp- les} & \bf{Feat- ures}  & \bf{Method} & \bf{Error (ARI)} & \bf{Runtime} & \bf{Memory/ Node} \\
+% \hline
+% %\multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & CursedForest & 0.077 (XX)  &  &  \\
+% phase1 chr22 &1,092 & 490,036 & CursedForest & 0.077 (XX)  & 9min 16sec & 1GB\footnote{\label{note10}10 nodes} \\
+% &&& RF - Spark ML & 0.069 (0.89) & 14min 13sec & 1GB\footref{note10}  \\
+% &&& RF - R &  0.05  & 24min  & 18GB\footref{note1}\footnote{using the \texttt{parallel} packages}\\
+% &&& ranger -R &         0.05 &        1min 10sec  &          16GB  (one processor) \\
+%  \hline
+% phase3 chr22 & 2,504 & 1,103,548 &  &  &  &  \\
+% &&& CursedForest & 0.053 & 9 min 8 sec & 2GB\footnote{\label{note20}20 nodes}\\
+% &&& RF - Spark ML & 0.058 (0.92) & 1hr 1min & 2GB\footref{note20} \\
+% &&& RF - R & NA  & NA & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface}\\
+% &&&  H2O   &        0.05 &     16 hours       &   600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\
+% \hline
+% phase3 chr1 & 2,504 & 6,450,364 & CursedForest & 0.063 (XX) & 1hr 58min & 4GB \\
+% &&& RF - Spark ML & (0.94) & 8hr 29min & 8GB \\
+% &&& LR - Spark ML&  & 2hr 6min & 8GB\\ 
+% &&& ranger  R   &  0.06   &     28 mins  &            num.threads = 10\footnote{don't know how to get the memory used, This
+%   was done on dpas-03} \\ 
+% \hline
+% phase3 chr1-3 & 2,504 & 19,328,051  & CursedForest & 0.046 (XX) & 4hr 0min & 4GB\\
+% &&& RF - Spark ML & - & -  & -\\
+% &&& LR - Spark ML & & 14hr 48min & 8GB \\ 
+% &&& ranger  R   &  0.05   &     58 mins\footnote{ but took 6 hours to load the data}  &      909GB\footnote{I think this is total memory. The job was run with
+%   ntasks-per-node=160 cores-per-socket=10 on ruby }  \\ 
+% \hline
+% phase3 chr1-22 & 2,504 & 81,047,467 & CursedForest & XX (0.96) & 7hr 14min & 8GB \\ 
+% &&& RF - Spark ML & - & - & - \\
+% &&& LR - Spark ML & - & - & - \\ 
+% %&&& kmeans - Spark ML & - (0.82) & 30hr 44min & 24GB \\ 
+% \hline
