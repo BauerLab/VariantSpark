@@ -1114,10 +1114,10 @@ Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'
 large number of areas including variable selection in high dimensions. They show that there is a sharp disjunction
 between the cases where significant variables may be recovered with a high accuracy by procedures like stepwise variable
 selection, and the cases where they can not be recovered. The boundary is shown in
-Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdeterminedness,
-$\delta = n/p$, and by the sparsity, $\rho =k/n$ (where $k$ is the number of significant variables). The theoretical
-boundary is based on arguments from combinatorial geometry. Above the phase-transition line variable recovery is still
-possible by a combinatorial approach such as all-subsets variable selection. 
+Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdetermination,
+$\delta = n/p$, and by the sparsity, $\rho =k/n$ (where $k$ is the number of significant variables).  Above the
+phase-transition line variable recovery is still possible by a combinatorial search approach such as all-subsets
+variable selection.  The theoretical boundary is based on arguments from combinatorial geometry.
 
 
 
@@ -1134,9 +1134,9 @@ possible by a combinatorial approach such as all-subsets variable selection.
 
 
 \cite{Donoho.and.Stodden.2006} investigate the behavior of a number of
-regression approaches for variable selection in a small simulation.  They consider a regression probem with 
+regression approaches for variable selection in a small simulation.  They consider a regression problem with 
 $\underset{n\times p}{X}\sim N(0,1)$ with $p$ fixed at 200 and $n$ variable.
-They  set $\beta(1:k) \sim U(1,100)$ and $\beta((k+1):p) =0$. Then  $y= X\beta + \epsilon$, $\epsilon \sim
+They  set $\beta(1:k) \sim U(1,100)$ and $\beta((k+1):p) =0$, then  $y= X\beta + \epsilon$, $\epsilon \sim
 N(0,\sqrt{16})$. They evaluate variable selection by the error measure 
 $$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}$$
 
@@ -1145,25 +1145,9 @@ the variable with the maximum $t$-value to the linear model if the $p$-value is 
 $25(\text{number of  terms  currently  in  the  model})/(\text{total  number  of  variables})$.  
 See Fig~\ref{figure:error_Stodden_FDR.png} for the error measure and
 figure \ref{figure:rbo_Stodden_FDR.png} for the RBO, comparing the ranking (i.e. values) of $\hat{\beta}$ and $\beta$.
-It apparent that there is a marked drop in the accuracy of the variable recovery in line with the pediction of the
+It apparent that there is a marked drop in the accuracy of the variable recovery in line with the prediction of the
 Donoho-Tanner phase transition.
 
-\begin{figure}[tbhp] 
-    \begin{subfigure}[b]{0.5\linewidth}
-      \centering
-      \includegraphics[totalheight=6cm]{./figs/k.png}
-      \caption{$k$}
-      \label{figure:k.png}
-    \end{subfigure} 
-    \begin{subfigure}[b]{0.5\linewidth}
-      \centering
-      \includegraphics[totalheight=6cm]{./figs/n.png}
-      \caption{$n$}
-      \label{figure:n.png}
-    \end{subfigure} 
-    \caption{The simulation in \protect{\cite{Donoho.and.Stodden.2006}} considers $\delta = n/p$ and $\rho =k/n$. Here we plot the
-      space of $\{ \delta, \rho$\}, colored  by the paramters $n$ and $k$}
-\end{figure}
 
 
  \begin{figure}[tbhp] 
@@ -1181,7 +1165,7 @@ Donoho-Tanner phase transition.
        \caption{The RBO measure}
        \label{figure:rbo_Stodden_FDR.png}
      \end{subfigure} 
-     \caption{Forward stepwise variable selction with a false discovery rate stopping criteria.}
+     \caption{Forward stepwise variable selection with a false discovery rate stopping criteria.}
        \label{figure:error_Stodden_FDR.png}
 %   \end{adjustwidth}
  \end{figure}
@@ -1191,39 +1175,39 @@ Donoho-Tanner phase transition.
      \begin{subfigure}[t]{0.5\linewidth}
        \centering
        \includegraphics[totalheight=6cm]{./figs/ranger_error_Stodden_simulation.png}
-       \caption{Stepwise with FDR stopping criteria. $p=200$, $n$ and $k$ variable. }
+       \caption{The OOB error rate.}
        \label{figure:ranger_error_Stodden_simulation.png}
        \vspace{4ex}
      \end{subfigure} 
      \begin{subfigure}[t]{0.5\linewidth}
        \centering
        \includegraphics[totalheight=6cm]{./figs/ranger_rbo_Stodden_simulation.png}
-       \caption{RBO}
+       \caption{The RBO measure}
        \label{figure:ranger_rbo_Stodden_simulation.png}
      \end{subfigure} 
-     \caption{}
+     \caption{The simulated data of \protect{\cite{Donoho.and.Stodden.2006}} with a random forest model.}
      \label{figure:ranger_rbo_Stodden_simulation.png}
 %   \end{adjustwidth}
  \end{figure}
 
 
-We have seen no work on the question of such a phase transition in the case of classification problems. Still it amy be
-instructive to consider the implications of the pahse transition for our work. As \cursedforest is designed for
+We have seen no work on the question of such a phase transition in the case of classification problems. Still it may be
+instructive to consider the implications of the phase transition for our work. As \cursedforest is designed for
 extremely large numbers of variables it is likely to be operating in difficult regions of the figure where the ratio
-$\delta = n/p$ is small. In the simulated example in section \ref{section:synthetic_data} the underdeterminedness $\delta = 0.002$ and the
+$\delta = n/p$ is small. In the simulated example in section \ref{section:synthetic_data} the underdetermination $\delta = 0.002$ and the
 sparsity $\rho =2\times 10^{-6}$
 
 We have used a random forest on the same simulation as figure \ref{figure:error_Stodden_FDR.png}.  The Donoho-Tanner phase transition arises in
 recovering the $\beta$ in data generated by a linear model. However, in a decision tree (random forest) we are fitting a
-non-linear model and there is no notion of estimating the $\beta$. Becsaue of this we have evaluted the performance of
+non-linear model and there is no notion of estimating the $\beta$. Because of this we have evaluated the performance of
 the random forest using the RBO measure on the variable importance.
 
-We note that while a random forest is a long way from an all-seubsets search, it is a limited combinatorial search of
+We note that while a random forest is a long way from an all-subsets search, it is a limited combinatorial search of
 the feature space. As such it may perform outside of the bounds of the phase transition. 
   combinatorial search.
 
 
-Fig~\ref{figure:ranger_rbo_Stodden_simulation.png} shosw the OOB prediction error and the RBO error for a random forest with 10000 trees and the \mtry value set
+Fig~\ref{figure:ranger_rbo_Stodden_simulation.png} shows the OOB prediction error and the RBO error for a random forest with 10000 trees and the \mtry value set
 to the default for a regression problem (depending on $n$). It shows no evidence of following the shape of the
 Donoho-Tanner phase transition.
 
@@ -1308,3 +1292,21 @@ The authors would like to acknowledge CSIRO, specifically PS, for setting up and
 %   \end{adjustwidth}
 % \end{figure}
 
+
+
+\begin{figure}[tbhp] 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/k.png}
+      \caption{$k$}
+      \label{figure:k.png}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/n.png}
+      \caption{$n$}
+      \label{figure:n.png}
+    \end{subfigure} 
+    \caption{The simulation in \protect{\cite{Donoho.and.Stodden.2006}} considers $\delta = n/p$ and $\rho =k/n$. Here we plot the
+      space of $\{ \delta, \rho$\}, colored  by the parameters $n$ and $k$}
+\end{figure}
