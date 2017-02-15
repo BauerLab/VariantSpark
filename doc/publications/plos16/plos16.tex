@@ -996,24 +996,24 @@ samples, by varying the \mtry  fraction and the number of CPU cores allocated to
 Regardless of the number of cores used, \cursedforest displays approximately linear dependency between the execution
 time and \mtry (Fig~\ref{figure:synthetictiming.a}).
 
-\cursedforest scales almost linearly with the number of CPU cores for medium values of \mtry fraction but for both
-lower and higher values the performance degrades slightly (Fig~\ref{figure:synthetictiming.b}). In the latter case the likely cause is
-communication overhead (with lower \mtry values the proportion of time for parallelizable computation to the time for
-internode communication is lower) while in the latter case it is most likely caused by reaching the clusters
+\cursedforest scales almost linearly with the number of CPU cores for medium values of \mtry fraction but for both lower
+and higher values the performance degrades slightly (Fig~\ref{figure:synthetictiming.b}). In the latter case the likely
+cause is communication overhead (with lower \mtry values the proportion of time for parallelizable computation to the
+time for internode communication is lower) while in the latter case it is most likely caused by reaching the clusters
 computational capacity.
 
-Next we investigate \cursedforest scalability with
-regards to the size of data, by varying the number of variables and sample for a fixed \mtry fraction of 0.25 and
-execution of 128 CPU cores. The results are visualized in Fig~\ref{figure:synth2} below (please note log scale on the
-axes and the values on y axes are expressed as trees per hour).
+Next we investigate \cursedforest scalability with regards to the size of data, by varying the number of variables and
+sample for a fixed \mtry fraction of 0.25 and execution of 128 CPU cores. The results are visualized in
+Fig~\ref{figure:synth2} below (please note log scale on the axes and the values on y axes are expressed as trees per
+hour).
 
 Generally, the number of trees per hour decreases with an increased number of variables and samples sizes. Some
 irregularities in the graph can be attributed to computation vs communication tradeoff. It is also worth noting that
-keeping the \mtry fraction constant results in higher \mtry values with the growing number of variables, and this is what
-drives the performance down rather that the increase of dataset size itself.
+keeping the \mtry fraction constant results in higher \mtry values with the growing number of variables, and this is
+what drives the performance down rather that the increase of dataset size itself.
 
-To conclude \cursedforest is capable of processing 60 trees per hour on a datasets with 50 million variables and 10,000 samples, which 
-is the size range for whole genome sequencing experiments of clinically relevant cohort sizes.
+To conclude \cursedforest is capable of processing 60 trees per hour on a datasets with 50 million variables and 10,000
+samples, which is the size range for whole genome sequencing experiments of clinically relevant cohort sizes.
 
 \begin{figure}[tbhp]
   \begin{adjustwidth}{-1.00in}{0in}
@@ -1103,6 +1103,7 @@ is the size range for whole genome sequencing experiments of clinically relevant
 
 
 \section{Conclusion}
+
 We have demonstrated that using a different parallelization model can extend random forests to the case of an
 extremely large number of variables. We have treated the case of variable selection in a $p >> n$ model where most of
 the variables are uninformative and have demonstrated the utility of the model for large GWAS datasets. By comparing
@@ -1110,44 +1111,132 @@ this implementation to other implementations (including those optimized for larg
 utility of this approach.
 
 Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
-large number of areas including variable selection in high dimensions. Consider
-Fig~\ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover the important variables,
-plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant variables). There is a
-distinct boundary, shown empirically and also based on arguments from combinatorial geometry, to the region where we can
-reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investigate the behavior of a number of
-regression approaches for variable selection (LARS, Lasso and forward stepwise) and make the point that above the
-phase-transition line variable recovery is still possible by a combinatorial approach.
-
-It is not surprising that that it is more difficult to recover the signal variable in the upper-left area of the figure,
-as the problem is both under-determined and sparse. What is surprising is the connection with arguments from
-combinatorial geometry. This suggests that we are seeing a universal rule rather than an implementation issue. As
-\cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions of
-the figure where the ratio $\delta = n/p$ is small.
+large number of areas including variable selection in high dimensions. They show that there is a sharp disjunction
+between the cases where significant variables may be recovered with a high accuracy by procedures like stepwise variable
+selection, and the cases where they can not be recovered. The boundary is shown in
+Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdeterminedness,
+$\delta = n/p$, and by the sparsity, $\rho =k/n$ (where $k$ is the number of significant variables). The theoretical
+boundary is based on arguments from combinatorial geometry. Above the phase-transition line variable recovery is still
+possible by a combinatorial approach such as all-subsets variable selection. 
 
 
-We note several things here:
-\begin{itemize}
-\item the Donoho-Tanner phase transition arises in recovering the $\beta$ in data generated by a
-  linear model. However, in a decision tree (random forest) there is no notion of estimating the $\beta$
-\item A decision tree (random forest) is a heuristic search. It may recover a relationship in the space of the
+
+
+\begin{figure}[tbhp] 
+ \begin{adjustwidth}{-1.00in}{0in}
+    \centering
+    \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
+    \caption{{\bf The phase change diagram.}}
+    \label{figure:phase-diagram-equivalence.png} 
+    \vspace{4ex}
+  \end{adjustwidth}
+\end{figure}
+
+
+\cite{Donoho.and.Stodden.2006} investigate the behavior of a number of
+regression approaches for variable selection in a small simulation.  They consider a regression probem with 
+$\underset{n\times p}{X}\sim N(0,1)$ with $p$ fixed at 200 and $n$ variable.
+They  set $\beta(1:k) \sim U(1,100)$ and $\beta((k+1):p) =0$. Then  $y= X\beta + \epsilon$, $\epsilon \sim
+N(0,\sqrt{16})$. They evaluate variable selection by the error measure 
+$$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}$$
+
+They consider a number of variable selection methods, including a false discovery rate criteria. This involves adding
+the variable with the maximum $t$-value to the linear model if the $p$-value is less than 
+$25(\text{number of  terms  currently  in  the  model})/(\text{total  number  of  variables})$.  
+See Fig~\ref{figure:error_Stodden_FDR.png} for the error measure and
+figure \ref{figure:rbo_Stodden_FDR.png} for the RBO, comparing the ranking (i.e. values) of $\hat{\beta}$ and $\beta$.
+It apparent that there is a marked drop in the accuracy of the variable recovery in line with the pediction of the
+Donoho-Tanner phase transition.
+
+\begin{figure}[tbhp] 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/k.png}
+      \caption{$k$}
+      \label{figure:k.png}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=6cm]{./figs/n.png}
+      \caption{$n$}
+      \label{figure:n.png}
+    \end{subfigure} 
+    \caption{The simulation in \protect{\cite{Donoho.and.Stodden.2006}} considers $\delta = n/p$ and $\rho =k/n$. Here we plot the
+      space of $\{ \delta, \rho$\}, colored  by the paramters $n$ and $k$}
+\end{figure}
+
+
+ \begin{figure}[tbhp] 
+%   \begin{adjustwidth}{-1.00in}{0in}
+     \begin{subfigure}[t]{0.5\linewidth}
+       \centering
+       \includegraphics[totalheight=6cm]{./figs/error_Stodden_FDR.png}
+       \caption{The error measure.}
+       \label{figure:error_Stodden_FDR.png}
+%       \vspace{4ex}
+     \end{subfigure} 
+     \begin{subfigure}[t]{0.5\linewidth}
+       \centering
+       \includegraphics[totalheight=6cm]{./figs/rbo_Stodden_FDR.png}
+       \caption{The RBO measure}
+       \label{figure:rbo_Stodden_FDR.png}
+     \end{subfigure} 
+     \caption{Forward stepwise variable selction with a false discovery rate stopping criteria.}
+       \label{figure:error_Stodden_FDR.png}
+%   \end{adjustwidth}
+ \end{figure}
+
+ \begin{figure}[tbhp] 
+%   \begin{adjustwidth}{-1.00in}{0in}
+     \begin{subfigure}[t]{0.5\linewidth}
+       \centering
+       \includegraphics[totalheight=6cm]{./figs/ranger_error_Stodden_simulation.png}
+       \caption{Stepwise with FDR stopping criteria. $p=200$, $n$ and $k$ variable. }
+       \label{figure:ranger_error_Stodden_simulation.png}
+       \vspace{4ex}
+     \end{subfigure} 
+     \begin{subfigure}[t]{0.5\linewidth}
+       \centering
+       \includegraphics[totalheight=6cm]{./figs/ranger_rbo_Stodden_simulation.png}
+       \caption{RBO}
+       \label{figure:ranger_rbo_Stodden_simulation.png}
+     \end{subfigure} 
+     \caption{}
+     \label{figure:ranger_rbo_Stodden_simulation.png}
+%   \end{adjustwidth}
+ \end{figure}
+
+
+We have seen no work on the question of such a phase transition in the case of classification problems. Still it amy be
+instructive to consider the implications of the pahse transition for our work. As \cursedforest is designed for
+extremely large numbers of variables it is likely to be operating in difficult regions of the figure where the ratio
+$\delta = n/p$ is small. In the simulated example in section \ref{section:synthetic_data} the underdeterminedness $\delta = 0.002$ and the
+sparsity $\rho =2\times 10^{-6}$
+
+We have used a random forest on the same simulation as figure \ref{figure:error_Stodden_FDR.png}.  The Donoho-Tanner phase transition arises in
+recovering the $\beta$ in data generated by a linear model. However, in a decision tree (random forest) we are fitting a
+non-linear model and there is no notion of estimating the $\beta$. Becsaue of this we have evaluted the performance of
+the random forest using the RBO measure on the variable importance.
+
+We note that while a random forest is a long way from an all-seubsets search, it is a limited combinatorial search of
+the feature space. As such it may perform outside of the bounds of the phase transition. 
   combinatorial search.
-\end{itemize}
+
+
+Fig~\ref{figure:ranger_rbo_Stodden_simulation.png} shosw the OOB prediction error and the RBO error for a random forest with 10000 trees and the \mtry value set
+to the default for a regression problem (depending on $n$). It shows no evidence of following the shape of the
+Donoho-Tanner phase transition.
+
+
+As \cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions of the figure.
+We note that the examples we are considering lie on the extreme left of the plot, close to the origin. So there are
+limits to what can be recovered in the presence of noise. However in the case of data that is both big and wide,
+\cursedforest and other VariantSpark methods may provide a useful tool.
 
 The existence of the  Donoho-Tanner phase transition is a salutary warning. There are likely to be limits, both
 computational and logical, to the recovery of signals from noisy data. \cursedforest  is a contribution to addressing the
 practical limits but the logical limits will still apply. However in the case of data that is both big and wide,
 \cursedforest and other VariantSpark methods may provide a useful tool.
-
-
-\begin{figure}[tbhp] 
- \begin{adjustwidth}{-1.00in}{0in}
-    \caption{\textbf{The Donoho-Tanner phase chage diagram.}}
-    \centering
-    \includegraphics[totalheight=6cm]{./figs/phase.png} 
-    \label{figure:phase-diagram-equivalence.png} 
-    \vspace{4ex}
-  \end{adjustwidth}
-\end{figure}
 
 
 \clearpage
@@ -1160,8 +1249,10 @@ practical limits but the logical limits will still apply. However in the case of
 
 
 \section*{Acknowledgments}
-AO and PS implemented the method, AO conducted the BMD and 1000genomes experiments while PS generated the scaling data, analysed by RD with input from NE. PL and ELD aided in the interpretation of the BMD data, while SL and JD contributed to the 1000genomes analysis. DCB visualised the BMD and 1000genomes results. All authors contributed to the manuscript. 
-The authors would like to acknowledge CSIRO, specifically PS, for setting up and maintaining the in-house Spark cluster. 
+AO and PS implemented the method, AO conducted the BMD and 1000genomes experiments while PS generated the scaling data,
+analysed by RD with input from NE. PL and ELD aided in the interpretatio nof the BMD data, while SL and JD contributed
+to the 1000genomes analysis. DCB visualised the BMD and 1000genomes results. All authors contributed to the manuscript.
+The authors would like to acknowledge CSIRO, specifically PS, for setting up and maintaining the in-house Spark cluster.
 
 \nolinenumbers
 
@@ -1170,4 +1261,50 @@ The authors would like to acknowledge CSIRO, specifically PS, for setting up and
 \end{document}
 
 
+
+% We have demonstrated that using a different parallelization model can extend random forests to the case of an
+% extremely large number of variables. We have treated the case of variable selection in a $p >> n$ model where most of
+% the variables are uninformative and have demonstrated the utility of the model for large GWAS datasets. By comparing
+% this implementation to other implementations (including those optimized for large datasets) we have demonstrated the
+% utility of this approach.
+
+% Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
+% large number of areas including variable selection in high dimensions. Consider
+% Fig~\ref{figure:phase-diagram-equivalence.png} which shows the region where a model can recover the important variables,
+% plotted as a function of $\delta = n/p$ and $\rho =k/n$ (where $k$ is the number of significant variables). There is a
+% distinct boundary, shown empirically and also based on arguments from combinatorial geometry, to the region where we can
+% reliably recover significant variables.  \cite{Donoho.and.Stodden.2006} investigate the behavior of a number of
+% regression approaches for variable selection (LARS, Lasso and forward stepwise) and make the point that above the
+% phase-transition line variable recovery is still possible by a combinatorial approach.
+
+% It is not surprising that that it is more difficult to recover the signal variable in the upper-left area of the figure,
+% as the problem is both under-determined and sparse. What is surprising is the connection with arguments from
+% combinatorial geometry. This suggests that we are seeing a universal rule rather than an implementation issue. As
+% \cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions of
+% the figure where the ratio $\delta = n/p$ is small.
+
+
+% We note several things here:
+% \begin{itemize}
+% \item the Donoho-Tanner phase transition arises in recovering the $\beta$ in data generated by a
+%   linear model. However, in a decision tree (random forest) there is no notion of estimating the $\beta$
+% \item A decision tree (random forest) is a heuristic search. It may recover a relationship in the space of the
+%   combinatorial search.
+% \end{itemize}
+
+% The existence of the  Donoho-Tanner phase transition is a salutary warning. There are likely to be limits, both
+% computational and logical, to the recovery of signals from noisy data. \cursedforest  is a contribution to addressing the
+% practical limits but the logical limits will still apply. However in the case of data that is both big and wide,
+% \cursedforest and other VariantSpark methods may provide a useful tool.
+
+
+% \begin{figure}[tbhp] 
+%  \begin{adjustwidth}{-1.00in}{0in}
+%     \caption{\textbf{The Donoho-Tanner phase chage diagram.}}
+%     \centering
+%     \includegraphics[totalheight=6cm]{./figs/phase.png} 
+%     \label{figure:phase-diagram-equivalence.png} 
+%     \vspace{4ex}
+%   \end{adjustwidth}
+% \end{figure}
 
