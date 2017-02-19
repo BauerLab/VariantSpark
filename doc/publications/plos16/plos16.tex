@@ -829,44 +829,24 @@ gene. The other three novel loci are on or near ncRNA.
 In this section we demonstrate \cursedforest's classification accuracy on biological data and compare its performance against other published methods. 
 We do this by predicting the ethnicity of the individuals in the 1000 Genomes Project from their genomic profiles and evaluate against the annotated label. 
 We record the prediction error (OOB) as well as the runtime for each method. 
-%In a previous paper, we clustered individuals from the 1000 Genomes Project using k-means clustering \cite{OBrien2015}.
-%Although we were able to cluster individuals on all 80 million variants, it was relatively slow, with the entire
-%process (pre-processing and clustering) taking over 30 hours.
-%We investigate building random forest models on this data. However, we observed this process to not only be slower
-%than building a k-means model, but does not scale to as many dimensions (see Table~\ref{timingtable}). 
-%@Aidan 
-We limit the number of executors to X that are available to \cursedforest\ to keep the comparison fair for all methods.  
+%@Aidan is 12 correct?
+We limit the number of executors to 12 that are available to \cursedforest\ to keep the comparison fair for all methods.  
 
 As shown in Fig.~\ref{figure:1000genomes}, only \cursedforest\ is able to scale to the full phase3\_chr1-22 dataset (2,504 samples x 19,328,051 variants), with
-the standard random forest implementation in R and ranger's C++ version running out of resources on the relatively low-dimensional
-phase1\_chr22 dataset (1,092 x 490,036). Ranger's R implementation is able to process the second largest dataset (phase3\_chr1-3 with 2,504 x 19,328,051), however, for larger datasets the runtime increases beyond a reasonable compute time for this task (>20h). 
+the standard random forest implementation in R running out of resources on the relatively low-dimensional
+phase1\_chr22 dataset (1,092 x 490,036). 
+Ranger's c++ implementation and the R front-end version of it are able to process the second largest dataset (phase3\_chr1-3 with 2,504 x 19,328,051), however, both are unable to process larger datasets successfully. 
+While the c++ implementation runs out of memory the R front-end, which also covers the loading and pre-processing, needs an unreasonable compute time for this task (>20h), see Supplementary Table 1.
 The standard implementation of random forest in SparkML already runs out of memory after processing the third largest dataset, phase3\_chr1 (2,504 x 6,450,364). 
 This demonstrates that Spark ML, although designed to handle many samples, is unable to efficiently cope with large numbers of features. 
 
-%With the decreasing costs of genome sequencing, this case will surely become increasingly
-%common.
-All tested methods have a worse runtime than \cursedforest\ for the datasets they processed successfully, except for the smallest dataset where the overhead of Spark's distributed platform made Ranger's R implementation faster with 1 min 10 seconds compared to 1 min 50 seconds. For example, on phase3\_chr1-3 \cursedforest\ finishes in 1h, with Ranger(R) requiring 4h and SparkML already needing 8 hours on a smaller dataset. 
-Extrapolating from this, all comparable implementations hence would require more than 100 days to finish, assuming the use of larger memory nodes.  
+All tested methods have a worse runtime than \cursedforest\ for the datasets they processed successfully, except for the smallest dataset where the overhead of Spark's distributed platform made ranger's R implementation faster with 1 min 10 seconds compared to 1 min 50 seconds. For example, on phase3\_chr1-3 \cursedforest\ finishes in 1 hour, with ranger(R) requiring 4 hours and SparkML already needing 8 hours on a smaller dataset. 
+Extrapolating from this, all comparable implementations hence would require more than 24 hours to finish, assuming the use of larger memory nodes.  
 
-%with the ranger implementation in R and SparkML 
-%On the relatively low-dimensional
-%phase1\_chr22 dataset (1,092 samples x 490,036 variants), we observed a runtime of under 8 minutes. Although slower than Ranger, 
-%presumably due to the overhead of Spark's distributed platform on this relatively small dataset, we observe Spark ML to
-%be about 16 minutes faster than R. Moving to the larger dataset, phase3\_chr1 (2,504 x 6,450,364), we observe an increase
-%in Spark ML's runtime to over 8 hours. Moving to our next largest dataset, phase3\_chr1\-3 (2,504 x 19,328,051), and the
-%job fails to complete within our arbitrary cutoff time of 20 hours.
+As our implementation can efficiently utilise large numbers of commodity nodes, the performance of \cursedforest\ can be substantially improved further. 
+%@Aidan is 130 correct?
+Table~\ref{cursedforesttable} shows the runtime when utilising the full Spark cluster (130 worker nodes). 
 
-%From our trials, it was apparent that Spark ML, although designed to handle many samples, is unable to efficiently cope
-%with a huge number of features. With the decreasing costs of genome sequencing, this case will surely become increasingly
-%common.
-
-%\cursedforest solves this problem of high-dimensionality genomic data. Not only is it faster on the above smaller datasets,
-%but it is also able to scale to the entire genome. 
-
-As our implementation can efficiently utilise large numbers of commodity nodes, the performance of \cursedforest\ can be substantially improved further.  
-Table~\ref{cursedforesttable} shows the runtime when utilising the full Spark cluster (12 worker nodes). 
-
-%As we previously mentioned, building a random forest model on the phase3\_chr1 dataset with Spark ML takes over 8 hours.
 Building a model with \cursedforest\ on phase3\_chr1, which previously took 20 minutes, can be reduced to 4 minutes. 
 Subsequently, phase3\_chr1-3 takes about 11 minutes, and building a
 model on the entire genome is 37 minutes. 
@@ -874,9 +854,6 @@ model on the entire genome is 37 minutes.
 Not only does the job complete successfully using \cursedforest\, but building a random
 forest model on all 22 autosomes (phase3\_chr1-22)  leads to a more accurate result. 
 The error can be reduced from OOB=0.04 when using only data from Chr1, which represents processing power limit for most tools, down to OOB=0.01 when using the full dataset. 
-
-%than twice as fast as building a random
-%forest on the chromosome 1 (phase3\_chr1) using Spark ML.
 
 
 \begin{table}[!ht]
@@ -916,80 +893,9 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
 \end{figure}
 
 
-\iffalse
-
-\begin{table}[!ht]
-\begin{minipage}{\textwidth}
-%\begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
-\centering
-\caption{ {\bf Performance comparison between the different random forest implementations.}}
-\begin{tabular}{| l | l | r | l |}
-\hline
-\bf{Genome \%}                      & \bf{Method} & \bf{Error}  & \bf{Runtime}  \\
-
-\hline
-
-\multirow{5}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest & 0.04  & 1 min 50 seconds    \\ %110
-                                                & Spark ML  &  0.05           &           7 min 44 seconds         \\  %464
-                                                & \randomforest (R)         & 0.05       & 24 min           \\ %1440
-                                                & \ranger (R)      & 0.06       & 1 min 10 seconds       \\ %70
-                                                & \ranger (C++)     & 0.06       & 7 min            \\ %420
-                                                & H2O           & ??       & ??         \\
-
-\hline
-
-\multirow{5}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest & 0.06 & 4 min 2 seconds \\  %240
-                                                    & Spark ML  & 0.06 & 37 min 19 seconds \\  %2239
-                                                    & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)    & 0.06       & 4 min 30 seconds     \\  %270
-                                                    & \ranger (C++)     &     ??   & ??        \\
-                                                    & H2O           & 0.05       & 16 hours         \\ %57600
-
-\hline
-
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest & 0.04  & 19 min 19 seconds         \\ %1159
-                                                    & Spark ML  & 0.04       & 8 hour 29 min        \\ % 3403
-                                                    & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)      &  0.05       & 28 mins         \\ %1680
-                                                    & \ranger (C++)     & ??       & ??            \\
-                                                    & H2O           & NA       & NA         \\
-\hline
-
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest & 0.02  & 56 min 43 seconds             \\ %3403
-                                                    & Spark ML &    NA         &   NA               \\ %30540
-                                                    & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)      & 0.03      &    3 hour 58 min     \\ %14280
-                                                    & \ranger (C++)     & ??       & ??            \\
-                                                    & H2O           & NA       & NA         \\
-\hline
-
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest & 0.01  & 3hour 16min \\ %11760
-                                                    & Spark ML & NA & NA  \\
-                                                    & \randomforest (R)        & NA         & NA                \\
-                                                    & \ranger (R)       &        NA     &        NA    \\
-                                                    & \ranger (C++)       &        NA     &        NA    \\
-                                                    & H2O           & NA       & NA         \\
-\hline
-
-
-
-
-\end{tabular}
-\begin{flushleft} 
-Comparison of different various machine learning libraries on different subsets of variant data 
-from the 1000 Genomes Project.
-Each random forest model consists of 50 trees.
-\end{flushleft}
-\label{timingtable}
-%\end{adjustwidth}
-\end{minipage}
-\end{table}
-
-\fi
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section 4: Sensitivity 
+% Section 4: Sensitivity to different parameters and scalability
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Scalability analysis}
 In this section we explore the performance of \cursedforest\ in more detail by testing its ability to scale to different sizes of data
