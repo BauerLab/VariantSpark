@@ -147,7 +147,7 @@ Supplementary Information}
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest & 0.04  & 1 min 50 seconds  &  \\ %110 %\cursedforest\ & 0.077 (XX) &                  &                                                                   \\
                                                 & RF - Spark ML  &  0.05           &           7 min 44 seconds        &  \\  %464  %&            &                  &                                                                   \\
-                                                & RF - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\ %1440
+                                                & randomForest - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\ %1440
                                                 & ranger - R      & 0.06       & 1 min 10 seconds & 16GB  (one processor)                                             \\ %70
                                                 & ranger - c++     & 0.06       & 7 mins           & --nthreads 20                                                    \\  %420
                                                 & H2O           & 0.06       & 5 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\ %18000
@@ -155,7 +155,7 @@ Supplementary Information}
  \hline
 \multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest & 0.06 & 4 min 2 seconds & \\  %240 &               &            &                  &                                                                \\
 						  & RF - Spark ML   & 0.06 & 37 min 19 seconds  & \\  %2239
-                                                    & RF - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\ %OK
+                                                    & randomForest - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\ %OK
                                                     & ranger - R    & 0.06       & 18 min        & 21GB (one processor) \\ %270
                                                     & ranger - c++ & 0.05  & 63 min &   \\
 			                           & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\  %57600
