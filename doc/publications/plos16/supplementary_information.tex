@@ -157,14 +157,14 @@ Supplementary Information}
 						  & RF - Spark ML   & 0.06 & 37 min 19 seconds  & \\  %2239
                                                     & RF - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\ %OK
                                                     & ranger - R    & 0.06       & 4 30 seconds       & 21GB (one processor) \\ %270
-                                                    & ranger - c++ & ?? & ?? &   \\
+                                                    & ranger - c++ & 0.05  & 63 min &   \\
 			                           & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\  %57600
 \hline
 \multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest & 0.04  & 19 min 19 seconds &        \\ %1159   \cursedforest\ & 0.06 & 1hr 58min        & 4GB \\
                                                     & RF - Spark ML  &  0.04       & 8 hour 29 min   &     \\ % 3403 0.06       & 8hr 29min        & 8GB \\
   %                                                  & LR - Spark ML  &            & 2hr 6min         & 8GB \\
                                                    & ranger - R      & 0.05       & 28 mins          & num.threads=10 \\ %\footnote{don't know how to get the memory used, This was done on dpas-03} \\ %1680
-                                                   & ranger - c++ & ?? & ?? &  \\
+                                                   & ranger - c++ & 0.04 & 5 hours 27 min &  \\
                                                     &H2O & NA & NA &   \\
 \hline
 \multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest & 0.02  & 56 min 43 seconds     &        \\ %3403%& 0.04 & 4hr 0min                                             & 4GB \\
