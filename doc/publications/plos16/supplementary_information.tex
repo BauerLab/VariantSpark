@@ -146,34 +146,34 @@ Supplementary Information}
 \hline
 
 \multirow{3}{*}{phase1\_chr22: 1,092 x 490,036} & \cursedforest & 0.04  & 1 min 50 seconds  &  \\ %110 %\cursedforest\ & 0.077 (XX) &                  &                                                                   \\
-                                                & RF - Spark ML  &  0.05           &           7 min 44 seconds        &  \\  %464  %&            &                  &                                                                   \\
-                                                & randomForest - R         & 0.05       & 24 min           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\ %1440
+                                                & RF - Spark ML  &  0.05           &           7 mins 44 seconds        &  \\  %464  %&            &                  &                                                                   \\
+                                                & randomForest - R         & 0.05       & 24 mins           & 18GB\footnote{using the \texttt{parallel} packages with 10 nodes} \\ %1440
                                                 & ranger - R      & 0.06       & 1 min 10 seconds & 16GB  (one processor)                                             \\ %70
                                                 & ranger - c++     & 0.06       & 7 mins           & --nthreads 20                                                    \\  %420
                                                 & H2O           & 0.06       & 5 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\ %18000
 
  \hline
-\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest & 0.06 & 4 min 2 seconds & \\  %240 &               &            &                  &                                                                \\
-						  & RF - Spark ML   & 0.06 & 37 min 19 seconds  & \\  %2239
+\multirow{3}{*}{phase3\_chr22: 2,504 x 1,103,548}   & \cursedforest & 0.06 & 4 mins 2 seconds & \\  %240 &               &            &                  &                                                                \\
+						  & RF - Spark ML   & 0.06 & 37 mins 19 seconds  & \\  %2239
                                                     & randomForest - R        & NA         & NA               & NA\footnote{long vectors ($> 2^31-1$)  are not supported in the .Fortran interface} \\ %OK
-                                                    & ranger - R    & 0.06       & 18 min        & 21GB (one processor) \\ %1080
+                                                    & ranger - R    & 0.06       & 18 mins        & 21GB (one processor) \\ %1080
                                                     & ranger - c++ & 0.05  & 1 hour 3 min &   \\  %3780
 			                           & H2O           & 0.05       & 16 hours         & 600GB \footnote{java -Xmx600g -jar h2o.jar,   h2o.init(nthreads=20)} \\  %57600
 \hline
-\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest & 0.04  & 19 min 19 seconds &        \\ %1159   \cursedforest\ & 0.06 & 1hr 58min        & 4GB \\
-                                                    & RF - Spark ML  &  0.04       & 8 hour 29 min   &     \\ % 3403 0.06       & 8hr 29min        & 8GB \\
+\multirow{3}{*}{phase3\_chr1: 2,504 x 6,450,364}    & \cursedforest & 0.04  & 19 mins 19 seconds &        \\ %1159   \cursedforest\ & 0.06 & 1hr 58min        & 4GB \\
+                                                    & RF - Spark ML  &  0.04       & 8 hours 29 mins   &     \\ % 3403 0.06       & 8hr 29min        & 8GB \\
   %                                                  & LR - Spark ML  &            & 2hr 6min         & 8GB \\
-                                                   & ranger - R      & 0.05       & 1 hour 42 min          & num.threads=10  \\ %6120
-                                                   & ranger - c++ & 0.04 & 5 hours 27 min &  \\ %19620
+                                                   & ranger - R      & 0.05       & 1 hour 42 mins          & num.threads=10  \\ %6120
+                                                   & ranger - c++ & 0.04 & 5 hours 27 mins &  \\ %19620
                                                     &H2O & NA & NA &   \\
 \hline
-\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest & 0.02  & 56 min 43 seconds     &        \\ %3403%& 0.04 & 4hr 0min                                             & 4GB \\
+\multirow{3}{*}{phase3\_chr1-3: 2,504 x 19,328,051} & \cursedforest & 0.02  & 56 mins 43 seconds     &        \\ %3403%& 0.04 & 4hr 0min                                             & 4GB \\
                                                     & RF - Spark ML  &  NA           &  NA                                                     & \\ %OK
   %                                                  & LR - Spark ML  &            & 14hr 48min                                           & 8GB \\
-  						 & ranger - R      & 0.03      &    3 hour 58 min  &   \\ %14280
-						& ranger - c++ & 0.04 & 8 hours 54 min &  \\ %32040
+  						 & ranger - R      & 0.03      &    3 hours 58 mins  &   \\ %14280
+						& ranger - c++ & 0.04 & 8 hours 54 mins &  \\ %32040
 \hline
-\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & 0.01  & 3 hour 16min & \\% \\ %11760 %& 0.04 & 7hr 14min & 8GB \\
+\multirow{4}{*}{phase3\_chr1-22: 2,504 x 81,047,467} & \cursedforest\ & 0.01  & 3 hours 16min & \\% \\ %11760 %& 0.04 & 7hr 14min & 8GB \\
 %& kmeans - Spark ML  & 0.18      & 30hr 44min    & 24GB \\ 
 										& ranger - R       &        NA     &        NA   & \\
 										& ranger - c++       &        NA     &        NA     &            80 CPU -- runs out of memory (12.8GB per CPU) \\
