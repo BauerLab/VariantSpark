@@ -26,6 +26,7 @@
 \usepackage{rotating}
 \usepackage{multicol}
 \usepackage{caption}
+\usepackage{subfigure}
 
 
 
@@ -129,10 +130,7 @@ Supplementary Information}
 
 
 
-
 \section{supplementary Information for Section 4.1}
-
-
 
 \begin{sidewaystable}[!ht]
 \begin{minipage}{\textwidth}
@@ -190,9 +188,51 @@ Each random forest model consists of 50 trees.
 \end{minipage}
 \end{sidewaystable}
 
+\clearpage
+\newpage
+
+\section{supplementary Information for Section 4.2}
+
+\begin{figure}[tbhp]
+    \caption{\textbf{Rank of literature assigned BMD genes}}
+    \label{figure:knowngeneranks}
+    \includegraphics{./figs/BMDTop10K.pdf}
+    \begin{flushleft}
+      The figure shows the top 10,000 features by their rank and Gini impurity score (Importance). The line denotes the top 30 features which contains six novel loci. 
+     \end{flushleft}
+\end{figure}
 
 
 
+
+\begin{figure}[tbhp]
+    \caption{\textbf{Zoomplot in order of importance}}
+    \label{figure:knowngeneranks}
+    \includegraphics{./figs/new_10k_TNFRSF11B.pdf}
+     \includegraphics{./figs/new_10k_CTNNB1.pdf}
+    \begin{flushleft}
+     \end{flushleft}
+\end{figure}
+
+
+\begin{figure}[tbhp]
+    \caption{\textbf{Zoomplot in order of importance}}
+    \label{figure:knowngeneranks}
+      \includegraphics{./figs/new_10k_ZBTB40.pdf}
+        \includegraphics{./figs/new_10k_IBSP.pdf}
+    \begin{flushleft}
+     \end{flushleft}
+\end{figure}
+
+
+\begin{figure}[tbhp]
+    \caption{\textbf{Manhattan plot of PRODH and LINC01006}}
+    \label{figure:knowngeneranks}
+        \includegraphics{./figs/BMDTopWholeGenome_22.pdf}
+      \includegraphics{./figs/BMDTopWholeGenome_7.pdf}
+    \begin{flushleft}
+     \end{flushleft}
+\end{figure}
 
 
 \bibliographystyle{apalike}

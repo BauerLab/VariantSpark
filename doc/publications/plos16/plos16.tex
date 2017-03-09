@@ -702,47 +702,62 @@ little correspondence between the OOB and RBO measure.
 In this section we use \cursedforest\ to perform feature selection on over 7.2 million genomic variants and identify the
 locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. 
 %We build a model on the BMD dataset as described in Methods using a binary high or low BMD value as the label.  
-We rank variants by their Gini impurity, with the most important one ranked at position 1, and return the top 10,000 variants.
+We rank variants by their Gini impurity, with the most important one ranked at position 1, and return the top 100,000 variants.
 
-To test whether the associated variants have biological meaning, we investigate whether variants in or near
+To test whether the associated variants have biological meaning, we investigate if variants in or near
 BMD-associated genes are enriched toward the top of our ranked list. To form the list of "known genes", we
 combine the 26 known and 6 novel BMD genes listed by Duncan {\it et al.}~\cite{Duncan.2011} with the genes identified by
-Estrada {\it et al.}~\cite{Estrada2012} and Lui {\it et al.}~\cite{Liu2008}, resulting in 102 genes.  All genes are covered in the
-10,000 extracted variants and the gene name is assigned to a variant if it falls within 100 kb of the gene.
+Estrada {\it et al.}~\cite{Estrada2012} and Lui {\it et al.}~\cite{Liu2008}, resulting in 102 genes.  All genes are covered within the
+top 40,000 variants and a gene name is assigned to the variant if it falls within 100 kb of this gene.
 
-As shown in Fig~\ref{figure:ranksumtest}, the known genes are ranked significantly higher than variants from other
-locations in the genome (Mann-Whitney U, $p=1.83\times10^{-14}$), supporting our hypothesis that biologically relevant
-features are contributing more information to our classification model.
+The known genes rank significantly higher than variants from other locations in the genome (Mann-Whitney U, $p=4.5\times10^{-14}$, Supplemental File 1), 
+supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
 
-The two gene with the highest-ranked features are the known BMD associated genes COLEC10 (collectin 10) and ZBTB40 (Zinc
-Finger And BTB Domain-Containing Protein 40) as shown in Fig~\ref{figure:knowngeneranks}.  The association for both gene
-has been replicated since in independent studies (COLEC10~\cite{Kemp2014} and ZBTB40~\cite{Nielson2016}).
-%with verified transcription factor binding site for FOXL1,
-%also a known BDM gene~\cite{DECODE}.  
-%The second highest ranked gene is ZBTB40, also a well established BMD associated gene~\cite{27476799}. 
+As shown in Fig~\ref{figure:knowngeneranks}, the top 30 features are dominated by variants from five well established BMD genes; TNFRSF11B (TNF Receptor Superfamily Member 11b or Osteoprotegerin), CTNNB (Catenin Beta 1), ZBTB40 (Zinc Finger And BTB Domain-Containing Protein 40), IBSP (Integrin Binding Sialoprotein) and MEF2C (Myocyte Enhancer Factor 2C). [MORE ABOUT THESE GENES]. All SNPs in linkage disequilibrium (LD) with the top ranking one also show a high importance score (Fig 3b). %~\ref{manhattenzoom}).
+%has been replicated since in independent studies (COLEC10~\cite{Kemp2014} and ZBTB40~\cite{Nielson2016}).
 
-In contrast, the lowest ranked gene with literature implied BMD association is DCDC5 (Doublecortin Domain Containing 5) ranked 9,830
-out of 10,000 (see Fig~\ref{figure:knowngeneranks}).  Similar to the conclusions drawn by Duncan {\it et
+
+%MAPT microtubule associated protein tau \cite{Dengler-Crish2017}
+%"MAPT is primarily expressed in the nervous system and has not been identified in bone tissue, therefore, low BMD in a tauopathy-specific mouse model that lacks A? pathology would provide evidence that central mechanisms of bone homeostasis are dysfunctional in AD, rather than only direct peripheral effects on bone tissue itself."
+%"Reduced bone mineral density (BMD) and its clinical sequelae, osteoporosis, occur at a much greater rate in patients with Alzheimer?s disease (AD), often emerging early in the disease before significant cognitive decline is seen. "
+
+In contrast, one of the lowest ranked gene with literature implied BMD association is DCDC5 (Doublecortin Domain Containing 5) ranked 23,842
+(see Fig 3a).
+%~\ref{figure:knowngeneranks}).  
+Similar to the conclusions drawn by Duncan {\it et
   al.}~\cite{Duncan.2011}, our results also indicate that this gene does not have a strong association with BMD.  In
 fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear
 \cite{Thakker2012}.  Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as
 to whether the gene itself contributes to BMD.
+Similarly, the lowest ranked gene MAPT (microtubule associated protein tau) at 36,262 is primarily expressed in the nervous system and has not been identified in bone tissue. 
+It is therefore likely that the association is a co-morbidity with Alzheimer's disease~\cite{Dengler-Crish2017} and not a major contributing factor in this cohort. 
 
-Hence focusing on the top 20 most associated variants, the majority are from the four known BMD genes (left side of the
-vertical line in Fig~\ref{figure:knowngeneranks}), however there are also six novel locations as annotated in
-Fig~\ref{figure:ranksumtest}. Most notably PRODH (proline dehydrogenase) located on 22q11, a loci observed by Stagi {\it
+
+%2 TEX2  EN rs112558362 SNORNA  ERN1 Gliablastoma in older people Alzheimer's
+%5 rs6961378  Woolfe2005
+%13 rs17195090
+
+The top 30 most associated variants are dominated by the known BMD genes, however there are also four novel locations as annotated in
+Fig 3a.
+%~\ref{figure:rbo-prod.png}. 
+Most notably PRODH (proline dehydrogenase) located on 22q11, a loci observed by Stagi {\it
   et al.}~\cite{Stagi.2010} to significantly reduce bone mass in individuals with a micro-deletion in this region. The
-variant in PRODH is the only highly associated feature in this region and not in linkage disequilibrium (LD) with
-another gene (see Fig~\ref{zoomplot}). PRODH catalyses the first step in proline degradation, and as proposed by Phang
-{\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation. Also amongst the top 20 associated
-variants is a SNP in the intronic region of Unc13c (rs12916554), a gene that is linked to quality of
-sleep~\cite{Nicod2016}, which in turn is reported to be the best predictor of osteoporosis risk~\cite{Magali2016}, a
-condition diagnosed by measuring BMD.  Also listed is rs1035665, which was identified in a recent GWAS study to regulate
-ABCF1 (ATP Binding Cassette Subfamily F Member 1)~\cite{Dixon2007} with member 2 of this subfamily being a known BMD
-gene. The other three novel loci are on or near ncRNA.
+variant in PRODH is the only highly associated feature in this region and all LD SNPs show high importance (see Fig 3c).%~\ref{zoomplot}). 
+PRODH catalyses the first step in proline degradation, and as proposed by Phang
+{\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation. Ranked at position 5 (rs6961378) and 18 (rs146034056) are located on chromosome 7 overlapping the lincRNA (LINC01006), which as been linked to vertebrate development~\cite{Woolfe2005}.
+In contrast rs17195090 and rs112558362 are single feature loci (Supplementary Figure 2 and 3) hence likely due to erroneous imputation or genotyping.
 
-\cursedforest\ can successfully be used in GWAS-type analysis replicating previous findings and uncovering novel
-associations due to the ability of random forests to pick up interacting features.
+
+
+% Also amongst the top 20 associated
+%variants is a SNP in the intronic region of Unc13c (rs12916554), a gene that is linked to quality of
+%sleep~\cite{Nicod2016}, which in turn is reported to be the best predictor of osteoporosis risk~\cite{Magali2016}, a
+%condition diagnosed by measuring BMD.  Also listed is rs1035665, which was identified in a recent GWAS study to regulate
+%ABCF1 (ATP Binding Cassette Subfamily F Member 1)~\cite{Dixon2007} with member 2 of this subfamily being a known BMD
+%gene. The other three novel loci are on or near ncRNA.
+
+\cursedforest\ can successfully perform GWAS-type analyses replicating previous findings and uncovering novel
+associations due to random forests also modelling interacting features.
 
 %In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
 
@@ -773,35 +788,6 @@ associations due to the ability of random forests to pick up interacting feature
 %%\end{adjustwidth}
 %\end{table}
 
-
-
-\begin{figure}[tbhp]
-  \begin{adjustwidth}{-2.00in}{0in}
-    \caption{\textbf{Importance of 10,000 top ranked features and visualisation of the 22q.11 region}}
-    \label{figure:ranksumtest}
-     \begin{subfigure}[b]{0.5\linewidth}
-    \includegraphics[totalheight=7cm]{./figs/BMDTop10K.pdf}
-     \caption{Distribution of known BMD genes amongst the top 10,000 features.} 
-      \label{figure:rbo-prod.png} 
-%      \vspace{4ex}
-    \end{subfigure} 
- \begin{subfigure}[b]{0.5\linewidth}
-      \centering
-      \includegraphics[totalheight=7cm]{./figs/EURchr22_18-20mb.pdf}
-      \caption{Zoom plot of the 22q.11 region centred on PRODH.} 
-      \label{zoomplot} 
-%      \vspace{4ex}
-    \end{subfigure} 
-    \begin{flushleft}
-      (a) The figure shows the top 10,000 features by their rank and Gini impurity score (Importance). The line denotes
-      the top 20 features which contains five novel loci annotated with text. The $p$-value is the Mann-Whitney U test.
-      (b) Each point represents a variant with the normalised Gini impurity score on the left y axis and LD in colour
-      with the highest $r^2$ in red.
-     \end{flushleft}
-  \end{adjustwidth}
-\end{figure}
-
-
 \begin{figure}[tbhp]
   \begin{adjustwidth}{-2.00in}{0in}
     \caption{\textbf{Rank of literature assigned BMD genes}}
@@ -814,6 +800,76 @@ associations due to the ability of random forests to pick up interacting feature
 \end{figure}
 
 
+\begin{figure}[tbhp]
+  \begin{adjustwidth}{-2.00in}{0in}
+    \caption{\textbf{Genome-wide importance of SNPs and visualisation of the 22q.11 region}}
+    \label{figure:ranksumtest}
+     \begin{subfigure}[b]{0.5\linewidth}
+     \includegraphics[totalheight=7cm]{./figs/BMDTopWholeGenome.png}
+      \label{figure:rbo-prod.png} 
+    \end{subfigure} 
+ \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=7cm]{./figs/new_10k_TNFRSF11B.pdf}
+      \label{zoomplotTNFRSF} 
+   \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+     \includegraphics[totalheight=7cm]{./figs/new_10k_PRODH.pdf}
+      \label{zoomplotprodh} 
+    \end{subfigure} 
+        \begin{subfigure}[b]{0.5\linewidth}
+     \includegraphics[totalheight=7cm]{./figs/EUR_chr7_156_2-156_6mb.pdf}
+      \label{zoomplotlinc} 
+    \end{subfigure} 
+    \begin{flushleft}
+      (a) The figure shows genome-wide SNPs and their importance. Highlighted are the 100 literature assigned BMD genes (green) and four novel loci. The horizontal line indicates the top 30 features. 
+      Locus Zoomplot for (b) the top ranked gene TNFRSF11B and the two putative novel associations (c) PRODH and (e) LINC01006. Each point represents a variant with the normalised Gini impurity score on the left y axis and LD to the central SNP in colour with the highest $r^2$ in red.
+     \end{flushleft}
+  \end{adjustwidth}
+        \label{manhattenzoom} 
+\end{figure}
+
+
+%\begin{figure}[tbhp]
+%  \begin{adjustwidth}{-2.00in}{0in}
+%    \caption{\textbf{Importance of 10,000 top ranked features and visualisation of the 22q.11 region}}
+%    \label{figure:ranksumtest}
+%     \begin{subfigure}[b]{0.5\linewidth}
+%    \includegraphics[totalheight=7cm]{./figs/BMDTop10K.pdf}
+%     \caption{Distribution of known BMD genes amongst the top 10,000 features.} 
+%      \label{figure:rbo-prod.png} 
+%%      \vspace{4ex}
+%    \end{subfigure} 
+% \begin{subfigure}[b]{0.5\linewidth}
+%      \centering
+%      \includegraphics[totalheight=7cm]{./figs/EURchr22_18-20mb.pdf}
+%      \caption{Zoom plot of the 22q.11 region centred on PRODH.} 
+%      \label{zoomplot} 
+%%      \vspace{4ex}
+%    \end{subfigure} 
+%    \begin{flushleft}
+%      (a) The figure shows the top 10,000 features by their rank and Gini impurity score (Importance). The line denotes
+%      the top 20 features which contains five novel loci annotated with text. The $p$-value is the Mann-Whitney U test.
+%      (b) Each point represents a variant with the normalised Gini impurity score on the left y axis and LD in colour
+%      with the highest $r^2$ in red.
+%     \end{flushleft}
+%  \end{adjustwidth}
+%\end{figure}
+
+
+
+
+
+%\begin{figure}[tbhp]
+%  \begin{adjustwidth}{-2.00in}{0in}
+%    \caption{\textbf{Importance of genome-wide SNPs}}
+%    \label{figure:knowngeneranks}
+%\includegraphics[totalheight=6.5cm]{./figs/BMDTopWholeGenome.pdf}
+%    \begin{flushleft}
+%      The figure shows genome-wide SNPs and their importance. Highlighted are the 100 literature assigned BMD genes. The horizontal line indicates the top 20. 
+%     \end{flushleft}
+%  \end{adjustwidth}
+%\end{figure}
 
 
 
