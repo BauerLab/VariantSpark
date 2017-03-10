@@ -206,33 +206,38 @@
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
 \\
-Aidan O'Brien\textsuperscript{1},
-Piotr Szul\textsuperscript{2},
-Robert Dunne\textsuperscript{3}, 
-Paul Leo \textsuperscript{4},
-Emma L. Duncan \textsuperscript{4,5,6},
-Stephanie Li\textsuperscript{7},
-James Doecke\textsuperscript{7},
-Nick Ellis\textsuperscript{8}, and
+Aidan O'Brien\textsuperscript{1,2},
+Piotr Szul\textsuperscript{3},
+Robert Dunne\textsuperscript{4}, 
+Paul Leo \textsuperscript{5},
+Emma L. Duncan \textsuperscript{5,6,7},
+Natalie Twine\textsuperscript{1,8}
+Stephanie Li\textsuperscript{9},
+James Doecke\textsuperscript{9},
+Nick Ellis\textsuperscript{10}, and
 Denis C. Bauer\textsuperscript{1,*}
 %, with the Lorem Ipsum Consortium\textsuperscript{\textpilcrow}
 \\
 \bigskip
 \textbf{1} Health \& Biosecurity, CSIRO, Sydney, NSW, Australia
 \\
-\textbf{2} Data61, CSIRO, Brisbane, QLD, Australia
+\textbf{2} ANU, Canberra, Australia
 \\
-\textbf{3} Data61, CSIRO, Sydney, NSW, Australia
+\textbf{3} Data61, CSIRO, Brisbane, QLD, Australia
 \\
-\textbf{4} Institute of Health and Biomedical Innovation, Queensland University of Technology, Brisbane, QLD, Australia
+\textbf{4} Data61, CSIRO, Sydney, NSW, Australia
 \\
-\textbf{5} Department of Endocrinology, Royal Brisbane and Women's Hospital, Brisbane, QLD, Australia
+\textbf{5} Institute of Health and Biomedical Innovation, Queensland University of Technology, Brisbane, QLD, Australia
 \\
-\textbf{6} Faculty of Medicine and Biomedical Sciences, University of Queensland, Brisbane, QLD, Australia
+\textbf{6} Department of Endocrinology, Royal Brisbane and Women's Hospital, Brisbane, QLD, Australia
 \\
-\textbf{7} Health \& Biosecurity, CSIRO, Brisbane, QLD, Australia
+\textbf{7} Faculty of Medicine and Biomedical Sciences, University of Queensland, Brisbane, QLD, Australia
 \\
-\textbf{8} Oceans \& Atmosphere, CSIRO, Brisbane, QLD, Australia
+\textbf{8} MQ, QLD, Australia
+\\
+\textbf{9} Health \& Biosecurity, CSIRO, Brisbane, QLD, Australia
+\\
+\textbf{10} Oceans \& Atmosphere, CSIRO, Brisbane, QLD, Australia
 \bigskip
 
 % Insert additional author notes using the symbols described below. Insert symbol callouts after author names as necessary.
@@ -713,39 +718,38 @@ top 40,000 variants and a gene name is assigned to the variant if it falls withi
 The known genes rank significantly higher than variants from other locations in the genome (Mann-Whitney U, $p=4.5\times10^{-14}$, Supplemental File 1), 
 supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
 
-As shown in Fig~\ref{figure:knowngeneranks}, the top 30 features are dominated by variants from five well established BMD genes; TNFRSF11B (TNF Receptor Superfamily Member 11b or Osteoprotegerin), CTNNB (Catenin Beta 1), ZBTB40 (Zinc Finger And BTB Domain-Containing Protein 40), IBSP (Integrin Binding Sialoprotein) and MEF2C (Myocyte Enhancer Factor 2C). [MORE ABOUT THESE GENES]. All SNPs in linkage disequilibrium (LD) with the top ranking one also show a high importance score (Fig 3b). %~\ref{manhattenzoom}).
-%has been replicated since in independent studies (COLEC10~\cite{Kemp2014} and ZBTB40~\cite{Nielson2016}).
-
+As shown in Figure~\ref{figure:knowngeneranks}, the top 30 features are dominated by variants from five well established BMD genes; TNFRSF11B (TNF Receptor Superfamily Member 11b or Osteoprotegerin), CTNNB (Catenin Beta 1), ZBTB40 (Zinc Finger And BTB Domain-Containing Protein 40), IBSP (Integrin Binding Sialoprotein) and MEF2C (Myocyte Enhancer Factor 2C). 
+The BMD association has been independently replicated for four of the five genes: CTNNB1~\cite{Pei2016, Rivadeneira2009}, MEF2C~\cite{Pei2016a}, TNFRSF11B~\cite{Rivadeneira2009,Zhang2014,Kemp2014,Paternoster2013} and ZBTB40~\cite{Rivadeneira2009,  Zhang2014,Nielson2016}. The association of IBSP has not been replicated in other GWAS studies, but homozygous knockouts of this gene have a known skeletal phenotype in mice. Mice deficient in IBSP have impaired bone growth and mineralization, with dramatically reduced bone formation~\cite{Malaval2008}. CTNBB1, MEF2C and TNFRSF11B also have known skeletal phenotypes. CTNNB1 is a key downstream member of the Wnt signaling pathway, and deletion of CTNNB1 in mice results in severe osteopenia, while constitutive activation of CTNNB1 results in massively increased bone deposition~\cite{Holmen2005}. MEF2C is a transcription factor which controls bone mass by regulating osteoclastic bone resorption, where mice with a MEF2C deletion in osteocytes had increased bone mass compared with normal controls~\cite{Kramer2012}. TNFRSF11B (or OPG) is a secreted glycoprotein which regulates bone mass~\cite{Simonet1997}. ZBTB40 has no known biological or molecular involvement in skeletal phenotypes~\cite{Styrkarsdottir2008}, even though it has been associated with BMD in multiple GWAS and is expressed in bone.SNPs in linkage disequilibrium (LD) with each other at these loci also show a high importance score, as exemplified by TNFRSF11B in Figure 3b (Supplemental Figure 2 and 3 for the other genes). %~\ref{manhattenzoom}).
 
 %MAPT microtubule associated protein tau \cite{Dengler-Crish2017}
 %"MAPT is primarily expressed in the nervous system and has not been identified in bone tissue, therefore, low BMD in a tauopathy-specific mouse model that lacks A? pathology would provide evidence that central mechanisms of bone homeostasis are dysfunctional in AD, rather than only direct peripheral effects on bone tissue itself."
 %"Reduced bone mineral density (BMD) and its clinical sequelae, osteoporosis, occur at a much greater rate in patients with Alzheimer?s disease (AD), often emerging early in the disease before significant cognitive decline is seen. "
 
 In contrast, one of the lowest ranked gene with literature implied BMD association is DCDC5 (Doublecortin Domain Containing 5) ranked 23,842
-(see Fig 3a).
+(see Figure 2).
 %~\ref{figure:knowngeneranks}).  
 Similar to the conclusions drawn by Duncan {\it et
-  al.}~\cite{Duncan.2011}, our results also indicate that this gene does not have a strong association with BMD.  In
-fact, DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear
+  al.}~\cite{Duncan.2011}, our results also indicate that this gene does not have a strong association with BMD. DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear
 \cite{Thakker2012}.  Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as
 to whether the gene itself contributes to BMD.
-Similarly, the lowest ranked gene MAPT (microtubule associated protein tau) at 36,262 is primarily expressed in the nervous system and has not been identified in bone tissue. 
-It is therefore likely that the association is a co-morbidity with Alzheimer's disease~\cite{Dengler-Crish2017} and not a major contributing factor in this cohort. 
+Similarly, the lowest ranked gene with annotated BMD links, MAPT (microtubule associated protein tau) at 36,262, is primarily expressed in the nervous system and has not been identified in bone tissue. 
+It is therefore likely that the association is through a co-morbidity with Alzheimer's disease~\cite{Dengler-Crish2017} and not a major contributing factor in this cohort. 
 
 
 %2 TEX2  EN rs112558362 SNORNA  ERN1 Gliablastoma in older people Alzheimer's
 %5 rs6961378  Woolfe2005
 %13 rs17195090
 
-The top 30 most associated variants are dominated by the known BMD genes, however there are also four novel locations as annotated in
-Fig 3a.
+There are also four novel locations amongst the top 30 most associated variants as annotated in Figure 3a.
 %~\ref{figure:rbo-prod.png}. 
-Most notably PRODH (proline dehydrogenase) located on 22q11, a loci observed by Stagi {\it
-  et al.}~\cite{Stagi.2010} to significantly reduce bone mass in individuals with a micro-deletion in this region. The
-variant in PRODH is the only highly associated feature in this region and all LD SNPs show high importance (see Fig 3c).%~\ref{zoomplot}). 
-PRODH catalyses the first step in proline degradation, and as proposed by Phang
-{\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation. Ranked at position 5 (rs6961378) and 18 (rs146034056) are located on chromosome 7 overlapping the lincRNA (LINC01006), which as been linked to vertebrate development~\cite{Woolfe2005}.
-In contrast rs17195090 and rs112558362 are single feature loci (Supplementary Figure 2 and 3) hence likely due to erroneous imputation or genotyping.
+Most notably a lincRNA (LINC01006) on chromosome 7, which has been associated with serum creatinine levels in two independent GWAS studies~\cite{Pattaro2010,Chambers2010}. 
+Subjects with low serum creatinine levels were at a higher risk for low BMD~\cite{Huh2015} and in a rat study high creatine monohydrate diet resulted in greater lumbar BMD~\cite{Antolic2007}, 
+with creatinine being the breakdown product of creatine. The variants overlapping the 5' end of the lincRNA are the highest ranked features in this region and all LD SNPs also show high importance (see Fig 3d). Also amonst the top 30 features is PRODH (proline dehydrogenase) located on 22q11, a loci observed by Stagi {\it
+  et al.}~\cite{Stagi.2010} to significantly reduce bone mass in individuals with a micro-deletion in this region. 
+PRODH catalyses the first step in proline degradation, and as proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation. 
+Again, all LD SNPs also show high importance (see Figure 3c). %~\ref{zoomplot}). 
+%Ranked at position 5 (rs6961378) and 18 (rs146034056) are located on chromosome 7 overlapping the lincRNA (LINC01006), which as been linked to vertebrate development~\cite{Woolfe2005}.
+In contrast rs17195090 and rs112558362 are single feature loci (Supplementary Figure 4) hence likely due to erroneous imputation or genotyping.
 
 
 
