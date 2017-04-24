@@ -157,12 +157,13 @@
 \pagestyle{fancy}
 \fancyhf{}
 \setlength{\headheight}{27.023pt}
-\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
+
+%\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
 \rfoot{\thepage/\pageref{LastPage}}
 \renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
 \fancyheadoffset[L]{2.25in}
 \fancyfootoffset[L]{2.25in}
-\lfoot{\sf PLOS}
+%\lfoot{\sf PLOS}
 
 %% Include all macros below
 
@@ -295,7 +296,8 @@ Identifying the relevant or disease specific base pair differences between indiv
 association studies (GWAS).  These analyses are typically performed on only the most frequently differing base pairs,
 termed single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP
 separately~\cite{CCC2007}.  It has since been demonstrated that not taking interactions between SNPs into account
-when filtering for potential disease mutations is inadequate~\cite{Manolio2009,Yang2011}.
+when filtering for potential disease mutations is inadequate~\cite{Manolio2009,Yang2011} and the approach should 
+in-fact be extended to interrogating all genomic positions[CITATION WES vs WGS?].
 
 Hence using more sophisticated machine learning (ML) approaches, in particular tree-based models, have been successful
 for taking the interaction of variables into account~\cite{Wright.et.al.2016}. In addition, random forests are well
@@ -615,97 +617,13 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 \section{Results and Discussion}
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Section 1:  Feature Selection and classification on synthetic data
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\cursedforest can evaluate variable importance for millions of features}
-\label{section:synthetic}
-In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
-associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
-high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$), of which 5 
-are related to the response variable, and 5000 samples ($n=5000$), as discussed in the methods section.
-
-We fit the random forest model and estimate the classification accuracy by capturing the out-of-bag error (OOB) and the
-variable selection performance by capturing the rank-biased overlap (RBO) \cite{Webber2010} measure. RBO compares two
-lists (in this case, the parameters $w_i, i=1,\ldots , 5$ (Equation~\ref{equation:synthetic.data}), and the top 1000
-ranked variable importances from the \cursedforest model). It is a mesaure of similarity between rankings that handles
-lists of different lengths, weighs high ranks more heavily than low, and is monotonic with increasing depth of
-evaluation. We expect to retrieve the 5 features in order of the weight that was assigned to them and with a higher
-variable importance measure than the noise variables. RBO provides a quantiative measure of how close we come to this on
-a scale from 0 (no feature recovered) to 1 (fully recovered). See supplementary information (S*) for more details.
-
-We are running Apache Spark 1.6.1 on a YARN
-cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.
-
-%mtry = number of variable seclection at each node - proportion of p 
-%ntree= number of trees 
-
-% mtry large makes trees correlated because the same important features have a higher chance of being selected
-% overfitting because it picks random that happen to be 
-
-As shown in Fig~\ref{figure:out-of-bag-prediction-error-prod.png} the default value for \mtry (number of variables
-selected at each node) does not result in a good classification performance for this large feature dataset. Note that
-the plot shows the proportion, $n/p,$ for \mtry\ with the default being $\sqrt{p} \approx 1581$ ($n/p=0.0006$).  The
-OOB for this value of \mtry does not drop below 0.5, even when the number of trees are increased (\ntree).
-
-Increasing \mtry\ in combination with \ntree\ yields the best performance with the OOB error essentially constant around 0.4
-across a large range of of \mtry and \ntree values.  This is in contrast to the feature-selection performance, where the
-RBO measure heavily depends on \ntree\ and gives better results with lower values of \mtry.
-
-This may be because a large \mtry leads to more correlated trees as the same important features have a higher chance of
-being selected in all, not yielding good performance outcomes.  This issue is less pronounced for classification error
-where random features can mimic the response variable, hence resulting more in a performance plateau.  Increasing the
-number of trees on the other hand improves performance especially when the trees are kept diverse (small \mtry) but
-appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelizing trees at
-the node level hence caters perfectly to the requirement of large feature datasets as more trees can be built given a
-fixed time budget.
-
-%Fig~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
-%value for a classification problem is $\sqrt{p} \approx 1581$ so in this case we are considering values considerably larger than
-%the default. Fig~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is constant across a large range of 
-%of \mtry and \ntree values whereas Fig~\ref{figure:rbo-prod.png} illustrates that the RBO measure depends
-%heavily on \ntree but gives a better value with lower values of \mtry.
-
-From the synthetic data we can conclude that \cursedforest is able to perform accurate feature selection as well as
-accurate classification for large numbers of samples with large feature vectors.  We can also conclude that fine tuning
-the model to accurately classify the dataset does not ensure good feature selection performance as there seems to be
-little correspondence between the OOB and RBO measure.
-
-
-
-\begin{figure}[tbhp] 
-  \begin{adjustwidth}{-1.00in}{0in}
-    \caption{\textbf{Out of bag classification error and rank-biased-overlap estimates}} 
-    \label{figure:synth1}
-    \begin{subfigure}[b]{0.5\linewidth}
-      \centering
-      \includegraphics[totalheight=8cm]{./figs/oob_levleplot.png}
-      \caption{OOB classification error.} 
-      \label{figure:out-of-bag-prediction-error-prod.png} 
-%      \vspace{4ex}
-    \end{subfigure} 
-    \begin{subfigure}[b]{0.5\linewidth}
-      \centering
-      \includegraphics[totalheight=8cm]{./figs/rbo_levleplot.png}
-      \caption{The rank-biased-overlap measure.} 
-      \label{figure:rbo-prod.png} 
-%      \vspace{4ex}
-    \end{subfigure} 
-    \begin{flushleft} 
-      Random forests with 100 trees were trained on the synthetic dataset of 2.5M features and 5K samples.
-      Each measure is shown as a function of \mtry and \ntree. Note that the plot colors have been chosen so that the lighter color indicates
-      the better result, that is, a lower OOB or a higher RBO.
-    \end{flushleft}
-  \end{adjustwidth}
-\end{figure}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{GWAS-style analysis using \cursedforest\ identifies novel variants associated with Bone Mineral Density}
+%\subsection{GWAS-style analysis using \cursedforest\ identifies novel variants associated with Bone Mineral Density}
+\subsection{GWAS-style analyses using \cursedforest\ faithfully identify known disease-accociated genes}
 In this section we use \cursedforest\ to perform feature selection on over 7.2 million genomic variants and identify the
-locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. 
+genomic locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. 
 %We build a model on the BMD dataset as described in Methods using a binary high or low BMD value as the label.  
 We rank variants by their Gini impurity, with the most important one ranked at position 1, and return the top 100,000 variants.
 
@@ -718,8 +636,14 @@ top 40,000 variants and a gene name is assigned to the variant if it falls withi
 The known genes rank significantly higher than variants from other locations in the genome (Mann-Whitney U, $p=4.5\times10^{-14}$, Supplemental File 1), 
 supporting our hypothesis that biologically relevant features are contributing more information to our classification model.
 
-As shown in Figure~\ref{figure:knowngeneranks}, the top 30 features are dominated by variants from five well established BMD genes; TNFRSF11B (TNF Receptor Superfamily Member 11b or Osteoprotegerin), CTNNB (Catenin Beta 1), ZBTB40 (Zinc Finger And BTB Domain-Containing Protein 40), IBSP (Integrin Binding Sialoprotein) and MEF2C (Myocyte Enhancer Factor 2C). 
-The BMD association has been independently replicated for four of the five genes: CTNNB1~\cite{Pei2016, Rivadeneira2009}, MEF2C~\cite{Pei2016a}, TNFRSF11B~\cite{Rivadeneira2009,Zhang2014,Kemp2014,Paternoster2013} and ZBTB40~\cite{Rivadeneira2009,  Zhang2014,Nielson2016}. The association of IBSP has not been replicated in other GWAS studies, but homozygous knockouts of this gene have a known skeletal phenotype in mice. Mice deficient in IBSP have impaired bone growth and mineralization, with dramatically reduced bone formation~\cite{Malaval2008}. CTNBB1, MEF2C and TNFRSF11B also have known skeletal phenotypes. CTNNB1 is a key downstream member of the Wnt signaling pathway, and deletion of CTNNB1 in mice results in severe osteopenia, while constitutive activation of CTNNB1 results in massively increased bone deposition~\cite{Holmen2005}. MEF2C is a transcription factor which controls bone mass by regulating osteoclastic bone resorption, where mice with a MEF2C deletion in osteocytes had increased bone mass compared with normal controls~\cite{Kramer2012}. TNFRSF11B (or OPG) is a secreted glycoprotein which regulates bone mass~\cite{Simonet1997}. ZBTB40 has no known biological or molecular involvement in skeletal phenotypes~\cite{Styrkarsdottir2008}, even though it has been associated with BMD in multiple GWAS and is expressed in bone.
+%~\ref{figure:BMDTopWholeGenome}, 
+As shown in Figure 1a, the top 30 features are dominated by variants from five well established BMD genes; TNFRSF11B (TNF Receptor Superfamily Member 11b or Osteoprotegerin), CTNNB (Catenin Beta 1), ZBTB40 (Zinc Finger And BTB Domain-Containing Protein 40), IBSP (Integrin Binding Sialoprotein) and MEF2C (Myocyte Enhancer Factor 2C). 
+The BMD association has been independently replicated for four of the five genes: TNFRSF11B~\cite{Rivadeneira2009,Zhang2014,Kemp2014,Paternoster2013}, CTNNB1~\cite{Pei2016, Rivadeneira2009}, ZBTB40~\cite{Rivadeneira2009,  Zhang2014,Nielson2016}, and MEF2C~\cite{Pei2016a}. 
+The association of IBSP has not been replicated in other GWAS studies, but homozygous knockouts of this gene have a known skeletal phenotype in mice. Mice deficient in IBSP have impaired bone growth and mineralization, with dramatically reduced bone formation~\cite{Malaval2008}. 
+CTNBB1, MEF2C and TNFRSF11B also have known skeletal phenotypes. 
+CTNNB1 is a key downstream member of the Wnt signaling pathway, and deletion of CTNNB1 in mice results in severe osteopenia, while constitutive activation of CTNNB1 results in massively increased bone deposition~\cite{Holmen2005}. 
+MEF2C is a transcription factor which controls bone mass by regulating osteoclastic bone resorption, where mice with a MEF2C deletion in osteocytes had increased bone mass compared with normal controls~\cite{Kramer2012}. TNFRSF11B (or OPG) is a secreted glycoprotein which regulates bone mass~\cite{Simonet1997}. 
+ZBTB40 has no known biological or molecular involvement in skeletal phenotypes~\cite{Styrkarsdottir2008}, even though it has been associated with BMD in multiple GWAS and is expressed in bone.
 SNPs in linkage disequilibrium (LD) with each other at these loci also show a high importance score, as exemplified by TNFRSF11B in Figure 3b (Supplemental Figure 2 and 3 for the other genes). %~\ref{manhattenzoom}).
 
 %MAPT microtubule associated protein tau \cite{Dengler-Crish2017}
@@ -727,9 +651,7 @@ SNPs in linkage disequilibrium (LD) with each other at these loci also show a hi
 %"Reduced bone mineral density (BMD) and its clinical sequelae, osteoporosis, occur at a much greater rate in patients with Alzheimer?s disease (AD), often emerging early in the disease before significant cognitive decline is seen. "
 
 In contrast, one of the lowest ranked gene with literature implied BMD association is DCDC5 (Doublecortin Domain Containing 5) ranked 23,842
-(see Figure 2).
-%~\ref{figure:knowngeneranks}).  
-Similar to the conclusions drawn by Duncan {\it et
+(see Supplemental Figure 1). Similar to the conclusions drawn by Duncan {\it et
   al.}~\cite{Duncan.2011}, our results also indicate that this gene does not have a strong association with BMD. DCDC5 is not highly expressed in bone, and any mechanisms by which this gene might regulate BMD are unclear
 \cite{Thakker2012}.  Although variants near DCDC5 are associated with BMD \cite{Rivadeneira2009}, it is questionable as
 to whether the gene itself contributes to BMD.
@@ -737,11 +659,17 @@ Similarly, the lowest ranked gene with annotated BMD links, MAPT (microtubule as
 It is therefore likely that the association is through a co-morbidity with Alzheimer's disease~\cite{Dengler-Crish2017} and not a major contributing factor in this cohort. 
 
 
+\subsection{\cursedforest\ amplifies signal over traditional methods to identify novel associations}
+
+Figure 1b shows a traditional GWAS analysis using logistic regression~\cite{Duncan.2011} where the resulting $p$-values do not clearly distinguish these known BMD genes from the noise. 
+In contrast, \cursedforest\ seems to amplify the signal to identify associated features (Figure 1a). 
+As such, this approach allows to employ a very stringent cut-off for identifying strongly associated feature. Here we chose a 99.98 False Discovery Rate (FDR) from 60 random experiments (see Methods). 
+
 %2 TEX2  EN rs112558362 SNORNA  ERN1 Gliablastoma in older people Alzheimer's
 %5 rs6961378  Woolfe2005
 %13 rs17195090
 
-There are also four novel locations amongst the top 30 most associated variants as annotated in Figure 3a.
+Above this FDR cut-off we identify four novel locations as annotated in Figure 1a.
 %~\ref{figure:rbo-prod.png}. 
 Most notably a lincRNA (LINC01006) on chromosome 7, which has been associated with serum creatinine levels in two independent GWAS studies~\cite{Pattaro2010,Chambers2010}. 
 Subjects with low serum creatinine levels were at a higher risk for low BMD~\cite{Huh2015} and in a rat study high creatine monohydrate diet resulted in greater lumbar BMD~\cite{Antolic2007}, 
@@ -752,7 +680,7 @@ Again, all LD SNPs also show high importance (see Figure 3c). %~\ref{zoomplot}).
 %Ranked at position 5 (rs6961378) and 18 (rs146034056) are located on chromosome 7 overlapping the lincRNA (LINC01006), which as been linked to vertebrate development~\cite{Woolfe2005}.
 In contrast rs17195090 and rs112558362 are single feature loci (Supplementary Figure 4) hence likely due to erroneous imputation or genotyping.
 
-
+To evaluate whether the here identified features are significantly associated with BMD, we train a traditional linear mixed model to return a $p$-value for each included feature. Interestingly, while the three known BMD genes with the highest Importance score are indeed significantly associated (TNFRSF11B $p$-value=XX, CTNNB1 XX, ZBTB40 XX), IBSP and MEF2C were not significant. All of our newly associated features, on the other hand, were deemed significant, and in-fact rs17195090 was the most significant feature evaluated with $p$-value=XX (rs112558362 XX, LINC01006 XX, PRODH XX). 
 
 % Also amongst the top 20 associated
 %variants is a SNP in the intronic region of Unc13c (rs12916554), a gene that is linked to quality of
@@ -761,8 +689,7 @@ In contrast rs17195090 and rs112558362 are single feature loci (Supplementary Fi
 %ABCF1 (ATP Binding Cassette Subfamily F Member 1)~\cite{Dixon2007} with member 2 of this subfamily being a known BMD
 %gene. The other three novel loci are on or near ncRNA.
 
-\cursedforest\ can successfully perform GWAS-type analyses replicating previous findings and uncovering novel
-associations due to random forests also modelling interacting features.
+%\cursedforest\ can successfully perform GWAS-type analyses replicating previous findings and uncovering novel associations due to random forests also modelling interacting features.
 
 %In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
 
@@ -793,33 +720,34 @@ associations due to random forests also modelling interacting features.
 %%\end{adjustwidth}
 %\end{table}
 
-\begin{figure}[tbhp]
-  \begin{adjustwidth}{-2.00in}{0in}
-    \caption{\textbf{Rank of literature assigned BMD genes}}
-    \label{figure:knowngeneranks}
-    \includegraphics[totalheight=6.5cm]{./figs/BMDgenes_landscape.pdf}
-    \begin{flushleft}
-      The figure shows the rank of the 100 literature assigned BMD genes. Each ball represents a SNP assigned to the closest gene with colour representing the distance (max 100 kb). The size shows the Gini impurity score with larger balls representing more important SNPs. The horizontal line separates the genes with SNPs amongst the Top 20 associated features. 
-     \end{flushleft}
-  \end{adjustwidth}
-\end{figure}
+%\begin{figure}[tbhp]
+%  \begin{adjustwidth}{-2.00in}{0in}
+%    \caption{\textbf{Rank of literature assigned BMD genes}}
+%    \label{figure:knowngeneranks}
+%    \includegraphics[totalheight=6.5cm]{./figs/BMDgenes_landscape.pdf}
+%    \begin{flushleft}
+%      The figure shows the rank of the 100 literature assigned BMD genes. Each ball represents a SNP assigned to the closest gene with colour representing the distance (max 100 kb). The size shows the Gini impurity score with larger balls representing more important SNPs. The horizontal line separates the genes with SNPs amongst the Top 20 associated features. 
+%     \end{flushleft}
+%  \end{adjustwidth}
+%\end{figure}
 
 
 \begin{figure}[tbhp]
   \begin{adjustwidth}{-2.00in}{0in}
-    \caption{\textbf{Genome-wide importance of SNPs and visualisation of the 22q.11 region}}
+    \caption{\textbf{Genome-wide importance of SNPs for Bone Mineral Density association}}
     \label{figure:ranksumtest}
      \begin{subfigure}[b]{0.5\linewidth}
-     \includegraphics[totalheight=7cm]{./figs/BMDTopWholeGenome.png}
-      \label{figure:rbo-prod.png} 
+     \includegraphics[totalheight=7cm]{./figs/BMDTopWholeGenome_annotated.png}
+      \label{figure:BMDTopWholeGenome} 
     \end{subfigure} 
  \begin{subfigure}[b]{0.5\linewidth}
       \centering
-      \includegraphics[totalheight=7cm]{./figs/new_10k_TNFRSF11B.pdf}
+      \includegraphics[totalheight=7cm]{./figs/BMDTopWholeGenome_BW_random.png}
       \label{zoomplotTNFRSF} 
    \end{subfigure} 
     \begin{subfigure}[b]{0.5\linewidth}
-     \includegraphics[totalheight=7cm]{./figs/new_10k_PRODH.pdf}
+    \includegraphics[totalheight=7cm]{./figs/new_10k_TNFRSF11B.pdf}
+%     \includegraphics[totalheight=7cm]{./figs/new_10k_PRODH.pdf}
       \label{zoomplotprodh} 
     \end{subfigure} 
         \begin{subfigure}[b]{0.5\linewidth}
@@ -827,8 +755,9 @@ associations due to random forests also modelling interacting features.
       \label{zoomplotlinc} 
     \end{subfigure} 
     \begin{flushleft}
-      (a) The figure shows genome-wide SNPs and their importance. Highlighted are the 100 literature assigned BMD genes (green) and four novel loci. The horizontal line indicates the top 30 features. 
-      Locus Zoomplot for (b) the top ranked gene TNFRSF11B and the two putative novel associations (c) PRODH and (e) LINC01006. Each point represents a variant with the normalised Gini impurity score on the left y axis and LD to the central SNP in colour with the highest $r^2$ in red.
+      Genome-wide SNPs and their importance for the BMD dataset {\bf(a)}; highlighted are the 100 literature assigned BMD genes (green) and four novel loci. The horizontal line indicates the top 99.98 FDR. 
+      {\bf(b)} shows a previous GWAS analysis using logistic regression. 
+      Locus Zoomplot for {\bf(c)} the top ranked gene TNFRSF11B and the two putative novel associations {\bf(d)} LINC01006. Each point represents a variant with the normalised Gini impurity score on the left y axis and LD to the central SNP in colour with the highest $r^2$ in red.
      \end{flushleft}
   \end{adjustwidth}
         \label{manhattenzoom} 
@@ -860,9 +789,6 @@ associations due to random forests also modelling interacting features.
 %     \end{flushleft}
 %  \end{adjustwidth}
 %\end{figure}
-
-
-
 
 
 %\begin{figure}[tbhp]
@@ -952,6 +878,95 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
       The figure shows the runtime for the 5 subsets of the 1000 genomes project and the different methods investigated.
       $\bigotimes$ marks the last dataset the different method completed before running out of memory or running more than
       20 hours. The dashed lines mark the trajectory for how \ranger and Spark ML had performed given larger memory machines.
+    \end{flushleft}
+  \end{adjustwidth}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 1:  Feature Selection and classification on synthetic data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\cursedforest can evaluate variable importance and perform classification for millions of features}
+%\label{section:synthetic}
+In this section we test the limits of \cursedforest\'s association testing and classify ability on high-dimensional data. 
+%In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
+%associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
+%high-dimensional samples.  
+We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$), of which 5 
+are related to the response variable, and 5000 samples ($n=5000$), as discussed in the methods section.
+
+We fit the random forest model and estimate the classification accuracy by capturing the out-of-bag error (OOB) and the
+variable selection performance by capturing the rank-biased overlap (RBO) \cite{Webber2010} measure. RBO compares two
+lists (in this case, the parameters $w_i, i=1,\ldots , 5$ (Equation~\ref{equation:synthetic.data}), and the top 1000
+ranked variable importances from the \cursedforest model). It is a mesaure of similarity between rankings that handles
+lists of different lengths, weighs high ranks more heavily than low, and is monotonic with increasing depth of
+evaluation. We expect to retrieve the 5 features in order of the weight that was assigned to them and with a higher
+variable importance measure than the noise variables. RBO provides a quantiative measure of how close we come to this on
+a scale from 0 (no feature recovered) to 1 (fully recovered). See supplementary information (S*) for more details.
+
+We are running Apache Spark 1.6.1 on a YARN
+cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores and 128 GB of RAM.
+
+%mtry = number of variable seclection at each node - proportion of p 
+%ntree= number of trees 
+
+% mtry large makes trees correlated because the same important features have a higher chance of being selected
+% overfitting because it picks random that happen to be 
+
+As shown in Fig~\ref{figure:out-of-bag-prediction-error-prod.png} the default value for \mtry (number of variables
+selected at each node) does not result in a good classification performance for this large feature dataset. Note that
+the plot shows the proportion, $n/p,$ for \mtry\ with the default being $\sqrt{p} \approx 1581$ ($n/p=0.0006$).  The
+OOB for this value of \mtry does not drop below 0.5, even when the number of trees are increased (\ntree).
+
+Increasing \mtry\ in combination with \ntree\ yields the best performance with the OOB error essentially constant around 0.4
+across a large range of of \mtry and \ntree values.  This is in contrast to the feature-selection performance, where the
+RBO measure heavily depends on \ntree\ and gives better results with lower values of \mtry.
+
+This may be because a large \mtry leads to more correlated trees as the same important features have a higher chance of
+being selected in all, not yielding good performance outcomes.  This issue is less pronounced for classification error
+where random features can mimic the response variable, hence resulting more in a performance plateau.  Increasing the
+number of trees on the other hand improves performance especially when the trees are kept diverse (small \mtry) but
+appropriate for large feature datasets (\mtry larger than default). \cursedforest's feature of parallelizing trees at
+the node level hence caters perfectly to the requirement of large feature datasets as more trees can be built given a
+fixed time budget.
+
+%Fig~\ref{figure:synth1} illustrates the effect of varying \mtry and \ntree on these two measures. The default \mtry
+%value for a classification problem is $\sqrt{p} \approx 1581$ so in this case we are considering values considerably larger than
+%the default. Fig~\ref{figure:out-of-bag-prediction-error-prod.png} shows the OOB error is constant across a large range of 
+%of \mtry and \ntree values whereas Fig~\ref{figure:rbo-prod.png} illustrates that the RBO measure depends
+%heavily on \ntree but gives a better value with lower values of \mtry.
+
+From the synthetic data we can conclude that \cursedforest is able to perform accurate feature selection as well as
+accurate classification for large numbers of samples with large feature vectors.  We can also conclude that fine tuning
+the model to accurately classify the dataset does not ensure good feature selection performance as there seems to be
+little correspondence between the OOB and RBO measure.
+
+
+
+\begin{figure}[tbhp] 
+  \begin{adjustwidth}{-1.00in}{0in}
+    \caption{\textbf{Out of bag classification error and rank-biased-overlap estimates}} 
+    \label{figure:synth1}
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=8cm]{./figs/oob_levleplot.png}
+      \caption{OOB classification error.} 
+      \label{figure:out-of-bag-prediction-error-prod.png} 
+%      \vspace{4ex}
+    \end{subfigure} 
+    \begin{subfigure}[b]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=8cm]{./figs/rbo_levleplot.png}
+      \caption{The rank-biased-overlap measure.} 
+      \label{figure:rbo-prod.png} 
+%      \vspace{4ex}
+    \end{subfigure} 
+    \begin{flushleft} 
+      Random forests with 100 trees were trained on the synthetic dataset of 2.5M features and 5K samples.
+      Each measure is shown as a function of \mtry and \ntree. Note that the plot colors have been chosen so that the lighter color indicates
+      the better result, that is, a lower OOB or a higher RBO.
     \end{flushleft}
   \end{adjustwidth}
 \end{figure}
@@ -1090,116 +1105,122 @@ samples, which is the size range for whole genome sequencing experiments of clin
 
 \section{Conclusion}
 
-We have demonstrated that using a different parallelization model can extend random forests to the case of an
-extremely large number of variables. We have treated the case of variable selection in a $p >> n$ model, where most of
-the variables are uninformative, and have demonstrated the utility of the model for large GWAS datasets. By comparing
-this implementation to other implementations (including those optimized for large datasets) we have demonstrated the
-utility of this approach.
+Using a novel parallelization approach enabled by Spark, we extended random forests to cope with extremely high dimensional data (large number of variables). 
+We have demonstrated that for datasets with more variable ($p$) than samples ($n$), such as GWAS applications, \cursedforest can perform effective variable selection replicating previous findings and uncovering novel associations in a Bone Mineral Density study. 
+We are able to elevate the signal compared to previous approaches using logistic regression due to random forests also modelling interacting features.
 
-Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
-large number of areas, including variable selection in high dimensions. The theoretical phase change boundary is based on arguments
-from combinatorial geometry.
+In fact, \cursedforest's ability to almost exhaustively sample the combinatorial space by efficiently building large numbers of trees puts it closer than any other method to the theoretical boundary for accurate recovery of informative variables. Donoho and Tanner~\cite{Donoho.and.Tanner.2009} define this as the ``universal phase change'', which depends on underdetermination, $\delta = n/p$, and the sparsity, $\rho =k/n$ (where $k$ is the number of informative variables). 
+By effectively operating in the difficult area of this space with $p >> n$ and small number of informative features, \cursedforest is pushing the practical limits of this paradigm. 
 
-They argue that there is a sharp disjunction between the cases where informative variables may be recovered with a high
-accuracy by procedures like stepwise variable selection, and the cases where they can not be recovered. The boundary is
-shown in Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdetermination,
-$\delta = n/p$, and by the sparsity, $\rho =k/n$ (where $k$ is the number of informative variables).  Above the
-phase-transition line variable recovery is still possible by a combinatorial search approach such as all-subsets
-variable selection. 
+To showcase the breadth of application scope, we also demonstrate that \cursedforest's implementation aids in classification problems such as predicting the ethnicity of the 1000 genome project. 
+By comparing \cursedforest\ to other implementations (including those optimised for large datasets) we have demonstrated that runtime can be improved by 80\% allowing analysis in timeframes relevant for point-of-care diagnostics such as for "Patients like mine" scenarios thereby enabling evidence based self learning health care. 
 
-\begin{figure}[tbhp] 
- \begin{adjustwidth}{-1.00in}{0in}
-    \centering
-    \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
-    \caption{{\bf The phase change diagram.}}
-    \label{figure:phase-diagram-equivalence.png} 
-    \vspace{4ex}
-  \end{adjustwidth}
-\end{figure}
+In summary, \cursedforest\  offers the broadly needed capability of performing sophisticated machine learning tasks on big, complex life science data. Specifically, the here demonstrated ability to uncover novel biological information from previously analysed GWAS studies showcases the enormous potential of re-analysing the GWAS catalogue given this unprecedented computational capacity to perform joint-loci association testing and identify the much-anticipated cumulative multi-gene disease contribution.    
 
-
-\cite{Donoho.and.Stodden.2006} investigate the phase transition in a small simulation.  They consider a regression
-problem with $\underset{n\times p}{X}\sim N(0,1)$ with $p$ fixed at 200 and $n$ variable.  They set
-$\beta(1:k) \sim U(1,100)$ and $\beta((k+1):p) =0$, then $y= X\beta + \epsilon$ with $\epsilon \sim N(0,\sqrt{16})$. They
-evaluate variable selection by the error measure
-$$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}.$$
-
-They consider a number of variable selection methods, including a false discovery rate criteria. This involves adding
-the variable with the maximum $t$-value to the linear model if the $p$-value is less than 
-$0.25(\text{number of  terms  currently  in  the  model})/(\text{total  number  of  variables})$.  
-See Fig~\ref{figure:error_Stodden_FDR.png} for the error measure and
-figure \ref{figure:rbo_Stodden_FDR.png} for the RBO, comparing the ranking (i.e. values) of $\hat{\beta}$ and $\beta$.
-It apparent that there is a marked drop in the accuracy of the variable recovery in line with the prediction of the
-Donoho-Tanner phase transition.
-
-
-
- \begin{figure}[tbhp] 
-%   \begin{adjustwidth}{-1.00in}{0in}
-     \begin{subfigure}[t]{0.5\linewidth}
-       \centering
-       \includegraphics[totalheight=6cm]{./figs/error_Stodden_FDR.png}
-       \caption{The error measure.}
-       \label{figure:error_Stodden_FDR.png}
+%Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
+%large number of areas, including variable selection in high dimensions. The theoretical phase change boundary is based on arguments
+%from combinatorial geometry.
+%
+%They argue that there is a sharp disjunction between the cases where informative variables may be recovered with a high
+%accuracy by procedures like stepwise variable selection, and the cases where they can not be recovered. The boundary is
+%shown in Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdetermination,
+%$\delta = n/p$, and by the sparsity, $\rho =k/n$ (where $k$ is the number of informative variables).  Above the
+%phase-transition line variable recovery is still possible by a combinatorial search approach such as all-subsets
+%variable selection. 
+%
+%\begin{figure}[tbhp] 
+% \begin{adjustwidth}{-1.00in}{0in}
+%    \centering
+%    \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
+%    \caption{{\bf The phase change diagram.}}
+%    \label{figure:phase-diagram-equivalence.png} 
+%    \vspace{4ex}
+%  \end{adjustwidth}
+%\end{figure}
+%
+%
+%\cite{Donoho.and.Stodden.2006} investigate the phase transition in a small simulation.  They consider a regression
+%problem with $\underset{n\times p}{X}\sim N(0,1)$ with $p$ fixed at 200 and $n$ variable.  They set
+%$\beta(1:k) \sim U(1,100)$ and $\beta((k+1):p) =0$, then $y= X\beta + \epsilon$ with $\epsilon \sim N(0,\sqrt{16})$. They
+%evaluate variable selection by the error measure
+%$$\frac{\Vert\hat{\beta}-\beta\Vert_2}{\Vert\beta\Vert_2}.$$
+%
+%They consider a number of variable selection methods, including a false discovery rate criteria. This involves adding
+%the variable with the maximum $t$-value to the linear model if the $p$-value is less than 
+%$0.25(\text{number of  terms  currently  in  the  model})/(\text{total  number  of  variables})$.  
+%See Fig~\ref{figure:error_Stodden_FDR.png} for the error measure and
+%figure \ref{figure:rbo_Stodden_FDR.png} for the RBO, comparing the ranking (i.e. values) of $\hat{\beta}$ and $\beta$.
+%It apparent that there is a marked drop in the accuracy of the variable recovery in line with the prediction of the
+%Donoho-Tanner phase transition.
+%
+%
+%
+% \begin{figure}[tbhp] 
+%%   \begin{adjustwidth}{-1.00in}{0in}
+%     \begin{subfigure}[t]{0.5\linewidth}
+%       \centering
+%       \includegraphics[totalheight=6cm]{./figs/error_Stodden_FDR.png}
+%       \caption{The error measure.}
+%       \label{figure:error_Stodden_FDR.png}
+%%       \vspace{4ex}
+%     \end{subfigure} 
+%     \begin{subfigure}[t]{0.5\linewidth}
+%       \centering
+%       \includegraphics[totalheight=6cm]{./figs/rbo_Stodden_FDR.png}
+%       \caption{The RBO measure}
+%       \label{figure:rbo_Stodden_FDR.png}
+%     \end{subfigure} 
+%     \caption{Forward stepwise variable selection with a false discovery rate stopping criteria.}
+%       \label{figure:error_and_rbo_Stodden_FDR.png}
+%%   \end{adjustwidth}
+% \end{figure}
+%
+% \begin{figure}[tbhp] 
+%%   \begin{adjustwidth}{-1.00in}{0in}
+%     \begin{subfigure}[t]{0.5\linewidth}
+%       \centering
+%       \includegraphics[totalheight=6cm]{./figs/ranger_error_Stodden_simulation.png}
+%       \caption{The OOB error rate.}
+%       \label{figure:ranger_error_Stodden_simulation.png}
 %       \vspace{4ex}
-     \end{subfigure} 
-     \begin{subfigure}[t]{0.5\linewidth}
-       \centering
-       \includegraphics[totalheight=6cm]{./figs/rbo_Stodden_FDR.png}
-       \caption{The RBO measure}
-       \label{figure:rbo_Stodden_FDR.png}
-     \end{subfigure} 
-     \caption{Forward stepwise variable selection with a false discovery rate stopping criteria.}
-       \label{figure:error_and_rbo_Stodden_FDR.png}
-%   \end{adjustwidth}
- \end{figure}
-
- \begin{figure}[tbhp] 
-%   \begin{adjustwidth}{-1.00in}{0in}
-     \begin{subfigure}[t]{0.5\linewidth}
-       \centering
-       \includegraphics[totalheight=6cm]{./figs/ranger_error_Stodden_simulation.png}
-       \caption{The OOB error rate.}
-       \label{figure:ranger_error_Stodden_simulation.png}
-       \vspace{4ex}
-     \end{subfigure} 
-     \begin{subfigure}[t]{0.5\linewidth}
-       \centering
-       \includegraphics[totalheight=6cm]{./figs/ranger_rbo_Stodden_simulation.png}
-       \caption{The RBO measure}
-       \label{figure:ranger_rbo_Stodden_simulation.png}
-     \end{subfigure} 
-     \caption{The simulated data of \protect{\cite{Donoho.and.Stodden.2006}} with a random forest model.}
-     \label{figure:ranger_error_and_rbo_Stodden_simulation.png}
-%   \end{adjustwidth}
- \end{figure}
-
-
-We have seen no work on the question of such a phase transition in the case of classification problems. Still it may be
-instructive to consider the implications of the phase transition for our work. 
-
-We have used a random forest on the same simulation data used for figure \ref{figure:error_and_rbo_Stodden_FDR.png}.  The
-Donoho-Tanner phase transition arises in recovering the $\beta$ in data generated by a linear model. However, in a
-decision tree (random forest) we are fitting a non-linear model and there is no notion of estimating the
-$\beta$. Because of this we have evaluated the performance of the random forest using the RBO measure on the variable
-importance.
-
-We note that while a random forest is a long way from an all-subsets search, it is a limited search of
-the feature space. As such it may perform outside of the bounds of the phase transition. 
-
-
-Fig~\ref{figure:ranger_error_and_rbo_Stodden_simulation.png} shows the OOB prediction error and the RBO error for a
-random forest with 10000 trees and the \mtry value set to the default for a regression problem (depending on $n$). It
-shows no evidence of following the shape of the Donoho-Tanner phase transition.
-
-As \cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions
-of the figure where the ratio $\delta = n/p$ is small. In the simulated example in section \ref{section:synthetic_data}
-the underdetermination parameter $\delta = 0.002$ and the sparsity parameter $\rho =2\times 10^{-6}.$
-
-The existence of the Donoho-Tanner phase transition is a salutary warning. There are likely to be limits, both
-computational and logical, to the recovery of signals from noisy data. \cursedforest is a contribution to addressing the
-practical limits but the logical limits will still apply. However in the case of data that is both big and wide,
-\cursedforest and other VariantSpark methods may provide a useful tool.
+%     \end{subfigure} 
+%     \begin{subfigure}[t]{0.5\linewidth}
+%       \centering
+%       \includegraphics[totalheight=6cm]{./figs/ranger_rbo_Stodden_simulation.png}
+%       \caption{The RBO measure}
+%       \label{figure:ranger_rbo_Stodden_simulation.png}
+%     \end{subfigure} 
+%     \caption{The simulated data of \protect{\cite{Donoho.and.Stodden.2006}} with a random forest model.}
+%     \label{figure:ranger_error_and_rbo_Stodden_simulation.png}
+%%   \end{adjustwidth}
+% \end{figure}
+%
+%
+%We have seen no work on the question of such a phase transition in the case of classification problems. Still it may be
+%instructive to consider the implications of the phase transition for our work. 
+%
+%We have used a random forest on the same simulation data used for figure \ref{figure:error_and_rbo_Stodden_FDR.png}.  The
+%Donoho-Tanner phase transition arises in recovering the $\beta$ in data generated by a linear model. However, in a
+%decision tree (random forest) we are fitting a non-linear model and there is no notion of estimating the
+%$\beta$. Because of this we have evaluated the performance of the random forest using the RBO measure on the variable
+%importance.
+%
+%We note that while a random forest is a long way from an all-subsets search, it is a limited search of
+%the feature space. As such it may perform outside of the bounds of the phase transition. 
+%
+%
+%Fig~\ref{figure:ranger_error_and_rbo_Stodden_simulation.png} shows the OOB prediction error and the RBO error for a
+%random forest with 10000 trees and the \mtry value set to the default for a regression problem (depending on $n$). It
+%shows no evidence of following the shape of the Donoho-Tanner phase transition.
+%
+%As \cursedforest is designed for extremely large numbers of variables it is likely to be operating in difficult regions
+%of the figure where the ratio $\delta = n/p$ is small. In the simulated example in section \ref{section:synthetic_data}
+%the underdetermination parameter $\delta = 0.002$ and the sparsity parameter $\rho =2\times 10^{-6}.$
+%
+%The existence of the Donoho-Tanner phase transition is a salutary warning. There are likely to be limits, both
+%computational and logical, to the recovery of signals from noisy data. \cursedforest is a contribution to addressing the
+%practical limits but the logical limits will still apply. However in the case of data that is both big and wide,
+%\cursedforest and other VariantSpark methods may provide a useful tool.
 
 
 \clearpage
