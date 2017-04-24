@@ -497,7 +497,7 @@ samples to a dataset, Spark can simply schedule extra tasks to handle the additi
 
 However, within an RDD, Spark ML stores each sample as a vector. Unlike RDDs, which can be partitioned and distributed
 across multiple nodes, each vector must be present in its entirety on any node accessing it. This is no problem with
-typical datasets, however as dimensionality increases, the vectors eventually reach a size where they can no longer fit
+typical datasets; however as dimensionality increases, the vectors eventually reach a size where they can no longer fit
 into a single node's memory.
 
 So in the case of adding more samples, Spark ML can simply create more tasks, keeping memory consumption within the
@@ -545,9 +545,9 @@ forest model.
 {\bf Type} & {\bf Mechanism}                                         & {\bf Partition} \\ 
 \thickhline
 Additive   & Each additional minor allele increases variation        & 0, 1, 2         \\
-Dominant   & Presence of at least 1 minor allele increases variation & 0, 1/2          \\
-Recessive  & Two minor alleles needed for variation                  & 0/1, 2          \\
-Heterosis  & Heterozygote leads to variation                         & 0/2, 1          \\ \hline
+Dominant   & Presence of at least 1 minor allele increases variation & 0, $\{1,2\}$          \\
+Recessive  & Two minor alleles needed for variation                  & $\{0,1\}$, 2          \\
+Heterosis  & Heterozygote leads to variation                         & $\{0,2\}$, 1          \\ \hline
 %\end{adjustwidth}
 \end{tabular}
 \label{table:encodings}
@@ -601,7 +601,8 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
   tree in the forest.\footnote{The Spark ML documentation \cite{Spark.2016} sets \texttt{maxDepth} to 4 in their
     classification example. This may give an estimate with a higher bias and, as such, may be a poor choice. See the
-    discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but give a
+    discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but is more
+    complicated than first thought. They show that bagging may reduce bias as well as variance but give a    
     better result for low bias learners. \cite{Dietterich.2002} notes that if the bootstrap replicate approximation were
     correct (i.e.~if the bootstrap sample came from an identical distribution to the data), then bagging would reduce
     variance without changing bias.}
@@ -894,7 +895,7 @@ In this section we test the limits of \cursedforest\'s association testing and c
 %In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
 %associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
 %high-dimensional samples.  
-We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$), of which 5 
+We therefore generate a synthetic dataset with 2.5 million variables ($p=2,500,000$), of which 5 
 are related to the response variable, and 5000 samples ($n=5000$), as discussed in the methods section.
 
 We fit the random forest model and estimate the classification accuracy by capturing the out-of-bag error (OOB) and the
