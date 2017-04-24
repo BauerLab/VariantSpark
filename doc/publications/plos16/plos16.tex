@@ -272,11 +272,24 @@ Denis C. Bauer\textsuperscript{1,*}
 % Please keep the abstract below 300 words
 \section{Abstract}
 
-Analyses are performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in genomics, cohort sizes are in the thousands, each comprising of Millions of variants that make up a person's genetic differences. Traditional approaches are unable to cater for this task and even standard implementations using novel compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such data. Specifically, Spark ML's supervised machine learning methods suffer from "the curse of dimensionality". That is, they scale well with samples (n) but not with features (p, variants).
+Analyses are performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in
+genomics, cohort sizes are in the thousands, each comprising of millions of variants that make up a person's genetic
+differences. Traditional approaches are unable to cater for this task and even standard implementations using novel
+compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such
+data. Specifically, Spark ML's supervised machine learning methods suffer from "the curse of dimensionality". That is,
+they scale well with samples ($n$) but not with features ($p$, variants).
 
-We introduce \cursedforest, a tailored implementation of random forests, designed to handle data with extremely large number of variables per sample. We showcase \cursedforest\ to accurately predict ethnicity from whole genome sequencing profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest\ was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or more. We also demonstrate a GWAS-style analysis using  \cursedforest's feature selection approach on an imputed SNP array dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying novel candidates.  
+We introduce \cursedforest, a tailored implementation of random forests, designed to handle data with extremely large
+number of variables per sample. We showcase \cursedforest\ to accurately predict ethnicity from whole genome sequencing
+profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest\
+was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or
+more. We also demonstrate a GWAS-style analysis using \cursedforest's feature selection approach on an imputed SNP array
+dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying
+novel candidates.
 
-\cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near real-time classification of population-scale patient cohorts in "patients like mine" scenarios, as well as performing GWAS analysis on large unfiltered whole genome sequencing cohorts. 
+\cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near
+real-time classification of population-scale patient cohorts in "patients like mine" scenarios, as well as performing
+GWAS analysis on large unfiltered whole genome sequencing cohorts.
 
 
 
@@ -330,7 +343,7 @@ is not able to handle the extremely ``wide'' genomic data as it was developed fo
 with only modest dimensionality~\cite{NIPS2016_6366}.  Although Spark ML can build a random forest model on a subset of the data (chromosome
 1), we show that the time taken is excessive due to the large amount of data being aggregated and processed by the driver node during
 intermediate stages of building the model.  This unbalanced work load where the driver
-node becomes the bottleneck and worker nodes being idle prevents a seamless scaling to larger datasets. We also show that the memory
+node becomes the bottleneck and worker nodes are idle prevents a seamless scaling to larger datasets. We also show that the memory
 requirements per executor increases with dimensionality due to the data types Spark ML uses.%, which we elaborate on in the discussion.
   
 Here we introduce \cursedforest, a tailored Hadoop/Spark-based implementation of random forests specifically designed to cater
@@ -476,7 +489,7 @@ function $y=f(S)$ depending on a set of variables $S$, a random forest will conv
 rate that depends on the size of $S$ and not the number of noise variables in the dataset. If the size of $S$ is small
 compared to the total number of variables, then the rate of convergence will be quicker. It is not clear what the size
 of the set $S$ will be in a GWAS application. There are cases of small groups of SNPs with large effects and also of
-conditions caused by the interactions of large groups of SNPs.
+conditions caused by the interactions of larger groups of SNPs.
 
 \cite{Genuer.et.al.2010} and \cite{Diaz.and.Alvarez.2006} describe iterative schemes for doing variable selection using
 the importance measure. See \cite{Chen.and.Ishwaran.2012} for a review of the area with particular reference to genomic
@@ -495,7 +508,7 @@ samples to a dataset, Spark can simply schedule extra tasks to handle the additi
 
 However, within an RDD, Spark ML stores each sample as a vector. Unlike RDDs, which can be partitioned and distributed
 across multiple nodes, each vector must be present in its entirety on any node accessing it. This is no problem with
-typical datasets, however as dimensionality increases, the vectors eventually reach a size where they can no longer fit
+typical datasets; however, as dimensionality increases, the vectors eventually reach a size where they can no longer fit
 into a single node's memory.
 
 So in the case of adding more samples, Spark ML can simply create more tasks, keeping memory consumption within the
@@ -543,9 +556,9 @@ forest model.
 {\bf Type} & {\bf Mechanism}                                         & {\bf Partition} \\ 
 \thickhline
 Additive   & Each additional minor allele increases variation        & 0, 1, 2         \\
-Dominant   & Presence of at least 1 minor allele increases variation & 0, 1/2          \\
-Recessive  & Two minor alleles needed for variation                  & 0/1, 2          \\
-Heterosis  & Heterozygote leads to variation                         & 0/2, 1          \\ \hline
+Dominant   & Presence of at least 1 minor allele increases variation & 0, $\{1,2\}$          \\
+Recessive  & Two minor alleles needed for variation                  & $\{0,1\}$, 2          \\
+Heterosis  & Heterozygote leads to variation                         & $\{0,2\}$, 1          \\ \hline
 %\end{adjustwidth}
 \end{tabular}
 \label{table:encodings}
@@ -599,7 +612,8 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
   tree in the forest.\footnote{The Spark ML documentation \cite{Spark.2016} sets \texttt{maxDepth} to 4 in their
     classification example. This may give an estimate with a higher bias and, as such, may be a poor choice. See the
-    discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but give a
+    discussion in \cite{Dietterich.2002} where it is shown that the question of reducing bias versus variance is more
+    complicated than first thought. They show that bagging may reduce bias as well as variance but give a
     better result for low bias learners. \cite{Dietterich.2002} notes that if the bootstrap replicate approximation were
     correct (i.e.~if the bootstrap sample came from an identical distribution to the data), then bagging would reduce
     variance without changing bias.}
@@ -623,7 +637,7 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 \label{section:synthetic}
 In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
 associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
-high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables ($p=2500000$), of which 5 
+high-dimensional samples.  We therefore generate a synthetic dataset with 2.5 million variables ($p=2,500,000$), of which 5 
 are related to the response variable, and 5000 samples ($n=5000$), as discussed in the methods section.
 
 We fit the random forest model and estimate the classification accuracy by capturing the out-of-bag error (OOB) and the
@@ -1102,15 +1116,15 @@ from combinatorial geometry.
 
 They argue that there is a sharp disjunction between the cases where informative variables may be recovered with a high
 accuracy by procedures like stepwise variable selection, and the cases where they can not be recovered. The boundary is
-shown in Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdetermination,
+shown in Fig~\ref{figure:phase-diagram-equivalence.png} in a space parameterized by the level of underdeterminatio,n
 $\delta = n/p$, and by the sparsity, $\rho =k/n$ (where $k$ is the number of informative variables).  Above the
-phase-transition line variable recovery is still possible by a combinatorial search approach such as all-subsets
+phase-transition line variable recovery is still possible by a combinatorial approach such as all-subsets
 variable selection. 
 
 \begin{figure}[tbhp] 
  \begin{adjustwidth}{-1.00in}{0in}
     \centering
-    \includegraphics[totalheight=6cm]{./figs/phase-diagram-equivalence.png} 
+    \includegraphics[totalheight=6cm]{./figs/phase2.png} 
     \caption{{\bf The phase change diagram.}}
     \label{figure:phase-diagram-equivalence.png} 
     \vspace{4ex}
