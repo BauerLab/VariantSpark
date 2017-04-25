@@ -273,13 +273,24 @@ Denis C. Bauer\textsuperscript{1,*}
 % Please keep the abstract below 300 words
 \section{Abstract}
 
-Analyses are performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in genomics, cohort sizes are in the thousands, each comprising of Millions of variants that make up a person's genetic differences. Traditional approaches are unable to cater for this task and even standard implementations using novel compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such data. Specifically, Spark ML's supervised machine learning methods suffer from "the curse of dimensionality". That is, they scale well with samples (n) but not with features (p, variants).
+Analyses are being performed on ever larger datasets with unprecedentedly detailed information per data point. Specifically in
+genomics, cohort sizes are in the thousands, each comprising of millions of variants that make up a person's genetic
+differences. Traditional approaches are unable to cater for this task and even standard implementations using novel
+compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such
+data. Specifically, Spark ML's supervised machine learning methods suffer from ``the curse of dimensionality''. That is,
+they scale well with samples ($n$) but not with features ($p$, variants).
 
-We introduce \cursedforest, a tailored implementation of random forests, designed to handle data with extremely large number of variables per sample. We showcase \cursedforest\ to accurately predict ethnicity from whole genome sequencing profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest\ was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or more. We also demonstrate a GWAS-style analysis using  \cursedforest's feature selection approach on an imputed SNP array dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying novel candidates.  
+We introduce \cursedforest, a tailored implementation of random forests, designed to handle data with extremely large
+number of variables per sample. We showcase \cursedforest to accurately predict ethnicity from whole genome sequencing
+profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest
+was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or
+more. We also demonstrate a GWAS-style analysis using \cursedforest's feature selection approach on an imputed SNP array
+dataset (2000 x 7 Million) on Bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying
+novel candidates.
 
-\cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near real-time classification of population-scale patient cohorts in "patients like mine" scenarios, as well as performing GWAS analysis on large unfiltered whole genome sequencing cohorts. 
-
-
+\cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near
+real-time classification of population-scale patient cohorts in ``patients like mine'' scenarios, as well as performing
+GWAS analysis on large unfiltered whole genome sequencing cohorts.
 
 
 
@@ -344,7 +355,7 @@ distributes tasks to many ``worker'' nodes, or ``executors''.
 By also utilising Spark to read in and manipulate the standard genomic variant format (VCF)
 directly, \cursedforest outperforms existing tools even on small datasets where multithreading generally performs
 well. Harnessing the virtually unlimited capability to parallelise tasks, \cursedforest can hence explore the solution 
-space faster by building a larger number of diverse models to generate a consensus from. 
+space faster by building a larger number of diverse models to generate a consensus classifier. 
 
 Using this facility, \cursedforest is capable of parallelising the split for each node in a tree thereby handling millions 
 of features, as required to process whole genome sequencing data or SNP array data with unobserved genotypes 
@@ -436,7 +447,7 @@ The benefits of random forest models are:
 \item they give an out-of-bag (OOB) estimate of model accuracy, by using the samples not selected for the bootstrapped sample
   as an independent test set for each tree;
 \item they provide a measure of variable importance, for example by summing the number of times a variable is used to
-  split a node, over all nodes and all trees. More complex measures of variable importance are also used;
+  split a node, over all nodes and all trees. Other, more complex, measures of variable importance are also used;
 \item they inherit some of the qualities of tree models (but not, for example, the handling of missing values via surrogate
   variables. This would be difficult as the trees are split on random subsets of variables).
 \end{itemize}
@@ -530,7 +541,7 @@ every individual across one chromosome.  We use the phase 3 dataset which contai
 algorithms we demonstrate, we convert the original variant representations to double representations.  For example, we
 store the absence of a variant (0\textbar0) as 0, a heterozygous
 variant (1\textbar0 or 0\textbar1) as 1, and a
-homozygous variant (1\textbar1) as 2.  However, this is not the only possible encoding \cite{Goldstein.et.al.2011}. Note that from
+homozygous variant (1\textbar1) as 2, so we have an ``additive'' model.  However, this is not the only possible encoding \cite{Goldstein.et.al.2011}. Note that from
 the encodings listed in Table~\ref{table:encodings}, the additive encoding will present the most difficulty for a random
 forest model.
 
@@ -574,13 +585,13 @@ z =  \sum_{i=1}^{i=5} {w_i x_i}.
 \end{equation}
 We let $\sigma_\epsilon^2 = Var(z)(1-\theta)/\theta $  where $\theta$ is a parameter controlling the fraction of variance explained by the informative variables and in our study we chose $\theta = 0.125$ . Then 
 $y =   z + \epsilon$ where $\epsilon \sim  N(0, \sigma_\epsilon^2).$
-The dichotomous response is generated by thresholding $y$ at the $0.5$ quantile.
+The dichotomous response is generated by thresholding $y$ at the $0.5$ quantile,
 
 $$
 \ddot{y} =    \left\{ \begin{array}{rcl}
 			  0 & \mbox{for} & y \leq Q2(y) \\
-			  1 & \mbox{for} & y > Q2(y)
-		 \end{array}\right.
+			  1 & \mbox{for} & y > Q2(y).
+		 \end{array}\right 
 $$
 
 
@@ -601,11 +612,11 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
   minimum size of terminal nodes. It is controlled in Spark ML by setting \texttt{maxDepth}, the maximum depth of each
   tree in the forest.\footnote{The Spark ML documentation \cite{Spark.2016} sets \texttt{maxDepth} to 4 in their
     classification example. This may give an estimate with a higher bias and, as such, may be a poor choice. See the
-    discussion in \cite{Dietterich.2002} where it is shown that bagging may reduce bias as well as variance but is more
-    complicated than first thought. They show that bagging may reduce bias as well as variance but give a    
-    better result for low bias learners. \cite{Dietterich.2002} notes that if the bootstrap replicate approximation were
-    correct (i.e.~if the bootstrap sample came from an identical distribution to the data), then bagging would reduce
-    variance without changing bias.}
+    discussion in \cite{Dietterich.2002} where it is shown that the action of a RF is complicated than first
+    thought. They show that bagging may reduce bias as well as variance but give a better result for low bias
+    learners. \cite{Dietterich.2002} notes that if the bootstrap replicate approximation were correct (i.e.~if the
+    bootstrap sample came from an identical distribution to the data), then bagging would reduce variance without
+    changing bias.}
 \end{itemize}
 
 
@@ -621,15 +632,15 @@ the advice of \cite{Liaw.and.Weiner.2002}, which we have found mirrors our own e
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section 2: Feature Selection on real data 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\subsection{GWAS-style analysis using \cursedforest\ identifies novel variants associated with Bone Mineral Density}
-\subsection{GWAS-style analyses using \cursedforest\ faithfully identify known disease-accociated genes}
-In this section we use \cursedforest\ to perform feature selection on over 7.2 million genomic variants and identify the
+%\subsection{GWAS-style analysis using \cursedforest identifies novel variants associated with Bone Mineral Density}
+\subsection{GWAS-style analyses using \cursedforest faithfully identify known disease-accociated genes}
+In this section we use \cursedforest to perform feature selection on over 7.2 million genomic variants and identify the
 genomic locations associated with Bone Mineral Density (BMD)~\cite{Duncan.2011}. 
 %We build a model on the BMD dataset as described in Methods using a binary high or low BMD value as the label.  
 We rank variants by their Gini impurity, with the most important one ranked at position 1, and return the top 100,000 variants.
 
 To test whether the associated variants have biological meaning, we investigate if variants in or near
-BMD-associated genes are enriched toward the top of our ranked list. To form the list of "known genes", we
+BMD-associated genes are enriched toward the top of our ranked list. To form the list of ``known genes'', we
 combine the 26 known and 6 novel BMD genes listed by Duncan {\it et al.}~\cite{Duncan.2011} with the genes identified by
 Estrada {\it et al.}~\cite{Estrada2012} and Lui {\it et al.}~\cite{Liu2008}, resulting in 102 genes.  All genes are covered within the
 top 40,000 variants and a gene name is assigned to the variant if it falls within 100 kb of this gene.
@@ -660,10 +671,10 @@ Similarly, the lowest ranked gene with annotated BMD links, MAPT (microtubule as
 It is therefore likely that the association is through a co-morbidity with Alzheimer's disease~\cite{Dengler-Crish2017} and not a major contributing factor in this cohort. 
 
 
-\subsection{\cursedforest\ amplifies signal over traditional methods to identify novel associations}
+\subsection{\cursedforest amplifies signal over traditional methods to identify novel associations}
 
 Figure 1b shows a traditional GWAS analysis using logistic regression~\cite{Duncan.2011} where the resulting $p$-values do not clearly distinguish these known BMD genes from the noise. 
-In contrast, \cursedforest\ seems to amplify the signal to identify associated features (Figure 1a). 
+In contrast, \cursedforest seems to amplify the signal to identify associated features (Figure 1a). 
 As such, this approach allows to employ a very stringent cut-off for identifying strongly associated feature. Here we chose a 99.98 False Discovery Rate (FDR) from 60 random experiments (see Methods). 
 
 %2 TEX2  EN rs112558362 SNORNA  ERN1 Gliablastoma in older people Alzheimer's
@@ -674,7 +685,7 @@ Above this FDR cut-off we identify four novel locations as annotated in Figure 1
 %~\ref{figure:rbo-prod.png}. 
 Most notably a lincRNA (LINC01006) on chromosome 7, which has been associated with serum creatinine levels in two independent GWAS studies~\cite{Pattaro2010,Chambers2010}. 
 Subjects with low serum creatinine levels were at a higher risk for low BMD~\cite{Huh2015} and in a rat study high creatine monohydrate diet resulted in greater lumbar BMD~\cite{Antolic2007}, 
-with creatinine being the breakdown product of creatine. The variants overlapping the 5' end of the lincRNA are the highest ranked features in this region and all LD SNPs also show high importance (see Fig 3d). Also amonst the top 30 features is PRODH (proline dehydrogenase) located on 22q11, a loci observed by Stagi {\it
+with creatinine being the breakdown product of creatine. The variants overlapping the 5' end of the lincRNA are the highest ranked features in this region and all LD SNPs also show high importance (see Fig 3d). Also amongst the top 30 features is PRODH (proline dehydrogenase) located on 22q11, a loci observed by Stagi {\it
   et al.}~\cite{Stagi.2010} to significantly reduce bone mass in individuals with a micro-deletion in this region. 
 PRODH catalyses the first step in proline degradation, and as proposed by Phang {\it et al.}~\cite{Phang.2008}, proline is made available by collagen degradation. 
 Again, all LD SNPs also show high importance (see Figure 3c). %~\ref{zoomplot}). 
@@ -690,7 +701,7 @@ To evaluate whether the here identified features are significantly associated wi
 %ABCF1 (ATP Binding Cassette Subfamily F Member 1)~\cite{Dixon2007} with member 2 of this subfamily being a known BMD
 %gene. The other three novel loci are on or near ncRNA.
 
-%\cursedforest\ can successfully perform GWAS-type analyses replicating previous findings and uncovering novel associations due to random forests also modelling interacting features.
+%\cursedforest can successfully perform GWAS-type analyses replicating previous findings and uncovering novel associations due to random forests also modelling interacting features.
 
 %In Table~\ref{featuretable}, we display the top 10 features, ranked by their Gini impurity measure in the random forest model.
 
@@ -821,9 +832,9 @@ In this section we demonstrate \cursedforest's classification accuracy on biolog
 We do this by predicting the ethnicity of the individuals in the 1000 Genomes Project from their genomic profiles and evaluate against the annotated label. 
 We record the prediction error (OOB) as well as the runtime for each method. 
 %@Aidan is 12 correct?
-We limit the number of executors to 12 that are available to \cursedforest\ to keep the comparison fair for all methods.  
+We limit the number of executors to 12 that are available to \cursedforest to keep the comparison fair for all methods.  
 
-As shown in Fig.~\ref{figure:1000genomes}, only \cursedforest\ is able to scale to the full phase3\_chr1-22 dataset (2,504 samples x 19,328,051 variants), with
+As shown in Fig.~\ref{figure:1000genomes}, only \cursedforest is able to scale to the full phase3\_chr1-22 dataset (2,504 samples x 19,328,051 variants), with
 the standard random forest implementation in R running out of resources on the relatively low-dimensional
 phase1\_chr22 dataset (1,092 x 490,036). 
 Ranger's c++ implementation and the R front-end version of it are able to process the second largest dataset (phase3\_chr1-3 with 2,504 x 19,328,051), however, both are unable to process larger datasets successfully. 
@@ -831,18 +842,18 @@ While the c++ implementation runs out of memory the R front-end, which also cove
 The standard implementation of random forest in SparkML already runs out of memory after processing the third largest dataset, phase3\_chr1 (2,504 x 6,450,364). 
 This demonstrates that Spark ML, although designed to handle many samples, is unable to efficiently cope with large numbers of features. 
 
-All tested methods have a worse runtime than \cursedforest\ for the datasets they processed successfully, except for the smallest dataset where the overhead of Spark's distributed platform made ranger's R implementation faster with 1 min 10 seconds compared to 1 min 50 seconds. For example, on phase3\_chr1-3 \cursedforest\ finishes in 1 hour, with ranger(R) requiring 4 hours and SparkML already needing 8 hours on a smaller dataset. 
+All tested methods have a worse runtime than \cursedforest for the datasets they processed successfully, except for the smallest dataset where the overhead of Spark's distributed platform made ranger's R implementation faster with 1 min 10 seconds compared to 1 min 50 seconds. For example, on phase3\_chr1-3 \cursedforest finishes in 1 hour, with ranger(R) requiring 4 hours and SparkML already needing 8 hours on a smaller dataset. 
 Extrapolating from this, all comparable implementations hence would require more than 24 hours to finish, assuming the use of larger memory nodes.  
 
-As our implementation can efficiently utilise large numbers of commodity nodes, the performance of \cursedforest\ can be substantially improved further. 
+As our implementation can efficiently utilise large numbers of commodity nodes, the performance of \cursedforest can be substantially improved further. 
 %@Aidan is 130 correct?
 Table~\ref{cursedforesttable} shows the runtime when utilising the full Spark cluster (130 worker nodes). 
 
-Building a model with \cursedforest\ on phase3\_chr1, which previously took 20 minutes, can be reduced to 4 minutes. 
+Building a model with \cursedforest on phase3\_chr1, which previously took 20 minutes, can be reduced to 4 minutes. 
 Subsequently, phase3\_chr1-3 takes about 11 minutes, and building a
 model on the entire genome is 37 minutes. 
 
-Not only does the job complete successfully using \cursedforest\, but building a random
+Not only does the job complete successfully using \cursedforest, but building a random
 forest model on all 22 autosomes (phase3\_chr1-22)  leads to a more accurate result. 
 The error can be reduced from OOB=0.04 when using only data from Chr1, which represents processing power limit for most tools, down to OOB=0.01 when using the full dataset. 
 
@@ -891,7 +902,7 @@ Each random forest model consists of 50 trees and was built using 130 worker nod
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\cursedforest can evaluate variable importance and perform classification for millions of features}
 %\label{section:synthetic}
-In this section we test the limits of \cursedforest\'s association testing and classify ability on high-dimensional data. 
+In this section we test the limits of \cursedforest's association testing and classify ability on high-dimensional data. 
 %In this section we demonstrate the two features of \cursedforest, namely: variable selection analysis to select the most
 %associated set of features amongst millions of dimensions; and its ability to accurately classify the labels of
 %high-dimensional samples.  
@@ -918,12 +929,12 @@ cluster with 12 worker nodes each with 16 Intel Xeon E5-2660@2.20GHz CPU cores a
 
 As shown in Fig~\ref{figure:out-of-bag-prediction-error-prod.png} the default value for \mtry (number of variables
 selected at each node) does not result in a good classification performance for this large feature dataset. Note that
-the plot shows the proportion, $n/p,$ for \mtry\ with the default being $\sqrt{p} \approx 1581$ ($n/p=0.0006$).  The
+the plot shows the proportion, $n/p,$ for \mtry with the default being $\sqrt{p} \approx 1581$ ($n/p=0.0006$).  The
 OOB for this value of \mtry does not drop below 0.5, even when the number of trees are increased (\ntree).
 
-Increasing \mtry\ in combination with \ntree\ yields the best performance with the OOB error essentially constant around 0.4
+Increasing \mtry in combination with \ntree yields the best performance with the OOB error essentially constant around 0.4
 across a large range of of \mtry and \ntree values.  This is in contrast to the feature-selection performance, where the
-RBO measure heavily depends on \ntree\ and gives better results with lower values of \mtry.
+RBO measure heavily depends on \ntree and gives better results with lower values of \mtry.
 
 This may be because a large \mtry leads to more correlated trees as the same important features have a higher chance of
 being selected in all, not yielding good performance outcomes.  This issue is less pronounced for classification error
@@ -978,7 +989,7 @@ little correspondence between the OOB and RBO measure.
 % Section 4: Sensitivity to different parameters and scalability
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Scalability analysis}
-In this section we explore the performance of \cursedforest\ in more detail by testing its ability to scale to different sizes of data
+In this section we explore the performance of \cursedforest in more detail by testing its ability to scale to different sizes of data
 and computational resources.
 
 In order to asses these characteristics, we run \cursedforest classification on synthetic datasets with varying numbers
@@ -1024,7 +1035,7 @@ samples, which is the size range for whole genome sequencing experiments of clin
     \begin{subfigure}[b]{0.45\linewidth}
       \centering
       \includegraphics[totalheight=6cm]{./figs/mtry_cpu.png} 
-      \caption{Time in seconds to build 100 trees for different \mtry\ fractions. } 
+      \caption{Time in seconds to build 100 trees for different \mtry fractions. } 
       \label{figure:synthetictiming.a} 
       \vspace{4ex}
     \end{subfigure} 
@@ -1091,7 +1102,7 @@ samples, which is the size range for whole genome sequencing experiments of clin
 % \begin{tabular}{|l|l|l|l|l|l|l|l|}
 % \hline
 % %\multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \hline
-% \bf{ \mtry\ }  & \bf{Mtree} & \bf{depth} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory} \\
+% \bf{ \mtry }  & \bf{Mtree} & \bf{depth} & \bf{Accuracy} & \bf{Runtime} & \bf{Memory} \\
 % \hline
 % &&&&&\\ \hline
 % \end{tabular}
@@ -1114,9 +1125,9 @@ In fact, \cursedforest's ability to almost exhaustively sample the combinatorial
 By effectively operating in the difficult area of this space with $p >> n$ and small number of informative features, \cursedforest is pushing the practical limits of this paradigm. 
 
 To showcase the breadth of application scope, we also demonstrate that \cursedforest's implementation aids in classification problems such as predicting the ethnicity of the 1000 genome project. 
-By comparing \cursedforest\ to other implementations (including those optimised for large datasets) we have demonstrated that runtime can be improved by 80\% allowing analysis in timeframes relevant for point-of-care diagnostics such as for "Patients like mine" scenarios thereby enabling evidence based self learning health care. 
+By comparing \cursedforest to other implementations (including those optimised for large datasets) we have demonstrated that runtime can be improved by 80\% allowing analysis in timeframes relevant for point-of-care diagnostics such as for "Patients like mine" scenarios thereby enabling evidence based self learning health care. 
 
-In summary, \cursedforest\  offers the broadly needed capability of performing sophisticated machine learning tasks on big, complex life science data. Specifically, the here demonstrated ability to uncover novel biological information from previously analysed GWAS studies showcases the enormous potential of re-analysing the GWAS catalogue given this unprecedented computational capacity to perform joint-loci association testing and identify the much-anticipated cumulative multi-gene disease contribution.    
+In summary, \cursedforest  offers the broadly needed capability of performing sophisticated machine learning tasks on big, complex life science data. Specifically, the here demonstrated ability to uncover novel biological information from previously analysed GWAS studies showcases the enormous potential of re-analysing the GWAS catalogue given this unprecedented computational capacity to perform joint-loci association testing and identify the much-anticipated cumulative multi-gene disease contribution.    
 
 %Donoho and Tanner \cite{Donoho.and.Tanner.2009} give a ``universal phase change'' result that has applications in a
 %large number of areas, including variable selection in high dimensions. The theoretical phase change boundary is based on arguments
