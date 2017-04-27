@@ -272,8 +272,7 @@ Denis C. Bauer\textsuperscript{1,*}
 
 % Please keep the abstract below 300 words
 \section{Abstract}
-
-Analyses are being performed on ever larger data sets with unprecedentedly detailed information per data point. Specifically in
+Modern data analyses are performed on ever larger data sets with unprecedentedly detailed information per data point. Specifically in
 genomics, cohort sizes are in the thousands, each comprising of millions of variants that make up a person's genetic
 differences. Traditional approaches are unable to cater for this task and even standard implementations using novel
 compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such
@@ -300,10 +299,10 @@ GWAS analysis on large unfiltered whole genome sequencing cohorts.
 The digital revolution is seeing a dramatic increase in data collected about almost every aspect of
 life~\cite{Loebbecke2015}.  These data sets are not only growing vertically, by capturing more events, but also
 horizontally by capturing more information about these events.  The challenge of big and ``wide'' data is especially
-pronounced in the health space where, for example, whole genome sequencing (WGS) technology enables researchers to
+pronounced in the biomedical space where, for example, whole genome sequencing (WGS) technology enables researchers to
 interrogate all 3 billion base pairs of the human genome.
 
-Identifying the relevant or disease specific base pair differences between individuals is the focus of genome wide
+Identifying the relevant or disease specific genetic variations between individuals is the focus of genome wide
 association studies (GWAS).  These analyses are typically performed on only the most frequently differing base pairs,
 termed single nucleotide polymorphisms (SNPs), by applying linear or logistic regression analysis to each SNP
 separately~\cite{CCC2007}.  It has since been demonstrated that not taking interactions between SNPs into account
@@ -311,12 +310,12 @@ when filtering for potential disease mutations is inadequate~\cite{Manolio2009,Y
 in-fact be extended to interrogating all genomic positions[CITATION WES vs WGS?].
 
 Hence using more sophisticated machine learning (ML) approaches, in particular tree-based models, have been successful
-for taking the interaction of variables into account~\cite{Wright.et.al.2016}. In addition, random forests are well
+for taking the interaction of variables into account~\cite{Wright.et.al.2016}. In addition, random forests \cite{Breiman2001} are well
 suited for processing ``wide'' genomic data for two reasons.  Firstly, while other machine learning applications have
 the propensity to overfit data sets with more features $p$ than samples $n$ (a consequence of the ``curse of
 dimensionality''~\cite{Bauer2014, bellman1961adaptive}), decision trees are resistant to overfitting.  Secondly, random
 forests are also very easy to parallelise. As the forest is a sum of decision trees, it is possible to grow separate
-trees on different processors and combine the trees. 
+trees on different compute nodes and combine the trees. 
 %See the discussion of the properties of random forests in Section \ref{section:methods}.
 
 The most popular random forest software packages to date are R-based, although it has been reported that current implementations 
@@ -591,7 +590,7 @@ $$
 \ddot{y} =    \left\{ \begin{array}{rcl}
 			  0 & \mbox{for} & y \leq Q2(y) \\
 			  1 & \mbox{for} & y > Q2(y).
-		 \end{array}\right 
+		 \end{array}\right. 
 $$
 
 
