@@ -1,0 +1,8 @@
+Nature Methods article requirements are specified here:
+Title, within 100 characters including spaces
+Abstract, typically 150 words
+Main text, excluding abstract, online methods, references and references, should be 2500-3000 words.
+Figures + tables should be less than 6, each table should be submitted as a word document
+Code availability should be included in Methods section
+Up to 40 references
+
