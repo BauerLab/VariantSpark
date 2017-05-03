@@ -272,26 +272,27 @@ Denis C. Bauer\textsuperscript{1,*}
 
 % Please keep the abstract below 300 words
 \section{Abstract}
-Modern data analyses are performed on ever larger data sets with unprecedentedly detailed information per data point. Specifically in
-genomics, cohort sizes are in the thousands, each comprising of millions of variants that make up a person's genetic
-differences. Traditional approaches are unable to cater for this task and even standard implementations using novel
-compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such
-data. Specifically, Spark ML's supervised machine learning methods suffer from ``the curse of dimensionality''. That is,
-they scale well with samples ($n$) but not with features ($p$, variants).
-
+%Modern data analyses are performed on ever larger data sets with unprecedentedly detailed information per data point. Specifically in
+%genomics, cohort sizes are in the thousands, each comprising of millions of variants that make up a person's genetic
+%differences. Traditional approaches are unable to cater for this task and even standard implementations using novel
+%compute paradigms, such as Hadoop/Spark, are limited by the finite resource of computer memory on such
+%data. Specifically, Spark ML's supervised machine learning methods suffer from ``the curse of dimensionality''. That is,
+%they scale well with samples ($n$) but not with features ($p$, variants).
+Modern genomic sequencing studies have seen increasingly large cohort in the past decade. This lead to genomic sequencing datasets with not only bigger sample sizes,
+but also, more crucially, exponentially growing variant space. Traditional data analysis approaches are unable to cater such kind of big and wide datasets. Even the machine
+learning library in the highly parallelised Spark computing engine suffer from this ``the curse of dimensionality'.
 We introduce \cursedforest, a tailored implementation of random forests, designed to handle data with extremely large
-number of variables per sample. We showcase \cursedforest to accurately predict ethnicity from whole genome sequencing
-profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest
-was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or
-more. We also demonstrate a GWAS-style analysis using \cursedforest's feature selection approach on an imputed SNP array
-dataset (2000 x 7 Million) on bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying
-novel candidates.
-
+number of variables per sample. With public genome sequencing and SNP array datasets, we demonstrate the utilities of \cursedforest 
+for accurately predicting sample ethnicity and identifying known and novel variants associated with the phenotype of interest.
+%We showcase \cursedforest to accurately predict ethnicity from whole genome sequencing
+%profiles of 2,500 individuals and 80 million genomic variants each (1000 Genomes Project) in 30 minutes. \cursedforest
+%was the only implementation scaling to the full dataset, outperforming other methods on smaller subsets by 80\% or
+%more. We also demonstrate a GWAS-style analysis using \cursedforest's feature selection approach on an imputed SNP array
+%dataset (2000 x 7 Million) on bone mineral density (BMD), successfully predicting known BMD-genes as well as identifying
+%novel candidates. 
 \cursedforest is included in our earlier variant interpretation package, VariantSpark, allowing it to perform near
 real-time classification of population-scale patient cohorts in ``patients like mine'' scenarios, as well as performing
-GWAS analysis on large unfiltered whole genome sequencing cohorts.
-
-
+GWAS-style analysis on large unfiltered whole genome sequencing cohorts.
 
 \linenumbers
 
