@@ -319,14 +319,15 @@ forests are also very easy to parallelise. As the forest is a sum of decision tr
 trees on different compute nodes and combine the trees. 
 %See the discussion of the properties of random forests in Section \ref{section:methods}.
 
-The most popular random forest software packages to date are R-based, although it has been reported that current implementations 
-do not scale well with increasing feature size~\cite{Wright.and.Ziegle.2016}.  This is despite R now supporting long vectors (length greater
-than $2^{31}-1$), and the \randomforest implementation in R lending itself to parallelisation by growing multiple
-trees simultaneously and combining them for the final result~\cite{Liaw.and.Weiner.2002}.  More suitable implementations for ``wide''
-genomic data have been developed in other programming languages. \textsc{CloudForest} \cite{Bressler2015}, written in Go,
-achieves fast run times by effective use of the CPU cache, optimising for different classes of features and efficiently
-multithreading.  Similarly, \ranger~\cite{Wright.and.Ziegle.2016}, written in C++ with an R front-end, is
-specifically optimised for dealing with large data sets.
+The most popular random forest software packages to date are implemented in R \cite[]{R-language}, although it has been
+reported that current implementations do not scale well with increasing feature size~\cite{Wright.and.Ziegle.2016}.
+This is despite R now supporting long vectors (length greater than $2^{31}-1$), and the \randomforest implementation in
+R lending itself to parallelisation by growing multiple trees simultaneously and combining them for the final
+result~\cite{Liaw.and.Weiner.2002}.  More suitable implementations for ``wide'' genomic data have been developed in
+other programming languages. \textsc{CloudForest} \cite{Bressler2015}, written in Go, achieves fast run times by
+effective use of the CPU cache, optimising for different classes of features and efficiently multithreading.  Similarly,
+\ranger~\cite{Wright.and.Ziegle.2016}, written in C++ with an R front-end, is specifically optimised for dealing with
+large data sets.
 
 However, the use of traditional compute infrastructure limits the parallelisation strategies that can be employed.  
 The programs are limited to utilising only CPUs that are on the same computer node (multithreading) or
@@ -335,8 +336,8 @@ processes (a separate tree is grown on each node).
 %else they can run on CPUs distributed across nodes by virtue of the fact that there is no communication between the
 %processes (a separate tree is grown on each node).  
 Hadoop/Spark overcomes these limitations by enabling programs to
-scale beyond compute-node boundaries and hence enable more sophisticated parallelisation strategies.  In the case of
-random forests, the computations for each node of a tree can hence be handed off to separate processors.
+scale beyond compute-node boundaries and hence enable more sophisticated parallelisation strategies. In the case of
+random forests, the computations for each node of a tree can hence be handed off to separate processors (cores).
  
 Despite overcoming the node-boundary limitation, the standard implementation of random forest in Spark ML
 is not able to handle the extremely ``wide'' genomic data as it was developed for a large number of samples
@@ -535,7 +536,7 @@ which is at a minimum when all observations at the node are in the same class.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Data Sets}
 \subsubsection{1000 Genomes Project}
-We obtained the 1000 Genomes Project data as VCF files from their FTP site.  Each VCF file contains the variants for
+We obtained the 1000 Genomes Project data as VCF files from their FTP site \cite[]{1KG2012}.  Each VCF file contains the variants for
 every individual across one chromosome.  We use the phase 3 dataset which contains 2,504 individuals with approximately
 81 million variant positions (i.e. a matrix of $2,504 \times 81$ million).  For compatibility with the majority of the
 algorithms we demonstrate, we convert the original variant representations to double representations.  For example, we
