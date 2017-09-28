@@ -1,5 +1,9 @@
 # VariantSpark Readme
 
+## News
+
+New VariantSpark version (Cursed Forest) available: https://github.com/aehrc/VariantSpark
+
 ## Install
 
 1. Download `variantspark.sh`, `example.conf` and `variantspark-1.0.jar`
